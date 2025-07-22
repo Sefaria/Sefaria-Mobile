@@ -29,7 +29,7 @@ const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
 
 const origLog = console.log;
 const origError = console.error;
-const origWarn = console.warn;
+const origDebug = console.debug;
 
 console.log = (...args: any[]) => {
   origLog(...args);
@@ -39,10 +39,12 @@ console.error = (...args: any[]) => {
   origError(...args);
   logStream.write('[ERROR] ' + args.map(String).join(' ') + '\n');
 };
-console.warn = (...args: any[]) => {
-  origWarn(...args);
-  logStream.write('[WARN] ' + args.map(String).join(' ') + '\n');
+
+console.debug = (...args: any[]) => {
+  origDebug(...args);
+  logStream.write('[DEBUG] ' + args.map(String).join(' ') + '\n');
 };
+
 
 // Log uncaught exceptions and unhandled promise rejections
 process.on('uncaughtException', (err) => {

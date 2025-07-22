@@ -10,7 +10,7 @@
  * ──────────────────────────────────────────────────────────────
  */
 
-import { logError } from '../constants/error_constants'
+import { logError } from '../constants/error_constants';
 import { HEBREW_MONTHS } from '../constants/text_constants';
 
 
@@ -103,7 +103,7 @@ export function assertMatch(label: string, actual: string, expected: string): vo
     if (!isMatch) {
         throw new Error(logError(`❌ ${label} does not match. Found: '${actual}', Expected: '${expected}'`));
     }
-    console.log(`✅ ${label} matches: '${actual}'`);
+    console.debug(`${label} matches: '${actual}'`);
 }
 
 /**

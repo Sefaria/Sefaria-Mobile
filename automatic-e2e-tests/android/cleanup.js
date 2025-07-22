@@ -13,7 +13,7 @@ function isSafeToClean(dirPath) {
   // Only allow specific whitelisted directories
   if (!ALLOWED_DIRECTORIES.includes(dirPath)) {
     console.error(`❌ Directory "${dirPath}" is not in the whitelist of safe directories`);
-    console.error(`✅ Allowed directories: ${ALLOWED_DIRECTORIES.join(', ')}`);
+    console.log(`[INFO] Allowed directories: ${ALLOWED_DIRECTORIES.join(', ')}`);
     return false;
   }
 
@@ -48,7 +48,7 @@ function cleanDirectory(dirPath) {
   const fullPath = path.resolve(__dirname, dirPath);
   
   if (!fs.existsSync(fullPath)) {
-    console.log(`⚠️ Directory ${dirPath} does not exist`);
+    console.log(`[INFO] Directory ${dirPath} does not exist`);
     return;
   }
 
@@ -56,7 +56,7 @@ function cleanDirectory(dirPath) {
     const files = fs.readdirSync(fullPath);
     
     if (files.length === 0) {
-      console.log(`✅ Directory ${dirPath} is already empty`);
+      console.debug(`Directory ${dirPath} is already empty`);
       return;
     }
 
@@ -67,22 +67,22 @@ function cleanDirectory(dirPath) {
       
       if (stat.isFile()) {
         fs.unlinkSync(filePath);
-        console.log(`🗑️ Removed: ${file}`);
+        console.log(`[INFO] Removed: ${file}`);
         filesRemoved++;
       } else {
-        console.log(`⏭️ Skipped directory: ${file}`);
+        console.log(`[WARN] Skipped directory: ${file}`);
       }
     });
     
-    console.log(`✅ Cleaned ${dirPath} directory (${filesRemoved} files removed)`);
+    console.debug(`Cleaned ${dirPath} directory (${filesRemoved} files removed)`);
   } catch (error) {
     console.error(`❌ Error cleaning ${dirPath}:`, error.message);
   }
 }
 
-console.log('🧹 Cleaning up test artifacts...\n');
-console.log(`📁 Project directory: ${__dirname}`);
-console.log(`🔒 Allowed directories: ${ALLOWED_DIRECTORIES.join(', ')}\n`);
+console.log('[INFO] Cleaning up test artifacts...\n');
+console.log(`Project directory: ${__dirname}`);
+console.debug(`Allowed directories: ${ALLOWED_DIRECTORIES.join(', ')}\n`);
 
 // Clean only the whitelisted directories
 ALLOWED_DIRECTORIES.forEach(dir => {

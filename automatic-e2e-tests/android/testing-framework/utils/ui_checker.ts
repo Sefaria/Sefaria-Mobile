@@ -13,14 +13,12 @@
 import type { Browser } from 'webdriverio';
 import { PNG } from 'pngjs';
 import * as fs from 'fs';
-import { colorMismatch, logError } from '../constants/error_constants';
+import { DYNAMIC_ERRORS, logError } from '../constants/error_constants';
 import { hexToRgb, colorsAreClose } from './helper_functions';
 import { VIEWGROUP_SELECTORS, TEXT_SELECTORS } from '../constants/selectors';
 import { ELEMENT_TIMEOUTS } from '../constants/timeouts';
-import { THRESHOLD_RGB } from '../constants/colors';
+import { COLOR_THRESHOLDS } from '../constants/colors';
 
-// Re-export THRESHOLD_RGB for backward compatibility
-export { THRESHOLD_RGB }; 
 
 /**
  * Checks if a specific pixel of a given element matches the expected color.
@@ -37,8 +35,8 @@ export async function checkElementPixelColor(
   element: WebdriverIO.Element,
   expectedColorHex: string,
   pixelSelector: (width: number, height: number) => { cx: number; cy: number },
-  debugImage?: boolean,
-  threshold: number | { r: number; g: number; b: number } = 10,
+  debugImage: boolean = true,
+  threshold: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_THRESHOLD,
   label: string = 'Pixel'
 ): Promise<boolean> {
   await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK });
@@ -66,7 +64,7 @@ export async function checkElementPixelColor(
   // Compare to expected color
   const expectedColor = hexToRgb(expectedColorHex);
   if (colorsAreClose({ r, g, b }, expectedColor, threshold)) {
-    console.log(`✅ ${label} matches expected color. Actual: rgb(${r},${g},${b}), Expected: rgb(${expectedColor.r},${expectedColor.g},${expectedColor.b})`);
+    console.debug(`${label} matches expected color. Actual: rgb(${r},${g},${b}), Expected: rgb(${expectedColor.r},${expectedColor.g},${expectedColor.b})`);
     return true;
   } else {
     if (debugImage) {
@@ -81,12 +79,12 @@ export async function checkElementPixelColor(
       const screenshotFilePath = `${dir}/${screenshotFileName}`;
       fs.writeFileSync(croppedFilePath, PNG.sync.write(cropped));
       fs.writeFileSync(screenshotFilePath, PNG.sync.write(screenshot));
-      console.error(`ℹ️ Saved cropped image to: ${croppedFilePath}`);
-      console.error(`ℹ️ Saved full screenshot to: ${screenshotFilePath}`);
+      console.error(`[INFO] Saved cropped image to: ${croppedFilePath}`);
+      console.error(`[INFO] Saved full screenshot to: ${screenshotFilePath}`);
     }
     const actual = `rgb(${r},${g},${b})`;
     const expected = `rgb(${expectedColor.r},${expectedColor.g},${expectedColor.b})`;
-    throw new Error(colorMismatch(actual, expected));
+    throw new Error(DYNAMIC_ERRORS.colorMismatch(actual, expected));
   }
 }
 
@@ -96,8 +94,8 @@ async function checkViewGroupPixelColor(
   viewGroupIndex: number,
   expectedColorHex: string,
   pixelSelector: (width: number, height: number) => { cx: number; cy: number },
-  debugImage?: boolean,
-  threshold: number | { r: number; g: number; b: number } = 10,
+  debugImage: boolean = true,
+  threshold: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_THRESHOLD,
   label: string = 'Pixel'
 ): Promise<boolean> {
   // 1. Get the element and its bounds
@@ -128,7 +126,7 @@ async function checkViewGroupPixelColor(
   // 5. Compare to expected color
   const expectedColor = hexToRgb(expectedColorHex);
   if (colorsAreClose({ r, g, b }, expectedColor, threshold)) {
-    console.log(`✅ ${label} matches expected color. Actual: rgb(${r},${g},${b}), Expected: rgb(${expectedColor.r},${expectedColor.g},${expectedColor.b})`);
+    console.debug(`${label} matches expected color. Actual: rgb(${r},${g},${b}), Expected: rgb(${expectedColor.r},${expectedColor.g},${expectedColor.b})`);
     return true;
   } else {
     if (debugImage) {
@@ -143,12 +141,12 @@ async function checkViewGroupPixelColor(
       const screenshotFilePath = `${dir}/${screenshotFileName}`;
       fs.writeFileSync(croppedFilePath, PNG.sync.write(cropped));
       fs.writeFileSync(screenshotFilePath, PNG.sync.write(screenshot));
-      console.error(`ℹ️ Saved cropped image to: ${croppedFilePath}`);
-      console.error(`ℹ️ Saved full screenshot to: ${screenshotFilePath}`);
+      console.error(`[INFO] Saved cropped image to: ${croppedFilePath}`);
+      console.error(`[INFO] Saved full screenshot to: ${screenshotFilePath}`);
     }
     const actual = `rgb(${r},${g},${b})`;
     const expected = `rgb(${expectedColor.r},${expectedColor.g},${expectedColor.b})`;
-    throw new Error(colorMismatch(actual, expected));
+    throw new Error(DYNAMIC_ERRORS.colorMismatch(actual, expected));
   }
 }
 
@@ -167,8 +165,8 @@ export async function checkViewGroupCenterPixelColor(
   client: Browser,
   viewGroupIndex: number,
   expectedColorHex: string,
-  debugImage?: boolean,
-  threshold: number | { r: number; g: number; b: number } = 10
+  debugImage: boolean = true,
+  threshold: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_THRESHOLD
 ): Promise<boolean> {
   return checkViewGroupPixelColor(
     client,
@@ -196,7 +194,7 @@ export async function checkViewGroupBottomPixelColor(
   client: Browser,
   viewGroupIndex: number,
   expectedColorHex: string,
-  debugImage?: boolean,
+  debugImage: boolean = true,
   threshold: number | { r: number; g: number; b: number } = 10
 ): Promise<boolean> {
   return checkViewGroupPixelColor(
@@ -216,7 +214,7 @@ export async function checkViewGroupBottomPixelColor(
  * @param contentDesc - The content-desc of the element to find.
  * @param expectedColorHex - The expected color as a hex string.
  * @param position - 'center' or 'bottom' to select which pixel to check.
- * @param debugImage - Optional: if true, saves debug images on failure.
+ * @param debugImage - if true, saves debug images on failure.
  * @param threshold - Color difference threshold (default 10).
  * @returns true if the pixel matches, otherwise throws an error.
  */
@@ -225,7 +223,7 @@ export async function checkElementByContentDescPixelColor(
   contentDesc: string,
   expectedColorHex: string,
   position: 'center' | 'bottom',
-  debugImage?: boolean,
+  debugImage: boolean = true,
   threshold: number | { r: number; g: number; b: number } = 10
 ): Promise<boolean> {
   const selector = TEXT_SELECTORS.byDescription(contentDesc);

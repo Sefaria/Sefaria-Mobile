@@ -12,7 +12,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { NAV_BAR_NOT_DISPLAYED, ELEMENT_NOT_VISIBLE, logError, CLOSE_POPUP_SUCCESS, CLOSE_POPUP_NOT_VISIBLE } from '../constants/error_constants';
+import { STATIC_ERRORS, SUCCESS_MESSAGES, logError } from '../constants/error_constants';
 import { NAVIGATION_SELECTORS } from '../constants/selectors';
 import { OPERATION_TIMEOUTS } from '../constants/timeouts';
 
@@ -25,9 +25,9 @@ export async function waitForNavBar(client: Browser): Promise<void> {
   const navBar = await client.$(NAVIGATION_SELECTORS.navBar);
   const isDisplayed = await navBar.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.NAVBAR_WAIT }).catch(() => false);
   if (isDisplayed) {
-    console.log('✅ Navigation bar is displayed!');
+    console.debug('Navigation bar is displayed!');
   } else {
-    throw new Error(logError(NAV_BAR_NOT_DISPLAYED));
+    throw new Error(logError(STATIC_ERRORS.NAV_BAR_NOT_DISPLAYED));
   }
 }
 
@@ -43,10 +43,10 @@ export async function clickNavBarItem(client: Browser, contentDesc: string): Pro
   const isDisplayed = await item.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.NAVBAR_WAIT }).catch(() => false);
   if (isDisplayed) {
     await item.click();
-    console.log(`✅ Clicked nav bar item: ${contentDesc}`);
+    console.debug(`Clicked nav bar item: ${contentDesc}`);
     return true;
   } else {
-    throw new Error(logError(ELEMENT_NOT_VISIBLE + ` (nav bar item: ${contentDesc})`));
+    throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ` (nav bar item: ${contentDesc})`));
   }
 }
 
@@ -60,9 +60,9 @@ export async function closePopUp(client: Browser): Promise<void> {
   const isDisplayed = await closeBtn.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.POPUP_CLOSE }).catch(() => false);
   if (isDisplayed) {
     await closeBtn.click();
-    console.log(CLOSE_POPUP_SUCCESS);
+    console.log(SUCCESS_MESSAGES.CLOSE_POPUP_SUCCESS);
   } else {
-    throw new Error(logError(CLOSE_POPUP_NOT_VISIBLE));
+    throw new Error(logError(STATIC_ERRORS.CLOSE_POPUP_NOT_VISIBLE));
   }
 }
 

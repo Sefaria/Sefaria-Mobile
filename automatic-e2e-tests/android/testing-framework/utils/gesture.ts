@@ -12,7 +12,7 @@
  */
 
 
-import { textNotFound, swipeDirectionFailed, elementFoundAfterSwipes, elementNotFoundAfterSwipes } from '../constants/error_constants';
+import { DYNAMIC_ERRORS, SUCCESS_MESSAGES } from '../constants/error_constants';
 import { SWIPE_CONFIG, GESTURE_TIMING, TOUCH_CONFIG, SWIPE_ATTEMPTS } from '../constants/gestures';
 import { TEXT_SELECTORS } from '../constants/selectors';
 
@@ -33,7 +33,7 @@ async function getScreenDimensions(client: WebdriverIO.Browser) {
       x: Math.floor(width / 2),
       startY: Math.floor(height * 0.65)
     };
-    console.log(`📱 Screen dimensions cached: ${width}x${height}`);
+    console.debug(`Screen dimensions cached: ${width}x${height}`);
   }
   return screenDimensions;
 }
@@ -43,7 +43,7 @@ async function getScreenDimensions(client: WebdriverIO.Browser) {
  */
 export function resetScreenDimensions(): void {
   screenDimensions = null;
-  console.log('🔄 Screen dimensions cache cleared');
+  console.debug('Screen dimensions cache cleared');
 }
 
 /**
@@ -81,10 +81,10 @@ export async function swipeUpOrDown(
       },
     ]);
     if (!mute) {
-      console.log(`✅ Swipe ${direction} performed successfully.`);
+      console.debug(`Swipe ${direction} performed successfully.`);
     }
   } catch (error) {
-    throw new Error(swipeDirectionFailed(direction, error));
+    throw new Error(DYNAMIC_ERRORS.swipeDirectionFailed(direction, error));
   }
 }
 
@@ -109,10 +109,10 @@ export async function scrollTextIntoView(
   const element = await client.$(selector);
   try {
     await element.waitForDisplayed({ timeout: 5000 });
-    console.log(`✅ Scrolled into view (${goUp ? 'up' : 'down'}): "${text}"`);
+    console.debug(`Scrolled into view (${goUp ? 'up' : 'down'}): "${text}"`);
     return element;
   } catch (error) {
-    throw new Error(textNotFound(text));
+    throw new Error(DYNAMIC_ERRORS.textNotFound(text));
   }
 }
 
@@ -139,12 +139,12 @@ export async function swipeIntoView(
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const element = await client.$(selector);
     if (await element.isDisplayed().catch(() => false)) {
-      console.log(elementFoundAfterSwipes(text, attempt));
+      console.log(SUCCESS_MESSAGES.elementFoundAfterSwipes(text, attempt));
       return true;
     }
     // Only swipe if not visible
     await swipeUpOrDown(client, direction, swipeDistance, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE, true);
     // await client.pause(GESTURE_TIMING.SHORT_PAUSE); // Give UI time to settle
   }
-  throw new Error(elementNotFoundAfterSwipes(text, maxAttempts));
+  throw new Error(DYNAMIC_ERRORS.elementNotFoundAfterSwipes(text, maxAttempts));
 }

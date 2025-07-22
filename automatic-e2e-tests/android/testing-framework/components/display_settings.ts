@@ -13,9 +13,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { ELEMENT_NOT_VISIBLE, logError } from '../constants/error_constants';
-import { DISPLAY_SETTINGS_SELECTORS } from '../constants/selectors';
-import { OPERATION_TIMEOUTS } from '../constants/timeouts';
+import { STATIC_ERRORS, logError, DISPLAY_SETTINGS_SELECTORS, OPERATION_TIMEOUTS } from '../constants';
 
 /**
  * toggle the display settings open and close.
@@ -26,10 +24,10 @@ export async function toggleDisplaySettings(client: Browser): Promise<void> {
   const displaySettingsButton = await client.$(DISPLAY_SETTINGS_SELECTORS.openButton);
   const isDisplayed = await displaySettingsButton.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.DISPLAY_SETTINGS }).catch(() => false);
   if (!isDisplayed) {
-    throw new Error(logError(ELEMENT_NOT_VISIBLE + ' (display settings button)'));
+    throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ' (display settings button)'));
   }
   await displaySettingsButton.click();
-  console.log('✅ Opened display settings.');
+  console.debug('Opened display settings.');
 }
 
 /**
@@ -46,8 +44,8 @@ export async function toggleLanguageButton(client: Browser, isEnglish: boolean =
     const toggleLanguageButton = await client.$(selector);
     const isDisplayed = await toggleLanguageButton.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.DISPLAY_SETTINGS }).catch(() => false);
     if (!isDisplayed) {
-      throw new Error(logError(ELEMENT_NOT_VISIBLE + ` (toggle language button for ${targetLanguage})`));
+      throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ` (toggle language button for ${targetLanguage})`));
     }
     await toggleLanguageButton.click();
-    console.log(`✅ Pressed toggle language button to switch to ${targetLanguage}.`);
+    console.debug(`Pressed toggle language button to switch to ${targetLanguage}.`);
 }

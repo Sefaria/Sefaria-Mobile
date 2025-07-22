@@ -1,5 +1,5 @@
 import type { Browser } from 'webdriverio';
-import { titleMismatch, errorCheckingTitle, accessibilityIdNotFound, errorCheckingAccessibilityId, logError, SCROLLVIEW_NOT_AVAILABLE } from '../constants/error_constants';
+import { DYNAMIC_ERRORS, STATIC_ERRORS, logError } from '../constants/error_constants';
 import { READER_SELECTORS, ACCESSIBILITY_PATTERNS } from '../constants/selectors';
 import { OPERATION_TIMEOUTS } from '../constants/timeouts';
 
@@ -18,19 +18,19 @@ export async function verifyExactTitle(client: Browser, expectedText: string): P
       await textView.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.READER_TITLE_LOAD });
 
       const actualText = await textView.getText();
-      console.log(`✅ Found text: "${actualText}"`);
+      console.debug(`Found text: "${actualText}"`);
 
       if (actualText === expectedText) {
-        console.log(`✅ Text matches expected: "${expectedText}"`);
+        console.debug(`Text matches expected: "${expectedText}"`);
         return true;
       } else {
-        throw new Error(titleMismatch(expectedText, actualText));
+        throw new Error(DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
       }
     } else {
-      throw new Error(logError(SCROLLVIEW_NOT_AVAILABLE));
+      throw new Error(logError(STATIC_ERRORS.SCROLLVIEW_NOT_AVAILABLE));
     }
   } catch (error) {
-    throw new Error(errorCheckingTitle(expectedText, error));
+    throw new Error(DYNAMIC_ERRORS.errorCheckingTitle(expectedText, error));
   }
 }
 
@@ -49,19 +49,19 @@ export async function verifyTitleContains(client: Browser, expectedText: string)
       await textView.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.READER_TITLE_LOAD });
 
       const actualText = await textView.getText();
-      console.log(`✅ Found text: "${actualText}"`);
+      console.debug(`Found text: "${actualText}"`);
 
       if (actualText.includes(expectedText)) {
-        console.log(`✅ Text contains expected: "${expectedText}"`);
+        console.debug(`Text contains expected: "${expectedText}"`);
         return true;
       } else {
-        throw new Error(titleMismatch(expectedText, actualText));
+        throw new Error(DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
       }
     } else {
-      throw new Error(logError(SCROLLVIEW_NOT_AVAILABLE));
+      throw new Error(logError(STATIC_ERRORS.SCROLLVIEW_NOT_AVAILABLE));
     }
   } catch (error) {
-    throw new Error(errorCheckingTitle(expectedText, error));
+    throw new Error(DYNAMIC_ERRORS.errorCheckingTitle(expectedText, error));
   }
 }
 
@@ -82,12 +82,12 @@ export async function findTextByAccessibilityId(client: Browser, accessibilitySt
     }
     const textID = await client.$(READER_SELECTORS.textByAccessibilityId(accessibilityString));    
     if (!(await textID.isExisting())) {
-      throw new Error(accessibilityIdNotFound(accessibilityString));
+      throw new Error(DYNAMIC_ERRORS.accessibilityIdNotFound(accessibilityString));
     }
-    console.log(`✅ ViewGroup with accessibility id "${accessibilityString}" found.`);
+    console.debug(`ViewGroup with accessibility id "${accessibilityString}" found.`);
     return true;
   } catch (error) {
-    throw new Error(errorCheckingAccessibilityId(accessibilityString, error));
+    throw new Error(DYNAMIC_ERRORS.errorCheckingAccessibilityId(accessibilityString, error));
   }
 }
 

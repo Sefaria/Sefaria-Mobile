@@ -63,16 +63,3 @@ export const OPERATION_TIMEOUTS = {
   FILTER_APPLICATION: ELEMENT_TIMEOUTS.STANDARD,
 } as const;
 
-// BrowserStack and cloud testing timeouts
-export const BROWSERSTACK_TIMEOUTS = {
-  SESSION_TIMEOUT: 300000, // 5 minutes
-  COMMAND_TIMEOUT: 60000,  // 1 minute
-  IDLE_TIMEOUT: 90000,     // 1.5 minutes
-} as const;
-
-// Gesture and interaction timeouts
-export const GESTURE_TIMEOUTS = {
-  SWIPE_PAUSE: 100,        // Pause between swipes
-  GESTURE_DURATION: 500,   // Standard gesture duration
-  POINTER_MOVE: 50,        // Pointer movement duration
-} as const;

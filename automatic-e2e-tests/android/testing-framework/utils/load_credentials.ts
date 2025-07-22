@@ -31,7 +31,7 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
   const RUN_ENV = process.env.RUN_ENV || 'local';
     
   if (RUN_ENV === 'local') {
-    console.log("Running on LOCAL")
+    console.log("[INFO] Running on LOCAL")
     const LOCAL_DEVICE_NAME = process.env.LOCAL_DEVICE_NAME || 'Android Emulator';
     const LOCAL_APP_PATH = process.env.LOCAL_APP_PATH;
 
@@ -58,7 +58,7 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
       }
     };
   } else {
-    console.log("Running on BROWSERSTACK");
+    console.log("[INFO] Running on BROWSERSTACK");
     const BROWSERSTACK_USERNAME = process.env.BROWSERSTACK_USERNAME;
     const BROWSERSTACK_ACCESS_KEY = process.env.BROWSERSTACK_ACCESS_KEY;
     const BROWSERSTACK_APP_ID = process.env.BROWSERSTACK_APP_ID;
@@ -83,8 +83,8 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
           deviceName: 'Google Pixel 6 Pro',
           osVersion: '13.0',
           projectName: 'Sefaria App Automation',
-          buildName: buildName || 'Build #1',
-          sessionName: sessionName || 'Launch Sefaria',
+          buildName: buildName || 'Sefaria E2E Tests',
+          sessionName: sessionName || 'Sefaria Tests',
           networkLogs: true,
         }
       }

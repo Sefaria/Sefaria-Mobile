@@ -99,11 +99,3 @@ export const TOUCH_CONFIG = {
   // Duration values
   INSTANT_DURATION: 0,
 } as const;
-
-// Gesture validation thresholds
-export const GESTURE_THRESHOLDS = {
-  MIN_SWIPE_DISTANCE: 50,      // Minimum distance for a valid swipe
-  MAX_SWIPE_DISTANCE: 2000,    // Maximum reasonable swipe distance
-  MIN_GESTURE_DURATION: 50,    // Minimum gesture duration
-  MAX_GESTURE_DURATION: 5000,  // Maximum gesture duration
-} as const;

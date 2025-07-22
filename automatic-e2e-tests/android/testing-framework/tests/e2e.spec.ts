@@ -6,17 +6,14 @@ import { typeIntoSearchBar, selectFromList} from '../components/search_page';
 import { verifyExactTitle, findTextByAccessibilityId, verifyTitleContains } from '../components/reader_page'
 import { toggleLanguageButton } from '../components/display_settings'
 import { verifyTopicTitle, verifyTopicBlurb, verifyTopicCategory, clickSheets, clickSources, openSourceMenu } from '../components/topics_page';
-import { apiResultMismatch } from '../constants/error_constants';
-import { BAMIDBAR_1, ALEINU,MISHNAH } from '../constants/text_constants';
 import { reportToBrowserstack } from '../utils/browserstackUtils';
 import { scrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
 import { checkViewGroupCenterPixelColor, checkElementByContentDescPixelColor } from '../utils/ui_checker';
 import { findTextElement, findHeaderInFirstViewGroup, findTextContaining, findElementByContentDesc } from '../utils/text_finder';
 import { getCurrentParashatHashavua, getCurrentHaftarah, getCurrentDafAWeek  } from '../utils/sefariaAPI'
 import { getHebrewDate, getCleanTestTitle } from '../utils/helper_functions'
-import { TEST_TIMEOUTS } from '../constants/timeouts';
-import { SEFARIA_COLORS, THRESHOLD_RGB } from '../constants/colors';
-import { SWIPE_CONFIG } from '../constants/gestures';
+import { BAMIDBAR_1, ALEINU,MISHNAH } from '../constants/text_constants';
+import { DYNAMIC_ERRORS,TEST_TIMEOUTS, SEFARIA_COLORS, SWIPE_CONFIG } from '../constants';
 
 import './test_init'; // Allows Logging and Error Handling to be written to logs_test/ directory
 
@@ -37,7 +34,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // Fetch the current test title
     testTitle = getCleanTestTitle(this);
 
-    console.log(`ℹ️ Running test: ${testTitle}`);
+    console.log(`[INFO] (STARTING) Running test: ${testTitle}`);
 
     // The client is the WebdriverIO browser instance used to interact with the app
     // It connects to the Sefaria app on the specified device or emulator
@@ -56,8 +53,13 @@ describe('e2e Sefaria Mobile regression tests', function () {
       if (process.env.RUN_ENV == 'browserstack') {
         await reportToBrowserstack(client, this);
       }
+      // Log the test result
+      if (this.currentTest?.state === 'passed') {
+        console.log(`✅ Finished test (PASSED): ${testTitle}\n`);
+      } else {
+        console.log(`❌ Finished test (FAILED): ${testTitle}\n`);
+      }
       // Close the client session
-      console.log(`🎉 Finished test: ${testTitle} \n`);
       await client.deleteSession();
     }
   });
@@ -124,11 +126,11 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
   it('T005: Veryfying colored lines in between elements', async function () {
     // Check the colors (Indexes might change with UI update and type of phone)
-    await checkViewGroupCenterPixelColor(client, 2, SEFARIA_COLORS.TANAKH_TEAL, true, THRESHOLD_RGB ); // Tanakh Teal
-    await checkViewGroupCenterPixelColor(client, 4, SEFARIA_COLORS.MISHNAH_BLUE, true, THRESHOLD_RGB); // Mishna Blue
-    await checkViewGroupCenterPixelColor(client, 6, SEFARIA_COLORS.TALMUD_GOLD, true, THRESHOLD_RGB); // Talmud Gold
+    await checkViewGroupCenterPixelColor(client, 2, SEFARIA_COLORS.TANAKH_TEAL); 
+    await checkViewGroupCenterPixelColor(client, 4, SEFARIA_COLORS.MISHNAH_BLUE); 
+    await checkViewGroupCenterPixelColor(client, 6, SEFARIA_COLORS.TALMUD_GOLD); 
     // Check Learning Schedules color
-    await checkViewGroupCenterPixelColor(client, 9, SEFARIA_COLORS.CREAM_BACKGROUND, true, THRESHOLD_RGB); // White    
+    await checkViewGroupCenterPixelColor(client, 9, SEFARIA_COLORS.CREAM_BACKGROUND);
     
     // There is an issue currently in app behind the scene that prevents great tests
     // No resource id or description exists for certain UI elements, like the colored lines
@@ -137,9 +139,9 @@ describe('e2e Sefaria Mobile regression tests', function () {
     //  await scrollTextIntoView(client, 'Midrash');
     // await client.pause(100);
     // // In Android, indexes change when scrolling (flaky-check scroll and indexes in appium tester)
-    // await checkViewGroupCenterPixelColor(client, 7, '#5D956F', true); // Midrash Green
-    // await checkViewGroupCenterPixelColor(client, 9, '#802F3E', true); // Halakhah Red
-    // await checkViewGroupCenterPixelColor(client, 11, '#594176', true); // Kabbalah Purple
+    // await checkViewGroupCenterPixelColor(client, 7, '#5D956F'); // Midrash Green
+    // await checkViewGroupCenterPixelColor(client, 9, '#802F3E'); // Halakhah Red
+    // await checkViewGroupCenterPixelColor(client, 11, '#594176'); // Kabbalah Purple
   });
 
   it('T006: Learning Schedules - See all button', async function () {
@@ -174,17 +176,17 @@ describe('e2e Sefaria Mobile regression tests', function () {
     if (parasha) {
       await findTextElement(client, parasha.displayValue.en);
     } else {
-      throw new Error(apiResultMismatch("Parashat Hashavua", parasha!.displayValue.en));    
+      throw new Error(DYNAMIC_ERRORS.apiResultMismatch("Parashat Hashavua", parasha!.displayValue.en));    
     }
     // Check if Haftarah for this week is correct
     if (haftarah) {
       await findTextElement(client, haftarah.displayValue.en);
     } else {
-      throw new Error(apiResultMismatch("Haftarah", haftarah!.displayValue.en));
+      throw new Error(DYNAMIC_ERRORS.apiResultMismatch("Haftarah", haftarah!.displayValue.en));
     }
 
     // Verify separator colors are there (probably do not have to use this, as other tests check this)
-    // await checkViewGroupCenterPixelColor(client, 2, '#1f4d5d', true, THRESHOLD_RGB); // Tanakh Teal
+    // await checkViewGroupCenterPixelColor(client, 2, '#1f4d5d', true); // Tanakh Teal
     
     // Scroll to Daily Learning
     await swipeIntoView(client, "up", "Daily Learning",);
@@ -202,27 +204,27 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await swipeIntoView(client, "up", "Daf a Week", 5, 400);
     await findTextElement(client, "Weekly Learning");
 
-    // Get the clickable element of current_weekly_daf
-    let current_weekly_daf = await findTextElement(client, "Daf a Week");
+    // Get the clickable element of CURRENT_WEEKLY_DAF
+    const CURRENT_WEEKLY_DAF = await findTextElement(client, "Daf a Week");
 
-    // Get the current Daf a Week fromn Sefaria API
-    const daf_a_week = await getCurrentDafAWeek();
-    await swipeIntoView(client, "up", daf_a_week!.displayValue.en);
-    if (daf_a_week) {
-      await findTextElement(client, daf_a_week.displayValue.en);
+    // Get the current Daf a Week FROM Sefaria API and swipe it into view
+    const DAF_A_WEEK = await getCurrentDafAWeek();
+    await swipeIntoView(client, "up", DAF_A_WEEK!.displayValue.en);
+    if (DAF_A_WEEK) {
+      await findTextElement(client, DAF_A_WEEK.displayValue.en);
     } else {
-      throw new Error(apiResultMismatch("Daf a Week", daf_a_week!.displayValue.en));
+      throw new Error(DYNAMIC_ERRORS.apiResultMismatch("Daf a Week", DAF_A_WEEK!.displayValue.en));
     }
     
     // Navigate to the Daf a Week section
-    await current_weekly_daf.click();
+    await CURRENT_WEEKLY_DAF.click();
     
     // Check if we are in Talmud
     await findTextElement(client, "The William Davidson Talmud")
-    await findTextContaining(client, daf_a_week!.displayValue.en)
+    await findTextContaining(client, DAF_A_WEEK!.displayValue.en)
 
-    // Extract the number after the space in daf_a_week.displayValue.en (e.g., "Bava Metzia 10" -> "10")
-    const dafNumberMatch = daf_a_week!.displayValue.en.match(/\s(\d+)$/);
+    // Extract the number after the space in DAF_A_WEEK.displayValue.en (e.g., "Bava Metzia 10" -> "10")
+    const dafNumberMatch = DAF_A_WEEK!.displayValue.en.match(/\s(\d+)$/);
     const dafNumber = dafNumberMatch ? dafNumberMatch[1] : null;
     // Wait for current daf title to appear (e.g 37A)
     await verifyTitleContains(client, dafNumber!);
@@ -300,7 +302,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await findTextContaining(client, MISHNAH.blurb);
 
     // Check if dividing line under the First SEDER ZERAIM is present
-    await checkViewGroupCenterPixelColor(client, 2, '#ededec', true, THRESHOLD_RGB); // Light Gray
+    await checkViewGroupCenterPixelColor(client, 2, SEFARIA_COLORS.LINE_GRAY); 
 
     // Check if the sefers below the sub categories (e.g. Seder Zeraim) has appropriate short blurb 
     await findElementByContentDesc(client, MISHNAH.content_desc.berakot);
@@ -340,15 +342,15 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // Assert we are sources page by seeing if SOURCES is underlines bold
     await findTextElement(client, "Sources");
     // Screenshot Sources element to check underline
-    await checkElementByContentDescPixelColor(client, 'Sources', SEFARIA_COLORS.PALE_GRAY, "bottom", true, THRESHOLD_RGB); 
+    await checkElementByContentDescPixelColor(client, 'Sources', SEFARIA_COLORS.PALE_GRAY, "bottom"); 
     // Check if Sheets is white
-    await checkElementByContentDescPixelColor(client, 'Sheets', SEFARIA_COLORS.OFF_WHITE, "bottom", true, THRESHOLD_RGB); 
+    await checkElementByContentDescPixelColor(client, 'Sheets', SEFARIA_COLORS.OFF_WHITE, "bottom"); 
     
     // Move to sheets section and click it
     await clickSheets(client);
     // Check if it is now underlined and sources is white
-    await checkElementByContentDescPixelColor(client, 'Sources', SEFARIA_COLORS.OFF_WHITE, "bottom", true, THRESHOLD_RGB); 
-    await checkElementByContentDescPixelColor(client, 'Sheets', SEFARIA_COLORS.PALE_GRAY, "bottom", true, THRESHOLD_RGB); 
+    await checkElementByContentDescPixelColor(client, 'Sources', SEFARIA_COLORS.OFF_WHITE, "bottom"); 
+    await checkElementByContentDescPixelColor(client, 'Sheets', SEFARIA_COLORS.PALE_GRAY, "bottom"); 
     
     // Move back to sources page
     await clickSources(client);

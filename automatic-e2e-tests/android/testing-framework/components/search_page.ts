@@ -12,7 +12,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { SCROLLVIEW_NOT_VISIBLE, textNotFound, logError, errorSelectingItemByText } from '../constants/error_constants';
+import { STATIC_ERRORS, DYNAMIC_ERRORS, logError } from '../constants/error_constants';
 import { BASE_SELECTORS, TEXT_SELECTORS } from '../constants/selectors';
 import { OPERATION_TIMEOUTS } from '../constants/timeouts';
 
@@ -36,7 +36,7 @@ export async function typeIntoSearchBar(client: Browser, text: string): Promise<
 
   // Debug log
   const value = await searchBar.getText();
-  console.log('Search field now contains:', value);
+  console.log('[INFO] Search field now contains:', value);
 
 }
 
@@ -59,16 +59,16 @@ export async function selectFromList(client: Browser, text: string): Promise<boo
 
       if (await item.isDisplayed()) {
         await item.click();
-        console.log(`✅ Item with text "${text}" clicked!`);
+        console.debug(`Item with text "${text}" clicked!`);
         return true;
       } else {
-        throw new Error(textNotFound(text));
+        throw new Error(DYNAMIC_ERRORS.textNotFound(text));
       }
     } else {
-      throw new Error(logError(`${SCROLLVIEW_NOT_VISIBLE} (${text} has no results in search).`));
+      throw new Error(logError(`${STATIC_ERRORS.SCROLLVIEW_NOT_VISIBLE} (${text} has no results in search).`));
     }
   } catch (error) {
-    throw new Error(errorSelectingItemByText(text, error));
+    throw new Error(DYNAMIC_ERRORS.errorSelectingItemByText(text, error));
   }
 
   return false;

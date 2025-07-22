@@ -12,7 +12,7 @@
 
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { textNotFound, ELEMENT_NOT_VISIBLE, logError, elementNameNotFound } from '../constants/error_constants';
+import { DYNAMIC_ERRORS, STATIC_ERRORS, logError } from '../constants/error_constants';
 import { escapeForRegex } from './helper_functions';
 import { TEXT_SELECTORS, TOPICS_SELECTORS } from '../constants/selectors';
 import { ELEMENT_TIMEOUTS } from '../constants/timeouts';
@@ -32,10 +32,10 @@ export async function findTextElement(client: Browser, text: string): Promise<Ch
   const element = await client.$(selector);
   const isDisplayed = await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
   if (isDisplayed) {
-    console.log(`✅ Text '${text}' is present on the page!`);
+    console.debug(`Text '${text}' is present on the page!`);
     return element;
   } else {
-    throw new Error(textNotFound(text));
+    throw new Error(DYNAMIC_ERRORS.textNotFound(text));
   }
 }
 
@@ -51,10 +51,10 @@ export async function findTextContaining(client: Browser, text: string): Promise
   const element = await client.$(selector);
   const isDisplayed = await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
   if (isDisplayed) {
-    console.log(`✅ Text containing '${text}' is present on the page! Found text: '${await element.getText()}'`);
+    console.debug(`Text containing '${text}' is present on the page! Found text: '${await element.getText()}'`);
     return element;
   } else {
-    throw new Error(textNotFound(text));
+    throw new Error(DYNAMIC_ERRORS.textNotFound(text));
   }
 }
 
@@ -69,15 +69,15 @@ export async function findHeaderInFirstViewGroup(client: Browser, headerText: st
   const viewGroup = await client.$(TOPICS_SELECTORS.firstViewGroup);
   const isViewGroupDisplayed = await viewGroup.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK }).catch(() => false);
   if (!isViewGroupDisplayed) {
-    throw new Error(logError(ELEMENT_NOT_VISIBLE + ' (first ViewGroup)'));
+    throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ' (first ViewGroup)'));
   }
   // Find the TextView with the header text inside the ViewGroup
   const header = await viewGroup.$(TOPICS_SELECTORS.headerInViewGroup(escapeForRegex(headerText)));
   const isHeaderDisplayed = await header.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK }).catch(() => false);
   if (!isHeaderDisplayed) {
-    throw new Error(textNotFound(headerText));
+    throw new Error(DYNAMIC_ERRORS.textNotFound(headerText));
   }
-  console.log(`✅ Header '${headerText}' is present in the first ViewGroup!`);
+  console.debug(`Header '${headerText}' is present in the first ViewGroup!`);
   return header;
 }
 
@@ -94,10 +94,10 @@ export async function findElementByContentDesc(client: Browser, contentDesc: str
   if (isDisplayed) {
     // Get the whole content-desc for logging
     const desc = await element.getAttribute('content-desc');
-    console.log(`✅ Element with content-desc '${desc}' is present on the page!`);
+    console.debug(`Element with content-desc '${desc}' is present on the page!`);
     return element;
   } else {
-    throw new Error(textNotFound(contentDesc));
+    throw new Error(DYNAMIC_ERRORS.textNotFound(contentDesc));
   }
 }
 
@@ -108,13 +108,13 @@ export async function findElementByContentDesc(client: Browser, contentDesc: str
  * @param elementName The name to use in logs and errors
  */
 export async function clickElementByContentDesc(client: Browser, contentDesc: string, elementName: string): Promise<void> {
-    const selector = `//android.view.ViewGroup[@content-desc="${contentDesc}"]`;
+    const selector = TEXT_SELECTORS.byContentDesc(contentDesc);
     const elem = await client.$(selector);
     const isDisplayed = await elem.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
     if (isDisplayed) {
         await elem.click();
-        console.log(`✅ Clicked element with content-desc: '${contentDesc}'`);
+        console.debug(`Clicked element with content-desc: '${contentDesc}'`);
     } else {
-        throw new Error(elementNameNotFound(elementName));
+        throw new Error(DYNAMIC_ERRORS.elementNameNotFound(elementName));
     }
 }

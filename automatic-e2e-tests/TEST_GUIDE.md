@@ -84,7 +84,7 @@ await element.waitForDisplayed({ timeout: 4000 });
 - **Use utility functions:** Place cross-cutting helpers (e.g., color checks, gestures, or repeated UI actions not related to a specific page) in `utils/`.
 - **Keep tests clean:** Do not use selectors or log statements directly in your test files. All selectors and logging should be handled inside reusable functions in `components/` or `utils/`. This makes tests easier to read and maintain, and ensures consistent logging and selector usage across the project.
 - **Log clearly:** Use `console.log` for important steps and always log errors (inside helpers).
-  - **Use emojis** to indicate success (✅) or failure (❌) in logs.
+  - **Use emojis** to indicate success ([DEBUG]) or failure (❌) in logs.
   - **check constants/error_constants.ts** for standardized error messages.
   - **Use logError() function** to log errors to the test-log file.
 - **Fail fast:** Throw errors as soon as a check fails, with clear messages.
@@ -128,7 +128,7 @@ describe('Sefaria Mobile Regression Tests', function () {
     // Fetch the current test title
     testTitle = getCleanTestTitle(this);
 
-    console.log(`ℹ️ Running test: ${testTitle}`);
+    console.log(`[INFO] Running test: ${testTitle}`);
 
     // The client is the WebdriverIO browser instance used to interact with the app
     client = await remote(getOpts(buildName, testTitle, no_reset));
@@ -227,14 +227,12 @@ export async function navigateBackFromTopic(client: Browser): Promise<void> {
   const backButton = await client.$(BASE_SELECTORS.BACK_BUTTON);
   if (await backButton.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.ELEMENT_WAIT }).catch(() => false)) {
     await backButton.click();
-    console.log("✅ Successfully navigated back from topic page.");
+    console.debug("Successfully navigated back from topic page.");
   } else {
     throw new Error("❌ Back button not found or not visible on topic page.");
   }
 }
 
-// Legacy alias for backward compatibility
-export const navigateBackFromTopic = navigateBackFromTopic;
 ```
 
 ---
@@ -251,43 +249,31 @@ export const navigateBackFromTopic = navigateBackFromTopic;
 **Example: `utils/text_finder.ts`**
 
 ```javascript
-import { BASE_SELECTORS, OPERATION_TIMEOUTS, ERROR_MESSAGES } from '../constants';
+import { DYNAMIC_ERRORS, ELEMENT_TIMEOUTS, TEXT_SELECTORS } from '../constants';
 
 /**
- * Finds and clicks an element by its content-desc attribute.
+ * Clicks an element by its content-desc and logs its content-desc.
  * @param client WebdriverIO browser instance
  * @param contentDesc The content-desc of the element to click
  * @param elementName The name to use in logs and errors
- * @returns {Promise<void>} Resolves when the element is clicked
  */
 export async function clickElementByContentDesc(client: Browser, contentDesc: string, elementName: string): Promise<void> {
-    const selector = `//android.view.ViewGroup[@content-desc="${contentDesc}"]`;
+    const selector = TEXT_SELECTORS.byContentDesc(contentDesc);
     const elem = await client.$(selector);
-    const isDisplayed = await elem.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.ELEMENT_WAIT }).catch(() => false);
+    const isDisplayed = await elem.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
     if (isDisplayed) {
-        const desc = await elem.getAttribute('content-desc');
         await elem.click();
-        console.log(`✅ Clicked element with content-desc: '${desc}'`);
+        console.debug(`Clicked element with content-desc: '${contentDesc}'`);
     } else {
-        throw new Error(ERROR_MESSAGES.elementNotFound(elementName));
+        throw new Error(DYNAMIC_ERRORS.elementNameNotFound(elementName));
     }
 }
 
-// Legacy alias for backward compatibility
-export const clickElementByContentDescAttribute = clickElementByContentDesc;
 ```
 
 ---
 
 ## Common Patterns & Examples
-
-### Using Improved Function Names
-
-The framework has been updated with clearer function names. Legacy names are still supported through aliases:
-
-- **Text verification:** Use `verifyExactTitle` instead of `verifyExactTitle`, `findTextElement` instead of `findTextElement`
-- **Element interaction:** Use `clickElement` instead of generic click functions
-- **Topic navigation:** Use `verifyTopicTitle`, `verifyTopicCategory`, `verifyTopicBlurb` instead of `verifyTopicTitle`, `verifyTopicCategory`, `verifyTopicBlurb`
 
 ### Common Patterns with Constants
 
@@ -322,7 +308,6 @@ The framework has been updated with clearer function names. Legacy names are sti
 - **API data:**  
 
   ```javascript
-  // Functions remain the same but now use centralized error handling
   const parashat = await getCurrentParashatHashavua();
   const haftarah = await getCurrentHaftarah();
   ```
@@ -330,6 +315,12 @@ The framework has been updated with clearer function names. Legacy names are sti
 ### Timeouts and Wait Times
 
 Always use constants for consistent timing:
+
+ * Waits for the specified condition to be met within the given timeout.
+
+ * Note: Specifying a timeout inside `wait` is not strictly necessary since `await` handles it automatically,
+
+ * but it is included here to ensure the operation fails if the condition is not met in time.
 
 ```javascript
 import { OPERATION_TIMEOUTS } from '../constants';

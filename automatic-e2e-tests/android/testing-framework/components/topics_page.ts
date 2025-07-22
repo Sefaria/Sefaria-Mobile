@@ -13,7 +13,7 @@
 
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { logError, THREE_DOTS_NOT_FOUND, BACK_BUTTON_NOT_FOUND } from '../constants/error_constants';
+import { logError, STATIC_ERRORS } from '../constants/error_constants';
 import { assertMatch } from '../utils/helper_functions';
 import { clickElementByContentDesc } from '../utils/text_finder';
 import { ELEMENT_TIMEOUTS } from '../constants/timeouts';
@@ -46,9 +46,9 @@ export async function navigateBackFromTopic(client: Browser): Promise<void> {
   const isDisplayed = await backButton.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
   if (isDisplayed) {
     await backButton.click();
-    console.log("✅ Back button clicked on Topics page.");
+    console.debug("Back button clicked on Topics page.");
   } else {
-    throw new Error(logError(BACK_BUTTON_NOT_FOUND));
+    throw new Error(logError(STATIC_ERRORS.BACK_BUTTON_NOT_FOUND));
   }
 }
 
@@ -116,8 +116,8 @@ export async function openSourceMenu(client: Browser): Promise<void> {
     const isDisplayed = await threeDotsElem.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
     if (isDisplayed) {
         await threeDotsElem.click();
-        console.log("✅ Three dots menu clicked on Topics page.");
+        console.debug("Three dots menu clicked on Topics page.");
     } else {
-        throw new Error(logError(THREE_DOTS_NOT_FOUND));
+        throw new Error(logError(STATIC_ERRORS.THREE_DOTS_NOT_FOUND));
     }
 }

@@ -87,10 +87,10 @@ Helper modules for low-level actions, API calls, and cross-cutting concerns.
   Helpers for interacting with the BrowserStack session API (set session status, report results).
 
 - **gesture.ts**  
-  Gesture and scrolling utilities: swipe, scroll, and element search with screen dimension caching. Functions renamed for clarity: `clickElement`, `clickElementIfExists`, `verifyElementExists`, `findTextElement`.
+  Gesture and scrolling utilities: swipe, scroll, and element search with screen dimension caching.
 
 - **helper_functions.ts**  
-  General-purpose helpers: text escaping, color conversion, date formatting, and assertion helpers. Functions renamed for clarity: `takeScreenshot`, `sleepFor`, `returnToSearch`, `returnToReaderFromSearch`.
+  General-purpose helpers: text escaping, color conversion, date formatting, and assertion helpers.
 
 - **load_credentials.ts**  
   Loads environment variables and credentials from `.env`.  
@@ -104,11 +104,11 @@ Helper modules for low-level actions, API calls, and cross-cutting concerns.
 
 - **text_finder.ts**  
   Locates and interacts with text and elements by text or content-desc.  
-  Includes strict and substring matching, header checks, and content-desc utilities. Functions renamed for clarity: `findTextElement`, `verifyElementVisible`, `getElementText`.
+  Includes strict and substring matching, header checks, and content-desc utilities.
 
 - **ui_checker.ts**  
   Checks pixel colors of UI elements and viewgroups.  
-  Includes screenshot cropping, color comparison, and debug image saving for visual regression/UI validation. Functions renamed for clarity: `verifyElementExists`, `verifyElementVisible`, `verifyElementText`.
+  Includes screenshot cropping, color comparison, and debug image saving for visual regression/UI validation.
 
 - **\*.ts**
   Additional utility functions can be added as needed for specific tasks or features.

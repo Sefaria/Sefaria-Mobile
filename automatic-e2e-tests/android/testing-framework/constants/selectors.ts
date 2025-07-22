@@ -25,12 +25,14 @@ export const BASE_SELECTORS = {
 
 // Text-based selectors
 export const TEXT_SELECTORS = {
-  exactText: (text: string, packageName = APP_PACKAGE) => 
-    `android=new UiSelector().className("android.widget.TextView").packageName("${packageName}").text("${text}")`,
-  containsText: (text: string, packageName = APP_PACKAGE) => 
-    `android=new UiSelector().className("android.widget.TextView").packageName("${packageName}").textContains("${text}")`,
-  byDescription: (description: string) => 
-    `android=new UiSelector().description("${description}")`,
+    exactText: (text: string, packageName = APP_PACKAGE) => 
+        `android=new UiSelector().className("android.widget.TextView").packageName("${packageName}").text("${text}")`,
+    containsText: (text: string, packageName = APP_PACKAGE) => 
+        `android=new UiSelector().className("android.widget.TextView").packageName("${packageName}").textContains("${text}")`,
+    byDescription: (description: string) => 
+        `android=new UiSelector().description("${description}")`,
+    byContentDesc: (contentDesc: string) =>
+        `//android.view.ViewGroup[@content-desc="${contentDesc}"]`,
 } as const;
 
 // Navigation selectors
@@ -87,9 +89,7 @@ export const CONTENT_DESC_SELECTORS = {
 // ViewGroup position selectors for UI testing
 export const VIEWGROUP_SELECTORS = {
   byIndex: (index: number) => 
-    `//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[${index}]`,
-  insideScrollView: (index: number) => 
-    `//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[${index}]`,
+    `//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[${index}]`
 } as const;
 
 // Accessibility and content-desc patterns

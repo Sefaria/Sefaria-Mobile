@@ -13,9 +13,10 @@
 // Sefaria brand colors
 export const SEFARIA_COLORS = {
   // Primary theme colors  
-  TANAKH_TEAL: '#1f4d5d',       // Dark teal for Tanakh sections
-  MISHNAH_BLUE: '#6998b4',      // Light blue for Mishnah sections
-  TALMUD_GOLD: '#c8b580',       // Gold for Talmud sections
+  TANAKH_TEAL: '#004E5F',       // Dark teal for Tanakh sections
+  MISHNAH_BLUE: '#5A99B7',      // Light blue for Mishnah sections
+  TALMUD_GOLD: '#CCB479',       // Gold for Talmud sections
+  LINE_GRAY: '#ededec',       // Light gray for dividing lines
   
   // Secondary colors
   LIGHT_BLUE: '#87ceeb',        // Light blue accents
@@ -46,15 +47,15 @@ export const COLOR_THRESHOLDS = {
   },
   
   STANDARD_THRESHOLD: {
-    r: 10,  // Standard matching (default)
-    g: 10, 
-    b: 10,
+    r: 15,  // Standard matching (default)
+    g: 15, 
+    b: 15,
   },
   
   LOOSE_THRESHOLD: {
-    r: 20,  // More forgiving matching
-    g: 20,
-    b: 20,
+    r: 30,  // More forgiving matching
+    g: 30,
+    b: 30,
   },
   
   // Simple numeric thresholds
@@ -75,35 +76,4 @@ export const STATUS_COLORS = {
   LOADING: '#6c757d',    // Muted gray for loading states
 } as const;
 
-// UI component specific colors
-export const COMPONENT_COLORS = {
-  // Navigation
-  NAV_ACTIVE: SEFARIA_COLORS.TANAKH_TEAL,
-  NAV_INACTIVE: SEFARIA_COLORS.SECONDARY_TEXT,
-  
-  // Buttons
-  PRIMARY_BUTTON: SEFARIA_COLORS.TANAKH_TEAL,
-  SECONDARY_BUTTON: SEFARIA_COLORS.LIGHT_GRAY,
-  
-  // Highlights and selections
-  SELECTION_HIGHLIGHT: SEFARIA_COLORS.LIGHT_BLUE,
-  TEXT_HIGHLIGHT: '#ffff99',
-  
-  // Borders and dividers
-  BORDER_COLOR: SEFARIA_COLORS.LIGHT_GRAY,
-  DIVIDER_COLOR: '#e0e0e0',
-} as const;
 
-// Test-specific color references
-export const TEST_COLORS = {
-  // Colors used in current tests
-  VIEWGROUP_TEST_TEAL: SEFARIA_COLORS.TANAKH_TEAL,    // Used in ViewGroup tests
-  VIEWGROUP_TEST_BLUE: SEFARIA_COLORS.MISHNAH_BLUE,   // Used in ViewGroup tests
-  
-  // Default test colors for various checks
-  DEFAULT_BACKGROUND: SEFARIA_COLORS.WHITE_BACKGROUND,
-  DEFAULT_TEXT: SEFARIA_COLORS.PRIMARY_TEXT,
-} as const;
-
-// Export commonly used threshold for backward compatibility
-export const THRESHOLD_RGB = COLOR_THRESHOLDS.STANDARD_THRESHOLD;
