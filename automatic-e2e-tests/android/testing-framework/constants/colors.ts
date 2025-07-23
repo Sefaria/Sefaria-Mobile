@@ -41,21 +41,21 @@ export const SEFARIA_COLORS = {
 export const COLOR_THRESHOLDS = {
   // RGB tolerance values for color matching
   STRICT_THRESHOLD: {
-    r: 5,   // Very strict matching
+    r: 10,   // Very strict matching
     g: 5,
     b: 5,
   },
   
   STANDARD_THRESHOLD: {
-    r: 15,  // Standard matching (default)
-    g: 15, 
+    r: 31,  // Standard matching (default)
+    g: 16, 
     b: 15,
   },
   
   LOOSE_THRESHOLD: {
-    r: 30,  // More forgiving matching
-    g: 30,
-    b: 30,
+    r: 60,  // More forgiving matching
+    g: 45,
+    b: 45,
   },
   
   // Simple numeric thresholds

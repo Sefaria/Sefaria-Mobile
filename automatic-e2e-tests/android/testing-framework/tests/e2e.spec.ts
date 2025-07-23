@@ -173,11 +173,10 @@ describe('e2e Sefaria Mobile regression tests', function () {
       throw new Error(DYNAMIC_ERRORS.apiResultMismatch("Parashat Hashavua", parasha!.displayValue.en));    
     }
     // Scroll to the Parashat Hashavua text (Ensures it is visible)
-    await scrollTextIntoView(client, "The portion from Prophets ", true);
     const haftarah = await getCurrentHaftarah();
     // Check if Haftarah for this week is correct
     if (haftarah) {
-      await findTextElement(client, haftarah.displayValue.en);
+      await scrollTextIntoView(client, haftarah.displayValue.en);
     } else {
       throw new Error(DYNAMIC_ERRORS.apiResultMismatch("Haftarah", haftarah!.displayValue.en));
     }
@@ -188,7 +187,8 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // Scroll to Daily Learning
     await swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "Daily Learning",);
     await findTextElement(client, "Daily Learning");
-    await findTextElement(client, "Daf Yomi");
+    await scrollTextIntoView(client, "Daf Yomi");
+
     // Scroll to blurb about 929
     await swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "A learning program in which participants study five of the Bible’s 929 chapters a week, completing it in about three and a half years.");
     await findTextElement(client, "929");
@@ -267,14 +267,14 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await findTextContaining(client, "Dedicated in honor of ");
 
     // Scroll to bottom of the dedication pop up
-    await swipeUpOrDown(client, SWIPE_CONFIG.DIRECTIONS.UP, SWIPE_CONFIG.LONG_DISTANCE, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE);
+    await swipeUpOrDown(client, SWIPE_CONFIG.DIRECTIONS.UP, SWIPE_CONFIG.LONG_DISTANCE, SWIPE_CONFIG.FAST_SCROLL_DISTANCE);
     
     // Check if the hebrew torah quote on bottom of dedication is present
     await findTextElement(client, "יגיע כפיך כי תאכל אשריך וטוב לך");
     await findTextElement(client, '(תהילים קכ"ח)');
 
     // Scroll back up to see the x button
-    await swipeUpOrDown(client, SWIPE_CONFIG.DIRECTIONS.DOWN, SWIPE_CONFIG.LONG_DISTANCE, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE);
+    await swipeUpOrDown(client, SWIPE_CONFIG.DIRECTIONS.DOWN, SWIPE_CONFIG.LONG_DISTANCE, SWIPE_CONFIG.FAST_SCROLL_DISTANCE);
 
     // Close the pop-up
     await closePopUp(client);

@@ -10,18 +10,20 @@
  * ──────────────────────────────────────────────────────────────
  */
 
-// Swipe distances and directions
+// Swipe distances, directions, and durations
+const isBrowserstack = process.env.RUN_ENV === 'browserstack';
+
 export const SWIPE_CONFIG = {
   // Standard swipe distances
-  SMALL_DISTANCE: 200,
-  SHORT_DISTANCE: 275,
-  MEDIUM_DISTANCE: 500,
-  LONG_DISTANCE: 1000,
+  SMALL_DISTANCE: isBrowserstack ? 400 : 200,
+  SHORT_DISTANCE: isBrowserstack ? 550 : 275,
+  MEDIUM_DISTANCE: isBrowserstack ? 1000 : 500,
+  LONG_DISTANCE: isBrowserstack ? 2000 : 1000,
   
-  // Specific use case distances
-  TEXT_SCROLL_DISTANCE: 200,    // For scrolling text into view
-  PAGE_SCROLL_DISTANCE: 500,    // For page-level scrolling
-  FAST_SCROLL_DISTANCE: 1000,   // For quick navigation
+  // Specific use case durations
+  TEXT_SCROLL_DISTANCE: isBrowserstack ? 400 : 200,    // For scrolling text into view
+  PAGE_SCROLL_DISTANCE: isBrowserstack ? 1000 : 500,   // For page-level scrolling
+  FAST_SCROLL_DISTANCE: isBrowserstack ? 3000 : 1000,  // For quick navigation
   
   // Swipe directions
   DIRECTIONS: {
@@ -32,21 +34,20 @@ export const SWIPE_CONFIG = {
   },
 } as const;
 
-// Gesture timing configuration
 export const GESTURE_TIMING = {
   // Durations for different gesture types
-  QUICK_GESTURE: 200,      // Fast swipes/taps
-  STANDARD_GESTURE: 500,   // Normal gesture speed
-  SLOW_GESTURE: 1000,      // Deliberate slow gestures
-  
+  QUICK_GESTURE: isBrowserstack ? 400 : 200,      // Fast swipes/taps
+  STANDARD_GESTURE: isBrowserstack ? 1000 : 500,  // Normal gesture speed
+  SLOW_GESTURE: isBrowserstack ? 2000 : 1000,     // Deliberate slow gestures
+
   // Pause durations
-  MICRO_PAUSE: 50,         // Very short pause
-  SHORT_PAUSE: 100,        // Brief pause between actions
-  MEDIUM_PAUSE: 200,       // Standard pause
-  LONG_PAUSE: 500,         // Extended pause
-  
+  MICRO_PAUSE: isBrowserstack ? 100 : 50,         // Very short pause
+  SHORT_PAUSE: isBrowserstack ? 200 : 100,        // Brief pause between actions
+  MEDIUM_PAUSE: isBrowserstack ? 400 : 200,       // Standard pause
+  LONG_PAUSE: isBrowserstack ? 1000 : 500,        // Extended pause
+
   // Pointer action timing
-  POINTER_MOVE_DURATION: 50,   // Duration for pointer movement
+  POINTER_MOVE_DURATION: isBrowserstack ? 100 : 50,   // Duration for pointer movement
   POINTER_DOWN_DURATION: 0,    // Instant pointer down
 } as const;
 
