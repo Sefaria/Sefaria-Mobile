@@ -63,6 +63,7 @@ export async function swipeUpOrDown(
   duration: number = GESTURE_TIMING.STANDARD_GESTURE,
   mute: boolean = false
 ): Promise<void> {
+
   const { x, startY } = await getScreenDimensions(client);
   const endY = direction === 'up' ? startY - distance : startY + distance;
 
@@ -81,6 +82,7 @@ export async function swipeUpOrDown(
         ],
       },
     ]);
+    // Allows tester to mute console output if needed (too verbose in some tests)
     if (!mute) {
       console.debug(`Swipe ${direction} performed successfully.`);
     }
@@ -109,7 +111,7 @@ export async function scrollTextIntoView(
   const selector = `android=new UiScrollable(new UiSelector().scrollable(true).instance(0)).setAsVerticalList().${direction}().scrollIntoView(new UiSelector().className("android.widget.TextView").text("${text}"))`;
   const element = await client.$(selector);
   try {
-    await element.waitForDisplayed({ timeout: 5000 });
+    await element.waitForDisplayed({ timeout: GESTURE_TIMING.STANDARD_GESTURE });
     console.debug(`Scrolled into view (${goUp ? 'up' : 'down'}): "${text}"`);
     return element;
   } catch (error) {
@@ -135,6 +137,7 @@ export async function swipeIntoView(
   maxAttempts: number = SWIPE_ATTEMPTS.DEFAULT_MAX_ATTEMPTS,
   swipeDistance: number = SWIPE_CONFIG.TEXT_SCROLL_DISTANCE
 ): Promise<boolean> {
+  
   const selector = TEXT_SELECTORS.exactText(text);
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -145,7 +148,6 @@ export async function swipeIntoView(
     }
     // Only swipe if not visible
     await swipeUpOrDown(client, direction, swipeDistance, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE, true);
-    // await client.pause(GESTURE_TIMING.SHORT_PAUSE); // Give UI time to settle
   }
   throw new Error(DYNAMIC_ERRORS.elementNotFoundAfterSwipes(text, maxAttempts));
 }

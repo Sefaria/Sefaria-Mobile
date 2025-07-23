@@ -43,9 +43,9 @@ export async function typeIntoSearchBar(client: Browser, text: string): Promise<
  * Selects an item from a list inside a ScrollView based on its text.
  * @param client WebdriverIO browser instance
  * @param text The text of the item to select
- * @returns true if the item was found and clicked, false otherwise
+ * @throws Will throw an error if the item is not found or not clickable
  */
-export async function selectFromList(client: Browser, text: string): Promise<boolean> {
+export async function selectFromList(client: Browser, text: string): Promise<void> {
   const scrollView = await client.$(BASE_SELECTORS.scrollView());
   const textViewSelector = TEXT_SELECTORS.exactText(text);
 
@@ -61,7 +61,6 @@ export async function selectFromList(client: Browser, text: string): Promise<boo
   if (await item.isDisplayed()) {
     await item.click();
     console.debug(`Item with text "${text}" clicked!`);
-    return true;
   } else {
     throw new Error(DYNAMIC_ERRORS.textNotFound(text));
   }

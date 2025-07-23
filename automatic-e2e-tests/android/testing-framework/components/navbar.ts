@@ -34,16 +34,15 @@ export async function waitForNavBar(client: Browser): Promise<void> {
  * Clicks a navigation bar item by its content description (e.g., "Texts", "Topics", "Search", "Saved", "Account").
  * @param client WebdriverIO browser instance
  * @param contentDesc The content description of the nav bar item to click
- * @returns Promise<boolean> true if clicked, false otherwise
+ * @throws Will throw an error if the nav bar item is not visible
  */
-export async function clickNavBarItem(client: Browser, contentDesc: string): Promise<boolean> {
+export async function clickNavBarItem(client: Browser, contentDesc: string): Promise<void> {
   const itemSelector = NAVIGATION_SELECTORS.navBarItem(contentDesc);
   const item = await client.$(itemSelector);
   const isDisplayed = await item.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.NAVBAR_WAIT }).catch(() => false);
   if (isDisplayed) {
     await item.click();
     console.debug(`Clicked nav bar item: ${contentDesc}`);
-    return true;
   } else {
     throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ` (nav bar item: ${contentDesc})`));
   }

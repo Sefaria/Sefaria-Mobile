@@ -19,9 +19,9 @@ import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, READER_SELECTORS, ACCESSIBILIT
  * Checks if the TextView title inside the ScrollView has the given text.
  * @param client - WebdriverIO browser instance.
  * @param expectedText - The text to check for in the TextView.
- * @returns true if the text matches, false otherwise.
+ * @throws Will throw an error if the text doesn't match exactly
  */
-export async function verifyExactTitle(client: Browser, expectedText: string): Promise<boolean> {
+export async function verifyExactTitle(client: Browser, expectedText: string): Promise<void> {
   try {
     const scrollView = await client.$(READER_SELECTORS.scrollView);
     await scrollView.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.READER_TITLE_LOAD });
@@ -34,7 +34,6 @@ export async function verifyExactTitle(client: Browser, expectedText: string): P
 
       if (actualText === expectedText) {
         console.debug(`Text matches expected: "${expectedText}"`);
-        return true;
       } else {
         throw new Error(DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
       }
@@ -50,9 +49,9 @@ export async function verifyExactTitle(client: Browser, expectedText: string): P
  * Checks if the TextView title inside the ScrollView contains the given text.
  * @param client - WebdriverIO browser instance.
  * @param expectedText - The text to check for in the TextView.
- * @returns true if the text is contained, false otherwise.
+ * @throws Will throw an error if the text is not found
  */
-export async function verifyTitleContains(client: Browser, expectedText: string): Promise<boolean> {
+export async function verifyTitleContains(client: Browser, expectedText: string): Promise<void> {
   try {
     const scrollView = await client.$(READER_SELECTORS.scrollView);
     await scrollView.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.READER_CONTENT_LOAD });
@@ -65,7 +64,6 @@ export async function verifyTitleContains(client: Browser, expectedText: string)
 
       if (actualText.includes(expectedText)) {
         console.debug(`Text contains expected: "${expectedText}"`);
-        return true;
       } else {
         throw new Error(DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
       }

@@ -10,7 +10,7 @@
  * ──────────────────────────────────────────────────────────────
  */
 
-import { logError, HEBREW_MONTHS } from '../constants';
+import { logError, HEBREW_MONTHS, COLOR_THRESHOLDS } from '../constants';
 
 
 /**
@@ -60,7 +60,7 @@ export function hexToRgb(hex: string): { r: number; g: number; b: number } {
 export function colorsAreClose(
     a: { r: number; g: number; b: number },
     b: { r: number; g: number; b: number },
-    tolerance: number | { r: number; g: number; b: number } = 10
+    tolerance: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_NUMERIC
 ): boolean {
     const t = typeof tolerance === 'number'
         ? { r: tolerance, g: tolerance, b: tolerance }
