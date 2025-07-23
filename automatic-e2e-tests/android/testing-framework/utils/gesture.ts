@@ -108,8 +108,8 @@ export async function scrollTextIntoView(
 ): Promise<ChainablePromiseElement> {
   // Choose scroll direction based on goUp parameter
   const direction = goUp ? 'scrollBackward' : 'scrollForward';
-  const selector = `android=new UiScrollable(new UiSelector().scrollable(true).instance(0)).setAsVerticalList().${direction}().scrollIntoView(new UiSelector().className("android.widget.TextView").text("${text}"))`;
-  const element = await client.$(selector);
+  const selectorForScroll = `android=new UiScrollable(new UiSelector().scrollable(true).instance(0)).setAsVerticalList().${direction}().scrollIntoView(new UiSelector().className("android.widget.TextView").text("${text}"))`;
+  const element = await client.$(selectorForScroll);
   try {
     await element.waitForDisplayed({ timeout: GESTURE_TIMING.STANDARD_GESTURE });
     console.debug(`Scrolled into view (${goUp ? 'up' : 'down'}): "${text}"`);

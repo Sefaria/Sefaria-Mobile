@@ -6,7 +6,7 @@ import { typeIntoSearchBar, selectFromList} from '../components/search_page';
 import { verifyExactTitle, findTextByAccessibilityId, verifyTitleContains } from '../components/reader_page'
 import { toggleLanguageButton } from '../components/display_settings'
 import { verifyTopicTitle, verifyTopicBlurb, verifyTopicCategory, clickSheets, clickSources, openSourceMenu } from '../components/topics_page';
-import { reportToBrowserstack } from '../utils/browserstackUtils';
+import { reportToBrowserstack } from '../utils/browserstack_report';
 import { scrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
 import { validateViewGroupCenterColor, validateElementColorByDesc } from '../utils/ui_checker';
 import { findTextElement, findHeaderInFirstViewGroup, findTextContaining, findElementByContentDesc } from '../utils/text_finder';

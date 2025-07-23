@@ -28,7 +28,7 @@ The testing framework uses a centralized constants architecture to maintain cons
 - **`constants/timeouts.ts`**: Wait times, delays, and operation timeouts  
 - **`constants/gestures.ts`**: Swipe distances, scroll configurations, and gesture parameters
 - **`constants/colors.ts`**: Brand colors, thresholds, and UI color values
-- **`constants/error_constants.ts`**: Standardized error messages and logging patterns
+- **`constants/errors.ts`**: Standardized error messages and logging patterns
 - **`constants/text_constants.ts`**: Static text, labels, and content strings
 - **`constants/index.ts`**: Central export point for all constants
 

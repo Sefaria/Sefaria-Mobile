@@ -49,7 +49,7 @@ Centralized constants for selectors, timeouts, gestures, colors, errors, and tex
 - **colors.ts**  
   Sefaria brand colors, color tolerance thresholds for pixel comparison testing, and UI component color mappings.
 
-- **error_constants.ts**  
+- **errors.ts**  
   Error message templates and logging helpers for assertions and failures.
 
 - **text_constants.ts**  
@@ -83,7 +83,7 @@ Main end-to-end regression test suite. Handles the regression flow of the app as
 
 Helper modules for low-level actions, API calls, and cross-cutting concerns.
 
-- **browserstackUtils.ts**  
+- **browserstack_report.ts**  
   Helpers for interacting with the BrowserStack session API (set session status, report results).
 
 - **gesture.ts**  

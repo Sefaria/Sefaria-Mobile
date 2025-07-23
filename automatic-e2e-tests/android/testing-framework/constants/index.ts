@@ -12,7 +12,7 @@
  */
 
 // Error constants and text constants (existing)
-export * from './error_constants';
+export * from './errors';
 export * from './text_constants';
 
 // New organized constants
@@ -26,5 +26,5 @@ export * as SELECTORS from './selectors';
 export * as TIMEOUTS from './timeouts';
 export * as GESTURES from './gestures';
 export * as COLORS from './colors';
-export * as ERRORS from './error_constants';
+export * as ERRORS from './errors';
 export * as TEXTS from './text_constants';
