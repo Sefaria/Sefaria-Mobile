@@ -20,7 +20,6 @@ import type { Browser } from 'webdriverio';
  * @param client - The WebdriverIO browser instance used to execute the command.
  * @param status - The desired session status, either 'passed' or 'failed'.
  * @param reason - (Optional) A string describing the reason for the status.
- * 
  * This function uses the BrowserStack executor API to update the session status,
  * which is useful for reporting test results in the BrowserStack dashboard.
  */

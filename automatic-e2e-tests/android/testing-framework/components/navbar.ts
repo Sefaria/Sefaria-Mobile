@@ -12,7 +12,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { STATIC_ERRORS, SUCCESS_MESSAGES, logError, NAVIGATION_SELECTORS, OPERATION_TIMEOUTS } from '../constants';
+import { STATIC_ERRORS, SUCCESS_MESSAGES, logError, NAVIGATION_SELECTORS } from '../constants';
 
 
 
@@ -22,7 +22,7 @@ import { STATIC_ERRORS, SUCCESS_MESSAGES, logError, NAVIGATION_SELECTORS, OPERAT
  */
 export async function waitForNavBar(client: Browser): Promise<void> {
   const navBar = await client.$(NAVIGATION_SELECTORS.navBar);
-  const isDisplayed = await navBar.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.NAVBAR_WAIT }).catch(() => false);
+  const isDisplayed = await navBar.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
     console.debug('Navigation bar is displayed!');
   } else {
@@ -39,7 +39,7 @@ export async function waitForNavBar(client: Browser): Promise<void> {
 export async function clickNavBarItem(client: Browser, contentDesc: string): Promise<void> {
   const itemSelector = NAVIGATION_SELECTORS.navBarItem(contentDesc);
   const item = await client.$(itemSelector);
-  const isDisplayed = await item.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.NAVBAR_WAIT }).catch(() => false);
+  const isDisplayed = await item.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
     await item.click();
     console.debug(`Clicked nav bar item: ${contentDesc}`);
@@ -55,7 +55,7 @@ export async function clickNavBarItem(client: Browser, contentDesc: string): Pro
  */
 export async function closePopUp(client: Browser): Promise<void> {
   const closeBtn = await client.$(NAVIGATION_SELECTORS.closePopup);
-  const isDisplayed = await closeBtn.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.POPUP_CLOSE }).catch(() => false);
+  const isDisplayed = await closeBtn.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
     await closeBtn.click();
     console.log(SUCCESS_MESSAGES.CLOSE_POPUP_SUCCESS);

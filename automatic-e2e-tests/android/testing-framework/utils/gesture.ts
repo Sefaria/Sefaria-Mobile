@@ -14,7 +14,7 @@
 
 import { DYNAMIC_ERRORS, SUCCESS_MESSAGES,
   SWIPE_CONFIG, GESTURE_TIMING, TOUCH_CONFIG, SWIPE_ATTEMPTS,
-  TEXT_SELECTORS } from '../constants';
+  TEXT_SELECTORS, SCROLL_SELECTORS } from '../constants';
 
 
 // Cache for screen dimensions - will be set once per test session
@@ -93,26 +93,30 @@ export async function swipeUpOrDown(
 
 
 /**
- * Scrolls a scrollable view until a TextView with the given text is visible (Android only),
- * always scrolling down (forward) through the list by default, or up (backward) if goUp is true.
- * Used instead of scrollTextIntoView to handle more complex scrolling scenarios.
+ * Scrolls automatically until a TextView with the given text is visible (Android only),
+ * using Appium's UiScrollable to automatically scroll and search for the text, rather than a fixed scroll distance.
+ * Useful for reliably locating elements in long or dynamic lists.
  * @param client - The WebDriver client instance.
  * @param text - The text to bring into view.
+ * @param contains - If true, uses textContains instead of exact text match. Default: false.
  * @param goUp - If true, scrolls up (backward) instead of down (forward). Default: false.
  * @returns The ChainablePromiseElement element if found, otherwise throws an error.
  */
 export async function scrollTextIntoView(
   client: WebdriverIO.Browser,
   text: string,
+  contains: boolean = false,
   goUp: boolean = false
 ): Promise<ChainablePromiseElement> {
-  // Choose scroll direction based on goUp parameter
-  const direction = goUp ? 'scrollBackward' : 'scrollForward';
-  const selectorForScroll = `android=new UiScrollable(new UiSelector().scrollable(true).instance(0)).setAsVerticalList().${direction}().scrollIntoView(new UiSelector().className("android.widget.TextView").text("${text}"))`;
+  // Choose if we check for exact text or contains text
+  const selectorForScroll = contains 
+    ? SCROLL_SELECTORS.scrollToTextContains(text, goUp)
+    : SCROLL_SELECTORS.scrollToText(text, goUp);
+    
   const element = await client.$(selectorForScroll);
   try {
-    await element.waitForDisplayed({ timeout: GESTURE_TIMING.STANDARD_GESTURE });
-    console.debug(`Scrolled into view (${goUp ? 'up' : 'down'}): "${text}"`);
+    await element.waitForDisplayed();
+    console.debug(`Scrolled into view (${goUp ? 'up' : 'down'}): "${text}"${contains ? ' (contains)' : ''}`);
     return element;
   } catch (error) {
     throw new Error(DYNAMIC_ERRORS.textNotFound(text));
@@ -121,8 +125,8 @@ export async function scrollTextIntoView(
 
 
 /**
- * Swipes down until the element with the given text is visible or max attempts reached.
- * Used instead of scrollTextIntoView to move more uniformly across the screen.
+ * Scrolls with a fixed distance and number of attempts until the element with the given text is visible.
+ * Allows more precise control than automatic scrolling in scrollTextIntoView.
  * @param client - The WebDriver client instance.
  * @param direction - 'up' to swipe up, 'down' to swipe down.
  * @param text - The text to bring into view.

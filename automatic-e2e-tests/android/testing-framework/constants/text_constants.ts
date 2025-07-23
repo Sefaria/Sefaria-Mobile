@@ -24,7 +24,6 @@ export const MISHNAH = {
     content_desc: {berakot: "Mishnah Berakhot, Blessings and prayers, focusing on Shema and the Amidah.",
                    peah: "Mishnah Peah, Crops left in the corner of a field for the poor to take, other agricultural gifts to the poor."
                   }
-
 }
 
 // constant for Aleinu Topic
@@ -40,4 +39,4 @@ export const HEBREW_MONTHS = [
     "Tishri", "Heshvan", "Kislev", "Tevet",
     "Shevat", "Adar", "Adar II", "Nisan",
     "Iyar", "Sivan", "Tammuz", "Av", "Elul"
-  ];
+];

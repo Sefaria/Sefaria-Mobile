@@ -44,12 +44,3 @@ console.debug = (...args: any[]) => {
   origDebug(...args);
   logStream.write('[DEBUG] ' + args.map(String).join(' ') + '\n');
 };
-
-
-// Log uncaught exceptions and unhandled promise rejections
-process.on('uncaughtException', (err) => {
-  console.error('[UNCAUGHT EXCEPTION]', err.stack || err);
-});
-process.on('unhandledRejection', (reason: any) => {
-  console.error('[UNHANDLED REJECTION]', reason && reason.stack ? reason.stack : reason);
-});

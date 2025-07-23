@@ -12,7 +12,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { STATIC_ERRORS, DYNAMIC_ERRORS, logError,BASE_SELECTORS, TEXT_SELECTORS, OPERATION_TIMEOUTS  } from '../constants';
+import { STATIC_ERRORS, DYNAMIC_ERRORS, logError, BASE_SELECTORS, TEXT_SELECTORS } from '../constants';
 
 /**
  * Types into the search bar character by character with a delay to simulate real user input.
@@ -20,11 +20,11 @@ import { STATIC_ERRORS, DYNAMIC_ERRORS, logError,BASE_SELECTORS, TEXT_SELECTORS,
  * @param text - The text to type into the search bar.
  */
 export async function typeIntoSearchBar(client: Browser, text: string): Promise<void> {
-  const searchBarSelector = 'android=new UiSelector().className("android.widget.EditText")';
-
+  const searchBarSelector = BASE_SELECTORS.editText()
+  
   // Wait for the search bar to be visible
   const searchBar = await client.$(searchBarSelector);
-  await searchBar.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.SEARCH_RESULTS });
+  await searchBar.waitForDisplayed();
   await searchBar.click();
 
   // Clear any existing text in the search bar
@@ -56,7 +56,7 @@ export async function selectFromList(client: Browser, text: string): Promise<voi
   }
 
   const item = await scrollView.$(textViewSelector);
-  await item.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.SEARCH_RESULTS });
+  await item.waitForDisplayed();
 
   if (await item.isDisplayed()) {
     await item.click();

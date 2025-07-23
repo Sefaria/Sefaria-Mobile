@@ -83,8 +83,9 @@ await element.waitForDisplayed({ timeout: 4000 });
 - **Use page/component helpers:** Place actions that are specific to a particular page (e.g., Topics page navigation) in `components/` files. This keeps page-specific logic organized and reusable.
 - **Use utility functions:** Place cross-cutting helpers (e.g., color checks, gestures, or repeated UI actions not related to a specific page) in `utils/`.
 - **Keep tests clean:** Do not use selectors or log statements directly in your test files. All selectors and logging should be handled inside reusable functions in `components/` or `utils/`. This makes tests easier to read and maintain, and ensures consistent logging and selector usage across the project.
-- **Log clearly:** Use `console.log` for important steps and always log errors (inside helpers).
-  - **Use emojis** to indicate success ([DEBUG]) or failure (❌) in logs.
+- **Log clearly:** Use `console.log`, `console.debug` for important steps and always log errors (inside helpers).
+  - **Use emojis** to indicate success failure (❌) in logs.
+  - **Use `console.debug`** for log outputs from functions that are not critical to the test flow, such as successful clicks or checks.
   - **check constants/error_constants.ts** for standardized error messages.
   - **Use logError() function** to log errors to the test-log file.
 - **Fail fast:** Throw errors as soon as a check fails, with clear messages.
@@ -108,49 +109,52 @@ await element.waitForDisplayed({ timeout: 4000 });
 ```javascript
 import { remote } from 'webdriverio';
 import { getOpts } from '../utils/load_credentials';
-import { waitForNavBar, clickNavBarItem } from '../components/navbar';
 import { handleOfflinePopUp } from '../utils/offlinePopUp';
-import { getCleanTestTitle } from '../utils/helper_functions';
+import { waitForNavBar, clickNavBarItem } from '../components/navbar';
+import { reportToBrowserstack } from '../utils/browserstack_report';
 import { findHeaderInFirstViewGroup } from '../utils/text_finder';
-import { NAVBAR_SELECTORS } from '../constants/selectors';
+import { TEST_TIMEOUTS, NAVBAR_SELECTORS } from '../constants';
 
-// Required import: ensures logs are automatically written to the logs-test/ directory
-import './test_init'; 
+import './test_init';
 
-describe('Sefaria Mobile Regression Tests', function () {
-  // Global test timeout for all tests in this block
-  // This sets the maximum time each test can take before failing
-  this.timeout(200000);
-  let client: WebdriverIO.Browser;
+const no_reset = false;
+const buildName = `Sefaria E2E ${new Date().toISOString().slice(0, 10)}`;
+
+describe('e2e Sefaria Mobile regression tests', function () {
+  // Global timeout for all tests in this suite 
+  this.timeout(TEST_TIMEOUTS.SINGLE_TEST);
+  // WebdriverIO client instance
+  let client: Browser;
+  // Test title for each test
   let testTitle: string;
 
-
   beforeEach(async function () {
-    // Fetch the current test title
-    testTitle = getCleanTestTitle(this);
-
-    console.log(`[INFO] Running test: ${testTitle}`);
-
-    // The client is the WebdriverIO browser instance used to interact with the app
+    testTitle = this.currentTest?.title || '';
+    console.log(`[INFO] (STARTING) Running test: ${testTitle}`);
+    // Initialize WebdriverIO client to connect to App
     client = await remote(getOpts(buildName, testTitle, no_reset));
-
-    // If offline pop-up appears, click Not Now and Ok
+    // Handle initial offline pop-up if it appears
     await handleOfflinePopUp(client);
-    // Navigation bar being present signals the app is ready
+    // Wait for the navigation bar to be ready before starting tests
     await waitForNavBar(client);
   });
 
   afterEach(async function () {
-    if (process.env.RUN_ENV == 'browserstack') {
-      // If running on BrowserStack, set the session status (e.g., passed or failed)
-      reportToBrowserstack(client, this);
+    if (client) {
+      // Report test result to BrowserStack if running there
+      if (process.env.RUN_ENV == 'browserstack') {
+        await reportToBrowserstack(client, this);
+      }
+      console.log(
+        this.currentTest?.state === 'passed'
+          ? `✅ (PASSED); Finished test: ${testTitle}\n`
+          : `❌ (FAILED); Finished test: ${testTitle}\n`
+      );
+      await client.deleteSession();
     }
-    console.log(`🎉 Finished test: ${testTitle} \n`);
-    await client.deleteSession();
-    
   });
 
-  it('should navigate to Account tab', async function () {
+  it('Navigate to Account tab and verify we are there', async function () {
     await clickNavBarItem(client, NAVBAR_SELECTORS.navItems.account);
     await findHeaderInFirstViewGroup(client, 'Account');
   });
@@ -217,7 +221,7 @@ it('Verify Aleinu topic loads with correct blurb', async function () {
 **Example: `components/topics_page.ts`**
 
 ```javascript
-import { BASE_SELECTORS, OPERATION_TIMEOUTS } from '../constants';
+import { BASE_SELECTORS, STATIC_ERRORS, logError } from '../constants';
 
 /**
  * Navigates back from the current topic to the topics list.
@@ -226,11 +230,11 @@ import { BASE_SELECTORS, OPERATION_TIMEOUTS } from '../constants';
  */
 export async function navigateBackFromTopic(client: Browser): Promise<void> {
   const backButton = await client.$(BASE_SELECTORS.BACK_BUTTON);
-  if (await backButton.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.ELEMENT_WAIT }).catch(() => false)) {
+  if (await backButton.waitForDisplayed().catch(() => false)) {
     await backButton.click();
     console.debug("Successfully navigated back from topic page.");
   } else {
-    throw new Error("❌ Back button not found or not visible on topic page.");
+    throw new Error(logError(STATIC_ERRORS.BACK_BUTTON_NOT_FOUND));
   }
 }
 
@@ -261,7 +265,7 @@ import { DYNAMIC_ERRORS, ELEMENT_TIMEOUTS, TEXT_SELECTORS } from '../constants';
 export async function clickElementByContentDesc(client: Browser, contentDesc: string, elementName: string): Promise<void> {
     const selector = TEXT_SELECTORS.byContentDesc(contentDesc);
     const elem = await client.$(selector);
-    const isDisplayed = await elem.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
+    const isDisplayed = await elem.waitForDisplayed().catch(() => false);
     if (isDisplayed) {
         await elem.click();
         console.debug(`Clicked element with content-desc: '${contentDesc}'`);
@@ -325,9 +329,16 @@ Always use constants for consistent timing:
 
 ```javascript
 import { OPERATION_TIMEOUTS } from '../constants';
+// Great Example: No hardcoded timeouts
+await element.waitForDisplayed();
 
+// Okay Example: Using constants for timeouts
 await element.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.ELEMENT_WAIT });
 await client.pause(OPERATION_TIMEOUTS.SHORT_DELAY);
+
+// Bad Example: Hardcoded timeout values
+await element.waitForDisplayed({ timeout: 5000 });
+await client.pause(2000);
 ```
 
 ---

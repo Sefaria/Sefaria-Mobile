@@ -13,7 +13,7 @@
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
 import { escapeForRegex } from './helper_functions';
-import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, TEXT_SELECTORS, TOPICS_SELECTORS, ELEMENT_TIMEOUTS } from '../constants';
+import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, TEXT_SELECTORS, TOPICS_SELECTORS } from '../constants';
 
 
 
@@ -29,7 +29,7 @@ import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, TEXT_SELECTORS, TOPICS_SELECTO
 export async function findTextElement(client: Browser, text: string): Promise<ChainablePromiseElement> {
   const selector = TEXT_SELECTORS.exactText(escapeForRegex(text));
   const element = await client.$(selector);
-  const isDisplayed = await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
+  const isDisplayed = await element.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
     console.debug(`Text '${text}' is present on the page!`);
     return element;
@@ -48,7 +48,7 @@ export async function findTextElement(client: Browser, text: string): Promise<Ch
 export async function findTextContaining(client: Browser, text: string): Promise<ChainablePromiseElement> {
   const selector = TEXT_SELECTORS.containsText(escapeForRegex(text));
   const element = await client.$(selector);
-  const isDisplayed = await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
+  const isDisplayed = await element.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
     console.debug(`Text containing '${text}' is present on the page! Found text: '${await element.getText()}'`);
     return element;
@@ -66,13 +66,13 @@ export async function findTextContaining(client: Browser, text: string): Promise
 export async function findHeaderInFirstViewGroup(client: Browser, headerText: string): Promise<ChainablePromiseElement> {
   // Find the first ViewGroup
   const viewGroup = await client.$(TOPICS_SELECTORS.firstViewGroup);
-  const isViewGroupDisplayed = await viewGroup.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK }).catch(() => false);
+  const isViewGroupDisplayed = await viewGroup.waitForDisplayed().catch(() => false);
   if (!isViewGroupDisplayed) {
     throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ' (first ViewGroup)'));
   }
   // Find the TextView with the header text inside the ViewGroup
   const header = await viewGroup.$(TOPICS_SELECTORS.headerInViewGroup(escapeForRegex(headerText)));
-  const isHeaderDisplayed = await header.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK }).catch(() => false);
+  const isHeaderDisplayed = await header.waitForDisplayed().catch(() => false);
   if (!isHeaderDisplayed) {
     throw new Error(DYNAMIC_ERRORS.textNotFound(headerText));
   }
@@ -89,7 +89,7 @@ export async function findHeaderInFirstViewGroup(client: Browser, headerText: st
 export async function findElementByContentDesc(client: Browser, contentDesc: string): Promise<ChainablePromiseElement> {
   const selector = TEXT_SELECTORS.byDescription(escapeForRegex(contentDesc));
   const element = await client.$(selector);
-  const isDisplayed = await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
+  const isDisplayed = await element.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
     // Get the whole content-desc for logging
     const desc = await element.getAttribute('content-desc');
@@ -107,13 +107,13 @@ export async function findElementByContentDesc(client: Browser, contentDesc: str
  * @param elementName The name to use in logs and errors
  */
 export async function clickElementByContentDesc(client: Browser, contentDesc: string, elementName: string): Promise<void> {
-    const selector = TEXT_SELECTORS.byContentDesc(contentDesc);
-    const elem = await client.$(selector);
-    const isDisplayed = await elem.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
-    if (isDisplayed) {
-        await elem.click();
-        console.debug(`Clicked element with content-desc: '${contentDesc}'`);
-    } else {
-        throw new Error(DYNAMIC_ERRORS.elementNameNotFound(elementName));
-    }
+  const selector = TEXT_SELECTORS.byContentDesc(contentDesc);
+  const elem = await client.$(selector);
+  const isDisplayed = await elem.waitForDisplayed().catch(() => false);
+  if (isDisplayed) {
+    await elem.click();
+    console.debug(`Clicked element with content-desc: '${contentDesc}'`);
+  } else {
+    throw new Error(DYNAMIC_ERRORS.elementNameNotFound(elementName));
+  }
 }

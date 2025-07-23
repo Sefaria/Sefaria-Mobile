@@ -63,17 +63,3 @@ export const COLOR_THRESHOLDS = {
   STANDARD_NUMERIC: 10,
   LOOSE_NUMERIC: 20,
 } as const;
-
-// Status and state colors
-export const STATUS_COLORS = {
-  SUCCESS: '#28a745',    // Green for success states
-  ERROR: '#dc3545',      // Red for error states  
-  WARNING: '#ffc107',    // Yellow for warning states
-  INFO: '#17a2b8',       // Blue for info states
-  
-  // Loading and disabled states
-  DISABLED: '#cccccc',   // Gray for disabled elements
-  LOADING: '#6c757d',    // Muted gray for loading states
-} as const;
-
-

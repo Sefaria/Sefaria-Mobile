@@ -13,7 +13,7 @@
  */
 
 import type { Browser } from 'webdriverio';
-import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, READER_SELECTORS, ACCESSIBILITY_PATTERNS,OPERATION_TIMEOUTS } from '../constants';
+import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, READER_SELECTORS, ACCESSIBILITY_PATTERNS } from '../constants';
 
 /**
  * Checks if the TextView title inside the ScrollView has the given text.
@@ -24,10 +24,10 @@ import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, READER_SELECTORS, ACCESSIBILIT
 export async function verifyExactTitle(client: Browser, expectedText: string): Promise<void> {
   try {
     const scrollView = await client.$(READER_SELECTORS.scrollView);
-    await scrollView.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.READER_TITLE_LOAD });
+    await scrollView.waitForDisplayed();
     if (await scrollView.isDisplayed()) {
       const textView = await scrollView.$(READER_SELECTORS.titleTextView);
-      await textView.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.READER_TITLE_LOAD });
+      await textView.waitForDisplayed();
 
       const actualText = await textView.getText();
       console.debug(`Found text: "${actualText}"`);
@@ -54,10 +54,10 @@ export async function verifyExactTitle(client: Browser, expectedText: string): P
 export async function verifyTitleContains(client: Browser, expectedText: string): Promise<void> {
   try {
     const scrollView = await client.$(READER_SELECTORS.scrollView);
-    await scrollView.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.READER_CONTENT_LOAD });
+    await scrollView.waitForDisplayed();
     if (await scrollView.isDisplayed()) {
       const textView = await scrollView.$(READER_SELECTORS.titleTextView);
-      await textView.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.READER_TITLE_LOAD });
+      await textView.waitForDisplayed();
 
       const actualText = await textView.getText();
       console.debug(`Found text: "${actualText}"`);

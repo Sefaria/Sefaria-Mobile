@@ -21,6 +21,8 @@ export const BASE_SELECTORS = {
     `android=new UiSelector().className("android.view.ViewGroup").packageName("${packageName}")`,
   scrollView: () => 
     `android=new UiSelector().className("android.widget.ScrollView").scrollable(true)`,
+  editText: (packageName = APP_PACKAGE) => 
+    `android=new UiSelector().className("android.widget.EditText").packageName("${packageName}")`,
 } as const;
 
 // Text-based selectors
@@ -52,6 +54,43 @@ export const NAVBAR_SELECTORS = {
         saved: 'Saved',
         account: 'Account',
     },
+} as const;
+
+// Scrolling and gesture selectors
+export const SCROLL_SELECTORS = {
+  /**
+   * UiScrollable selectors for automated scrolling to find elements
+   */
+  scrollableContainer: () => 
+    'android=new UiSelector().scrollable(true).instance(0)',
+  
+  /**
+   * Scrolls to find text element (exact match)
+   * @param text The exact text to find
+   * @param goUp If true, scrolls backward; if false, scrolls forward
+   */
+  scrollToText: (text: string, goUp: boolean = false) => {
+    const direction = goUp ? 'scrollBackward' : 'scrollForward';
+    return `android=new UiScrollable(new UiSelector().scrollable(true).instance(0)).setAsVerticalList().${direction}().scrollIntoView(new UiSelector().className("android.widget.TextView").text("${text}"))`;
+  },
+  
+  /**
+   * Scrolls to find text element (contains match)
+   * @param text The text to search for (partial match)
+   * @param goUp If true, scrolls backward; if false, scrolls forward
+   */
+  scrollToTextContains: (text: string, goUp: boolean = false) => {
+    const direction = goUp ? 'scrollBackward' : 'scrollForward';
+    return `android=new UiScrollable(new UiSelector().scrollable(true).instance(0)).setAsVerticalList().${direction}().scrollIntoView(new UiSelector().className("android.widget.TextView").textContains("${text}"))`;
+  },
+  
+  /**
+   * Generic scrollable element finder
+   * @param textSelector The text selector (text("...") or textContains("..."))
+   * @param direction The scroll direction ('scrollForward' or 'scrollBackward')
+   */
+  scrollToElement: (textSelector: string, direction: 'scrollForward' | 'scrollBackward' = 'scrollForward') => 
+    `android=new UiScrollable(new UiSelector().scrollable(true).instance(0)).setAsVerticalList().${direction}().scrollIntoView(new UiSelector().className("android.widget.TextView").${textSelector})`,
 } as const;
 
 // Reader page selectors

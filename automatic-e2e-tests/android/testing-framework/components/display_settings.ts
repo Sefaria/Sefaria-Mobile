@@ -13,7 +13,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { STATIC_ERRORS, logError, DISPLAY_SETTINGS_SELECTORS, OPERATION_TIMEOUTS } from '../constants';
+import { STATIC_ERRORS, logError, DISPLAY_SETTINGS_SELECTORS } from '../constants';
 
 /**
  * toggle the display settings open and close.
@@ -22,7 +22,7 @@ import { STATIC_ERRORS, logError, DISPLAY_SETTINGS_SELECTORS, OPERATION_TIMEOUTS
  */
 export async function toggleDisplaySettings(client: Browser): Promise<void> {
   const displaySettingsButton = await client.$(DISPLAY_SETTINGS_SELECTORS.openButton);
-  const isDisplayed = await displaySettingsButton.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.DISPLAY_SETTINGS }).catch(() => false);
+  const isDisplayed = await displaySettingsButton.waitForDisplayed().catch(() => false);
   if (!isDisplayed) {
     throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ' (display settings button)'));
   }
@@ -36,16 +36,16 @@ export async function toggleDisplaySettings(client: Browser): Promise<void> {
  * @param isEnglish - Current language state; true if English, false if Hebrew.
  */
 export async function toggleLanguageButton(client: Browser, isEnglish: boolean = true): Promise<void> {
-    // Determine the description based on the current language
-    const targetLanguage = isEnglish ? "Hebrew" : "English";
-    const selector = DISPLAY_SETTINGS_SELECTORS.languageToggle(targetLanguage);
+  // Determine the description based on the current language
+  const targetLanguage = isEnglish ? "Hebrew" : "English";
+  const selector = DISPLAY_SETTINGS_SELECTORS.languageToggle(targetLanguage);
 
-    // Find and click the toggle language button
-    const toggleLanguageButton = await client.$(selector);
-    const isDisplayed = await toggleLanguageButton.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.DISPLAY_SETTINGS }).catch(() => false);
-    if (!isDisplayed) {
-      throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ` (toggle language button for ${targetLanguage})`));
-    }
-    await toggleLanguageButton.click();
-    console.debug(`Pressed toggle language button: switching to ${targetLanguage}.`);
+  // Find and click the toggle language button
+  const toggleLanguageButton = await client.$(selector);
+  const isDisplayed = await toggleLanguageButton.waitForDisplayed().catch(() => false);
+  if (!isDisplayed) {
+    throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ` (toggle language button for ${targetLanguage})`));
+  }
+  await toggleLanguageButton.click();
+  console.debug(`Pressed toggle language button: switching to ${targetLanguage}.`);
 }

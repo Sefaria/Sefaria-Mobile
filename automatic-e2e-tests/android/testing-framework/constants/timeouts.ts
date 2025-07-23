@@ -26,6 +26,7 @@ export const ELEMENT_TIMEOUTS = {
   // Special popup timeouts
   POPUP_WAIT: 5000,
   POPUP_EXTENDED: 15000,
+  POPUP_SLOW: 25000,
 } as const;
 
 // Test execution timeouts

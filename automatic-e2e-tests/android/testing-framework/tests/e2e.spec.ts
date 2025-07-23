@@ -12,10 +12,9 @@ import { validateViewGroupCenterColor, validateElementColorByDesc } from '../uti
 import { findTextElement, findHeaderInFirstViewGroup, findTextContaining, findElementByContentDesc } from '../utils/text_finder';
 import { getCurrentParashatHashavua, getCurrentHaftarah, getCurrentDafAWeek  } from '../utils/sefariaAPI'
 import { getHebrewDate, getCleanTestTitle } from '../utils/helper_functions'
-import { BAMIDBAR_1, ALEINU,MISHNAH , DYNAMIC_ERRORS,TEST_TIMEOUTS, SEFARIA_COLORS, SWIPE_CONFIG, NAVBAR_SELECTORS, SWIPE_ATTEMPTS } from '../constants';
+import { BAMIDBAR_1, ALEINU, MISHNAH , DYNAMIC_ERRORS,TEST_TIMEOUTS, SEFARIA_COLORS, SWIPE_CONFIG, NAVBAR_SELECTORS, SWIPE_ATTEMPTS } from '../constants';
 
 import './test_init'; // Allows Logging and Error Handling to be written to logs_test/ directory
-
 
 const no_reset = false; // Set to true if you want same device session to continue with each test
 const buildName = `Sefaria E2E ${new Date().toISOString().slice(0, 10)}`;
@@ -54,9 +53,9 @@ describe('e2e Sefaria Mobile regression tests', function () {
       }
       // Log the test result
       if (this.currentTest?.state === 'passed') {
-        console.log(`✅ Finished test (PASSED): ${testTitle}\n`);
+        console.log(`✅ (PASSED); Finished test: ${testTitle}\n`);
       } else {
-        console.log(`❌ Finished test (FAILED): ${testTitle}\n`);
+        console.log(`❌ (FAILED); Finished test: ${testTitle}\n`);
       }
       // Close the client session
       await client.deleteSession();
@@ -133,10 +132,9 @@ describe('e2e Sefaria Mobile regression tests', function () {
     
     // There is an issue currently in app behind the scene that prevents great tests
     // No resource id or description exists for certain UI elements, like the colored lines
-    // Thus I can nly check their viewgroup by index, but index changes as I scroll, so flaky!
+    // Thus I can only check their viewgroup by index, but index changes as I scroll, so flaky!
 
     //  await scrollTextIntoView(client, 'Midrash');
-    // await client.pause(100);
     // // In Android, indexes change when scrolling (flaky-check scroll and indexes in appium tester)
     // await validateViewGroupCenterColor(client, 7, '#5D956F'); // Midrash Green
     // await validateViewGroupCenterColor(client, 9, '#802F3E'); // Halakhah Red
@@ -164,19 +162,19 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await findTextElement(client, "Weekly Torah Portion");
     await findTextElement(client, "Haftarah");
 
-    // Minor scroll to get more more in view
-    await swipeUpOrDown(client, SWIPE_CONFIG.DIRECTIONS.UP, SWIPE_CONFIG.SHORT_DISTANCE, SWIPE_CONFIG.SHORT_DISTANCE);
 
     // Fetch Current Parsha and Haftarah using Sefaria's API
     const parasha = await getCurrentParashatHashavua();
-    const haftarah = await getCurrentHaftarah();
-
+    
     // Check if Parashat Hashevua is correct
     if (parasha) {
       await findTextElement(client, parasha.displayValue.en);
     } else {
       throw new Error(DYNAMIC_ERRORS.apiResultMismatch("Parashat Hashavua", parasha!.displayValue.en));    
     }
+    // Scroll to the Parashat Hashavua text (Ensures it is visible)
+    await scrollTextIntoView(client, "The portion from Prophets ", true);
+    const haftarah = await getCurrentHaftarah();
     // Check if Haftarah for this week is correct
     if (haftarah) {
       await findTextElement(client, haftarah.displayValue.en);
@@ -188,15 +186,15 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // await validateViewGroupCenterColor(client, 2, '#1f4d5d', true); // Tanakh Teal
     
     // Scroll to Daily Learning
-    await swipeIntoView(client, "up", "Daily Learning",);
+    await swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "Daily Learning",);
     await findTextElement(client, "Daily Learning");
     await findTextElement(client, "Daf Yomi");
     // Scroll to blurb about 929
-    await swipeIntoView(client, "up", "A learning program in which participants study five of the Bible’s 929 chapters a week, completing it in about three and a half years.");
+    await swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "A learning program in which participants study five of the Bible’s 929 chapters a week, completing it in about three and a half years.");
     await findTextElement(client, "929");
 
     // Scroll to Daily Rambam (3 Chapters)
-    await swipeIntoView(client, "up", "Daily Rambam (3 Chapters)");
+    await swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "Daily Rambam (3 Chapters)");
     await findTextElement(client, "Daily Rambam");
     
     // Scroll all the way to bottom and navigate to daf a week
@@ -208,7 +206,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
     // Get the current Daf a Week FROM Sefaria API and swipe it into view
     const DAF_A_WEEK = await getCurrentDafAWeek();
-    await swipeIntoView(client, "up", DAF_A_WEEK!.displayValue.en);
+    await swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, DAF_A_WEEK!.displayValue.en);
     if (DAF_A_WEEK) {
       await findTextElement(client, DAF_A_WEEK.displayValue.en);
     } else {

@@ -14,7 +14,7 @@ import type { Browser } from 'webdriverio';
 import { PNG } from 'pngjs';
 import * as fs from 'fs';
 import { hexToRgb, colorsAreClose } from './helper_functions';
-import { DYNAMIC_ERRORS, logError, VIEWGROUP_SELECTORS, TEXT_SELECTORS, ELEMENT_TIMEOUTS, COLOR_THRESHOLDS } from '../constants';
+import { DYNAMIC_ERRORS, logError, VIEWGROUP_SELECTORS, TEXT_SELECTORS, COLOR_THRESHOLDS } from '../constants';
 
 
 // ═══════════════════════════════════════════════════════════════
@@ -82,7 +82,7 @@ function validatePixelColor(
   const expected = hexToRgb(expectedColorHex);
 
   if (colorsAreClose(actual, expected, threshold)) {
-    console.debug(`${label} matches expected color. Actual: rgb(${actual.r},${actual.g},${actual.b}), Expected: rgb(${expected.r},${expected.g},${expected.b})`);
+    console.debug(`${label} matches expected color. Actual: rgb(${actual.r},${actual.g},${actual.b}), Expected: rgb(${expected.r},${expected.g},${expected.b}); Threshold (Allowed rgb distance): ${JSON.stringify(threshold)}`);
     return true;
   }
 
@@ -109,7 +109,7 @@ async function validateElementPixel(
   threshold: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_THRESHOLD,
   label: string = 'Pixel'
 ): Promise<boolean> {
-  await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK });
+  await element.waitForDisplayed();
   
   const bounds = parseBounds(await element.getAttribute('bounds'));
   const screenshotBase64 = await client.takeScreenshot();
@@ -134,7 +134,7 @@ async function validateViewGroupPixel(
 ): Promise<boolean> {
   const selector = VIEWGROUP_SELECTORS.byIndex(viewGroupIndex);
   const viewGroup = await client.$(selector);
-  await viewGroup.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK });
+  await viewGroup.waitForDisplayed();
   
   const bounds = parseBounds(await viewGroup.getAttribute('bounds'));
   const screenshotBase64 = await client.takeScreenshot();

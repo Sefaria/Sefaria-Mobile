@@ -14,7 +14,7 @@
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
 import { assertMatch } from '../utils/helper_functions';
 import { clickElementByContentDesc } from '../utils/text_finder';
-import { logError, STATIC_ERRORS, ELEMENT_TIMEOUTS, TOPICS_SELECTORS } from '../constants';
+import { logError, STATIC_ERRORS, TOPICS_SELECTORS } from '../constants';
 
 
 // || Helper Functions for topics_page ||
@@ -40,7 +40,7 @@ function getTextView(client: Browser, index: number): ChainablePromiseElement {
  */
 export async function navigateBackFromTopic(client: Browser): Promise<void> {
   const backButton = await client.$(TOPICS_SELECTORS.backButton);
-  const isDisplayed = await backButton.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
+  const isDisplayed = await backButton.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
     await backButton.click();
     console.debug("Back button clicked on Topics page.");
@@ -110,7 +110,7 @@ export async function clickSheets(client: Browser): Promise<void> {
  */
 export async function openSourceMenu(client: Browser): Promise<void> {
     const threeDotsElem = await client.$(TOPICS_SELECTORS.sourceMenu);
-    const isDisplayed = await threeDotsElem.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
+    const isDisplayed = await threeDotsElem.waitForDisplayed().catch(() => false);
     if (isDisplayed) {
         await threeDotsElem.click();
         console.debug("Three dots menu clicked on Topics page.");

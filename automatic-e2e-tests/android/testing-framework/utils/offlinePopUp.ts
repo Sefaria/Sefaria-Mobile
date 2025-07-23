@@ -27,7 +27,7 @@ export async function waitForOfflinePopUp(client: Browser, timeout: number = ELE
     console.debug('Popup is visible!');
     return true;
   } catch {
-    console.log('[INFO] Popup not visible!');
+    console.log('[INFO] Popup not visible! If tests fail later, check if app even loaded.');
     return false;
   }
 }
@@ -72,9 +72,9 @@ export async function clickOkIfPresent(client: Browser): Promise<void> {
  * Waits for the offline pop-up and clicks "Not Now" and "OK" if present.
  * Main function to handle offline popup workflow using centralized selectors.
  * @param client WebdriverIO browser instance
- * @param timeout Timeout in ms (default: POPUP_EXTENDED)
+ * @param timeout Timeout in ms (default: POPUP_SLOW)
  */
-export async function handleOfflinePopUp(client: WebdriverIO.Browser, timeout: number = ELEMENT_TIMEOUTS.POPUP_EXTENDED): Promise<void> {
+export async function handleOfflinePopUp(client: WebdriverIO.Browser, timeout: number = ELEMENT_TIMEOUTS.POPUP_SLOW): Promise<void> {
   if (await waitForOfflinePopUp(client, timeout)) {
     await clickNotNowIfPresent(client);
     await clickOkIfPresent(client);

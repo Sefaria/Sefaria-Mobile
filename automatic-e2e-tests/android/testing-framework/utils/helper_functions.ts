@@ -58,18 +58,18 @@ export function hexToRgb(hex: string): { r: number; g: number; b: number } {
  * @returns true if the colors are close enough, otherwise false
  */
 export function colorsAreClose(
-    a: { r: number; g: number; b: number },
-    b: { r: number; g: number; b: number },
-    tolerance: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_NUMERIC
+  a: { r: number; g: number; b: number },
+  b: { r: number; g: number; b: number },
+  tolerance: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_NUMERIC
 ): boolean {
-    const t = typeof tolerance === 'number'
-        ? { r: tolerance, g: tolerance, b: tolerance }
-        : tolerance;
-    return (
-        Math.abs(a.r - b.r) <= t.r &&
-        Math.abs(a.g - b.g) <= t.g &&
-        Math.abs(a.b - b.b) <= t.b
-    );
+  const t = typeof tolerance === 'number'
+    ? { r: tolerance, g: tolerance, b: tolerance }
+    : tolerance;
+  return (
+    Math.abs(a.r - b.r) <= t.r &&
+    Math.abs(a.g - b.g) <= t.g &&
+    Math.abs(a.b - b.b) <= t.b
+  );
 }
 
 
@@ -97,11 +97,11 @@ export function getHebrewDate(): string {
  * @param expected The expected text to compare
  */
 export function assertMatch(label: string, actual: string, expected: string): void {
-    const isMatch = actual === expected;
-    if (!isMatch) {
-        throw new Error(logError(`❌ ${label} does not match. Found: '${actual}', Expected: '${expected}'`));
-    }
-    console.debug(`${label} matches: '${actual}'`);
+  const isMatch = actual === expected;
+  if (!isMatch) {
+    throw new Error(logError(`❌ ${label} does not match. Found: '${actual}', Expected: '${expected}'`));
+  }
+  console.debug(`${label} matches: '${actual}'`);
 }
 
 /**
