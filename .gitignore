@@ -89,3 +89,4 @@ scripts/envvars.sh
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+automatic-e2e-tests/PR.md
