@@ -112,7 +112,7 @@ import { getOpts } from '../utils/load_credentials';
 import { handleOfflinePopUp } from '../utils/offlinePopUp';
 import { waitForNavBar, clickNavBarItem } from '../components/navbar';
 import { reportToBrowserstack } from '../utils/browserstack_report';
-import { findHeaderInFirstViewGroup } from '../utils/text_finder';
+import { verifyHeaderOnPage } from '../utils/text_finder';
 import { TEST_TIMEOUTS, NAVBAR_SELECTORS } from '../constants';
 
 import './test_init';
@@ -156,7 +156,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
   it('Navigate to Account tab and verify we are there', async function () {
     await clickNavBarItem(client, NAVBAR_SELECTORS.navItems.account);
-    await findHeaderInFirstViewGroup(client, 'Account');
+    await verifyHeaderOnPage(client, 'Account');
   });
 });
 ```

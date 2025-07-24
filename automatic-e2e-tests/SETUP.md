@@ -21,19 +21,62 @@ This guide explains how to configure, run, and troubleshoot automated end-to-end
    ```sh
    npm install -g appium
    appium driver install uiautomator2
-   ```
-3. **Android SDK / Platform-Tools**
-   - [Android Studio](https://developer.android.com/studio) or [Platform-tools only](https://developer.android.com/tools/releases/platform-tools)
-   - Add `platform-tools` to your `PATH` and set `ANDROID_HOME`.
-   - Verify: `adb version`
-4. **Enable USB Debugging** on your device or use an emulator (like Android Studio)
+
+3. **Android SDK (Command Line Only Setup)**
+   You do **not** need Android Studio. You can install just the SDK using command-line tools:
+
+   * Download the [Command Line Tools for Windows](https://developer.android.com/studio#command-line-tools-only).
+   * Create `Android` directory in `C:\` (e.g., `C:\Android`).
+   * Extract the downloaded ZIP file to `C:\Android`.
+      
+      (After extracting, navigate to `C:\Android\cmdline-tools\` and create a folder named `latest` if it does not exist. 
+      
+      Then move the `lib` and `bin` folders into `C:\Android\cmdline-tools\latest\`.
+      
+      Thus, final structure is 
+      
+      `C:\Android\cmdline-tools\latest\bin` and `C:\Android\cmdline-tools\latest\lib`.)
+     
+  * **Set system environment variables:**
+
+    1. **ANDROID_SDK_ROOT**  
+       Add a new system environment variable:  
+       `ANDROID_SDK_ROOT = C:\Android`
+
+    2. **PATH**  
+       Edit your system `PATH` variable and add the following directories (each as a separate entry):  
+       - `C:\Android\cmdline-tools\latest\bin`
+       - `C:\Android\platform-tools`
+       - `C:\Android\build-tools\<version>` (replace `<version>` with your chosen build tools version, e.g., `34.0.0`)
+
+    3. **Install SDK packages:**  
+       Open a new terminal and run:
+       ```sh
+       sdkmanager --sdk_root="C:\Android" "platform-tools" "build-tools;<version>"
+       ```
+       Replace `<version>` with the specific build tools version you need (e.g., `34.0.0`, `35.0.0`, `36.0.0`).  
+       You can install multiple build tools versions to match the Android versions you want to test on.  
+       To see all available build tools versions, run:
+       ```sh
+       sdkmanager --list
+       ```
+
+   * Verify:
+
+     ```sh
+     adb version
+     ```
+
+4. **Enable USB Debugging** on your device or use an emulator
+
 5. **Get Device ID:**
+
    ```sh
    adb devices
    ```
+
 6. **Copy example.env:**
    Copy `android/example.env` to `android/.env` and read the comments to configure your environment.
-
 
 ---
 
@@ -49,7 +92,7 @@ This mode runs tests on a physical device connected via USB or Android emulator.
    appium
    ```
 
-2. **Run tests:** In a separate terminal (Appium runs in the background)
+2. **Run tests:** In a separate terminal
 
    ```sh
    cd android
@@ -59,15 +102,14 @@ This mode runs tests on a physical device connected via USB or Android emulator.
 
 ### Logs & Cleanup
 
-- Logs: `android/logs-test/` (generated for each test run)
-- Screenshots: `android/diff-images/` (taken for failed visual checks)
-- Clean up:
+* Logs: `android/logs-test/` (generated for each test run)
+* Screenshots: `android/diff-images/` (taken for failed visual checks)
+* Clean up:
 
   ```sh
   npm run cleanup
   ```
-
-- Clean & test:
+* Clean & test:
 
   ```sh
   npm run test:clean
@@ -91,13 +133,13 @@ This mode runs tests on real devices in the cloud using BrowserStack and can be 
    - Copy the App ID (e.g., `bs://<app-id>`) and set it in your `.env` as `BROWSERSTACK_APP_ID`.
    - **Note:** You must upload your app every time you build a new APK/AAB. The App ID changes with each upload, so always update `BROWSERSTACK_APP_ID` in your `.env`.
 
-2. **Run tests as usual:**
+2. **Run tests:**
 
    ```sh
    npm test
    ```
 
-For more details, see [BrowserStack documentation](https://www.browserstack.com/docs/app-automate/appium/getting-started).
+See [BrowserStack docs](https://www.browserstack.com/docs/app-automate/appium/getting-started) for more.
 
 ### GitHub Actions
 
@@ -110,43 +152,73 @@ For more details, see [BrowserStack documentation](https://www.browserstack.com/
 
 ## Troubleshooting
 
-- **Device not found:** Check USB debugging, cable, and run `adb kill-server && adb start-server`.
-- **Appium not running:** Open a terminal and start Appium by typing `appium`.
-- **PATH/ANDROID_HOME issues:** Double-check system environment variables, restart terminal.
-- **Java JDK required:** [Download](https://adoptium.net/), set `JAVA_HOME`.
-- **uiautomator2 missing:** `appium driver install uiautomator2`
-- **BrowserStack errors:** Check credentials/app ID, make sure app is uploaded.
-   - Sometimes browserstack wants aab files instead of apk files, so make sure you upload the correct file.
-- **Windows Execution Disabled:**
+* **Device not found:** Check USB debugging and cables; restart `adb`:
+
+  ```sh
+  adb kill-server && adb start-server
+  ```
+
+* **Appium not running:** Run `appium` in a terminal.
+
+* **PATH/ANDROID\_SDK\_ROOT issues:** Double-check env vars, restart terminal.
+
+* **Testing a local APK?**
+  If `LOCAL_APP_PATH` is set in `.env`, ensure:
+
+  * You have installed `platform-tools` and `build-tools`
+  * `ANDROID_SDK_ROOT` is correctly set
+  * `apksigner.bat` is available in `C:\Android\build-tools\34.0.0\`
+
+* **Not using local APK?**
+  If `LOCAL_APP_PATH` is commented out, the test expects the app to already be installed on the device.
+
+* **Java JDK required:** [Download](https://adoptium.net/) and set `JAVA_HOME`
+
+* **uiautomator2 missing:**
+
+  ```sh
+  appium driver install uiautomator2
+  ```
+
+* **BrowserStack errors:**
+
+  * Check credentials, App ID, and file type (some devices require `.aab`)
+
+* **Windows Execution Disabled:**
 
   ```powershell
   Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
   ```
 
-- **Is only one test running?** Check your test files for `.only` (e.g., `describe.only` or `it.only`).
-- **npm/appium issues:** Try `npm cache clean --force`, restart terminal.
+* **Only one test running?** Remove `.only` from test files.
+
+* **npm/appium issues:**
+
+  ```sh
+  npm cache clean --force
+  ```
 
 ---
 
 ## Appium Inspector
 
-- [Download Appium Inspector](https://github.com/appium/appium-inspector/releases)
-- Example config (replace `DEVICE_ID` and `APK_PATH`):
+* [Download Appium Inspector](https://github.com/appium/appium-inspector/releases)
+* Example config:
 
   ```json
-   {
-      "platformName": "Android",
-      "appium:automationName": "UiAutomator2",
-      "appium:deviceName": "DEVICE_ID", // Change to your device name ('adb devices')
-      "appium:app": "APK_PATH", // Path to your app APK
-      "appium:noReset": false,
-      "appium:autoGrantPermissions": true,
-      "appium:appPackage": "org.sefaria.sefaria",
-      "appium:appWaitActivity": "*",
-      "appium:appActivity": "org.sefaria.sefaria.SplashActivity",
-      "appium:appWaitDuration": 30000,
-      "appium:adbExecTimeout": 60000
-   }
+  {
+    "platformName": "Android",
+    "appium:automationName": "UiAutomator2",
+    "appium:deviceName": "DEVICE_ID", // `adb devices` to find your device ID
+    "appium:app": "APK_PATH", // Path to your local APK
+    "appium:noReset": false,
+    "appium:autoGrantPermissions": true,
+    "appium:appPackage": "org.sefaria.sefaria",
+    "appium:appWaitActivity": "*",
+    "appium:appActivity": "org.sefaria.sefaria.SplashActivity",
+    "appium:appWaitDuration": 30000,
+    "appium:adbExecTimeout": 60000
+  }
   ```
 
 ---

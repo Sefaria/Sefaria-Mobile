@@ -33,8 +33,9 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
   if (RUN_ENV === 'local') {
     console.log("[INFO] Running on LOCAL")
     const LOCAL_DEVICE_NAME = process.env.LOCAL_DEVICE_NAME || 'Android Emulator';
+    // This should be set if you want to upload your own sdk for testing.
+    // If you have sefaria downloaded and want to just test that. Comment out lines: 38-41; 54.
     const LOCAL_APP_PATH = process.env.LOCAL_APP_PATH;
-
     if (!LOCAL_APP_PATH) {
       throw new Error('LOCAL_APP_PATH must be set in .env for local testing');
     }
@@ -49,6 +50,7 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
         'appium:deviceName': LOCAL_DEVICE_NAME, 
         'appium:noReset': noReset || false,
         'appium:autoGrantPermissions': true,
+        // Uncomment the next line if you want to use your own app for testing
         'appium:app': LOCAL_APP_PATH, 
         'appium:appPackage': 'org.sefaria.sefaria',
         'appium:appWaitActivity': '*',

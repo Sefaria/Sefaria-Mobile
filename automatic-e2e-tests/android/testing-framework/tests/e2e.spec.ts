@@ -9,7 +9,7 @@ import { verifyTopicTitle, verifyTopicBlurb, verifyTopicCategory, clickSheets, c
 import { reportToBrowserstack } from '../utils/browserstack_report';
 import { scrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
 import { validateViewGroupCenterColor, validateElementColorByDesc } from '../utils/ui_checker';
-import { findTextElement, findHeaderInFirstViewGroup, findTextContaining, findElementByContentDesc } from '../utils/text_finder';
+import { findTextElement, verifyHeaderOnPage, findTextContaining, findElementByContentDesc } from '../utils/text_finder';
 import { getCurrentParashatHashavua, getCurrentHaftarah, getCurrentDafAWeek  } from '../utils/sefariaAPI'
 import { getHebrewDate, getCleanTestTitle } from '../utils/helper_functions'
 import { BAMIDBAR_1, ALEINU, MISHNAH , DYNAMIC_ERRORS,TEST_TIMEOUTS, SEFARIA_COLORS, SWIPE_CONFIG, NAVBAR_SELECTORS, SWIPE_ATTEMPTS } from '../constants';
@@ -65,7 +65,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
   it('T001: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
     // Click on Search Icon
     await clickNavBarItem(client, NAVBAR_SELECTORS.navItems.search);
-    await findHeaderInFirstViewGroup(client, 'Search');
+    await verifyHeaderOnPage(client, 'Search');
     
     // Remove last letter of what you want to search to cause the list to pop up
     // Otherwise, the list won't update or pop up (Appium side effect)
@@ -77,7 +77,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
   it('T003: Navigate to Tanakh, scroll down and click Numbers', async function () {
     // Check if we are on the main page and Tanakh is present
-    let tanakh = await findHeaderInFirstViewGroup(client, 'Tanakh');
+    let tanakh = await verifyHeaderOnPage(client, 'Tanakh');
     await tanakh.click();
 
     // Verify we are on the Tanakh page
@@ -85,7 +85,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await scrollTextIntoView(client, "Numbers");
 
     // Scroll to Numbers section and click it
-    let numbers = await findHeaderInFirstViewGroup(client, 'Numbers')
+    let numbers = await verifyHeaderOnPage(client, 'Numbers')
     await numbers.click();
     // Verify we are on Numbers Chapter 1
     await verifyExactTitle(client, "1");
@@ -100,9 +100,9 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await toggleLanguageButton(client, true);
     
     // After changing language do a series of tests!
-    await findHeaderInFirstViewGroup(client, 'Browse the Library');
+    await verifyHeaderOnPage(client, 'Browse the Library');
     await findTextElement(client, "Learning Schedules");
-    let tanakh = await findHeaderInFirstViewGroup(client, 'תנ"ך');
+    let tanakh = await verifyHeaderOnPage(client, 'תנ"ך');
     await tanakh.click()
 
     // Verify English text is still present (does not change based on langaugeButton)
@@ -147,7 +147,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await learning_button.click();
 
     // Verfiy Learning Schedule and current secular date is present (e.g Jul 9 2025)
-    await findHeaderInFirstViewGroup(client, "Learning Schedules");
+    await verifyHeaderOnPage(client, "Learning Schedules");
     const currentDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).replace(/, /g, ' ');
     await findTextElement(client, currentDate);
 
@@ -229,7 +229,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
   it('TC021: Texts tab book category sub-page', async function () {
     // Click on Mishna
-    let mishna = await findHeaderInFirstViewGroup(client, MISHNAH.en);
+    let mishna = await verifyHeaderOnPage(client, MISHNAH.en);
     await mishna.click();
 
     // check we are on the Mishna page
@@ -280,11 +280,11 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await closePopUp(client);
 
     // Verify we are back on the main page
-    await findHeaderInFirstViewGroup(client, 'Browse the Library');
+    await verifyHeaderOnPage(client, 'Browse the Library');
 
     // navigate to Account
     await clickNavBarItem(client, NAVBAR_SELECTORS.navItems.account);
-    await findHeaderInFirstViewGroup(client, 'Account');
+    await verifyHeaderOnPage(client, 'Account');
 
     // Change language to Hebrew
     let hebrew_button = await findTextElement(client, "עברית");
@@ -308,7 +308,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await english_button.click();
 
     // Verify we are back in English
-    await findHeaderInFirstViewGroup(client, 'Account');
+    await verifyHeaderOnPage(client, 'Account');
 
   });
 
@@ -316,7 +316,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // Click on Topics
     await clickNavBarItem(client, NAVBAR_SELECTORS.navItems.topics);
     // Check if we are on the Topics page
-    await findHeaderInFirstViewGroup(client, 'Explore by Topic');
+    await verifyHeaderOnPage(client, 'Explore by Topic');
 
     let prayer_button = await findTextElement(client, "Prayer");
     await prayer_button.click();

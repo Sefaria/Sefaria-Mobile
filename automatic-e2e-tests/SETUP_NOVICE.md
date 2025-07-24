@@ -128,7 +128,7 @@ You have **two options** for setting up the required Android tools:
 
 #### Option 2: Download only platform-tools (minimal install, recommended for most users)
 
-- Download [platform-tools only](https://developer.android.com/tools/releases/platform-tools#downloads). (download the SDK Platform Tools for your OS)
+- Download [platform-tools only](https://developer.android.com/studio#command-line-tools-only). (download the SDK Platform Tools for your OS)
 - Extract the zip and note the path to the `platform-tools` directory.
 
 ---

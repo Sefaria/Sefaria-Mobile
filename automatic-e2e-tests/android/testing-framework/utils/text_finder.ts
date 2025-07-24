@@ -58,17 +58,16 @@ export async function findTextContaining(client: Browser, text: string): Promise
 }
 
 /**
- * Finds and verifies a header with the given text in the first ViewGroup element.
- * @param client WebdriverIO browser instance
+ * Finds and verifies the header on top of the page with the given text * @param client WebdriverIO browser instance
  * @param headerText The header text to check for (e.g., "Explore by Topic")
  * @returns Promise<ChainablePromiseElement> The header element if found
  */
-export async function findHeaderInFirstViewGroup(client: Browser, headerText: string): Promise<ChainablePromiseElement> {
+export async function verifyHeaderOnPage(client: Browser, headerText: string): Promise<ChainablePromiseElement> {
   // Find the first ViewGroup
   const viewGroup = await client.$(TOPICS_SELECTORS.firstViewGroup);
   const isViewGroupDisplayed = await viewGroup.waitForDisplayed().catch(() => false);
   if (!isViewGroupDisplayed) {
-    throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ' (first ViewGroup)'));
+    throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ' (page header)'));
   }
   // Find the TextView with the header text inside the ViewGroup
   const header = await viewGroup.$(TOPICS_SELECTORS.headerInViewGroup(escapeForRegex(headerText)));
@@ -76,7 +75,7 @@ export async function findHeaderInFirstViewGroup(client: Browser, headerText: st
   if (!isHeaderDisplayed) {
     throw new Error(DYNAMIC_ERRORS.textNotFound(headerText));
   }
-  console.debug(`Header '${headerText}' is present in the first ViewGroup!`);
+  console.debug(`Header '${headerText}' is present!`);
   return header;
 }
 
