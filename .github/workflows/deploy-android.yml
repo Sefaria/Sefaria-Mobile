@@ -55,6 +55,12 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" \
             | base64 --decode \
             > android/app/upload-kstore.keystore
+        
+      - name: Decode Google Services JSON
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" \
+            | base64 --decode \
+            > android/app/google-services.json
 
       - name: Create envvars.sh file
         run: |
