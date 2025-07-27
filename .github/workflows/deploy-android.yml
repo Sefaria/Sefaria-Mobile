@@ -55,6 +55,10 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" \
             | base64 --decode \
             > android/app/upload-kstore.keystore
+
+          echo "${{ secrets.KEYSTORE_BASE64 }}" \
+            | base64 --decode \
+            > android/upload-kstore.keystore
         
       - name: Decode Google Services JSON
         run: |
