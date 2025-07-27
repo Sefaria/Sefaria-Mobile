@@ -18,15 +18,23 @@ jobs:
       - name: Configure Android SDK
         run: |
           echo "ANDROID_HOME=/Users/runner/Library/Android/sdk" >> $GITHUB_ENV
-          echo "$ANDROID_HOME/emulator"   >> $GITHUB_PATH
-          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
-          yes | sdkmanager --install \
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          curl -fsSL https://dl.google.com/android/repository/commandlinetools-mac-9477386_latest.zip \
+            -o cmdline-tools.zip
+          unzip -q cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
+          rm cmdline-tools.zip
+          mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/platform-tools"  >> $GITHUB_PATH
+          echo "$ANDROID_HOME/emulator"       >> $GITHUB_PATH
+
+          yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
+          sdkmanager --sdk_root=$ANDROID_HOME \
             "platform-tools" \
             "platforms;android-33" \
-            "build-tools;33.0.2" \
-            --licenses
+            "build-tools;33.0.2"
 
       - name: Install Bundler & Fastlane
         run: |
