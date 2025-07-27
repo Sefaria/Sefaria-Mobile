@@ -1,0 +1,43 @@
+name: 🚀 Deploy Android
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        required: true
+
+
+jobs:
+  android-deploy:
+    name: Android → Internal Testing
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK & Android SDK
+        run: |
+          brew install --cask adoptopenjdk11
+          brew install android-sdk
+          echo "ANDROID_HOME=/usr/local/share/android-sdk" >> $GITHUB_ENV
+          echo "PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+          sdkmanager --install "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+
+      - name: Install Bundler & Fastlane
+        run: |
+          gem install bundler
+          bundle install
+
+      - name: Decode Play Store JSON
+        run: |
+          echo "${{ secrets.PLAY_JSON_BASE64 }}" | base64 --decode \
+            > android/fastlane/production-deployment-a34193910650.json
+          echo "${{ secrets.PLAY_JSON_BASE64 }}" | base64 --decode \          - name: Decode Android Keystore
+            run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-kstore.keystore
+            > android/keystores/production-deployment-a34193910650.json
+
+      - name: Run Fastlane Android testrelease
+        working-directory: android
+        run: |
+          bundle exec fastlane android testrelease storepass:${{ secrets.STOREPASS }}
