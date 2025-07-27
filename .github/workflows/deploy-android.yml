@@ -1,11 +1,6 @@
 name: 🚀 Deploy Android
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        type: string
-        required: true
-
 
 jobs:
   android-deploy:
