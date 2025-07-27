@@ -4,12 +4,10 @@ on:
 
 jobs:
   android-deploy:
-    name: Android → Internal Testing
     runs-on: macos-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Java 17
         uses: actions/setup-java@v3
@@ -17,25 +15,18 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Install Android SDK tools
+      - name: Configure Android SDK
         run: |
-          # install the two new casks in lieu of the old android-sdk
-          brew install --cask android-commandlinetools android-platform-tools
+          echo "ANDROID_HOME=/Users/runner/Library/Android/sdk" >> $GITHUB_ENV
+          echo "$ANDROID_HOME/emulator"   >> $GITHUB_PATH
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
-          # point ANDROID_SDK_ROOT at "latest" cmdline-tools
-          ANDROID_SDK_ROOT="$(brew --prefix)/share/android-commandlinetools/cmdline-tools/latest"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-
-          # add sdkmanager + adb to PATH
-          echo "$ANDROID_SDK_ROOT/bin" >> $GITHUB_PATH
-          echo "$(brew --prefix)/share/android-platform-tools" >> $GITHUB_PATH
-
-          # accept licenses & install the bits you need
-          yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
-          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+          yes | sdkmanager --install \
             "platform-tools" \
             "platforms;android-33" \
-            "build-tools;33.0.2"
+            "build-tools;33.0.2" \
+            --licenses
 
       - name: Install Bundler & Fastlane
         run: |
