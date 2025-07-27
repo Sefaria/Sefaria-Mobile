@@ -90,3 +90,24 @@ jobs:
         working-directory: android
         run: |
           bundle exec fastlane android testrelease storepass:${{ secrets.STOREPASS }}
+
+      - name: Commit version bump
+        if: ${{ success() }}
+        run: |
+          # configure git user
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # stage the changed file
+          git add android/app/build.gradle
+
+          # only commit if there *is* a bump
+          if git diff --cached --quiet; then
+            echo "No version bump detected; skipping commit"
+          else
+            # grab the new versionCode for the commit message
+            NEW=$(grep versionCode android/app/build.gradle | awk '{print $2}')
+            git commit -m "ci: bump Android versionCode to $NEW [skip ci]"
+            # push back to the same branch that triggered this workflow
+            git push origin HEAD:${GITHUB_REF#refs/heads/}
+          fi
