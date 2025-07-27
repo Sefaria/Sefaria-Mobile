@@ -50,6 +50,10 @@ jobs:
             | base64 --decode \
             > android/fastlane/production-deployment-a34193910650.json
 
+          echo "${{ secrets.PLAY_JSON_BASE64 }}" \
+            | base64 --decode \
+            > android/keystores/production-deployment-a34193910650.json
+
       - name: Decode Android Keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" \
@@ -70,6 +74,17 @@ jobs:
         run: |
           echo "export SOURCE_SERVER=\"https://readonly.sefaria.org/\"" >> scripts/envvars.sh
           echo "export SOURCE_UNIX_PATH=\"static/ios-export/\"" >> scripts/envvars.sh
+
+      - name: list the Android directory & keystore
+        working-directory: android
+        run: |
+          echo "PWD = $(pwd)"
+          ls -l .
+          file upload-kstore.keystore || true
+          keytool -list -v \
+            -keystore upload-kstore.keystore \
+            -storepass "${{ secrets.STOREPASS }}" \
+          || true
 
       - name: Run Fastlane Android testrelease
         working-directory: android
