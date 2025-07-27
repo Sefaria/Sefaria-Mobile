@@ -12,7 +12,7 @@ jobs:
 
       - name: Set up JDK & Android SDK
         run: |
-          brew install --cask temurin11
+          brew install --cask temurin@11
           brew install android-sdk
           echo "ANDROID_HOME=/usr/local/share/android-sdk" >> $GITHUB_ENV
           echo "PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
