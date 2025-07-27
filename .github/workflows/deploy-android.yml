@@ -54,6 +54,11 @@ jobs:
             | base64 --decode \
             > android/app/upload-kstore.keystore
 
+      - name: Create envvars.sh file
+        run: |
+          echo "export SOURCE_SERVER=\"https://readonly.sefaria.org/\"" >> scripts/envvars.sh
+          echo "export SOURCE_UNIX_PATH=\"static/ios-export/\"" >> scripts/envvars.sh
+
       - name: Run Fastlane Android testrelease
         working-directory: android
         run: |
