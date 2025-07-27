@@ -676,7 +676,6 @@ class ReaderApp extends React.PureComponent {
     ref = ref.indexOf("-") !== -1 ? ref.split("-")[0] : ref;
 
     // Clear the current state, load ref, then load text into the state.
-    
     return new Promise((resolve, reject) => {
       this.setState({
           loaded: false,
@@ -1883,7 +1882,7 @@ class ReaderApp extends React.PureComponent {
   }
 
   reportError = () => {
-    const body = 
+    const body =
       `${this.state.segmentRef}
 
       ${this.getDisplayedText(true)}
@@ -2066,7 +2065,7 @@ class ReaderApp extends React.PureComponent {
         break;
       case ("settings"):
         trackCurrentScreen("settings", "menu")
-        return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
+        return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} syncProfile={this.syncProfileBound} />);
       case ("account-menu"):
         trackCurrentScreen("account-menu", "menu")
         return(<AccountNavigationMenu 
@@ -2259,7 +2258,7 @@ class ReaderApp extends React.PureComponent {
                   vowelToggleAvailable={vowelToggleAvailable}
                   highlightedWordID={this.state.highlightedWordID}
                   highlightedWordSegmentRef={this.state.highlightedWordSegmentRef}
-                  setHighlightedWord={this.setHighlightedWord}            
+                  setHighlightedWord={this.setHighlightedWord}
                 />
             </View> }
 
@@ -2369,13 +2368,13 @@ class ReaderApp extends React.PureComponent {
     // In case of unfound ref, try going one ref up (up to the book) before dealing with error by returning to nav.
     // We do this to avoid failing in case of ref to a non existent ref after a changing index of a book.
     const refUpOne = Sefaria.refUpOne(ref, true);
-    
+
     // Break if there is no more ref up to do.
     // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
     if (ref !== refUpOne) {
       // Record the error with detailed message and attributes
       CrashlyticsService.recordError(
-        new Error('Navigation Failure: Ref resolution fallback needed'), 
+        new Error('Navigation Failure: Ref resolution fallback needed'),
         {
           'original_ref': ref,
           'ref': refUpOne,
@@ -2393,7 +2392,7 @@ class ReaderApp extends React.PureComponent {
           'num_tries': `${numTries}`
         }
       );
-      
+
       const bookTitle = Sefaria.textTitleForRef(ref);
       if (bookTitle) {
         this.openTextTocDirectly(bookTitle);
