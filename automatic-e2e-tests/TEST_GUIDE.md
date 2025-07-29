@@ -57,9 +57,9 @@ import {
 
 ```javascript
 // Good: Using constants
-import { BASE_SELECTORS, OPERATION_TIMEOUTS } from '../constants';
+import { SELECTORS, OPERATION_TIMEOUTS } from '../constants';
 
-const element = await client.$(BASE_SELECTORS.NAVBAR_SEARCH);
+const element = await client.$(SELECTORS.BASE_SELECTORS.NAVBAR_SEARCH);
 await element.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.ELEMENT_WAIT });
 
 // Bad: Hardcoded values
@@ -97,7 +97,7 @@ await element.waitForDisplayed({ timeout: 4000 });
 
 ## Test File Structure & Best Practices
 
-- All test files live in [`android/testing-framework/tests/`](./android/testing-framework/tests).
+- All test files live in [`shared/tests/`](./shared/tests).
 - Use `describe` blocks for grouping related tests.
 - Use `beforeEach`/`afterEach` for setup and teardown.
 - Use helpers from `components/` and `utils/` for all non-trivial actions.
@@ -113,7 +113,7 @@ import { handleOfflinePopUp } from '../utils/offlinePopUp';
 import { waitForNavBar, clickNavBarItem } from '../components/navbar';
 import { reportToBrowserstack } from '../utils/browserstack_report';
 import { verifyHeaderOnPage } from '../utils/text_finder';
-import { TEST_TIMEOUTS, NAVBAR_SELECTORS } from '../constants';
+import { TEST_TIMEOUTS, SELECTORS } from '../constants';
 
 import './test_init';
 
@@ -155,7 +155,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
   });
 
   it('Navigate to Account tab and verify we are there', async function () {
-    await clickNavBarItem(client, NAVBAR_SELECTORS.navItems.account);
+    await clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.account);
     await verifyHeaderOnPage(client, 'Account');
   });
 });
@@ -211,7 +211,7 @@ it('Verify Aleinu topic loads with correct blurb', async function () {
 
 ## How to Create a Component
 
-- Components live in [`components/`](./android/testing-framework/components/).
+- Components live in [`components/`](./shared/components/).
 - Component files follow the Page Object Model pattern: each file represents a page or feature and exports functions for interacting with it.
 - Use clear, descriptive function names (e.g., `verifyTopicTitle`, `navigateBackFromTopic`).
 - **Import constants** from the centralized constants directory instead of hardcoding values.
@@ -221,7 +221,7 @@ it('Verify Aleinu topic loads with correct blurb', async function () {
 **Example: `components/topics_page.ts`**
 
 ```javascript
-import { BASE_SELECTORS, STATIC_ERRORS, logError } from '../constants';
+import { SELECTORS, STATIC_ERRORS, logError } from '../constants';
 
 /**
  * Navigates back from the current topic to the topics list.
@@ -229,7 +229,7 @@ import { BASE_SELECTORS, STATIC_ERRORS, logError } from '../constants';
  * @returns {Promise<void>} - Resolves when the back navigation is complete.
  */
 export async function navigateBackFromTopic(client: Browser): Promise<void> {
-  const backButton = await client.$(BASE_SELECTORS.BACK_BUTTON);
+  const backButton = await client.$(SELECTORS.BASE_SELECTORS.BACK_BUTTON);
   if (await backButton.waitForDisplayed().catch(() => false)) {
     await backButton.click();
     console.debug("Successfully navigated back from topic page.");
@@ -244,7 +244,7 @@ export async function navigateBackFromTopic(client: Browser): Promise<void> {
 
 ## How to Add a Utility Function
 
-- Utilities live in [`utils/`](./android/testing-framework/utils/).
+- Utilities live in [`utils/`](./shared/utils/).
 - Add new helpers for gestures, color checks, API calls, etc.
 - Keep functions generic and reusable across many different pages.
 - **Import constants** from the centralized constants directory for consistency.
@@ -254,7 +254,7 @@ export async function navigateBackFromTopic(client: Browser): Promise<void> {
 **Example: `utils/text_finder.ts`**
 
 ```javascript
-import { DYNAMIC_ERRORS, ELEMENT_TIMEOUTS, TEXT_SELECTORS } from '../constants';
+import { DYNAMIC_ERRORS, ELEMENT_TIMEOUTS, SELECTORS } from '../constants';
 
 /**
  * Clicks an element by its content-desc and logs its content-desc.
@@ -263,7 +263,7 @@ import { DYNAMIC_ERRORS, ELEMENT_TIMEOUTS, TEXT_SELECTORS } from '../constants';
  * @param elementName The name to use in logs and errors
  */
 export async function clickElementByContentDesc(client: Browser, contentDesc: string, elementName: string): Promise<void> {
-    const selector = TEXT_SELECTORS.byContentDesc(contentDesc);
+    const selector = SELECTORS.TEXT_SELECTORS.byContentDesc(contentDesc);
     const elem = await client.$(selector);
     const isDisplayed = await elem.waitForDisplayed().catch(() => false);
     if (isDisplayed) {
@@ -292,8 +292,8 @@ export async function clickElementByContentDesc(client: Browser, contentDesc: st
 - **Clicking by content-desc:**  
 
   ```javascript
-  import { BASE_SELECTORS } from '../constants';
-  await clickElementByContentDesc(client, BASE_SELECTORS.NAVBAR_SEARCH, 'Search button');
+  import { SELECTORS } from '../constants';
+  await clickElementByContentDesc(client, SELECTORS.BASE_SELECTORS.NAVBAR_SEARCH, 'Search button');
   ```
 
 - **Swiping/scrolling:**  
@@ -346,9 +346,9 @@ await client.pause(2000);
 ## Debugging & Troubleshooting
 
 - **Logs:**  
-  All console output is saved to `android/logs-test/`.
+  All console output is saved to `logs-test/`.
 - **Screenshots:**  
-  Failed color checks save images to `android/diff-images/`.
+  Failed color checks save images to `diff-images/`.
 - **Uncaught errors:**  
   Are logged and will fail the test.
 - **Flaky selectors:**  

@@ -1,0 +1,61 @@
+{
+  "name": "sefaria-mobile-e2e-tests",
+  "version": "1.0.0",
+  "description": "Cross-platform automated tests for Sefaria Mobile app",
+  "main": "index.js",
+  "scripts": {
+    "test:android": "cross-env PLATFORM=android NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
+    "test:ios": "cross-env PLATFORM=ios NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
+    
+    "test:android:local": "cross-env PLATFORM=android RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
+    "test:ios:local": "cross-env PLATFORM=ios RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
+    
+    "test:android:browserstack": "cross-env PLATFORM=android RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
+    "test:ios:browserstack": "cross-env PLATFORM=ios RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
+    
+    "cleanup:android": "node scripts/cleanup.js android",
+    "cleanup:ios": "node scripts/cleanup.js ios",
+    "cleanup" : "npm run cleanup:android && npm run cleanup:ios",
+
+    "test:android:clean": "npm run cleanup:android && npm run test:android:local",
+    "test:ios:clean": "npm run cleanup:ios && npm run test:ios:local"
+  },
+  "keywords": [
+    "sefaria",
+    "mobile",
+    "e2e",
+    "testing",
+    "appium",
+    "webdriverio",
+    "android",
+    "ios"
+  ],
+  "author": "Sefaria QA Team",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/axios": "^0.9.36",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.19.4",
+    "@types/pngjs": "^6.0.5",
+    "@types/webdriverio": "^4.13.3",
+    "@wdio/cli": "^9.16.2",
+    "@wdio/globals": "^9.16.2",
+    "@wdio/types": "^9.16.2",
+    "cross-env": "^7.0.3",
+    "expect-webdriverio": "^5.3.4",
+    "mocha": "^11.7.1",
+    "ts-mocha": "^11.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "webdriverio": "^9.16.2"
+  },
+  "dependencies": {
+    "axios": "^1.10.0",
+    "dotenv": "^17.0.1",
+    "hebrew-date": "^1.0.7",
+    "pngjs": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

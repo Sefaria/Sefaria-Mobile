@@ -29,10 +29,12 @@ jspm_packages/
 # Optional npm cache directory
 .npm/
 
-# Anything inside diff-images folder
-diff-images/*.png
-android/diff-images/*.png
+# Anything inside screenshots folder
+screenshots/ios/*
+screenshots/android/*
 
+logs/android/*
+logs/ios/* 
 # IDE files
 .vscode/
 .idea/
@@ -46,3 +48,8 @@ coverage/
 *.local
 *.log
 # !test-run.log
+
+# APK, AAB, and IPA
+*.apk
+*.aab
+*.ipa
