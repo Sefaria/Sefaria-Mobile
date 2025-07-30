@@ -27,14 +27,16 @@ export const BASE_SELECTORS = {
 
 // Text-based selectors
 export const TEXT_SELECTORS = {
-    exactText: (text: string, packageName = APP_PACKAGE) => 
-        `android=new UiSelector().className("android.widget.TextView").packageName("${packageName}").text("${text}")`,
-    containsText: (text: string, packageName = APP_PACKAGE) => 
-        `android=new UiSelector().className("android.widget.TextView").packageName("${packageName}").textContains("${text}")`,
-    byDescription: (description: string) => 
-        `android=new UiSelector().description("${description}")`,
-    byContentDesc: (contentDesc: string) =>
-        `//android.view.ViewGroup[@content-desc="${contentDesc}"]`,
+  exactText: (text: string, packageName = APP_PACKAGE) => 
+      `android=new UiSelector().className("android.widget.TextView").packageName("${packageName}").text("${text}")`,
+  containsText: (text: string, packageName = APP_PACKAGE) => 
+      `android=new UiSelector().className("android.widget.TextView").packageName("${packageName}").textContains("${text}")`,
+  byDescription: (description: string) => 
+      `android=new UiSelector().description("${description}")`,
+  byContentDesc: (contentDesc: string) =>
+      `//android.view.ViewGroup[@content-desc="${contentDesc}"]`,
+  headerInViewGroup: (headerText: string) => 
+      `android=new UiSelector().className("android.widget.TextView").packageName("${APP_PACKAGE}").textContains("${headerText}")`,
 } as const;
 
 // Navigation selectors
@@ -100,6 +102,11 @@ export const READER_SELECTORS = {
   textByAccessibilityId: (text: string) => `~${text}`,
 } as const;
 
+// Search page selectors
+export const SEARCH_SELECTORS = {
+  exactText: (text: string) => 
+    TEXT_SELECTORS.exactText(text, APP_PACKAGE),
+}
 // Display settings selectors
 export const DISPLAY_SETTINGS_SELECTORS = {
   openButton: '~Open display settings',
@@ -109,9 +116,6 @@ export const DISPLAY_SETTINGS_SELECTORS = {
 
 // Topics and search selectors
 export const TOPICS_SELECTORS = {
-  firstViewGroup: `android=new UiSelector().className("android.view.ViewGroup").packageName("${APP_PACKAGE}").index(0)`,
-  headerInViewGroup: (headerText: string) => 
-    `android=new UiSelector().className("android.widget.TextView").packageName("${APP_PACKAGE}").textContains("${headerText}")`,
   backButton: "//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.widget.ImageView",
   textView: (index: number) => 
     `//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[1]/android.widget.TextView[${index}]`,

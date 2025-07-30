@@ -7,9 +7,9 @@ import { verifyExactTitle, findTextByAccessibilityId, verifyTitleContains } from
 import { toggleLanguageButton } from '../components/display_settings'
 import { verifyTopicTitle, verifyTopicBlurb, verifyTopicCategory, clickSheets, clickSources, openSourceMenu } from '../components/topics_page';
 import { reportToBrowserstack } from '../utils/browserstack_report';
-import { scrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
+import { autoScrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
 import { validateViewGroupCenterColor, validateElementColorByDesc } from '../utils/ui_checker';
-import { findTextElement, verifyHeaderOnPage, findTextContaining, findElementByContentDesc } from '../utils/text_finder';
+import { findTextElement, verifyHeaderOnPage, findTextContaining } from '../utils/text_finder';
 import { getCurrentParashatHashavua, getCurrentHaftarah, getCurrentDafAWeek  } from '../utils/sefariaAPI'
 import { getHebrewDate, getCleanTestTitle } from '../utils/helper_functions'
 import { BAMIDBAR_1, ALEINU, MISHNAH, DYNAMIC_ERRORS, TEST_TIMEOUTS, SEFARIA_COLORS, SWIPE_CONFIG, SELECTORS, SWIPE_ATTEMPTS } from '../constants';
@@ -62,7 +62,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     }
   });
 
-  it.only('T001: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
+  it('T001: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
     // Click on Search Icon
     await clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.search);
     await verifyHeaderOnPage(client, 'Search');
@@ -82,11 +82,10 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
     // Verify we are on the Tanakh page
     await verifyExactTitle(client, "TANAKH");
-    await scrollTextIntoView(client, "Numbers");
-
     // Scroll to Numbers section and click it
-    let numbers = await verifyHeaderOnPage(client, 'Numbers')
+    let numbers = await autoScrollTextIntoView(client, "Numbers");
     await numbers.click();
+
     // Verify we are on Numbers Chapter 1
     await verifyExactTitle(client, "1");
 
@@ -96,13 +95,15 @@ describe('e2e Sefaria Mobile regression tests', function () {
   });
 
   it('T004: Toggle Language to hebrew and see how it affects the page', async function () {
-    // Verify toggle language button is present
+    // Verify toggle language button is present and switches to Hebrew
     await toggleLanguageButton(client, true);
     
     // After changing language do a series of tests!
     await verifyHeaderOnPage(client, 'Browse the Library');
     await findTextElement(client, "Learning Schedules");
-    let tanakh = await verifyHeaderOnPage(client, 'תנ"ך');
+    // Find Tanakh in the main page 
+    // (The " in תנ"ך causes errors on ios, so it works with just those two letters)
+    let tanakh = await verifyHeaderOnPage(client, 'תנ');
     await tanakh.click()
 
     // Verify English text is still present (does not change based on langaugeButton)
@@ -117,7 +118,6 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // Return back to english
     await toggleLanguageButton(client, false);
     await verifyExactTitle(client, "TANAKH");
-    // await swipeUpOrDown(client, 'down', 300, 300);
     await findTextElement(client, "TORAH (The Five Books of Moses)");
     await findTextElement(client, "Genesis");
   });
@@ -134,7 +134,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // No resource id or description exists for certain UI elements, like the colored lines
     // Thus I can only check their viewgroup by index, but index changes as I scroll, so flaky!
 
-    //  await scrollTextIntoView(client, 'Midrash');
+    //  await autoScrollTextIntoView(client, 'Midrash');
     // // In Android, indexes change when scrolling (flaky-check scroll and indexes in appium tester)
     // await validateViewGroupCenterColor(client, 7, '#5D956F'); // Midrash Green
     // await validateViewGroupCenterColor(client, 9, '#802F3E'); // Halakhah Red
@@ -176,7 +176,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     const haftarah = await getCurrentHaftarah();
     // Check if Haftarah for this week is correct
     if (haftarah) {
-      await scrollTextIntoView(client, haftarah.displayValue.en);
+      await autoScrollTextIntoView(client, haftarah.displayValue.en);
     } else {
       throw new Error(DYNAMIC_ERRORS.apiResultMismatch("Haftarah", haftarah!.displayValue.en));
     }
@@ -187,7 +187,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // Scroll to Daily Learning
     await swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "Daily Learning",);
     await findTextElement(client, "Daily Learning");
-    await scrollTextIntoView(client, "Daf Yomi");
+    await autoScrollTextIntoView(client, "Daf Yomi");
 
     // Scroll to blurb about 929
     await swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "A learning program in which participants study five of the Bible’s 929 chapters a week, completing it in about three and a half years.");
@@ -242,8 +242,10 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await validateViewGroupCenterColor(client, 2, SEFARIA_COLORS.LINE_GRAY); 
 
     // Check if the sefers below the sub categories (e.g. Seder Zeraim) has appropriate short blurb 
-    await findElementByContentDesc(client, MISHNAH.content_desc.berakot);
-    await findElementByContentDesc(client, MISHNAH.content_desc.peah);
+    await verifyHeaderOnPage(client, MISHNAH.content_desc.berakot.title);
+    await findTextElement(client, MISHNAH.content_desc.berakot.blurb);
+    await verifyHeaderOnPage(client, MISHNAH.content_desc.peah.title);
+    await findTextElement(client, MISHNAH.content_desc.peah.blurb);
 
     // Scroll down the screen to see all the Sederim are present
     for (const seder of MISHNAH.sedarim) {
@@ -271,7 +273,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     
     // Check if the hebrew torah quote on bottom of dedication is present
     await findTextElement(client, "יגיע כפיך כי תאכל אשריך וטוב לך");
-    await findTextElement(client, '(תהילים קכ"ח)');
+    await findTextContaining(client, 'תהילים קכ');
 
     // Scroll back up to see the x button
     await swipeUpOrDown(client, SWIPE_CONFIG.DIRECTIONS.DOWN, SWIPE_CONFIG.LONG_DISTANCE, SWIPE_CONFIG.FAST_SCROLL_DISTANCE);

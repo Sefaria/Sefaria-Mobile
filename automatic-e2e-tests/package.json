@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "description": "Cross-platform automated tests for Sefaria Mobile app",
   "main": "index.js",
-  "scripts": {
-    "test:android": "cross-env PLATFORM=android NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
-    "test:ios": "cross-env PLATFORM=ios NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
-    
+  "scripts": { 
     "test:android:local": "cross-env PLATFORM=android RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
     "test:ios:local": "cross-env PLATFORM=ios RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
     
@@ -15,10 +12,7 @@
     
     "cleanup:android": "node scripts/cleanup.js android",
     "cleanup:ios": "node scripts/cleanup.js ios",
-    "cleanup" : "npm run cleanup:android && npm run cleanup:ios",
-
-    "test:android:clean": "npm run cleanup:android && npm run test:android:local",
-    "test:ios:clean": "npm run cleanup:ios && npm run test:ios:local"
+    "cleanup" : "npm run cleanup:android && npm run cleanup:ios"
   },
   "keywords": [
     "sefaria",

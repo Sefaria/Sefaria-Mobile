@@ -12,7 +12,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { STATIC_ERRORS, DYNAMIC_ERRORS, logError, SELECTORS } from '../constants';
+import { STATIC_ERRORS, DYNAMIC_ERRORS, logError, SELECTORS, ELEMENT_TIMEOUTS } from '../constants';
 
 /**
  * Types into the search bar character by character with a delay to simulate real user input.
@@ -47,10 +47,10 @@ export async function typeIntoSearchBar(client: Browser, text: string): Promise<
  */
 export async function selectFromList(client: Browser, text: string): Promise<void> {
   const scrollView = await client.$(SELECTORS.BASE_SELECTORS.scrollView());
-  const textViewSelector = SELECTORS.TEXT_SELECTORS.exactText(text);
+  const textViewSelector = SELECTORS.SEARCH_SELECTORS.exactText(text);
 
-  // Wait for the scroll view to be visible
-  const isScrollViewVisible = await scrollView.isDisplayed();
+  // Wait for the scroll view to be visible (Delay added so it works on iOS and slower devices)
+  const isScrollViewVisible = await scrollView.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.LONG_WAIT }).then(() => true).catch(() => false);
   if (!isScrollViewVisible) {
     throw new Error(logError(`${STATIC_ERRORS.SCROLLVIEW_NOT_VISIBLE} (${text} has no results in search).`));
   }
@@ -59,8 +59,9 @@ export async function selectFromList(client: Browser, text: string): Promise<voi
   await item.waitForDisplayed();
 
   if (await item.isDisplayed()) {
+    let item_text = await item.getText();
     await item.click();
-    console.debug(`Item with text "${text}" clicked!`);
+    console.debug(`Item with text "${item_text}" clicked!`);
   } else {
     throw new Error(DYNAMIC_ERRORS.textNotFound(text));
   }

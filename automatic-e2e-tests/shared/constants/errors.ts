@@ -34,7 +34,7 @@ export const STATIC_ERRORS = {
   SCROLLVIEW_NOT_AVAILABLE: '❌ ScrollView is not available or visible.',
   THREE_DOTS_NOT_FOUND: '❌ Three dots menu not found or not visible',
   BACK_BUTTON_NOT_FOUND: '❌ Back button not found or not visible',
-  CLOSE_POPUP_NOT_VISIBLE: '[WARNING] Close button not visible',
+  CLOSE_POPUP_NOT_VISIBLE: '❌ Close button not visible',
 } as const;
 
 // ══════════════════════════════════════════════════════════════

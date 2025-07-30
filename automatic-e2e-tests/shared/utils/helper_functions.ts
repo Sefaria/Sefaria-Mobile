@@ -19,6 +19,9 @@ import { logError, HEBREW_MONTHS, COLOR_THRESHOLDS } from '../constants';
  * @return - The escaped text
  */
 export function escapeForRegex(text: string): string {
+  // if (process.env.PLATFORM === 'ios') {
+  //   return text;
+  // }
   return text.replace(/[*+?^${}|[\]\\]/g, '\\$&').replace(/"/g, '\\"');
 }
 

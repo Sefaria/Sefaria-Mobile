@@ -24,7 +24,7 @@ import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, SELECTORS } from '../constants
  * Used for quick verification of UI state.
  * @param client WebdriverIO browser instance
  * @param text The exact text to look for
- * @returns Promise<ChainablePromiseElement> the text element if found
+ * @returns `Promise<ChainablePromiseElement>` the text element if found
  */
 export async function findTextElement(client: Browser, text: string): Promise<ChainablePromiseElement> {
   const selector = SELECTORS.TEXT_SELECTORS.exactText(escapeForRegex(text));
@@ -43,7 +43,7 @@ export async function findTextElement(client: Browser, text: string): Promise<Ch
  * Used for less strict verification (substring match).
  * @param client WebdriverIO browser instance
  * @param text The text to look for (substring match)
- * @returns Promise<ChainablePromiseElement> the text element if found
+ * @returns `Promise<ChainablePromiseElement>` the text element if found
  */
 export async function findTextContaining(client: Browser, text: string): Promise<ChainablePromiseElement> {
   const selector = SELECTORS.TEXT_SELECTORS.containsText(escapeForRegex(text));
@@ -59,21 +59,14 @@ export async function findTextContaining(client: Browser, text: string): Promise
 
 /**
  * Finds and verifies the header on top of the page with the given text * @param client WebdriverIO browser instance
- * @param headerText The header text to check for (e.g., "Explore by Topic")
- * @returns Promise<ChainablePromiseElement> The header element if found
+ * @param headerText The header text to check for (e.g., "Explore by Topic", "Mishnah")
+ * @returns `Promise<ChainablePromiseElement>` The header element if found
  */
 export async function verifyHeaderOnPage(client: Browser, headerText: string): Promise<ChainablePromiseElement> {
-  // Find the first ViewGroup
-  const viewGroup = await client.$(SELECTORS.TOPICS_SELECTORS.firstViewGroup);
-  const isViewGroupDisplayed = await viewGroup.waitForDisplayed().catch(() => false);
-  if (!isViewGroupDisplayed) {
-    throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ' (page header)'));
-  }
-  // Find the TextView with the header text inside the ViewGroup
-  const header = await viewGroup.$(SELECTORS.TOPICS_SELECTORS.headerInViewGroup(escapeForRegex(headerText)));
+  const header = await client.$(SELECTORS.TEXT_SELECTORS.headerInViewGroup(escapeForRegex(headerText)));
   const isHeaderDisplayed = await header.waitForDisplayed().catch(() => false);
   if (!isHeaderDisplayed) {
-    throw new Error(DYNAMIC_ERRORS.textNotFound(headerText));
+    throw new Error(DYNAMIC_ERRORS.textNotFound(escapeForRegex(headerText)));
   }
   console.debug(`Header '${headerText}' is present!`);
   return header;
@@ -83,7 +76,7 @@ export async function verifyHeaderOnPage(client: Browser, headerText: string): P
  * Finds an element with the given content-desc if present on the page.
  * @param client WebdriverIO browser instance
  * @param contentDesc The content-desc to look for
- * @returns Promise<ChainablePromiseElement> the element if found
+ * @returns `Promise<ChainablePromiseElement>` the element if found
  */
 export async function findElementByContentDesc(client: Browser, contentDesc: string): Promise<ChainablePromiseElement> {
   const selector = SELECTORS.TEXT_SELECTORS.byDescription(escapeForRegex(contentDesc));

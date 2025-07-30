@@ -1,6 +1,12 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: iOS-Specific UI Selector Constants
+ * FILE ROLE: Centralized UI Selector Constants for Testing Framework on iOS
+ * 
+ * DESCRIPTION:
+ *  - Contains all UiSelector patterns, content descriptions, and element selectors
+ *  - Organized by component type and functionality for easy maintenance
+ * USAGE:
+ *  - Import specific selector objects/functions to replace hardcoded selectors
  * ──────────────────────────────────────────────────────────────
  */
 
@@ -21,14 +27,22 @@ export const BASE_SELECTORS = {
 
 // iOS Text-based selectors
 export const TEXT_SELECTORS = {
-  exactText: (text: string) => 
-    `//XCUIElementTypeStaticText[@name="${text}" or @label="${text}"]`,
+  // Finds the smallest text element that matches the exact text
+  // Smart way to deal with iOS text elements that are not split up by text
+  // e.g ('Torah Reading Devarim') insteads of on android where 'Devarim' is its own text element
+  exactText: (text: string) =>
+    `//*[(contains(@name,'${text}') or contains(@label,'${text}')) and not(*)]`,
+  // IOS Exlusive
+  startsWithText: (text: string) =>
+    `//XCUIElementTypeOther[starts-with(@name,"${text}") or starts-with(@label,"${text}")] | //XCUIElementTypeStaticText[starts-with(@name,"${text}") or starts-with(@label,"${text}")]`,
   containsText: (text: string) => 
-    `//XCUIElementTypeStaticText[contains(@name,"${text}") or contains(@label,"${text}")]`,
+    TEXT_SELECTORS.exactText(text),
   byDescription: (description: string) => 
-    `//XCUIElementTypeAny[@name="${description}" or @label="${description}"]`,
+    TEXT_SELECTORS.exactText(description),
   byContentDesc: (contentDesc: string) =>
-    `//XCUIElementTypeOther[@name="${contentDesc}"]`,
+    TEXT_SELECTORS.exactText(contentDesc),
+  headerInViewGroup: (headerText: string) => 
+    `//XCUIElementTypeOther[starts-with(@label,"${headerText}") or @label="${headerText}"] | //XCUIElementTypeStaticText[starts-with(@name,"${headerText}")] | ${TEXT_SELECTORS.exactText(headerText)}`,
 } as const;
 
 // iOS Navigation selectors
@@ -36,7 +50,7 @@ export const NAVIGATION_SELECTORS = {
   navBar: `(//XCUIElementTypeOther)[2]`,
   navBarItem: (contentDesc: string) => 
     `//XCUIElementTypeOther[@name="${contentDesc}"]`,
-  closePopup: `//XCUIElementTypeButton[@name="Close"]`,
+  closePopup: `//XCUIElementTypeOther[@name="Close"]`,
 } as const;
 
 // iOS Navbar items
@@ -52,10 +66,17 @@ export const NAVBAR_SELECTORS = {
 
 // iOS Reader selectors
 export const READER_SELECTORS = {
-  scrollView: `//XCUIElementTypeScrollView`,
+  scrollView: BASE_SELECTORS.scrollView(),
   titleTextView: `//XCUIElementTypeStaticText[1]`,
-  textByAccessibilityId: (text: string) => `//XCUIElementTypeAny[@name="${text}"]`,
+  textByAccessibilityId: (text: string) => `//XCUIElementTypeAny[@label="${text}"]`,
 } as const;
+
+
+// iOS Search Selectors
+export const SEARCH_SELECTORS = {
+  exactText: (text: string) => 
+    `//XCUIElementTypeOther[@name="${text}" or @label="${text}"] | //XCUIElementTypeStaticText[@name="${text}" or @label="${text}"]`,
+}
 
 // iOS Display settings selectors
 export const DISPLAY_SETTINGS_SELECTORS = {
@@ -65,13 +86,10 @@ export const DISPLAY_SETTINGS_SELECTORS = {
 } as const;
 
 // iOS Topics selectors
-export const TOPICS_SELECTORS = {
-  firstViewGroup: `(//XCUIElementTypeOther)[1]`,
-  headerInViewGroup: (headerText: string) => 
-    `//XCUIElementTypeStaticText[contains(@name,"${headerText}")]`,
+export const TOPICS_SELECTORS = {  
   backButton: `//XCUIElementTypeButton[@name="Back"]`,
   textView: (index: number) => 
-    `(//XCUIElementTypeStaticText)[${index}]`,
+    `//XCUIElementTypeApplication/XCUIElementTypeWindow[1]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeOther[2]/XCUIElementTypeScrollView/XCUIElementTypeOther[1]/XCUIElementTypeOther/XCUIElementTypeOther[1]/XCUIElementTypeStaticText[${index}]`,
   sourceMenu: `//XCUIElementTypeButton[@name="More"]`,
   contentDesc: {
     sources: "Sources",
@@ -82,12 +100,13 @@ export const TOPICS_SELECTORS = {
 // iOS ViewGroup selectors
 export const VIEWGROUP_SELECTORS = {
   byIndex: (index: number) => 
-    `//XCUIElementTypeApplication/XCUIElementTypeWindow[1]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeOther[1]/XCUIElementTypeScrollView/XCUIElementTypeOther[1]/XCUIElementTypeOther/XCUIElementTypeOther[${index}]`,
+    `//XCUIElementTypeApplication/XCUIElementTypeWindow[1]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeOther[1]/XCUIElementTypeScrollView/XCUIElementTypeOther[1]/XCUIElementTypeOther/XCUIElementTypeOther[${index}] |
+     //XCUIElementTypeApplication/XCUIElementTypeWindow[1]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeOther[3]/XCUIElementTypeScrollView/XCUIElementTypeOther[1]/XCUIElementTypeOther/XCUIElementTypeOther[${index}]`,
 } as const;
 
 // iOS Accessibility patterns
 export const ACCESSIBILITY_PATTERNS = {
-  englishTextPrefix: '',
+  englishTextPrefix: '⁦',
   hebrewTextPrefix: '',
 } as const;
 
@@ -99,7 +118,6 @@ export const OFFLINE_POPUP_SELECTORS = {
 } as const;
 
 // iOS Scroll selectors
-/* eslint-disable @typescript-eslint/no-unused-vars */
 export const SCROLL_SELECTORS = {
   scrollableContainer: () => 
     `//XCUIElementTypeScrollView`,
@@ -113,4 +131,3 @@ export const SCROLL_SELECTORS = {
   scrollToElement: (textSelector: string, _direction: 'scrollForward' | 'scrollBackward' = 'scrollForward') => 
     `//XCUIElementTypeStaticText[${textSelector}]`,
 } as const;
-/* eslint-enable @typescript-eslint/no-unused-vars */

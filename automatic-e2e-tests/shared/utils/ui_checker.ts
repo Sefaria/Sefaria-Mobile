@@ -14,7 +14,7 @@ import type { Browser } from 'webdriverio';
 import { PNG } from 'pngjs';
 import * as fs from 'fs';
 import { hexToRgb, colorsAreClose } from './helper_functions';
-import { DYNAMIC_ERRORS, logError, SELECTORS, COLOR_THRESHOLDS, PLATFORM } from '../constants';
+import { DYNAMIC_ERRORS, logError, SELECTORS, COLOR_THRESHOLDS, PLATFORM, ELEMENT_TIMEOUTS } from '../constants';
 
 
 // ═══════════════════════════════════════════════════════════════
@@ -280,7 +280,12 @@ async function validateViewGroupPixel(
 ): Promise<boolean> {
   const selector = SELECTORS.VIEWGROUP_SELECTORS.byIndex(viewGroupIndex);
   const viewGroup = await client.$(selector);
-  await viewGroup.waitForDisplayed();
+  try {
+      await viewGroup.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.LONG_WAIT});
+  }
+  catch (error) {
+    throw new Error(logError(error + `\nViewGroup with index ${viewGroupIndex} not found. Selector: ${selector}`));
+  }
   let bounds = { x1: 0, y1: 0, x2: 0, y2: 0 };
   
   if (process.env.PLATFORM === 'android') {

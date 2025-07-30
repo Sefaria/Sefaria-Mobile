@@ -40,12 +40,56 @@ async function getScreenDimensions(client: WebdriverIO.Browser) {
 }
 
 /**
+ * Checks if an element is actually visible on screen (not just in the DOM)
+ * This is crucial for iOS where elements exist in DOM even when off-screen
+ */
+async function isElementVisibleOnScreen(
+  client: WebdriverIO.Browser,
+  element: ChainablePromiseElement
+): Promise<boolean> {
+  if (process.env.PLATFORM === 'android') {
+    // Android: if element is displayed, it's visible on screen
+    return await element.isDisplayed().catch(() => false);
+  }
+  
+  // iOS: Check if element bounds are within screen viewport
+  try {
+    const isDisplayed = await element.isDisplayed();
+    if (!isDisplayed) return false;
+    
+    const rectStr = await element.getAttribute('rect');
+    if (!rectStr) return false;
+    
+    const rect = JSON.parse(rectStr);
+    const { width: screenWidth, height: screenHeight } = await getScreenDimensions(client);
+    
+    // Element is visible if any part is within screen bounds
+    const elementVisible = (
+      rect.x < screenWidth &&
+      rect.x + rect.width > 0 &&
+      rect.y < screenHeight &&
+      rect.y + rect.height > 0
+    );    
+    
+    // console.debug(`iOS element visibility check: rect=${JSON.stringify(rect)}, screen=${screenWidth}x${screenHeight}, visible=${elementVisible}`);
+    return elementVisible;
+    
+  } catch (error) {
+    console.debug(`Error checking iOS element visibility: ${error}`);
+    return false;
+  }
+}
+
+/**
  * Resets the cached screen dimensions (useful when switching devices or test sessions)
  */
 export function resetScreenDimensions(): void {
   screenDimensions = null;
   console.debug('Screen dimensions cache cleared');
 }
+
+
+
 
 /**
  * Performs a swipe gesture up or down from the bottom half middle of the screen.
@@ -93,7 +137,7 @@ export async function swipeUpOrDown(
 
 
 /**
- * Scrolls automatically until a TextView with the given text is visible (Android only),
+ * (Android only - defaults to swipeIntoView on iOS) Scrolls automatically until a TextView with the given text is visible,
  * using Appium's UiScrollable to automatically scroll and search for the text, rather than a fixed scroll distance.
  * Useful for reliably locating elements in long or dynamic lists.
  * @param client - The WebDriver client instance.
@@ -102,13 +146,24 @@ export async function swipeUpOrDown(
  * @param goUp - If true, scrolls up (backward) instead of down (forward). Default: false.
  * @returns The ChainablePromiseElement element if found, otherwise throws an error.
  */
-export async function scrollTextIntoView(
+export async function autoScrollTextIntoView(
   client: WebdriverIO.Browser,
   text: string,
   contains: boolean = false,
   goUp: boolean = false
 ): Promise<ChainablePromiseElement> {
-  // Choose if we check for exact text or contains text
+  // Check if platform is iOS - if so, use swipeIntoView instead
+  if (process.env.PLATFORM === 'ios') {
+    // flip around directions
+    const direction = goUp ? 'down' : 'up';
+    const found = await swipeIntoView(client, direction, text);
+    if (found) {
+      const selector = SELECTORS.TEXT_SELECTORS.exactText(text);
+      return await client.$(selector);
+    }
+  }
+  
+  // Android logic - use UiScrollable
   const selectorForScroll = contains 
     ? SELECTORS.SCROLL_SELECTORS.scrollToTextContains(text, goUp)
     : SELECTORS.SCROLL_SELECTORS.scrollToText(text, goUp);
@@ -126,7 +181,7 @@ export async function scrollTextIntoView(
 
 /**
  * Scrolls with a fixed distance and number of attempts until the element with the given text is visible.
- * Allows more precise control than automatic scrolling in scrollTextIntoView.
+ * Allows more precise control than automatic scrolling in autoScrollTextIntoView.
  * @param client - The WebDriver client instance.
  * @param direction - 'up' to swipe up, 'down' to swipe down.
  * @param text - The text to bring into view.
@@ -146,7 +201,10 @@ export async function swipeIntoView(
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const element = await client.$(selector);
-    if (await element.isDisplayed().catch(() => false)) {
+    
+    // Use platform-aware visibility check
+    const isVisible = await isElementVisibleOnScreen(client, element);
+    if (isVisible) {
       console.log(SUCCESS_MESSAGES.elementFoundAfterSwipes(text, attempt));
       return true;
     }
