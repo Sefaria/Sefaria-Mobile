@@ -136,7 +136,7 @@ async function adjustBoundsForScreenshot(
 
 /**
  * Creates a cropped PNG from screenshot data based on element bounds.
- * Now includes bounds validation and adjustment for coordinate system differences.
+ * Includes bounds validation and adjustment for coordinate system differences.
  */
 async function cropElementFromScreenshot(
   client: Browser,
@@ -147,7 +147,8 @@ async function cropElementFromScreenshot(
   // Adjust bounds for coordinate system differences
   const bounds = await adjustBoundsForScreenshot(client, originalBounds, screenshot);
   
-  console.debug(`Adjusted bounds: ${JSON.stringify(bounds)}`);
+  // // Turn on to debug ui element cropping
+  // console.debug(`Adjusted bounds: ${JSON.stringify(bounds)}`);
   
   const { x1, y1, x2, y2 } = bounds;
   let width = x2 - x1;
@@ -165,8 +166,9 @@ async function cropElementFromScreenshot(
   if (clampedX1 !== x1 || clampedY1 !== y1 || clampedX2 !== x2 || clampedY2 !== y2) {
     console.info(`Bounds were clamped to fit screenshot. Original: [${x1},${y1}][${x2},${y2}], Clamped: [${clampedX1},${clampedY1}][${clampedX2},${clampedY2}]`);
   }
-  
-  console.debug(`Final crop area: x=${clampedX1}, y=${clampedY1}, width=${width}, height=${height}`);
+
+  // // Turn on to debug ui element cropping
+  // console.debug(`Final crop area: x=${clampedX1}, y=${clampedY1}, width=${width}, height=${height}`);
   
   if (width <= 0 || height <= 0) {
     throw new Error(`Invalid crop dimensions: width=${width}, height=${height}. Element might be outside screenshot bounds.`);
@@ -281,7 +283,7 @@ async function validateViewGroupPixel(
   const selector = SELECTORS.VIEWGROUP_SELECTORS.byIndex(viewGroupIndex);
   const viewGroup = await client.$(selector);
   try {
-      await viewGroup.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.LONG_WAIT});
+    await viewGroup.waitForDisplayed();
   }
   catch (error) {
     throw new Error(logError(error + `\nViewGroup with index ${viewGroupIndex} not found. Selector: ${selector}`));
@@ -358,7 +360,7 @@ export async function validateViewGroupBottomColor(
     client,
     viewGroupIndex,
     expectedColorHex,
-    (width, height) => ({ cx: Math.floor(width / 2), cy: height - 1 }),
+    (width, height) => ({ cx: Math.floor(width / 2), cy: height - 3 }),
     debugImage,
     threshold,
     'Bottom pixel'
@@ -378,11 +380,17 @@ export async function validateElementColorByDesc(
 ): Promise<boolean> {
   const selector = SELECTORS.TEXT_SELECTORS.byDescription(contentDesc);
   const element = await client.$(selector);
+
+  if (!(await element.waitForDisplayed())) {
+    throw new Error(logError(`Element with content description "${contentDesc}" is not displayed. Selector: ${selector}`));
+  }
   
+  // Use pixel selector based on position
   const pixelSelector = position === 'center' 
     ? (width: number, height: number) => ({ cx: Math.floor(width / 2), cy: Math.floor(height / 2) })
-    : (width: number, height: number) => ({ cx: Math.floor(width / 2), cy: height - 1 });
+    : (width: number, height: number) => ({ cx: Math.floor(width / 2), cy: height - 3 });
     
+  // Label for logging
   const label = position === 'center' ? 'Center pixel' : 'Bottom pixel';
   
   return validateElementPixel(client, element as unknown as WebdriverIO.Element, expectedColorHex, pixelSelector, debugImage, threshold, label);

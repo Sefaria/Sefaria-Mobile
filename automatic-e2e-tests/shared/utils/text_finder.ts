@@ -13,7 +13,7 @@
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
 import { escapeForRegex } from './helper_functions';
-import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, SELECTORS } from '../constants';
+import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, SELECTORS, ELEMENT_TIMEOUTS } from '../constants';
 
 
 

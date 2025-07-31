@@ -49,8 +49,7 @@ export async function selectFromList(client: Browser, text: string): Promise<voi
   const scrollView = await client.$(SELECTORS.BASE_SELECTORS.scrollView());
   const textViewSelector = SELECTORS.SEARCH_SELECTORS.exactText(text);
 
-  // Wait for the scroll view to be visible (Delay added so it works on iOS and slower devices)
-  const isScrollViewVisible = await scrollView.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.LONG_WAIT }).then(() => true).catch(() => false);
+  const isScrollViewVisible = await scrollView.waitForDisplayed().then(() => true).catch(() => false);
   if (!isScrollViewVisible) {
     throw new Error(logError(`${STATIC_ERRORS.SCROLLVIEW_NOT_VISIBLE} (${text} has no results in search).`));
   }

@@ -24,8 +24,7 @@ import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, SELECTORS, ELEMENT_TIMEOUTS } 
 export async function verifyExactTitle(client: Browser, expectedText: string): Promise<void> {
   try {
     const scrollView = await client.$(SELECTORS.READER_SELECTORS.scrollView);
-    // Need to wait 
-    await scrollView.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.LONG_WAIT }).then(() => true).catch(() => false);
+    await scrollView.waitForDisplayed().then(() => true).catch(() => false);
     if (await scrollView.isDisplayed()) {
       const textView = await scrollView.$(SELECTORS.READER_SELECTORS.titleTextView);
       await textView.waitForDisplayed();

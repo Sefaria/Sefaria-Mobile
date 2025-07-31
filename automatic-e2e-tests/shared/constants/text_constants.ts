@@ -21,11 +21,16 @@ export const MISHNAH = {
     he: "משנה",
     blurb: "The Mishnah is the first major work of rabbinic literature, consisting of teachings transmitted over hundreds of years and compiled by ",
     sedarim: ["SEDER ZERAIM (Agriculture)", "SEDER MOED (Holidays)", "SEDER NASHIM (Family law)", "SEDER NEZIKIN (Damages)", "SEDER KODASHIM (Sacrifices)", "SEDER TAHOROT (Purity)"],
-    content_desc: {berakot: {title: "Mishnah Berakhot", 
-                             blurb: "Blessings and prayers, focusing on Shema and the Amidah."},
-                   peah:    {title: "Mishnah Peah", 
-                             blurb: "Crops left in the corner of a field for the poor to take, other agricultural gifts to the poor."}
-                  }
+    content_desc: {
+        berakot: {
+            title: "Mishnah Berakhot", 
+            blurb: "Blessings and prayers, focusing on Shema and the Amidah."
+        },
+        peah:   {
+            title: "Mishnah Peah", 
+            blurb: "Crops left in the corner of a field for the poor to take, other agricultural gifts to the poor."
+        }
+    }
 }
 
 // constant for Aleinu Topic

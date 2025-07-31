@@ -1,7 +1,7 @@
 # Sefaria Mobile - Automatic E2E Testing
 
 This directory contains the **automated end-to-end (E2E) testing framework** for the Sefaria Mobile app.  
-It is designed to help contributors and maintainers write, run, and maintain robust UI tests for the Sefaria app (Android only, IOS pending) using Appium and WebdriverIO.
+It is designed to help contributors and maintainers write, run, and maintain robust UI tests for the Sefaria app on **Android and iOS** using Appium and WebdriverIO.
 
 ---
 
@@ -16,8 +16,15 @@ It is designed to help contributors and maintainers write, run, and maintain rob
 
 ---
 
-> **Note:** You do **not** need to have the Sefaria-Mobile project running or a local development server active to run these tests.  
-> The test framework installs and launches the app APK/AAB directly on your device or emulator.
+> **Note:**  
+>You do **not** need to have the Sefaria-Mobile project running or a local development server active to run these tests.  
+> The test framework installs and launches the app APK/AAB (Android) or IPA (iOS) directly on your device, emulator, or cloud device.
+
+> **Important:**  
+> You only need to download or clone the `automatic-e2e-tests` directory.  
+> **You do NOT need the full Sefaria-Mobile application source code** to run or write tests.  
+> This test framework is fully self-contained and works with APK/AAB (Android) or IPA (iOS) app builds.
+
 
 ## Quick Links
 
@@ -32,36 +39,40 @@ It is designed to help contributors and maintainers write, run, and maintain rob
 
 ## Basic Commands
 
-- **Run all tests:**
-
+- **Run all tests (Android local):**
   ```sh
-  npm test
+  npm run test:android:local
   ```
-
+- **Run all tests (iOS local):**
+  ```sh
+  npm run test:ios:local
+  ```
+- **Run all tests (Android BrowserStack):**
+  ```sh
+  npm run test:android:browserstack
+  ```
+- **Run all tests (iOS BrowserStack):**
+  ```sh
+  npm run test:ios:browserstack
+  ```
 - **Clean up logs/screenshots:**
-
   ```sh
   npm run cleanup
-  ```
-
-- **Clean and run tests:**
-
-  ```sh
-  npm run test:clean
+  npm run cleanup:android
+  npm run cleanup:ios
   ```
 
 ## Test Execution Modes
 
-- **Local:** Run tests on your own Android device or emulator using Appium. Fast for development and debugging.
-- **Cloud/CI:** Run tests on real devices in the cloud via BrowserStack and GitHub Actions. Good for cross-device/OS validation and CI. **Note:** You must manually upload each new APK/AAB build to BrowserStack and update the App ID in `.env` before running tests in CI.
+- **Local:** Run tests on your own Android/iOS device or emulator using Appium. Fast for development and debugging.
+- **Cloud/CI:** Run tests on real devices in the cloud via BrowserStack and GitHub Actions. Good for cross-device/OS validation and CI.  
+  **Note:** You must manually upload each new APK/AAB/IPA build to BrowserStack and update the App ID in `.env` before running tests in CI.
 
 ---
 
 ## Help & Support
 
 - **GitHub Issues:** [Sefaria-Mobile](https://github.com/Sefaria/Sefaria-Mobile/issues)
-
 - **Contact:** [Sefaria Developer Portal](https://developers.sefaria.org/page/contact-us)
-
 - **Troubleshooting:**  
   See the [Troubleshooting](./SETUP.md#troubleshooting) section in the setup guide for common issues and solutions.

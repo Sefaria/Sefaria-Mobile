@@ -14,7 +14,7 @@
 
 import * as path from 'path';
 import * as dotenv from 'dotenv';
-import { TEST_TIMEOUTS } from '../constants';
+import { ELEMENT_TIMEOUTS, TEST_TIMEOUTS } from '../constants';
 
 // Detect current platform from environment variable
 const PLATFORM = process.env.PLATFORM || 'android';
@@ -95,6 +95,8 @@ function getAndroidOpts(buildName?: string, sessionName?: string, noReset?: bool
       hostname: 'hub.browserstack.com',
       port: 443,
       path: '/wd/hub',
+      // BrowserStack Global wait time increased to handle slow loading
+      waitforTimeout: ELEMENT_TIMEOUTS.LONG_WAIT,
       capabilities: {
         platformName: 'Android',
         'appium:automationName': 'UiAutomator2',
@@ -164,6 +166,8 @@ function getIOSOpts(buildName?: string, sessionName?: string, noReset?: boolean,
       hostname: 'hub.browserstack.com',
       port: 443,
       path: '/wd/hub',
+      // BrowserStack Global wait time increased to handle slow loading
+      waitforTimeout: ELEMENT_TIMEOUTS.LONG_WAIT,
       capabilities: {
         platformName: 'iOS',
         'appium:automationName': 'XCUITest',

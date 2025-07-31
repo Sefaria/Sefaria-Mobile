@@ -1,33 +1,53 @@
-# Sefaria Android Testing Framework - File Overview
+# Sefaria Mobile Testing Framework - File Overview
 
-This document describes the purpose and main usage of each file and folder in the `android/testing-framework` directory.  
+This document describes the purpose and main usage of each file and folder in the E2E test directory.  
 Use this as a quick reference for contributors and maintainers.
+
+---
+
+## Directory Structure
+
+- **android/** and **ios/**  
+  Platform-specific mobile applications, selectors, and .env files.
+  - **android/selectors/selectors.ts**  
+    Android-specific UI selectors and XPath patterns.
+  - **ios/selectors/selectors.ts**  
+    iOS-specific UI selectors and XPath patterns.
+
+- **shared/**  
+  All cross-platform test code, components, constants, and utilities.
+
+- **logs/** and **screenshots/**  
+  Centralized logs and screenshots for both platforms.
+
+- **scripts/**  
+  Utility scripts (e.g., cleanup.js).
 
 ---
 
 ## components/
 
-Reusable page/component objects for high-level UI actions.
-
 > **Note:** The files in this directory follow the Page Object Model (POM) pattern, where each file represents a specific page or component of the app.
 
+Reusable page/component objects for high-level UI actions (cross-platform).
+
 - **display_settings.ts**  
-  Helpers for toggling display settings and language in the app. Uses centralized selectors and timeouts for consistent element interaction.
+  Helpers for toggling display settings and language.
 
 - **navbar.ts**  
-  Functions to interact with the navigation bar (click 'Search' on navigation bar). Improved with navigation-specific selectors and operation timeouts.
+  Functions to interact with the navigation bar.
 
 - **reader_page.ts**  
-  Utilities for validating titles and text on the reader page (e.g Genesis 1.1). Functions renamed for clarity: `verifyExactTitle`, `verifyTitleContains`, `findTextByAccessibilityId`.
+  Utilities for validating titles and text on the reader page.
 
 - **search_page.ts**  
-  Helpers for typing into the search bar and selecting from search results. Uses base selectors and operation timeouts for reliable search interactions.
+  Helpers for typing into the search bar and selecting from search results.
 
 - **topics_page.ts**  
-  Functions for navigating and validating the Topics page, including clicking specific topics and verifying content of sheets and sources. Functions renamed for clarity: `verifyTopicTitle`, `verifyTopicCategory`, `verifyTopicBlurb`, `navigateBackFromTopic`, `openSourceMenu`.
+  Functions for navigating and validating the Topics page.
 
 - **\*.ts**  
-  Other component helpers for specific pages or features can be added in the future as needed. For example, you might add `account_page.ts` for account-related actions.
+  Add new component helpers as needed.
 
 ---
 
@@ -35,31 +55,28 @@ Reusable page/component objects for high-level UI actions.
 
 Centralized constants for selectors, timeouts, gestures, colors, errors, and text.
 
-> **Note:** All hardcoded values have been centralized into organized constant files for better maintainability and consistency across the testing framework.
-
-- **selectors.ts**  
-  UI selector patterns, content descriptions, and element selectors organized by component type (navigation, reader, topics, etc.).
+> **Selectors are now platform-specific:**  
+> - Android selectors are in `android/selectors/selectors.ts`  
+> - iOS selectors are in `ios/selectors/selectors.ts`  
+> - The shared `constants/index.ts` file **automatically loads the correct selectors** at runtime based on the current platform (Android or iOS), so you can always import `SELECTORS` from `constants` and it will "just work".
 
 - **timeouts.ts**  
-  All timeout values organized by operation type: element waiting, test execution, BrowserStack sessions, and specific UI interactions.
+  All timeout values organized by operation type.
 
 - **gestures.ts**  
-  Gesture configuration including swipe distances, timing, touch actions, and screen position calculations for consistent user interaction simulation.
+  Gesture configuration for swipes, scrolls, etc. Used for user interaction simulations.
 
 - **colors.ts**  
-  Sefaria brand colors, color tolerance thresholds for pixel comparison testing, and UI component color mappings.
+  Sefaria brand colors and color thresholds.
 
 - **errors.ts**  
-  Error message templates and logging helpers for assertions and failures.
+  Error message templates and logging helpers.
 
 - **text_constants.ts**  
-  Text snippets, Hebrew months, and other static text used in tests.
+  Text snippets, Hebrew months, and other static text.
 
 - **index.ts**  
-  Central import point for all constants with convenient namespace-style exports.
-
-- **\*.ts**
-  Additional constants can be added as needed for specific tests or components.
+  Central import point for all constants, with dynamic platform selector loading.
 
 ---
 
@@ -68,14 +85,13 @@ Centralized constants for selectors, timeouts, gestures, colors, errors, and tex
 Where your actual test suites live.
 
 - **e2e.spec.ts**  
-Main end-to-end regression test suite. Handles the regression flow of the app as designed by QA.
+  Main end-to-end regression test suite.
 
-- **test_init.ts** (Do not edit)  
-  Initializes logging and error handling for writing logs to `logs-test/`.
+- **test_init.ts**  
+  Initializes logging and error handling.
 
-- **\*.spec.ts**
-  Additional test files can be created for specific features or components.  
-  Each file should follow the same structure as `e2e.spec.ts` with `beforeEach`, `afterEach`, and `it` blocks.
+- **\*.spec.ts**  
+  Add new test files for specific features or components.
 
 ---
 
@@ -93,25 +109,22 @@ Helper modules for low-level actions, API calls, and cross-cutting concerns.
   General-purpose helpers: text escaping, color conversion, date formatting, and assertion helpers.
 
 - **load_credentials.ts**  
-  Loads environment variables and credentials from `.env`.  
-  Provides Appium/WebdriverIO the information for local and BrowserStack sessions. Enhanced with proper environment variable handling.
+  Loads environment variables and credentials from `.env` for both platforms.
 
 - **offlinePopUp.ts**  
-  Detects and interacts with the initial offline popup in the app (e.g., "Not Now", "OK" buttons). Uses centralized selectors for consistent popup element detection.
+  Handles the initial offline popup in the app.
 
 - **sefariaAPI.ts**  
-  Fetches and caches data from the Sefaria API (calendar, Daf Yomi, Haftarah, etc.). Includes enhanced error handling and response validation.
+  Fetches and caches data from the Sefaria API.
 
 - **text_finder.ts**  
-  Locates and interacts with text and elements by text or content-desc.  
-  Includes strict and substring matching, header checks, and content-desc utilities.
+  Locates and interacts with text and elements by text or content-desc, and more. **Important:** Used all across tests and functions.
 
 - **ui_checker.ts**  
-  Checks pixel colors of UI elements and viewgroups.  
-  Includes screenshot cropping, color comparison, and debug image saving for visual regression/UI validation.
+  Checks pixel colors of UI elements and viewgroups.
 
-- **\*.ts**
-  Additional utility functions can be added as needed for specific tasks or features.
+- **\*.ts**  
+  Add new utility functions as needed.
 
 ---
 
