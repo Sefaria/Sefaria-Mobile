@@ -17,11 +17,11 @@ pnpm-debug.log*
 Thumbs.db
 
 # Build output
-.dist/
+AUTOMATIC-E2E-TESTS/.dist/
 dist
-dist/
-build/
-out/
+AUTOMATIC-E2E-TESTS/dist/
+AUTOMATIC-E2E-TESTS/build/
+AUTOMATIC-E2E-TESTS/out/
 
 # Dependency directories
 jspm_packages/
@@ -30,11 +30,11 @@ jspm_packages/
 .npm/
 
 # Anything inside screenshots folder
-screenshots/ios/*
-screenshots/android/*
+AUTOMATIC-E2E-TESTS/screenshots/ios/*
+AUTOMATIC-E2E-TESTS/screenshots/android/*
 
-logs/android/*
-logs/ios/* 
+AUTOMATIC-E2E-TESTS/logs/android/*
+AUTOMATIC-E2E-TESTS/logs/ios/* 
 # IDE files
 .vscode/
 .idea/

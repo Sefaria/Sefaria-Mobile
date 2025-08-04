@@ -27,7 +27,8 @@ if (process.env.GITHUB_ACTIONS !== 'true') {
 }
 
 /**
- * Function to get Appium options based on the platform and environment
+ * Function to get Appium options based on the platform and environment.
+ * Used to configure WebdriverIO/Appium for local or BrowserStack testing.
  * @param {string} [buildName] - Optional build name for BrowserStack
  * @param {string} [sessionName] - Optional session name for BrowserStack
  * @param {boolean} [noReset] - Optional no reset choice to start from new app or not (false - runs new app)
@@ -104,7 +105,7 @@ function getAndroidOpts(buildName?: string, sessionName?: string, noReset?: bool
         'bstack:options': {
           userName: BROWSERSTACK_USERNAME,
           accessKey: BROWSERSTACK_ACCESS_KEY,
-          deviceName: 'Google Pixel 6 Pro',
+          deviceName: 'Google Pixel 7 Pro',
           osVersion: '13.0',
           projectName: 'Sefaria App Automation',
           buildName: buildName || 'Sefaria E2E Tests Android',
