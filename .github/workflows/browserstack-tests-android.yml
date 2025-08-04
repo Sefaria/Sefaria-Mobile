@@ -1,63 +1,147 @@
-name: Run BrowserStack Tests for Android
+name: Run BrowserStack Tests
 
 on:
   workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to test'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+        - android
+        - ios
+        - both
 
 jobs:
-  run-tests:
+  run-android-tests:
+    if: ${{ github.event.inputs.platform == 'android' || github.event.inputs.platform == 'both' }}
     runs-on: ubuntu-latest
+    name: Android Tests
 
     steps:
     # Checkout the repository code to the runner
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     # Set up Node.js version 22 for the test environment
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '22'
 
+    # Navigate to the shared test directory
+    - name: Navigate to test directory
+      run: cd automatic-e2e-tests
+
     # Clean the npm cache to avoid potential install issues
     - name: Clean npm cache
-      working-directory: ../automatic-e2e-tests/android
+      working-directory: automatic-e2e-tests
       run: npm cache clean --force
 
-    # Ensure logs-test directory exists and is empty before running tests
-    - name: Clean logs-test directory
-      working-directory: ../automatic-e2e-tests/android
+    # Clean up logs and screenshots before running tests
+    - name: Clean up logs and screenshots
+      working-directory: automatic-e2e-tests
       run: |
-        if [ -d logs-test ]; then rm -rf logs-test/*; else mkdir logs-test; fi
+        npm run cleanup:android
 
     # Install all required npm dependencies for the tests
     - name: Install Dependencies
-      working-directory: ../automatic-e2e-tests/android
+      working-directory: automatic-e2e-tests
       run: npm install
 
-    # Run the automated tests on BrowserStack using environment variables
-    - name: Run Tests on BrowserStack
-      working-directory: ../automatic-e2e-tests/android
+    # Run the automated Android tests on BrowserStack
+    - name: Run Android Tests on BrowserStack
+      working-directory: automatic-e2e-tests
       env:
+        PLATFORM: android
+        RUN_ENV: browserstack
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-        BROWSERSTACK_APP_ID: ${{ secrets.BROWSERSTACK_APP_ID }}
-        RUN_ENV: browserstack
-      run: npm test
+        ANDROID_BROWSERSTACK_APP_ID: ${{ secrets.ANDROID_BROWSERSTACK_APP_ID }}
+        GITHUB_ACTIONS: true
+      run: npm run test:android:browserstack
 
-    # Upload all test logs regardless of test outcome
-    - name: Upload all test logs
+    # Upload Android test logs regardless of test outcome
+    - name: Upload Android test logs
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: logs-test
-        path: ../automatic-e2e-tests/android/logs-test/
+        name: android-logs
+        path: automatic-e2e-tests/logs/android/
         if-no-files-found: warn
 
-    # Upload diff-images only if tests fail, for debugging visual differences
-    - name: Upload diff-images if tests fail
+    # Upload Android screenshots if tests fail
+    - name: Upload Android screenshots if tests fail
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: diff-images
-        path: ../automatic-e2e-tests/android/diff-images/
+        name: android-screenshots
+        path: automatic-e2e-tests/screenshots/android/
+        if-no-files-found: ignore
+
+  run-ios-tests:
+    if: ${{ github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'both' }}
+    runs-on: ubuntu-latest
+    name: iOS Tests
+
+    steps:
+    # Checkout the repository code to the runner
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # Set up Node.js version 22 for the test environment
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    # Navigate to the shared test directory
+    - name: Navigate to test directory
+      run: cd automatic-e2e-tests
+
+    # Clean the npm cache to avoid potential install issues
+    - name: Clean npm cache
+      working-directory: automatic-e2e-tests
+      run: npm cache clean --force
+
+    # Clean up logs and screenshots before running tests
+    - name: Clean up logs and screenshots
+      working-directory: automatic-e2e-tests
+      run: |
+        npm run cleanup:ios
+
+    # Install all required npm dependencies for the tests
+    - name: Install Dependencies
+      working-directory: automatic-e2e-tests
+      run: npm install
+
+    # Run the automated iOS tests on BrowserStack
+    - name: Run iOS Tests on BrowserStack
+      working-directory: automatic-e2e-tests
+      env:
+        PLATFORM: ios
+        RUN_ENV: browserstack
+        BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+        BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        IOS_BROWSERSTACK_APP_ID: ${{ secrets.IOS_BROWSERSTACK_APP_ID }}
+        GITHUB_ACTIONS: true
+      run: npm run test:ios:browserstack
+
+    # Upload iOS test logs regardless of test outcome
+    - name: Upload iOS test logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-logs
+        path: automatic-e2e-tests/logs/ios/
+        if-no-files-found: warn
+
+    # Upload iOS screenshots if tests fail
+    - name: Upload iOS screenshots if tests fail
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-screenshots
+        path: automatic-e2e-tests/screenshots/ios/
         if-no-files-found: ignore

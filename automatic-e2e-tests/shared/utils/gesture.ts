@@ -4,7 +4,7 @@
  * 
  * DESCRIPTION:
  *  - Provides reusable helper functions for performing gestures (swipe, scroll) and
- *    scrolling-related element search in the Sefaria Android automated testing framework.
+ *    scrolling-related element search in the Sefaria automated testing framework.
  *  - Includes screen dimension caching, swipe actions, and robust scrolling to elements by text.
  * USAGE:
  *  - These functions are used across different test components to simulate user interactions.

@@ -28,10 +28,12 @@ This guide explains how to configure, run, and troubleshoot automated end-to-end
      - You can use just the [Command Line Tools](https://developer.android.com/studio#command-line-tools-only) for **Windows, Mac, or Linux** (see below for setup instructions).
    - **iOS:**  
      - Install Xcode from the Mac App Store and ensure Xcode Command Line Tools are installed (`xcode-select --install`).
-4. **.env files**
-   - Place `.env` in both `android/` and `ios/` directories with the correct device/app paths and credentials. See `example.env` files in each directory for reference.
-   - **To test a specific APK or IPA file:**  
-     - Set the `LOCAL_APP_PATH` variable in `android/.env` or `ios/.env` to the path of your APK or IPA file (for example, `LOCAL_APP_PATH=android/app/my-debug.apk` or `LOCAL_APP_PATH=ios/app/my-debug.ipa`).
+4. **.env file**
+   - Copy `example.env` to `.env` in the root directory and fill in your BrowserStack credentials and local device information.
+   - **To test a specific APK or IPA file locally:**  
+     - Set the `IOS_LOCAL_APP_PATH` or/and `ANDROID_LOCAL_APP_PATH` variable in `.env` to the absolute path of your APK or IPA file (for example, `ANDROID_LOCAL_APP_PATH=android/app/my-debug.apk` or `IOS_LOCAL_APP_PATH=ios/app/my-debug.ipa`).
+    - **To test the app on BrowserStack:**  
+     - Upload your APK/AAB (Android) or IPA (iOS) file to BrowserStack and set the `ANDROID_BROWSERSTACK_APP_ID` or/and `IOS_BROWSERSTACK_APP_ID` in `.env` to the app ID provided by BrowserStack after upload.
 
 ---
 
@@ -89,7 +91,7 @@ This mode runs tests on a physical device connected via USB, Android emulator, o
    adb devices
    ```
 3. **Copy example.env:**  
-   Copy `android/example.env` to `android/.env` and configure as needed.
+   Copy `example.env` to `.env` and configure as needed.
     - **To test a specific APK:** Make sure to add the apk you want to test in `android/app`.
 4. **Start Appium:**
    ```sh
@@ -104,7 +106,7 @@ This mode runs tests on a physical device connected via USB, Android emulator, o
 
 1. **Enable developer mode on your device or use a simulator.**
 2. **Copy example.env:**  
-   Copy `ios/example.env` to `ios/.env` and configure as needed.
+   Copy `example.env` to `.env` (if not done already) and configure as needed.
       - **To test a specific IPA:** Make sure to add the ipa you want to test in `ios/app`.
 3. **Start Appium:**
    ```sh
@@ -140,11 +142,12 @@ This mode runs tests on real devices in the cloud using BrowserStack and can be 
 
 **How to use BrowserStack for Sefaria tests:**
 
-1. **Update `.env` in `android/` and/or `ios/` with your BrowserStack credentials and App ID:**
+1. **Update `.env` in `automatic-e2e-tests` with your BrowserStack credentials and App ID:**
    - Get your username and access key from your [BrowserStack dashboard](https://www.browserstack.com/users/sign_in).
    - Upload your APK/AAB (Android) or IPA (iOS) file to BrowserStack using their [App Upload page](https://app-automate.browserstack.com/dashboard/v2/app-upload).
-   - Copy the App ID (e.g., `bs://<app-id>`) and set it in your `.env` as `BROWSERSTACK_APP_ID`.
-   - **Note:** You must upload your app every time you build a new APK/AAB/IPA. The App ID changes with each upload, so always update `BROWSERSTACK_APP_ID` in your `.env`.
+   - Copy the App ID (e.g., `bs://<app-id>`) and set it in your `.env` as `ANDROID_BROWSERSTACK_APP_ID` or `IOS_BROWSERSTACK_APP_ID`:
+   ```env
+   - **Note:** You must upload your app every time you build a new APK/AAB/IPA. The App ID changes with each upload, so always update `*_BROWSERSTACK_APP_ID` in your `.env`.
 
 2. **Run tests:**
    ```sh

@@ -19,11 +19,18 @@ import { ELEMENT_TIMEOUTS, TEST_TIMEOUTS } from '../constants';
 // Detect current platform from environment variable
 const PLATFORM = process.env.PLATFORM || 'android';
 
-// Load platform-specific .env file only if not in GitHub Actions
+// Load .env file from root directory only if not in GitHub Actions
 if (process.env.GITHUB_ACTIONS !== 'true') {
-  const envPath = path.resolve(__dirname, `../../${PLATFORM}/.env`);
-  dotenv.config({ path: envPath });
-  console.debug(`Loaded environment from: ${envPath}`);
+  dotenv.config();
+}
+
+// Set platform-specific app paths based on PLATFORM
+if (PLATFORM === 'ios') {
+  process.env.LOCAL_APP_PATH = process.env.IOS_LOCAL_APP_PATH;
+  process.env.BROWSERSTACK_APP_ID = process.env.IOS_BROWSERSTACK_APP_ID;
+} else {
+  process.env.LOCAL_APP_PATH = process.env.ANDROID_LOCAL_APP_PATH;
+  process.env.BROWSERSTACK_APP_ID = process.env.ANDROID_BROWSERSTACK_APP_ID;
 }
 
 /**

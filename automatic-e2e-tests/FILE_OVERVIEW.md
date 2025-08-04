@@ -8,7 +8,7 @@ Use this as a quick reference for contributors and maintainers.
 ## Directory Structure
 
 - **android/** and **ios/**  
-  Platform-specific mobile applications, selectors, and .env files.
+  Platform-specific mobile applications, and selectors.
   - **android/selectors/selectors.ts**  
     Android-specific UI selectors and XPath patterns.
   - **ios/selectors/selectors.ts**  
@@ -112,7 +112,7 @@ Helper modules for low-level actions, API calls, and cross-cutting concerns.
   General-purpose helpers: text escaping, color conversion, date formatting, and assertion helpers.
 
 - **load_credentials.ts**  
-  Loads environment variables and credentials from `.env` for both platforms.
+  Loads environment variables and credentials from `.env` file in the root directory of `automatic-e2e-tests/`.
 
 - **offlinePopUp.ts**  
   Handles the initial offline popup in the app.

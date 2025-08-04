@@ -3,7 +3,7 @@
  * FILE ROLE: Helper Functions for  Testing Framework
  * 
  * DESCRIPTION:
- *  - Helper functions for various utilities in the Sefaria Android testing framework
+ *  - Helper functions for various utilities in the Sefaria testing framework
  *  - Includes text escaping, color conversion, date formatting, and more.
  * USAGE:
  *  - These functions are used across different components and tests.
