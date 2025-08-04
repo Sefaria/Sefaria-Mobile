@@ -12,8 +12,8 @@
 
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { escapeForRegex } from './helper_functions';
-import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, SELECTORS, ELEMENT_TIMEOUTS } from '../constants';
+import { HELPER_FUNCTIONS } from '../utils';
+import { DYNAMIC_ERRORS, logError, SELECTORS } from '../constants';
 
 
 
@@ -27,7 +27,7 @@ import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, SELECTORS, ELEMENT_TIMEOUTS } 
  * @returns `Promise<ChainablePromiseElement>` the text element if found
  */
 export async function findTextElement(client: Browser, text: string): Promise<ChainablePromiseElement> {
-  const selector = SELECTORS.TEXT_SELECTORS.exactText(escapeForRegex(text));
+  const selector = SELECTORS.TEXT_SELECTORS.exactText(HELPER_FUNCTIONS.escapeForRegex(text));
   const element = await client.$(selector);
   const isDisplayed = await element.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
@@ -46,14 +46,14 @@ export async function findTextElement(client: Browser, text: string): Promise<Ch
  * @returns `Promise<ChainablePromiseElement>` the text element if found
  */
 export async function findTextContaining(client: Browser, text: string): Promise<ChainablePromiseElement> {
-  const selector = SELECTORS.TEXT_SELECTORS.containsText(escapeForRegex(text));
+  const selector = SELECTORS.TEXT_SELECTORS.containsText(HELPER_FUNCTIONS.escapeForRegex(text));
   const element = await client.$(selector);
   const isDisplayed = await element.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
-    console.debug(`Text containing '${escapeForRegex(text)}' is present on the page! Found text: '${await element.getText()}'`);
+    console.debug(`Text containing '${HELPER_FUNCTIONS.escapeForRegex(text)}' is present on the page! Found text: '${await element.getText()}'`);
     return element;
   } else {
-    throw new Error(DYNAMIC_ERRORS.textNotFound(escapeForRegex(text)));
+    throw new Error(DYNAMIC_ERRORS.textNotFound(HELPER_FUNCTIONS.escapeForRegex(text)));
   }
 }
 
@@ -63,10 +63,10 @@ export async function findTextContaining(client: Browser, text: string): Promise
  * @returns `Promise<ChainablePromiseElement>` The header element if found
  */
 export async function verifyHeaderOnPage(client: Browser, headerText: string): Promise<ChainablePromiseElement> {
-  const header = await client.$(SELECTORS.TEXT_SELECTORS.headerInViewGroup(escapeForRegex(headerText)));
+  const header = await client.$(SELECTORS.TEXT_SELECTORS.headerInViewGroup(HELPER_FUNCTIONS.escapeForRegex(headerText)));
   const isHeaderDisplayed = await header.waitForDisplayed().catch(() => false);
   if (!isHeaderDisplayed) {
-    throw new Error(DYNAMIC_ERRORS.textNotFound(escapeForRegex(headerText)));
+    throw new Error(DYNAMIC_ERRORS.textNotFound(HELPER_FUNCTIONS.escapeForRegex(headerText)));
   }
   console.debug(`Header '${headerText}' is present!`);
   return header;
@@ -79,7 +79,7 @@ export async function verifyHeaderOnPage(client: Browser, headerText: string): P
  * @returns `Promise<ChainablePromiseElement>` the element if found
  */
 export async function findElementByContentDesc(client: Browser, contentDesc: string): Promise<ChainablePromiseElement> {
-  const selector = SELECTORS.TEXT_SELECTORS.byDescription(escapeForRegex(contentDesc));
+  const selector = SELECTORS.TEXT_SELECTORS.byDescription(HELPER_FUNCTIONS.escapeForRegex(contentDesc));
   const element = await client.$(selector);
   const isDisplayed = await element.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
@@ -98,7 +98,7 @@ export async function findElementByContentDesc(client: Browser, contentDesc: str
  * @param contentDesc The content-desc of the element to click
  * @param elementName The name to use in logs and errors
  */
-export async function clickElementByContentDesc(client: Browser, contentDesc: string, elementName: string): Promise<void> {
+export async function clickElementWithSelectorByContentDesc(client: Browser, contentDesc: string, elementName: string): Promise<void> {
   const selector = SELECTORS.TEXT_SELECTORS.byContentDesc(contentDesc);
   const elem = await client.$(selector);
   const isDisplayed = await elem.waitForDisplayed().catch(() => false);
@@ -107,5 +107,21 @@ export async function clickElementByContentDesc(client: Browser, contentDesc: st
     console.debug(`Clicked element with content-desc: '${contentDesc}'`);
   } else {
     throw new Error(DYNAMIC_ERRORS.elementNameNotFound(elementName));
+  }
+}
+
+/**
+ * Finds an element with exact text and clicks it.
+ * @param client WebdriverIO browser instance
+ * @param selector The selector to find and click
+ */
+export async function clickElementWithSelector(client: Browser, selector: string): Promise<void> {
+  try {
+    const element = await client.$(selector);
+    await element.click();
+    console.debug(`Clicked element with selector: '${selector}'`);
+  } catch (error) {
+    logError(`Failed to click element with selector '${selector}': ${error}`);
+    throw error;
   }
 }

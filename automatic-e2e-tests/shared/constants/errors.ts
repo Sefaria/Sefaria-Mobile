@@ -126,6 +126,9 @@ export const DYNAMIC_ERRORS = {
    */
   elementNameNotFound: (elementName: string) =>
     logError(`❌ Element "${elementName}" not found on the page!`),
+
+  errorClickingElement: (elementName: string, error: unknown) =>
+    logError(`❌ Error clicking element "${elementName}": ${error}`),
 } as const;
 
 // ══════════════════════════════════════════════════════════════

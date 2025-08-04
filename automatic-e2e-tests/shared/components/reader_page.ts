@@ -13,7 +13,7 @@
  */
 
 import type { Browser } from 'webdriverio';
-import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, SELECTORS, ELEMENT_TIMEOUTS } from '../constants';
+import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, SELECTORS } from '../constants';
 
 /**
  * Checks if the TextView title inside the ScrollView has the given text.
@@ -71,6 +71,22 @@ export async function verifyTitleContains(client: Browser, expectedText: string)
     }
   } catch (error) {
     throw new Error(DYNAMIC_ERRORS.errorCheckingTitle(expectedText, error));
+  }
+}
+
+/**
+ * Clicks the back button on the reader page.
+ * @param client - WebdriverIO browser instance.
+ * @throws Will throw an error if the back button is not found or clickable
+ */
+export async function clickBackButton(client: Browser): Promise<void> {
+  try {
+    const backButton = await client.$(SELECTORS.READER_SELECTORS.backButton);
+    await backButton.waitForDisplayed();
+    await backButton.click();
+    console.debug('Back button clicked successfully');
+  } catch (error) {
+    throw new Error(DYNAMIC_ERRORS.errorClickingElement('back button', error));
   }
 }
 

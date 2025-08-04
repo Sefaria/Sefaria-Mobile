@@ -46,6 +46,9 @@ Reusable page/component objects for high-level UI actions (cross-platform).
 - **topics_page.ts**  
   Functions for navigating and validating the Topics page.
 
+- **index.ts**  
+  Central import point for all components, allowing easy access to all page objects.
+
 - **\*.ts**  
   Add new component helpers as needed.
 
@@ -122,6 +125,9 @@ Helper modules for low-level actions, API calls, and cross-cutting concerns.
 
 - **ui_checker.ts**  
   Checks pixel colors of UI elements and viewgroups.
+
+- **index.ts**  
+  Central import point for all utilities.
 
 - **\*.ts**  
   Add new utility functions as needed.

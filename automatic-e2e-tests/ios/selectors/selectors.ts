@@ -50,7 +50,7 @@ export const NAVIGATION_SELECTORS = {
   navBar: `(//XCUIElementTypeOther)[2]`,
   navBarItem: (contentDesc: string) => 
     `//XCUIElementTypeOther[@name="${contentDesc}"]`,
-  closePopup: `//XCUIElementTypeOther[@name="Close"]`,
+  closePopUp: `//XCUIElementTypeOther[@name="Close"]`,
 } as const;
 
 // iOS Navbar items
@@ -69,6 +69,7 @@ export const READER_SELECTORS = {
   scrollView: BASE_SELECTORS.scrollView(),
   titleTextView: `//XCUIElementTypeStaticText[1]`,
   textByAccessibilityId: (text: string) => `//XCUIElementTypeAny[@label="${text}"]`,
+  backButton: `//XCUIElementTypeApplication/XCUIElementTypeWindow[1]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeOther[2]/XCUIElementTypeOther[4]`,
 } as const;
 
 
@@ -93,6 +94,7 @@ export const TOPICS_SELECTORS = {
   sourceMenu: `//XCUIElementTypeApplication/XCUIElementTypeWindow[1]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeOther[2]/XCUIElementTypeScrollView/XCUIElementTypeOther[1]/XCUIElementTypeOther/XCUIElementTypeOther[3]`,
   sources: '//XCUIElementTypeApplication/XCUIElementTypeWindow[1]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeOther[2]/XCUIElementTypeScrollView/XCUIElementTypeOther[1]/XCUIElementTypeOther/XCUIElementTypeOther[1]/XCUIElementTypeOther[3]',
   sheets: '//XCUIElementTypeApplication/XCUIElementTypeWindow[1]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeOther[2]/XCUIElementTypeScrollView/XCUIElementTypeOther[1]/XCUIElementTypeOther/XCUIElementTypeOther[1]/XCUIElementTypeOther[4]',
+  searchButton: '//XCUIElementTypeApplication/XCUIElementTypeWindow[1]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeOther[2]/XCUIElementTypeScrollView/XCUIElementTypeOther[1]/XCUIElementTypeOther/XCUIElementTypeOther[1]/XCUIElementTypeOther[6]',
 } as const;
 
 // iOS ViewGroup selectors

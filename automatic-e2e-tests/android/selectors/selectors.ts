@@ -44,7 +44,7 @@ export const NAVIGATION_SELECTORS = {
   navBar: `android=new UiSelector().className("android.view.ViewGroup").packageName("${APP_PACKAGE}")`,
   navBarItem: (contentDesc: string) => 
     `android=new UiSelector().className("android.view.ViewGroup").packageName("${APP_PACKAGE}").description("${contentDesc}")`,
-  closePopup: '//android.view.ViewGroup[@content-desc="Close"]/android.widget.ImageView',
+  closePopUp: '//android.view.ViewGroup[@content-desc="Close"]/android.widget.ImageView',
 } as const;
 
 // Content selectors for Navigation Bar
@@ -100,6 +100,7 @@ export const READER_SELECTORS = {
   scrollView: BASE_SELECTORS.scrollView(),
   titleTextView: `android=new UiSelector().className("android.widget.TextView").index(2)`,
   textByAccessibilityId: (text: string) => `~${text}`,
+  backButton: `//android.view.ViewGroup[@content-desc="back"]/android.widget.ImageView`,
 } as const;
 
 // Search page selectors
@@ -122,6 +123,7 @@ export const TOPICS_SELECTORS = {
   sourceMenu: "//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[4]",
   sources: '//android.view.ViewGroup[@content-desc="Sources"]',
   sheets: '//android.view.ViewGroup[@content-desc="Sheets"]',
+  searchButton: '//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup[6]/android.widget.ImageView'
 } as const;
 
 // ViewGroup position selectors for UI testing

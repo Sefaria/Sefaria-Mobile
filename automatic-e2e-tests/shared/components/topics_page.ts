@@ -12,8 +12,7 @@
 
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { assertMatch } from '../utils/helper_functions';
-import { clickElementByContentDesc } from '../utils/text_finder';
+import { HELPER_FUNCTIONS } from '../utils';
 import { logError, STATIC_ERRORS, SELECTORS, DYNAMIC_ERRORS } from '../constants';
 
 
@@ -57,7 +56,7 @@ export async function navigateBackFromTopic(client: Browser): Promise<void> {
 export async function verifyTopicTitle(client: Browser, expectedTitle: string): Promise<void> {
     const textView = await getTextView(client, 1);
     const topicText = await textView.getText();
-    assertMatch('Topic title', topicText, expectedTitle);
+    HELPER_FUNCTIONS.assertMatch('Topic title', topicText, expectedTitle);
 }
 
 /**
@@ -69,7 +68,7 @@ export async function verifyTopicTitle(client: Browser, expectedTitle: string): 
 export async function verifyTopicCategory(client: Browser, expectedCategory: string): Promise<void> {
     const textView = await getTextView(client, 2);
     const categoryText = await textView.getText();
-    assertMatch('Category', categoryText, expectedCategory);
+    HELPER_FUNCTIONS.assertMatch('Category', categoryText, expectedCategory);
 }
 
 /**
@@ -81,7 +80,7 @@ export async function verifyTopicCategory(client: Browser, expectedCategory: str
 export async function verifyTopicBlurb(client: Browser, expectedBlurb: string): Promise<void> {
     const textView = await getTextView(client, 3);
     const blurbText = await textView.getText();
-    assertMatch('Blurb', blurbText, expectedBlurb);
+    HELPER_FUNCTIONS.assertMatch('Blurb', blurbText, expectedBlurb);
 }
 
 

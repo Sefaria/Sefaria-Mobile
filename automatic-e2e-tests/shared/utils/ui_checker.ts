@@ -13,7 +13,7 @@
 import type { Browser } from 'webdriverio';
 import { PNG } from 'pngjs';
 import * as fs from 'fs';
-import { hexToRgb, colorsAreClose } from './helper_functions';
+import { HELPER_FUNCTIONS } from '../utils';
 import { DYNAMIC_ERRORS, logError, SELECTORS, COLOR_THRESHOLDS, PLATFORM, ELEMENT_TIMEOUTS } from '../constants';
 
 
@@ -217,9 +217,9 @@ function validatePixelColor(
   const { cx, cy } = pixelCoords;
   const idx = (cropped.width * cy + cx) << 2;
   const actual = { r: cropped.data[idx], g: cropped.data[idx + 1], b: cropped.data[idx + 2] };
-  const expected = hexToRgb(expectedColorHex);
+  const expected = HELPER_FUNCTIONS.hexToRgb(expectedColorHex);
 
-  if (colorsAreClose(actual, expected, threshold)) {
+  if (HELPER_FUNCTIONS.colorsAreClose(actual, expected, threshold)) {
     console.debug(`${label} matches expected color. Actual: rgb(${actual.r},${actual.g},${actual.b}), Expected: rgb(${expected.r},${expected.g},${expected.b}); Threshold (Allowed rgb distance): ${JSON.stringify(threshold)}`);
     return true;
   }

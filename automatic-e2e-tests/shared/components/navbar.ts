@@ -54,7 +54,7 @@ export async function clickNavBarItem(client: Browser, contentDesc: string): Pro
  * @throws Will throw an error if the close button is not visible
  */
 export async function closePopUp(client: Browser): Promise<void> {
-  const closeBtn = await client.$(SELECTORS.NAVIGATION_SELECTORS.closePopup);
+  const closeBtn = await client.$(SELECTORS.NAVIGATION_SELECTORS.closePopUp);
   const isDisplayed = await closeBtn.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
     await closeBtn.click();

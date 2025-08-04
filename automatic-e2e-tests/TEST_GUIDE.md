@@ -98,11 +98,8 @@ import { SELECTORS, OPERATION_TIMEOUTS, SEFARIA_COLORS } from '../constants';
 
 ```typescript
 import { remote } from 'webdriverio';
-import { getOpts } from '../utils/load_credentials';
-import { handleOfflinePopUp } from '../utils/offlinePopUp';
-import { waitForNavBar, clickNavBarItem } from '../components/navbar';
-import { reportToBrowserstack } from '../utils/browserstack_report';
-import { verifyHeaderOnPage } from '../utils/text_finder';
+import { NAVBAR } from '../components/navbar';
+import { BROWSERSTACK_REPORT, OFFLINE_POPUP, LOAD_CREDENTIALS, TEXT_FINDER } from '../utils';
 import { TEST_TIMEOUTS, SELECTORS } from '../constants';
 
 import './test_init';
@@ -118,15 +115,15 @@ describe('e2e Sefaria Mobile regression tests', function () {
   beforeEach(async function () {
     testTitle = this.currentTest?.title || '';
     console.log(`[INFO] (STARTING) Running test: ${testTitle}`);
-    client = await remote(getOpts(buildName, testTitle, no_reset));
-    await handleOfflinePopUp(client);
-    await waitForNavBar(client);
+    client = await remote(LOAD_CREDENTIALS.getOpts(buildName, testTitle, no_reset));
+    await OFFLINE_POPUP.handleOfflinePopUp(client);
+    await NAVBAR.waitForNavBar(client);
   });
 
   afterEach(async function () {
     if (client) {
       if (process.env.RUN_ENV == 'browserstack') {
-        await reportToBrowserstack(client, this);
+        await BROWSERSTACK_REPORT.reportToBrowserstack(client, this);
       }
       console.log(
         this.currentTest?.state === 'passed'
@@ -138,8 +135,8 @@ describe('e2e Sefaria Mobile regression tests', function () {
   });
 
   it('Navigate to Account tab and verify we are there', async function () {
-    await clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.account);
-    await verifyHeaderOnPage(client, 'Account');
+    await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.account);
+    await TEXT_FINDER.verifyHeaderOnPage(client, 'Account');
   });
 });
 ```
@@ -166,9 +163,11 @@ describe('e2e Sefaria Mobile regression tests', function () {
 **Example:**
 
 ```typescript
+import {NAVBAR} from '../components';
+import {TEXT_FINDER} from '../utils';
 it('should open the Topics tab and verify the header', async function () {
-  await clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.topics);
-  await verifyHeaderOnPage(client, 'Explore by Topic');
+  await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.topics);
+  await TEXT_FINDER.verifyHeaderOnPage(client, 'Explore by Topic');
 });
 ```
 
@@ -232,20 +231,20 @@ export async function waitForVisible(client: Browser, selector: string): Promise
 
 - **Find and click an element by text:**  
   ```typescript
-  import { findTextElement } from '../utils/text_finder';
-  await (await findTextElement(client, 'Settings')).click();
+  import { TEXT_FINDER } from '../utils';
+  await (await TEXT_FINDER.findTextElement(client, 'Settings')).click();
   ```
 
 - **Swipe to refresh a list:**  
   ```typescript
-  import { swipeDown } from '../utils/gesture';
-  await swipeDown(client, SELECTORS.LIST_VIEW);
+  import { GESTURE } from '../utils';
+  await GESTURE.swipeDown(client, SELECTORS.LIST_VIEW);
   ```
 
 - **Check for error message:**  
   ```typescript
   import { ERROR_MESSAGES } from '../constants';
-  await findTextElement(client, ERROR_MESSAGES.NETWORK_ERROR);
+  await TEXT_FINDER.findTextElement(client, ERROR_MESSAGES.NETWORK_ERROR);
   ```
 
 - **Wait for a loading spinner to disappear:**  
