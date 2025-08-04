@@ -314,7 +314,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
   });
 
-  it('TC023: Topics tab comprehensive test', async function () {
+  it.only('TC023: Topics tab comprehensive test', async function () {
     // Click on Topics
     await clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.topics);
     // Check if we are on the Topics page

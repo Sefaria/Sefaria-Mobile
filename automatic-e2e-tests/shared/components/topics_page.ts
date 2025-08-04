@@ -14,7 +14,7 @@
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
 import { assertMatch } from '../utils/helper_functions';
 import { clickElementByContentDesc } from '../utils/text_finder';
-import { logError, STATIC_ERRORS, SELECTORS } from '../constants';
+import { logError, STATIC_ERRORS, SELECTORS, DYNAMIC_ERRORS } from '../constants';
 
 
 // || Helper Functions for topics_page ||
@@ -87,25 +87,40 @@ export async function verifyTopicBlurb(client: Browser, expectedBlurb: string): 
 
 
 /**
- * Clicks the "Sources" element on the Topics page using centralized content-desc.
+ * Clicks the "Sources" element on the Topics page.
  * @param client WebdriverIO browser instance
  */
 export async function clickSources(client: Browser): Promise<void> {
-    await clickElementByContentDesc(client, SELECTORS.TOPICS_SELECTORS.contentDesc.sources, "Sources");
+    const sourcesSelector = await client.$(SELECTORS.TOPICS_SELECTORS.sources);
+    const isDisplayed = await sourcesSelector.waitForDisplayed().catch(() => false);
+    if (isDisplayed) {
+        await sourcesSelector.click();
+        console.debug("Sources clicked on Topics page.");
+    }
+    else {
+        throw new Error(logError(DYNAMIC_ERRORS.elementNameNotFound("Sources")));
+    }
 }
 
 /**
- * Clicks the "Sheets" element on the Topics page using centralized content-desc.
+ * Clicks the "Sheets" element on the Topics page.
  * @param client WebdriverIO browser instance
  */
 export async function clickSheets(client: Browser): Promise<void> {
-    await clickElementByContentDesc(client, SELECTORS.TOPICS_SELECTORS.contentDesc.sheets, "Sheets");
+    const sheetsSelector = await client.$(SELECTORS.TOPICS_SELECTORS.sheets);
+    const isDisplayed = await sheetsSelector.waitForDisplayed().catch(() => false);
+    if (isDisplayed) {
+        await sheetsSelector.click();
+        console.debug("Sheets clicked on Topics page.");
+    }
+    else {
+        throw new Error(logError(DYNAMIC_ERRORS.elementNameNotFound("Sheets")));
+    }   
 }
 
 
 /**
  * Clicks the three dots menu that appears next to each source under the sources section.
- * Uses centralized selector for the source menu element.
  * @param client WebdriverIO browser instance
  */
 export async function openSourceMenu(client: Browser): Promise<void> {

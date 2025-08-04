@@ -120,10 +120,8 @@ export const TOPICS_SELECTORS = {
   textView: (index: number) => 
     `//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[1]/android.widget.TextView[${index}]`,
   sourceMenu: "//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[4]",
-  contentDesc: {
-    sources: "Sources",
-    sheets: "Sheets",
-  },
+  sources: '//android.view.ViewGroup[@content-desc="Sources"]',
+  sheets: '//android.view.ViewGroup[@content-desc="Sheets"]',
 } as const;
 
 // ViewGroup position selectors for UI testing

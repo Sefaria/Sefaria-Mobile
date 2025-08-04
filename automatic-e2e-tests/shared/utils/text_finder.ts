@@ -50,10 +50,10 @@ export async function findTextContaining(client: Browser, text: string): Promise
   const element = await client.$(selector);
   const isDisplayed = await element.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
-    console.debug(`Text containing '${text}' is present on the page! Found text: '${await element.getText()}'`);
+    console.debug(`Text containing '${escapeForRegex(text)}' is present on the page! Found text: '${await element.getText()}'`);
     return element;
   } else {
-    throw new Error(DYNAMIC_ERRORS.textNotFound(text));
+    throw new Error(DYNAMIC_ERRORS.textNotFound(escapeForRegex(text)));
   }
 }
 
