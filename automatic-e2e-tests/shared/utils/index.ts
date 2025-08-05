@@ -15,8 +15,8 @@ import * as browserstackReport from './browserstack_report';
 import * as gesture from './gesture';
 import * as helperFunctions from './helper_functions';
 import * as loadCredentials from './load_credentials';
-import * as offlinePopUp from './offlinePopUp';
-import * as sefariaAPI from './sefariaAPI';
+import * as offlinePopUp from './offline_popup';
+import * as sefariaAPI from './sefaria_api';
 import * as textFinder from './text_finder';
 import * as uiChecker from './ui_checker';
 
