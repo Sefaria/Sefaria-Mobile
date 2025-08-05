@@ -122,7 +122,7 @@ export async function clickSheets(client: Browser): Promise<void> {
  * Clicks the three dots menu that appears next to each source under the sources section.
  * @param client WebdriverIO browser instance
  */
-export async function openSourceMenu(client: Browser): Promise<void> {
+export async function clickThreeDotsMenu(client: Browser): Promise<void> {
     const threeDotsElem = await client.$(SELECTORS.TOPICS_SELECTORS.sourceMenu);
     const isDisplayed = await threeDotsElem.waitForDisplayed().catch(() => false);
     if (isDisplayed) {
@@ -130,5 +130,20 @@ export async function openSourceMenu(client: Browser): Promise<void> {
         console.debug("Three dots menu clicked on Topics page.");
     } else {
         throw new Error(logError(STATIC_ERRORS.THREE_DOTS_NOT_FOUND));
+    }
+}
+
+/**
+ * Verifies that the three dots menu does not appear on the page.
+ * This should not be present on the sheets page.
+ * @param client WebdriverIO browser instance
+ */
+export async function verifyThreeDotsNotAppeared(client: Browser): Promise<void> {
+    const threeDotsElem = await client.$(SELECTORS.TOPICS_SELECTORS.sourceMenu);
+    const isDisplayed = await threeDotsElem.isDisplayed().catch(() => false);
+    if (isDisplayed) {
+        throw new Error(logError("Three dots menu should not be displayed on this page."));
+    } else {
+        console.debug("Three dots menu correctly not displayed on page.");
     }
 }

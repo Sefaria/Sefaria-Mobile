@@ -347,9 +347,9 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await TOPICS_PAGE.clickSources(client);
     
     // Click three dots and verify source connection appears
-    await TOPICS_PAGE.openSourceMenu(client);
+    await TOPICS_PAGE.clickThreeDotsMenu(client);
     await TEXT_FINDER.findTextContaining(client, ALEINU.connection);
-    await TOPICS_PAGE.openSourceMenu(client); // Close the three dots menu
+    await TOPICS_PAGE.clickThreeDotsMenu(client); // Close the three dots menu
 
     // Type into search bar
     await SEARCH_PAGE.typeIntoSearchBar(client, ALEINU.first_source);
@@ -381,6 +381,8 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
     // Click Sheets
     await TOPICS_PAGE.clickSheets(client);
+    // Make sure we are on the Sheets page (three dots is only on Sources page)
+    await TOPICS_PAGE.verifyThreeDotsNotAppeared(client);
 
 
   });
