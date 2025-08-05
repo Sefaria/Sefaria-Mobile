@@ -4,7 +4,8 @@ import { NAVBAR, SEARCH_PAGE, READER_PAGE, DISPLAY_SETTINGS,
 import { LOAD_CREDENTIALS, OFFLINE_POPUP, BROWSERSTACK_REPORT, GESTURE, 
   UI_CHECKER, TEXT_FINDER, SEFARIA_API, HELPER_FUNCTIONS } from '../utils';
 import { BAMIDBAR_1, ALEINU, MISHNAH, DYNAMIC_ERRORS, TEST_TIMEOUTS, 
-  SEFARIA_COLORS, SWIPE_CONFIG, SELECTORS, SWIPE_ATTEMPTS } from '../constants';
+  SEFARIA_COLORS, SWIPE_CONFIG, SELECTORS, SWIPE_ATTEMPTS, 
+  PLATFORM} from '../constants';
 
 import './test_init'; // Allows Logging and Error Handling to be written to logs_test/ directory
 const no_reset = false; // Set to true if you want same device session to continue with each test
@@ -366,7 +367,8 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // Verify we are on Aleinu Topic paGE AGAIN
     await TOPICS_PAGE.verifyTopicTitle(client, ALEINU.en);
 
-    await GESTURE.autoScrollTextIntoView(client, "Topics Related To Aleinu", true);
+    // Scroll down to find Related Topics to Aleinu (iOS and Android have different capitalized "to")
+    await GESTURE.autoScrollTextIntoView(client, ALEINU.topics_related(PLATFORM as "ios" | "android"), true);
     await GESTURE.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "Bowing");
 
     (await TEXT_FINDER.findTextElement(client, "Bowing")).click()

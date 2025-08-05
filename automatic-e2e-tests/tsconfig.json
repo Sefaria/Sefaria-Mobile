@@ -23,13 +23,14 @@
   "include": [
     "shared/**/*.ts",
     "android/**/*.ts",
-    "ios/**/*.ts"
+    "ios/**/*.ts",
+    "scripts/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "**/logs-test-*/**",
-    "**/diff-images-*/**"
+    "logs",
+    "screenshots",
   ],
   "ts-node": {
     "esm": false,

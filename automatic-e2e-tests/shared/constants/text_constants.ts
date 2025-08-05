@@ -40,8 +40,11 @@ export const ALEINU = {
     blurb: "The concluding reading of prayer services, Aleinu (Upon us) reminds Jews of their historical and universal mission. It thus provides transition from the lofty world of prayer to the world of human activity. Aleinu consists of two paragraphs, traditionally associated with Joshua.",
     connection: 'This source is connected to',// "Aleinu" by Curation of the Sefaria Learning Team.',
     first_source: 'Siddur Ashkenaz, Weekday, Shacharit, Concluding Prayers, Alenu 1',
-    first_source_header: 'Weekday, Shacharit, Concluding Prayers, Alenu'
-
+    first_source_header: 'Weekday, Shacharit, Concluding Prayers, Alenu',
+    // different texts for iOS and Android
+    topics_related: (platform: 'ios' | 'android') => {
+        return platform === 'ios' ? "Topics Related to Aleinu" : "Topics Related To Aleinu";
+    }
 }
 
 // Months storage for Sefaria and getting current Jewish Date
