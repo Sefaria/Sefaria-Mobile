@@ -44,8 +44,8 @@
       "name": "iPhone_13_Pro",
       "platform": "ios",
       "browserstack": {
-        "device": "iPhone 13 Pro",
-        "os_version": "15"
+        "device": "iPhone 13 Pro Max",
+        "os_version": "18"
       }
     }
   ]

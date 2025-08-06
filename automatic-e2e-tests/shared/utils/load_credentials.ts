@@ -50,7 +50,7 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
     effectiveBuildName = buildName
       ? `${buildName} - ${process.env.DEVICE_NAME}`
       : process.env.DEVICE_NAME;
-  }
+  } 
 
   if (PLATFORM === 'ios') {
     return getIOSOpts(effectiveBuildName, sessionName, noReset, RUN_ENV);
@@ -119,8 +119,8 @@ function getAndroidOpts(buildName?: string, sessionName?: string, noReset?: bool
         'bstack:options': {
           userName: BROWSERSTACK_USERNAME,
           accessKey: BROWSERSTACK_ACCESS_KEY,
-          deviceName: 'Google Pixel 7 Pro',
-          osVersion: '13.0',
+          deviceName: process.env.BS_DEVICE || 'Pixel 7 Pro',
+          osVersion: process.env.BS_OS_VERSION || '13.0',
           projectName: 'Sefaria App Automation',
           buildName: buildName || 'Sefaria E2E Tests Android',
           sessionName: sessionName || 'Sefaria Android Tests',
@@ -190,8 +190,8 @@ function getIOSOpts(buildName?: string, sessionName?: string, noReset?: boolean,
         'bstack:options': {
           userName: BROWSERSTACK_USERNAME,
           accessKey: BROWSERSTACK_ACCESS_KEY,
-          deviceName: 'iPhone 15 Pro',
-          osVersion: '17',
+          deviceName: process.env.BS_DEVICE || 'iPhone 15 Pro',
+          osVersion: process.env.BS_OS_VERSION || '17',
           projectName: 'Sefaria App Automation',
           buildName: buildName || 'Sefaria E2E Tests iOS',
           sessionName: sessionName || 'Sefaria iOS Tests',
