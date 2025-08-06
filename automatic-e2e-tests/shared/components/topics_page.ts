@@ -123,7 +123,7 @@ export async function clickSheets(client: Browser): Promise<void> {
  * @param client WebdriverIO browser instance
  */
 export async function clickThreeDotsMenu(client: Browser): Promise<void> {
-    const threeDotsElem = await client.$(SELECTORS.TOPICS_SELECTORS.sourceMenu);
+    const threeDotsElem = await client.$(SELECTORS.TOPICS_SELECTORS.threeDotsMenu);
     const isDisplayed = await threeDotsElem.waitForDisplayed().catch(() => false);
     if (isDisplayed) {
         await threeDotsElem.click();
@@ -139,7 +139,7 @@ export async function clickThreeDotsMenu(client: Browser): Promise<void> {
  * @param client WebdriverIO browser instance
  */
 export async function verifyThreeDotsNotAppeared(client: Browser): Promise<void> {
-    const threeDotsElem = await client.$(SELECTORS.TOPICS_SELECTORS.sourceMenu);
+    const threeDotsElem = await client.$(SELECTORS.TOPICS_SELECTORS.threeDotsMenu);
     const isDisplayed = await threeDotsElem.isDisplayed().catch(() => false);
     if (isDisplayed) {
         throw new Error(logError("Three dots menu should not be displayed on this page."));

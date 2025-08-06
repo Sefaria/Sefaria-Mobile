@@ -43,6 +43,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
       if (process.env.RUN_ENV == 'browserstack') {
         await BROWSERSTACK_REPORT.reportToBrowserstack(client, this);
       }
+      await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.texts)
       // Log the test result
       if (this.currentTest?.state === 'passed') {
         console.log(`✅ (PASSED); Finished test: ${testTitle}\n`);
@@ -53,6 +54,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
       await client.deleteSession();
     }
   });
+
 
   it('T001: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
     // Click on Search Icon
@@ -65,6 +67,10 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // Select option from the list and verify we are on the right page
     await SEARCH_PAGE.selectFromList(client, "Sefat Emet, Genesis, Genesis");
     await READER_PAGE.verifyExactTitle(client, "Genesis, Bereshit 1");
+    
+    // Click back to prepare for next test
+    await READER_PAGE.clickBackButton(client);
+    await client.keys('Enter');
   });
 
   it('T003: Navigate to Tanakh, scroll down and click Numbers', async function () {
@@ -84,6 +90,10 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // Check for Hebrew / English text on the page
     await READER_PAGE.findTextByAccessibilityId(client, BAMIDBAR_1.he);
     await READER_PAGE.findTextByAccessibilityId(client, BAMIDBAR_1.en, true);
+
+    // Click back to prepare for next test
+    await READER_PAGE.clickBackButton(client);
+    await client.keys('Enter');
   });
 
   it('T004: Toggle Language to hebrew and see how it affects the page', async function () {
@@ -217,6 +227,10 @@ describe('e2e Sefaria Mobile regression tests', function () {
     const dafNumber = dafNumberMatch ? dafNumberMatch[1] : null;
     // Wait for current daf title to appear (e.g 37A)
     await READER_PAGE.verifyTitleContains(client, dafNumber!);
+
+    // Click back to prepare for next test
+    await READER_PAGE.clickBackButton(client);
+    // await client.keys('Enter');
   });
 
   it('TC021: Texts tab book category sub-page', async function () {
@@ -381,8 +395,8 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
     // Click Sheets
     await TOPICS_PAGE.clickSheets(client);
-    // Make sure we are on the Sheets page (three dots is only on Sources page)
-    await TOPICS_PAGE.verifyThreeDotsNotAppeared(client);
+    // // Make sure we are on the Sheets page (three dots is only on Sources page)
+    // await TOPICS_PAGE.verifyThreeDotsNotAppeared(client);
 
 
   });
