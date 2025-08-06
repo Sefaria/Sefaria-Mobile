@@ -19,42 +19,46 @@ const GLOBAL_KEY = '__TEST_LOGGING_INITIALIZED__';
 if (!(global as any)[GLOBAL_KEY]) {
   (global as any)[GLOBAL_KEY] = true;
   
-  // Detect current platform from environment variable
+  // Detect current platform and device name from environment variables
   const PLATFORM = process.env.PLATFORM || 'android';
-  
+  const DEVICE_NAME = process.env.DEVICE_NAME || '';
   // Determine platform-specific logs directory
   let logsDir = path.resolve(__dirname, `../../logs/${PLATFORM}`);
-  
   // Ensure the logs directory exists
   if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
     console.debug(`Created logs directory: ${logsDir}`);
   }
-  
-  // Create a unique log file name with current date and time
+  // Create a unique log file name with current date and time, and device name if available
   const now = new Date();
   const dateStr = now.toISOString().replace(/:/g, '-').replace(/\..+/, '').replace('T', '_');
-  const logFilePath = path.join(logsDir, `test-run-${PLATFORM}-${dateStr}.log`);
-  fs.writeFileSync(logFilePath, ''); // Clear contents or create file
-  const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
+  const pid = process.pid;
+  const cleanLogFileName = DEVICE_NAME
+    ? `clean-${PLATFORM}-${DEVICE_NAME}-${dateStr}-${pid}.log`
+    : `clean-${PLATFORM}-${dateStr}-${pid}.log`;
+  const cleanLogFilePath = path.join(logsDir, cleanLogFileName);
+  fs.writeFileSync(cleanLogFilePath, ''); // Clear contents or create file
+  const cleanLogStream = fs.createWriteStream(cleanLogFilePath, { flags: 'a' });
+
+  
   
   const origLog = console.log;
   const origError = console.error;
   const origDebug = console.debug;
-  
+
   console.log = (...args: any[]) => {
     origLog(...args);
-    logStream.write(args.map(String).join(' ') + '\n');
+    cleanLogStream.write(args.map(String).join(' ') + '\n');
   };
   console.error = (...args: any[]) => {
     origError(...args);
-    logStream.write('[ERROR] ' + args.map(String).join(' ') + '\n');
-  };
-  
-  console.debug = (...args: any[]) => {
-    origDebug(...args);
-    logStream.write('[DEBUG] ' + args.map(String).join(' ') + '\n');
+    cleanLogStream.write('[ERROR] ' + args.map(String).join(' ') + '\n');
   };
 
-  console.debug(`Test logging initialized. Log file: ${logFilePath}`);
+  console.debug = (...args: any[]) => {
+    origDebug(...args);
+    cleanLogStream.write('[DEBUG] ' + args.map(String).join(' ') + '\n');
+  };
+
+  console.debug(`Test logging initialized. Clean log file: ${cleanLogFilePath}`);
 }

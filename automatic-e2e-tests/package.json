@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Cross-platform automated tests for Sefaria Mobile app",
   "main": "index.js",
-  "scripts": { 
+  "scripts": {
     "test:android:local": "cross-env PLATFORM=android RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
     "test:ios:local": "cross-env PLATFORM=ios RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts shared/tests/*.spec.ts --timeout 300000",
     
@@ -12,7 +12,10 @@
     
     "cleanup:android": "node scripts/cleanup.js android",
     "cleanup:ios": "node scripts/cleanup.js ios",
-    "cleanup" : "npm run cleanup:android && npm run cleanup:ios"
+    "cleanup": "npm run cleanup:android && npm run cleanup:ios",
+    
+    "test:android:parallel": "cross-env PLATFORM=android node scripts/run-parallel-tests.js",
+    "test:ios:parallel": "cross-env PLATFORM=ios node scripts/run-parallel-tests.js"
   },
   "keywords": [
     "sefaria",
@@ -36,6 +39,7 @@
     "@wdio/globals": "^9.16.2",
     "@wdio/types": "^9.16.2",
     "cross-env": "^7.0.3",
+    "cross-spawn": "^7.0.6",
     "expect-webdriverio": "^5.3.4",
     "mocha": "^11.7.1",
     "ts-mocha": "^11.1.0",

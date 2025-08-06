@@ -21,7 +21,10 @@ Use this as a quick reference for contributors and maintainers.
   Centralized logs and screenshots for both platforms.
 
 - **scripts/**  
-  Utility scripts (e.g., cleanup.js).
+  Utility scripts (e.g., cleanup.js). `run-parallel-tests.js` for running tests in parallel on multiple devices.
+
+- **devices.json**  
+  Configuration file for devices used in parallel testing. Set specific devices and version for Android and iOS.
 
 ---
 

@@ -43,12 +43,19 @@ if (PLATFORM === 'ios') {
 export function getOpts(buildName?: string, sessionName?: string, noReset?: boolean) {
   const RUN_ENV = process.env.RUN_ENV || 'local';
   
-  console.log(`[INFO] Running on ${RUN_ENV.toUpperCase()} for ${PLATFORM.toUpperCase()} platform`);
+  console.log(`[INFO] Running on ${RUN_ENV.toUpperCase()} for ${PLATFORM.toUpperCase()} platform on Device: ${process.env.DEVICE_NAME || 'Unknown'}`);
   
+  let effectiveBuildName = buildName || '';
+  if (process.env.DEVICE_NAME) {
+    effectiveBuildName = buildName
+      ? `${buildName} - ${process.env.DEVICE_NAME}`
+      : process.env.DEVICE_NAME;
+  }
+
   if (PLATFORM === 'ios') {
-    return getIOSOpts(buildName, sessionName, noReset, RUN_ENV);
+    return getIOSOpts(effectiveBuildName, sessionName, noReset, RUN_ENV);
   } else {
-    return getAndroidOpts(buildName, sessionName, noReset, RUN_ENV);
+    return getAndroidOpts(effectiveBuildName, sessionName, noReset, RUN_ENV);
   }
 }
 

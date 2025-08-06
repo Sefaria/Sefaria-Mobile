@@ -55,6 +55,12 @@ It is designed to help contributors and maintainers write, run, and maintain rob
   ```sh
   npm run test:ios:browserstack
   ```
+- **Run tests in parallel on multiple devices:** (set devices in `devices.json`)
+  ```sh
+  npm run test:android:parallel
+  npm run test:ios:parallel
+  ```
+
 - **Clean up logs/screenshots:**
   ```sh
   npm run cleanup
