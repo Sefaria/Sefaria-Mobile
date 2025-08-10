@@ -41,9 +41,12 @@ This guide explains how to configure, run, and troubleshoot automated end-to-end
 
 You do **not** need Android Studio. You can install just the SDK using command-line tools:
 
-- Download the [Command Line Tools for Windows](https://developer.android.com/studio#command-line-tools-only).
+- Download the [Command Line Tools for Windows](https://developer.android.com/studio#command-line-tools-only) and follow installation instructions.
+
+**Stuck?**
+If using Windows, see below for detailed steps.
 - Create `Android` directory in `C:\` (e.g., `C:\Android`).
-- Extract the downloaded ZIP file to `C:\Android`.
+- Extract the downloaded Tools ZIP file to `C:\Android`.
 - After extracting, navigate to `C:\Android\cmdline-tools\` and create a folder named `latest` if it does not exist.  
   Move the `lib` and `bin` folders into `C:\Android\cmdline-tools\latest\`.
 - Final structure:  
@@ -91,7 +94,7 @@ This mode runs tests on a physical device connected via USB, Android emulator, o
    adb devices
    ```
 3. **Copy example.env:**  
-   Copy `example.env` to `.env` and configure as needed.
+   Copy `example.env` to `.env` in the root directory `automatic-e2e-tests` and configure as needed.
     - **To test a specific APK:** Make sure to add the apk you want to test in `android/app`.
 4. **Start Appium:**
    ```sh
@@ -106,7 +109,7 @@ This mode runs tests on a physical device connected via USB, Android emulator, o
 
 1. **Enable developer mode on your device or use a simulator.**
 2. **Copy example.env:**  
-   Copy `example.env` to `.env` (if not done already) and configure as needed.
+   Copy `example.env` to `.env` in the root directory `automatic-e2e-tests` (if not done already) and configure as needed.
       - **To test a specific IPA:** Make sure to add the ipa you want to test in `ios/app`.
 3. **Start Appium:**
    ```sh
@@ -120,10 +123,12 @@ This mode runs tests on a physical device connected via USB, Android emulator, o
 ---
 
 ### Logs & Cleanup
-Everything is organized by platform: `logs/` and `screenshots/` directories.
+During test execution, logs and screenshots are automatically generated to help you debug issues. When running tests, you can find shorter and more meaningful logs in the `logs/{platform}` directory as `clean-tests*.log`. Also, you can find more verbose logs (the actions that appium does) in the `logs/{platform}/verbose-tests*.log` files.
 
-- Logs: `logs/` (contains reader friendly test logs)
-- Screenshots: `screenshots/` (taken for failed visual checks)
+Everything is organized by platform (ios/android) in the `logs/` and `screenshots/` directories. These directories should exist in the root of the `automatic-e2e-tests` directory.
+
+- Logs: `logs/{platform}` (contains reader friendly test logs)
+- Screenshots: `screenshots/{platform}` (taken for failed visual checks)
 - Clean up:
   ```sh
   npm run cleanup:android
@@ -142,7 +147,7 @@ This mode runs tests on real devices in the cloud using BrowserStack and can be 
 
 **How to use BrowserStack for Sefaria tests:**
 
-1. **Update `.env` in `automatic-e2e-tests` with your BrowserStack credentials and App ID:**
+1. **Update `.env` in `automatic-e2e-tests/` with your BrowserStack credentials and App ID:**
    - Get your username and access key from your [BrowserStack dashboard](https://www.browserstack.com/users/sign_in).
    - Upload your APK/AAB (Android) or IPA (iOS) file to BrowserStack using their [App Upload page](https://app-automate.browserstack.com/dashboard/v2/app-upload).
    - Copy the App ID (e.g., `bs://<app-id>`) and set it in your `.env` as `ANDROID_BROWSERSTACK_APP_ID` or `IOS_BROWSERSTACK_APP_ID`:

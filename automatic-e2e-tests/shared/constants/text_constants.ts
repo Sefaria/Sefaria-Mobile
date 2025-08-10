@@ -41,6 +41,7 @@ export const ALEINU = {
     connection: 'This source is connected to',// "Aleinu" by Curation of the Sefaria Learning Team.',
     first_source: 'Siddur Ashkenaz, Weekday, Shacharit, Concluding Prayers, Alenu 1',
     first_source_header: 'Weekday, Shacharit, Concluding Prayers, Alenu',
+    sheets_search: 'Shabbes Shuva',
     // different texts for iOS and Android
     topics_related: (platform: 'ios' | 'android') => {
         return platform === 'ios' ? "Topics Related to Aleinu" : "Topics Related To Aleinu";

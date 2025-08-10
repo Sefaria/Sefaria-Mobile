@@ -78,6 +78,8 @@ export const READER_SELECTORS = {
 export const SEARCH_SELECTORS = {
   exactText: (text: string) => 
     `//XCUIElementTypeOther[@name="${text}" or @label="${text}"] | //XCUIElementTypeStaticText[@name="${text}" or @label="${text}"]`,
+  emptySearchBar: '//XCUIElementTypeTextField[@value="Search"]',
+  clearSearchBar: '//XCUIElementTypeOther[@name="close"]',
 }
 
 // iOS Display settings selectors
@@ -85,6 +87,8 @@ export const DISPLAY_SETTINGS_SELECTORS = {
   openButton: `//XCUIElementTypeButton[@name="Open display settings"]`,
   languageToggle: (targetLanguage: string) => 
     `//XCUIElementTypeOther[@name="Change language to ${targetLanguage}"]`,
+  donateButton: `//XCUIElementTypeOther[@name="Donate Now"]`,
+  closePopUp: `//XCUIElementTypeOther[@name="Close pop up"]`,
 } as const;
 
 // iOS Topics selectors

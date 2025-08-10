@@ -108,12 +108,16 @@ export const READER_SELECTORS = {
 export const SEARCH_SELECTORS = {
   exactText: (text: string) => 
     TEXT_SELECTORS.exactText(text, APP_PACKAGE),
+  emptySearchBar: '//android.widget.EditText[@text="Search"]',
+  clearSearchBar: '//android.view.ViewGroup[@content-desc="close"]/android.widget.ImageView',
 }
 // Display settings selectors
 export const DISPLAY_SETTINGS_SELECTORS = {
   openButton: '~Open display settings',
   languageToggle: (targetLanguage: string) => 
     `android=new UiSelector().description("Change language to ${targetLanguage}")`,
+  donateButton: `///android.view.ViewGroup[@content-desc="Close pop up"]`,
+  closePopUp: `//android.view.ViewGroup[@content-desc="Close pop up"]`,
 } as const;
 
 // Topics and search selectors

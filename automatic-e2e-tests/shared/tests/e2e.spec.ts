@@ -8,6 +8,7 @@ import { BAMIDBAR_1, ALEINU, MISHNAH, DYNAMIC_ERRORS, TEST_TIMEOUTS,
   PLATFORM} from '../constants';
 
 import './test_init'; // Allows Logging and Error Handling to be written to logs_test/ directory
+import { SEARCH_SELECTORS } from 'android/selectors/selectors';
 const no_reset = false; // Set to true if you want same device session to continue with each test
 const buildName = `Sefaria E2E ${process.env.PLATFORM?.toUpperCase()}: ${new Date().toISOString().slice(0, 10)}`;
 
@@ -34,6 +35,8 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await OFFLINE_POPUP.handleOfflinePopUp(client);
     // Wait for first screen to load (nav bar loading signals app is ready)
     await NAVBAR.waitForNavBar(client);
+    await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.texts)
+
   });
 
   afterEach(async function () {
@@ -43,7 +46,6 @@ describe('e2e Sefaria Mobile regression tests', function () {
       if (process.env.RUN_ENV == 'browserstack') {
         await BROWSERSTACK_REPORT.reportToBrowserstack(client, this);
       }
-      await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.texts)
       // Log the test result
       if (this.currentTest?.state === 'passed') {
         console.log(`✅ (PASSED); Finished test: ${testTitle}\n`);
@@ -395,10 +397,16 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
     // Click Sheets
     await TOPICS_PAGE.clickSheets(client);
-    // // Make sure we are on the Sheets page (three dots is only on Sources page)
-    // await TOPICS_PAGE.verifyThreeDotsNotAppeared(client);
+    // Assert Search bar is present and empty
+    await SEARCH_PAGE.verifyEmptySearchBar(client);
+    // Type into search bar
+    await SEARCH_PAGE.typeIntoSearchBar(client, ALEINU.sheets_search);
+    // Press 'X' to clear search bar
+    await client.keys('Enter');
+    await SEARCH_PAGE.clearSearchBar(client);
 
-
+    // Verify the search bar is empty
+    await SEARCH_PAGE.verifyEmptySearchBar(client);
   });
   
   // Add more tests here...

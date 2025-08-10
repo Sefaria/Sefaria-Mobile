@@ -65,3 +65,39 @@ export async function selectFromList(client: Browser, text: string): Promise<voi
     throw new Error(DYNAMIC_ERRORS.textNotFound(text));
   }
 }
+
+
+/**
+ * Verifies that the search bar is empty by checking the presence of the empty search bar selector.
+ * @param client WebdriverIO browser instance
+ * @throws Will throw an error if the empty search bar is not displayed
+ */
+export async function verifyEmptySearchBar(client: Browser): Promise<void> {
+  const emptySearchBarSelector = SELECTORS.SEARCH_SELECTORS.emptySearchBar();
+  const emptySearchBar = await client.$(emptySearchBarSelector);
+  const isDisplayed = await emptySearchBar.waitForDisplayed().then(() => true).catch(() => false);
+
+  if (!isDisplayed) {
+    throw new Error('Empty search bar is not displayed.');
+  }
+  console.debug('Empty search bar is displayed as expected.');
+}
+
+
+/**
+ * Clicks the 'X' button to clear the search bar.
+ * @param client WebdriverIO browser instance
+ * @throws Will throw an error if the clear button is not displayed or not clickable
+ */
+export async function clearSearchBar(client: Browser): Promise<void> {
+  const clearButtonSelector = SELECTORS.SEARCH_SELECTORS.clearSearchBar();
+  const clearButton = await client.$(clearButtonSelector);
+  const isDisplayed = await clearButton.waitForDisplayed().then(() => true).catch(() => false);
+
+  if (!isDisplayed) {
+    throw new Error('Clear search bar button is not displayed.');
+  }
+
+  await clearButton.click();
+  console.debug('Clear search bar button clicked.');
+}

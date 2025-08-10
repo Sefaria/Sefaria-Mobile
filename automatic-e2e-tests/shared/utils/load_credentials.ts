@@ -119,7 +119,7 @@ function getAndroidOpts(buildName?: string, sessionName?: string, noReset?: bool
         'bstack:options': {
           userName: BROWSERSTACK_USERNAME,
           accessKey: BROWSERSTACK_ACCESS_KEY,
-          deviceName: process.env.BS_DEVICE || 'Pixel 7 Pro',
+          deviceName: process.env.BS_DEVICE || 'Google Pixel 7 Pro',
           osVersion: process.env.BS_OS_VERSION || '13.0',
           projectName: 'Sefaria App Automation',
           buildName: buildName || 'Sefaria E2E Tests Android',

@@ -17,19 +17,61 @@ It is intended for both new contributors and experienced maintainers, and covers
 - [Debugging & Troubleshooting](#debugging--troubleshooting)
 
 ---
-
 ## General Principles
 
-- **Write cross-platform tests:** All helpers and tests should work for both Android and iOS unless a platform-specific workaround is required.
-- **Use all imports:** If you import a function or constant, make sure it is actually used.
-- **Keep tests independent:** Each test should set up its own state and not depend on previous tests.
-- **Use page/component helpers:** Place actions that are specific to a particular page in `components/` files.
-- **Use utility functions:** Place cross-cutting helpers in `utils/`.
-- **Keep tests clean:** Do not use selectors or log statements directly in your test files.
-- **Log clearly:** Use `console.log`, `console.debug` for important steps and always log errors (inside helpers).
-- **Fail fast:** Throw errors as soon as a check fails, with clear messages.
-- **Prefer selectors by content-desc or text:** Avoid brittle index-based selectors when possible.
-- **Always use `await`** when calling asynchronous helper functions.
+- **Write cross-platform tests:**  
+  All helpers and tests should work seamlessly for both Android and iOS. If a platform-specific workaround is required, document it clearly and isolate it within helpers or utilities—not in the test files themselves.
+
+- **Keep tests independent:**  
+  Each test should set up its own state and not rely on the outcome or side effects of previous tests. This ensures reliability and makes debugging easier.
+
+- **Fail fast:**  
+  Throw errors as soon as a check fails, with clear, actionable messages. This helps pinpoint issues quickly and prevents cascading failures.
+
+- **Prefer selectors by content-desc or text:**  
+  Use robust selectors such as content-desc (Android) or accessibility labels/text (iOS). Avoid brittle index-based selectors, which are more likely to break if the UI changes.
+
+---
+
+### Keeping Tests Clean & Readable
+
+Tests should be **descriptive and easy to read**. All logic for interacting with the app should be hidden away in Page Object Models (POMs), component helpers, or utility functions. This separation keeps test files focused on high-level user flows and makes them maintainable.
+
+- **Do not use selectors or log statements directly in your test files.**  
+  Always use helpers and constants for selectors, and let helpers handle logging and error reporting.
+
+- **Structure tests for clarity:**  
+  Use clear naming for `describe` and `it` blocks. Each test should read like a user story, describing what the test does without exposing implementation details.
+
+---
+
+### Using Page/Component Helpers
+
+Place actions and verifications that are specific to a particular page or feature in `components/` files. These helpers encapsulate all interactions with that part of the app, making your tests more modular and reusable.
+
+- **Example:**  
+  Instead of clicking a selector directly in your test, call a helper like `NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.account)`.
+
+- **Benefits:**  
+  - Keeps test files short and readable.
+  - Centralizes logic for each page, making updates easier.
+  - Ensures cross-platform compatibility by abstracting platform differences.
+
+---
+
+### Using Utility Functions
+
+Place cross-cutting helpers, such as gestures, color checks, or text finding, in `utils/`. Utilities should be generic and reusable across multiple components and tests.
+
+- **Example:**  
+  Use a utility like `GESTURE.swipeDown(client, SELECTORS.LIST_VIEW)` instead of writing swipe logic in every test.
+
+- **Benefits:**  
+  - Reduces duplication.
+  - Improves maintainability.
+  - Keeps test logic focused on user flows, not implementation details.
+
+---
 
 ---
 
@@ -74,7 +116,7 @@ export const NAVBAR_SELECTORS = {
 ```
 
 ### How to Import Constants
-
+the `index.ts`  files the `shared/constants/` directory automatically exports all constants, so you can import them directly in your test files or components. This allows you to use a single import statement for all constant types.
 ```typescript
 import { SELECTORS, OPERATION_TIMEOUTS, SEFARIA_COLORS } from '../constants';
 ```
@@ -82,6 +124,7 @@ import { SELECTORS, OPERATION_TIMEOUTS, SEFARIA_COLORS } from '../constants';
 ---
 
 ## Test File Structure & Best Practices
+Tests should be simple and easy to read. They should focus on high-level user flows and interactions. Therefore, we hide the logic behind the components and utilities, allowing tests to be more straightforward.
 
 - All test files live in [`shared/tests/`](./shared/tests).
 - Use `describe` blocks for grouping related tests.
@@ -145,7 +188,8 @@ describe('e2e Sefaria Mobile regression tests', function () {
 > **Tip:** Use `.only` to run a single test (`it.only`) or describe block for debugging.
 
 1. **Add regression tests in `e2e.spec.ts`** or create a new test in a new file in `shared/tests/`.
-2. **Decide what you want to test.**
+2. **Naming convention:** Use descriptive names for `describe` and `it` blocks (no more than a sentence).
+   - Example: `it('should open the Topics tab and verify the header')`
 3. **Use or create a component helper** for actions related to specific pages or features.
 4. **Use utility functions** for gestures, color checks, text finding, or other non-page specific actions.
 5. **Structure:**
@@ -171,6 +215,7 @@ it('should open the Topics tab and verify the header', async function () {
 ---
 
 ## How to Create a Component
+Components are reusable page or feature helpers that encapsulate actions and verifications for specific parts of the app. They are central to keeping tests clean and maintainable, as they allow specific pages or features to have corresponding code that can be reused across multiple tests.
 
 - Components live in [`shared/components/`](./shared/components/).
 - Each file represents a page or feature and exports functions for interacting with it.
@@ -178,6 +223,7 @@ it('should open the Topics tab and verify the header', async function () {
 - **Import constants** from the centralized constants directory.
 - Document each function with JSDoc comments.
 - Use robust selectors (prefer content-desc or text over index).
+  - Using content-desc / labels makes your tests more stable as those attributes are less likely to change than index-based selectors.
 - **Write helpers to be cross-platform**—use `SELECTORS` and avoid platform checks in test files.
 
 **Example: `components/display_settings.ts`**
