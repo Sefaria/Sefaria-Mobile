@@ -73,9 +73,6 @@ export const NAVBAR_SELECTORS = {
 };
 ```
 
-**Tip:**  
-If you add a selector for a new feature, always update both files, even if the XPath or query is different. This keeps the API consistent and your tests cross-platform.
-
 ### How to Import Constants
 
 ```typescript
@@ -89,7 +86,7 @@ import { SELECTORS, OPERATION_TIMEOUTS, SEFARIA_COLORS } from '../constants';
 - All test files live in [`shared/tests/`](./shared/tests).
 - Use `describe` blocks for grouping related tests.
 - Use `beforeEach`/`afterEach` for setup and teardown.
-- Use helpers from `components/` and `utils/` for all non-trivial actions.
+- Use helpers from `components/` and `utils/` for all repetitive actions (e.g., navigation, gestures).
 - Log the start and end of each test for traceability.
 - Save logs and screenshots for failed tests (handled automatically).
 - **Tests should not reference platform-specific selectors directly**—always use helpers and constants.

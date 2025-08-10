@@ -29,9 +29,9 @@ This guide explains how to configure, run, and troubleshoot automated end-to-end
    - **iOS:**  
      - Install Xcode from the Mac App Store and ensure Xcode Command Line Tools are installed (`xcode-select --install`).
 4. **.env file**
-   - Copy `example.env` to `.env` in the root directory and fill in your BrowserStack credentials and local device information.
+   - Copy `example.env` to `.env` in the root directory of `automatic-e2e-tests` and fill in your BrowserStack credentials and local device information.
    - **To test a specific APK or IPA file locally:**  
-     - Set the `IOS_LOCAL_APP_PATH` or/and `ANDROID_LOCAL_APP_PATH` variable in `.env` to the absolute path of your APK or IPA file (for example, `ANDROID_LOCAL_APP_PATH=android/app/my-debug.apk` or `IOS_LOCAL_APP_PATH=ios/app/my-debug.ipa`).
+     - Set the `IOS_LOCAL_APP_PATH` or/and `ANDROID_LOCAL_APP_PATH` variable in `.env` to the absolute path of your APK or IPA file (for example, `ANDROID_LOCAL_APP_PATH=c:users/user/android/app/my-app.apk` or `IOS_LOCAL_APP_PATH=/Users/user/ios/app/my-app.ipa`).
     - **To test the app on BrowserStack:**  
      - Upload your APK/AAB (Android) or IPA (iOS) file to BrowserStack and set the `ANDROID_BROWSERSTACK_APP_ID` or/and `IOS_BROWSERSTACK_APP_ID` in `.env` to the app ID provided by BrowserStack after upload.
 
@@ -120,7 +120,7 @@ This mode runs tests on a physical device connected via USB, Android emulator, o
 ---
 
 ### Logs & Cleanup
-Everything is organized by platforom: `logs/` and `screenshots/` directories.
+Everything is organized by platform: `logs/` and `screenshots/` directories.
 
 - Logs: `logs/` (contains reader friendly test logs)
 - Screenshots: `screenshots/` (taken for failed visual checks)
@@ -162,7 +162,8 @@ See [BrowserStack docs](https://www.browserstack.com/docs/app-automate/appium/ge
 - Push your branch to GitHub.
 - Go to **Actions** tab > **Run BrowserStack** workflow > **Run workflow**.
 - Monitor progress and download logs/artifacts from the run summary.
-- Ensure required GitHub Secrets are set (`BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY`, `BROWSERSTACK_APP_ID`, `RUN_ENV` (set to browserstack)).
+- Ensure required GitHub Secrets for access are set (`BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY`, `BROWSERSTACK_APP_ID`)
+- Also ensure that on GitHub secrets `RUN_ENV` is set to `browserstack` so that the tests run on BrowserStack.
 
 ---
 
@@ -203,6 +204,7 @@ See [BrowserStack docs](https://www.browserstack.com/docs/app-automate/appium/ge
 ---
 
 ## Appium Inspector
+Appium Inspector is a GUI tool to inspect app elements, find locators, and understand the app's structure. It is a handy tool to help you write tests and find the right selectors for creating components / utilities.
 
 - [Download Appium Inspector](https://github.com/appium/appium-inspector/releases)
 - Example config for Android:
