@@ -38,7 +38,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
   });
 
 
-  it.only('T001: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
+  it('T001: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
     // Click on Search Icon
     await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.search);
     await TEXT_FINDER.verifyHeaderOnPage(client, 'Search');
