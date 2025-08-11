@@ -15,17 +15,22 @@
     "rootDir": "./",
     "baseUrl": "./",
     "paths": {
-      "shared/*": ["shared/*"],
-      "android/*": ["android/*"],
-      "ios/*": ["ios/*"]
+      "components/*": ["components/*"],
+      "constants/*": ["constants/*"],
+      "selectors/*": ["selectors/*"],
+      "tests/*": ["tests/*"],
+      "utils/*": ["utils/*"],
     }
   },
   "include": [
-    "shared/**/*.ts",
-    "android/**/*.ts",
-    "ios/**/*.ts",
+    "components/**/*.ts",
+    "constants/**/*.ts",
+    "selectors/**/*.ts",
+    "tests/**/*.ts",
+    "utils/**/*.ts",
     "scripts/**/*.ts",
-    "log_init.ts"  ],
+    "log_init.ts",
+  ],
   "exclude": [
     "node_modules",
     "dist",

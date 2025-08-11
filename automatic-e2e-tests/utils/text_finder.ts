@@ -12,7 +12,7 @@
 
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { HELPER_FUNCTIONS } from '../utils';
+import { HELPER_FUNCTIONS } from '.';
 import { DYNAMIC_ERRORS, logError, SELECTORS } from '../constants';
 
 

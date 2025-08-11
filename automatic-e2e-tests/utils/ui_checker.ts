@@ -13,7 +13,7 @@
 import type { Browser } from 'webdriverio';
 import { PNG } from 'pngjs';
 import * as fs from 'fs';
-import { HELPER_FUNCTIONS } from '../utils';
+import { HELPER_FUNCTIONS } from '.';
 import { DYNAMIC_ERRORS, logError, SELECTORS, COLOR_THRESHOLDS, PLATFORM, ELEMENT_TIMEOUTS } from '../constants';
 
 

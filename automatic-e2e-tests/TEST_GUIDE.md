@@ -138,7 +138,7 @@ Tests should be simple and easy to read. They should focus on high-level user fl
 
 ```typescript
 import { remote } from 'webdriverio';
-import { NAVBAR } from '../components/navbar';
+import { NAVBAR } from '../components';
 import { BROWSERSTACK_REPORT, OFFLINE_POPUP, LOAD_CREDENTIALS, TEXT_FINDER, HELPER_FUNCTIONS } from '../utils';
 import { TEST_TIMEOUTS, SELECTORS } from '../constants';
 

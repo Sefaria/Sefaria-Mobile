@@ -7,15 +7,12 @@ Use this as a quick reference for contributors and maintainers.
 
 ## Directory Structure
 
-- **android/** and **ios/**  
-  Platform-specific mobile applications and selectors.
-  - **android/selectors/selectors.ts**  
+- **Selectors/**  
+  Contains platform-specific selectors for Android and iOS.  
+  - **selectors/android/selectors.ts**  
     Android-specific UI selectors and XPath patterns.
-  - **ios/selectors/selectors.ts**  
+  - **selectors/ios/selectors.ts**  
     iOS-specific UI selectors and XPath patterns.
-
-- **shared/**  
-  All cross-platform test code, components, constants, and utilities.
 
 - **logs/** and **screenshots/**  
   Centralized logs and screenshots for both platforms.

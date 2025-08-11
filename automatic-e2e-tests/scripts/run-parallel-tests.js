@@ -30,7 +30,7 @@ const processes = devices.map(device => {
   const mochaArgs = [
     '--require', 'ts-node/register',
     '--extensions', 'ts',
-    'shared/tests/*.spec.ts',
+    'tests/*.spec.ts',
     '--timeout', '300000'
   ];
 

@@ -11,7 +11,6 @@
  * ──────────────────────────────────────────────────────────────
  */
 
-
 import { DYNAMIC_ERRORS, SUCCESS_MESSAGES,
   SWIPE_CONFIG, GESTURE_TIMING, TOUCH_CONFIG, SWIPE_ATTEMPTS,
   SELECTORS } from '../constants';

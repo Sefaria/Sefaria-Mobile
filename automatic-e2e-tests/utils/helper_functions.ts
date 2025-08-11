@@ -12,7 +12,7 @@
 
 import { logError, HEBREW_MONTHS, COLOR_THRESHOLDS, SELECTORS} from '../constants';
 import { NAVBAR } from '../components';
-import { OFFLINE_POPUP, BROWSERSTACK_REPORT } from '../utils';
+import { OFFLINE_POPUP, BROWSERSTACK_REPORT } from '.';
 
 /**
  * Allows double qoutes (and other potentially breaking characters) to be inside .text()

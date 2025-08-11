@@ -6,6 +6,6 @@
   "exit": true,
   "recursive": true,
   "reporter": "spec",
-  "spec": "shared/tests/**/*.spec.ts",
+  "spec": "tests/**/*.spec.ts",
   "ui": "bdd"
 }

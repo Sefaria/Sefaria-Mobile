@@ -28,9 +28,9 @@ export const PLATFORM = process.env.PLATFORM || 'android';
 // Dynamically import platform-specific selectors (ios/android)
 let SELECTORS: any;
 if (PLATFORM === 'ios') {
-  SELECTORS = require('../../ios/selectors/selectors');
+  SELECTORS = require('../selectors/ios/selectors');
 } else {
-  SELECTORS = require('../../android/selectors/selectors');
+  SELECTORS = require('../selectors/android/selectors');
 }
 
 

@@ -6,7 +6,7 @@ import { LOAD_CREDENTIALS, OFFLINE_POPUP, BROWSERSTACK_REPORT, GESTURE,
 import { BAMIDBAR_1, ALEINU, MISHNAH, DYNAMIC_ERRORS, TEST_TIMEOUTS, 
   SEFARIA_COLORS, SWIPE_CONFIG, SELECTORS, SWIPE_ATTEMPTS, 
   PLATFORM} from '../constants';
-import '../../log_init'; 
+import '../log_init'; 
 
 const NO_RESET = false; // Set to true if you want same device session to continue with each test
 const buildName = HELPER_FUNCTIONS.getBuildName();
