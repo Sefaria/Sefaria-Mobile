@@ -24,8 +24,8 @@
     "shared/**/*.ts",
     "android/**/*.ts",
     "ios/**/*.ts",
-    "scripts/**/*.ts"
-  ],
+    "scripts/**/*.ts",
+    "log_init.ts"  ],
   "exclude": [
     "node_modules",
     "dist",

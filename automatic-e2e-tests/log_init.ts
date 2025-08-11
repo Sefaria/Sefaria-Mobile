@@ -3,8 +3,8 @@
  * FILE ROLE: Test Logging and Error Handling Initialization
  * 
  * DESCRIPTION:
- *  - Sets up logging so that all console output (log, error, warn) is written to a timestamped file in logs-test/.
- *  - Ensures logs-test directory exists and creates a unique log file for each test run.
+ *  - Sets up logging so that all console output (log, error, warn) is written to a timestamped file in logs/.
+ *  - Ensures logs directory exists and creates a unique log file for each test run.
  *  - Captures and logs uncaught exceptions and unhandled promise rejections for better debugging.
  * USAGE:
  *  - Import this file at the top of your test entry point (e.g., e2e.spec.ts) to enable logging and error capture.
@@ -23,7 +23,7 @@ if (!(global as any)[GLOBAL_KEY]) {
   const PLATFORM = process.env.PLATFORM || 'android';
   const DEVICE_NAME = process.env.DEVICE_NAME || '';
   // Determine platform-specific logs directory
-  let logsDir = path.resolve(__dirname, `../../logs/${PLATFORM}`);
+  let logsDir = path.resolve(__dirname, `./logs/${PLATFORM}`);
   // Ensure the logs directory exists
   if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
@@ -40,12 +40,11 @@ if (!(global as any)[GLOBAL_KEY]) {
   fs.writeFileSync(cleanLogFilePath, ''); // Clear contents or create file
   const cleanLogStream = fs.createWriteStream(cleanLogFilePath, { flags: 'a' });
 
-  
-  
   const origLog = console.log;
   const origError = console.error;
   const origDebug = console.debug;
 
+  // catch and convert our logs, errors, and debugs to a clean format
   console.log = (...args: any[]) => {
     origLog(...args);
     cleanLogStream.write(args.map(String).join(' ') + '\n');

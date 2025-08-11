@@ -8,7 +8,7 @@ Use this as a quick reference for contributors and maintainers.
 ## Directory Structure
 
 - **android/** and **ios/**  
-  Platform-specific mobile applications, and selectors.
+  Platform-specific mobile applications and selectors.
   - **android/selectors/selectors.ts**  
     Android-specific UI selectors and XPath patterns.
   - **ios/selectors/selectors.ts**  
@@ -59,12 +59,7 @@ Reusable page/component objects for high-level UI actions (cross-platform).
 
 ## constants/
 
-Centralized constants for selectors, timeouts, gestures, colors, errors, and text.
-
-> **Selectors are now platform-specific:**  
-> - Android selectors are in `android/selectors/selectors.ts`  
-> - iOS selectors are in `ios/selectors/selectors.ts`  
-> - The shared `constants/index.ts` file **automatically loads the correct selectors** at runtime based on the current platform (Android or iOS), so you can always import `SELECTORS` from `constants` and it will "just work".
+Centralized constants for timeouts, gestures, colors, errors, and text.
 
 - **timeouts.ts**  
   All timeout values organized by operation type.
@@ -83,6 +78,7 @@ Centralized constants for selectors, timeouts, gestures, colors, errors, and tex
 
 - **index.ts**  
   Central import point for all constants, with dynamic platform selector loading.
+  This file **automatically loads the correct selectors** at runtime based on the current platform (Android or iOS), so you can always import `SELECTORS` from `constants` and it will "just work".
 
 ---
 
@@ -92,9 +88,6 @@ Where your actual test suites live.
 
 - **e2e.spec.ts**  
   Main end-to-end regression test suite.
-
-- **test_init.ts**  
-  Initializes logging and error handling.
 
 - **\*.spec.ts**  
   Add new test files for specific features or components.

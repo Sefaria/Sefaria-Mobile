@@ -10,8 +10,9 @@
  * ──────────────────────────────────────────────────────────────
  */
 
-import { logError, HEBREW_MONTHS, COLOR_THRESHOLDS } from '../constants';
-
+import { logError, HEBREW_MONTHS, COLOR_THRESHOLDS, SELECTORS} from '../constants';
+import { NAVBAR } from '../components';
+import { OFFLINE_POPUP, BROWSERSTACK_REPORT } from '../utils';
 
 /**
  * Allows double qoutes (and other potentially breaking characters) to be inside .text()
@@ -112,14 +113,60 @@ export function assertMatch(label: string, actual: string, expected: string): vo
  * @param testContext Mocha test context (this)
  * @returns Cleaned test title string
  */
-export function getCleanTestTitle(testContext: Mocha.Context): string {
-  // Fetch the current test title for logging (defaults to 'Test' to ensure testTitle is always defined)
-  let testTitle = testContext.test?.title || 'Test';
-  // .test.title automatically adds "before each", so we remove it for cleaner test names
+export function getTestTitle(testContext: Mocha.Context): string {
+  if (!testContext.test) {
+    throw new Error(logError('Test context does not contain a test object.'));
+  }
+  let testTitle = testContext.test.title;
   if (testTitle.includes('before each')) {
     testTitle = testTitle.replace(/.*before each.*hook for /, '');
   }
-  // Remove all double quotes and backslashes
   testTitle = testTitle.replace(/["\\]/g, '');
   return testTitle;
+}
+
+/**
+ * Generates the build name seen on browserstack.
+ * This is used to identify the test run in reports.
+ * @returns A cleaned version of the test title, suitable for use in logs or reports.
+ */
+export function getBuildName(): string {
+  const platform = process.env.PLATFORM?.toUpperCase() || 'UNKNOWN';
+  const date = new Date().toISOString().slice(0, 10);
+  return `Sefaria E2E ${platform}: ${date}`;
+}
+
+/**
+ * Performs initial setup steps for the test client:
+ * - Handles offline popup
+ * - Waits for navbar
+ * - Navigates to Texts tab
+ */
+export async function handleSetup(client: WebdriverIO.Browser) {
+  await OFFLINE_POPUP.handleOfflinePopUp(client);
+  await NAVBAR.waitForNavBar(client);
+  await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.texts);
+}
+
+/**
+ * Handles teardown after each test:
+ * - Reports status to BrowserStack
+ * - Logs result
+ * - Deletes client session
+ */
+export async function handleTeardown(client: WebdriverIO.Browser, testContext: Mocha.Context, testTitle: string) {
+  if (client) {
+    if (process.env.RUN_ENV == 'browserstack') {
+      await BROWSERSTACK_REPORT.reportToBrowserstack(client, testContext);
+    }
+    if (testContext.currentTest?.state === 'passed') {
+      console.log(`✅ (PASSED); Finished test: ${testTitle}\n`);
+    } else {
+      console.log(`❌ (FAILED); Finished test: ${testTitle}\n`);
+    }
+    await client.deleteSession();
+  }
+  else{
+    console.warn('No client session to delete.');
+  }
 }

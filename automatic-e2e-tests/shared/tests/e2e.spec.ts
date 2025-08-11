@@ -6,11 +6,10 @@ import { LOAD_CREDENTIALS, OFFLINE_POPUP, BROWSERSTACK_REPORT, GESTURE,
 import { BAMIDBAR_1, ALEINU, MISHNAH, DYNAMIC_ERRORS, TEST_TIMEOUTS, 
   SEFARIA_COLORS, SWIPE_CONFIG, SELECTORS, SWIPE_ATTEMPTS, 
   PLATFORM} from '../constants';
+import '../../log_init'; 
 
-import './test_init'; // Allows Logging and Error Handling to be written to logs_test/ directory
-import { SEARCH_SELECTORS } from 'android/selectors/selectors';
-const no_reset = false; // Set to true if you want same device session to continue with each test
-const buildName = `Sefaria E2E ${process.env.PLATFORM?.toUpperCase()}: ${new Date().toISOString().slice(0, 10)}`;
+const NO_RESET = false; // Set to true if you want same device session to continue with each test
+const buildName = HELPER_FUNCTIONS.getBuildName();
 
 describe('e2e Sefaria Mobile regression tests', function () {
   // Global test timeout for all tests in this block
@@ -23,42 +22,23 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
   beforeEach(async function () {
     // Fetch the current test title
-    testTitle = HELPER_FUNCTIONS.getCleanTestTitle(this);
+    testTitle = HELPER_FUNCTIONS.getTestTitle(this);
 
     console.log(`[INFO] (STARTING) Running test: ${testTitle}`);
 
-    // The client is the WebdriverIO browser instance used to interact with the app
-    // It connects to the Sefaria app on the specified device or emulator
-    client = await remote(LOAD_CREDENTIALS.getOpts(buildName, testTitle, no_reset));
+    // WebdriverIO browser instance for interacting with the Sefaria app
+    client = await remote(LOAD_CREDENTIALS.getOpts(buildName, testTitle, NO_RESET));
 
-    // If offline pop-up appears, click Not Now and Ok
-    await OFFLINE_POPUP.handleOfflinePopUp(client);
-    // Wait for first screen to load (nav bar loading signals app is ready)
-    await NAVBAR.waitForNavBar(client);
-    await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.texts)
+    await HELPER_FUNCTIONS.handleSetup(client)
 
   });
 
   afterEach(async function () {
-    if (client) {
-      // If running on BrowserStack, set the session status (e.g., passed or failed)
-      // Needed for proper reporting in BrowserStack
-      if (process.env.RUN_ENV == 'browserstack') {
-        await BROWSERSTACK_REPORT.reportToBrowserstack(client, this);
-      }
-      // Log the test result
-      if (this.currentTest?.state === 'passed') {
-        console.log(`✅ (PASSED); Finished test: ${testTitle}\n`);
-      } else {
-        console.log(`❌ (FAILED); Finished test: ${testTitle}\n`);
-      }
-      // Close the client session
-      await client.deleteSession();
-    }
+    await HELPER_FUNCTIONS.handleTeardown(client, this, testTitle);
   });
 
 
-  it('T001: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
+  it.only('T001: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
     // Click on Search Icon
     await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.search);
     await TEXT_FINDER.verifyHeaderOnPage(client, 'Search');
@@ -184,9 +164,6 @@ describe('e2e Sefaria Mobile regression tests', function () {
     } else {
       throw new Error(DYNAMIC_ERRORS.apiResultMismatch("Haftarah", haftarah!.displayValue.en));
     }
-
-    // Verify separator colors are there (probably do not have to use this, as other tests check this)
-    // await UI_CHECKER.validateViewGroupCenterColor(client, 2, '#1f4d5d', true); // Tanakh Teal
     
     // Scroll to Daily Learning
     await GESTURE.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "Daily Learning",);
@@ -262,7 +239,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     }
   });
 
-  it('TC022: Dedication tab and results', async function () {
+  it('TC022: Dedication tab and results in hebrew and english', async function () {
     // Scroll strongly all the way to button
     await GESTURE.swipeUpOrDown(client, SWIPE_CONFIG.DIRECTIONS.UP, SWIPE_CONFIG.LONG_DISTANCE, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE);
 
@@ -322,7 +299,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
   });
 
-  it('TC023: Topics tab comprehensive test', async function () {
+  it('TC023: Topics tab comprehensive test, navigating between sources and sheets', async function () {
     // Click on Topics
     await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.topics);
     // Check if we are on the Topics page

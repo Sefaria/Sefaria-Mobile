@@ -139,12 +139,12 @@ Tests should be simple and easy to read. They should focus on high-level user fl
 ```typescript
 import { remote } from 'webdriverio';
 import { NAVBAR } from '../components/navbar';
-import { BROWSERSTACK_REPORT, OFFLINE_POPUP, LOAD_CREDENTIALS, TEXT_FINDER } from '../utils';
+import { BROWSERSTACK_REPORT, OFFLINE_POPUP, LOAD_CREDENTIALS, TEXT_FINDER, HELPER_FUNCTIONS } from '../utils';
 import { TEST_TIMEOUTS, SELECTORS } from '../constants';
 
 import './test_init';
 
-const no_reset = false;
+const NO_RESET = false;
 const buildName = `Sefaria E2E ${process.env.PLATFORM?.toUpperCase()}: ${new Date().toISOString().slice(0, 10)}`;
 
 describe('e2e Sefaria Mobile regression tests', function () {
@@ -153,25 +153,16 @@ describe('e2e Sefaria Mobile regression tests', function () {
   let testTitle: string;
 
   beforeEach(async function () {
-    testTitle = this.currentTest?.title || '';
+    testTitle = HELPER_FUNCTIONS.getTestTitle(this);
     console.log(`[INFO] (STARTING) Running test: ${testTitle}`);
-    client = await remote(LOAD_CREDENTIALS.getOpts(buildName, testTitle, no_reset));
-    await OFFLINE_POPUP.handleOfflinePopUp(client);
-    await NAVBAR.waitForNavBar(client);
+    client = await remote(LOAD_CREDENTIALS.getOpts(buildName, testTitle, NO_RESET));
+    await HELPER_FUNCTIONS.HandleSetup(client);
+
   });
 
   afterEach(async function () {
-    if (client) {
-      if (process.env.RUN_ENV == 'browserstack') {
-        await BROWSERSTACK_REPORT.reportToBrowserstack(client, this);
-      }
-      console.log(
-        this.currentTest?.state === 'passed'
-          ? `✅ (PASSED); Finished test: ${testTitle}\n`
-          : `❌ (FAILED); Finished test: ${testTitle}\n`
-      );
-      await client.deleteSession();
-    }
+      await HELPER_FUNCTIONS.handleTeardown(client, this, testTitle);
+
   });
 
   it('Navigate to Account tab and verify we are there', async function () {
@@ -249,8 +240,6 @@ export async function switchToHebrew(client: Browser): Promise<void> {
 - Add new helpers for gestures, color checks, API calls, etc.
 - Keep functions generic and reusable.
 - **Import constants** from the centralized constants directory.
-- Use improved function names.
-- Document each function with JSDoc comments.
 - **Write utilities to be cross-platform**—use constants and selectors from `SELECTORS`.
 
 **Example: `utils/helper_functions.ts`**
