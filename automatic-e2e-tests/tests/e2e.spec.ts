@@ -7,6 +7,7 @@ import { BAMIDBAR_1, ALEINU, MISHNAH, DYNAMIC_ERRORS, TEST_TIMEOUTS,
   SEFARIA_COLORS, SWIPE_CONFIG, SELECTORS, SWIPE_ATTEMPTS, 
   PLATFORM} from '../constants';
 import '../log_init'; 
+import { swipeIntoView } from 'utils/gesture';
 
 const NO_RESET = false; // Set to true if you want same device session to continue with each test
 const buildName = HELPER_FUNCTIONS.getBuildName();
@@ -179,7 +180,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await TEXT_FINDER.findTextElement(client, "Daily Rambam");
     
     // Scroll all the way to bottom and navigate to daf a week
-    await GESTURE.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "Daf a Week", SWIPE_ATTEMPTS.DEFAULT_MAX_ATTEMPTS, SWIPE_CONFIG.PAGE_SCROLL_DISTANCE);
+    await GESTURE.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "Daf a Week", false, SWIPE_ATTEMPTS.DEFAULT_MAX_ATTEMPTS, SWIPE_CONFIG.PAGE_SCROLL_DISTANCE);
     await TEXT_FINDER.findTextElement(client, "Weekly Learning");
 
     // Get the clickable element of CURRENT_WEEKLY_DAF
@@ -234,16 +235,16 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
     // Scroll down the screen to see all the Sederim are present
     for (const seder of MISHNAH.sedarim) {
-      await GESTURE.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, seder, SWIPE_ATTEMPTS.MAX_SCROLL_ATTEMPTS, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE);
+      await GESTURE.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, seder, false, SWIPE_ATTEMPTS.MAX_SCROLL_ATTEMPTS, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE);
       await TEXT_FINDER.findTextElement(client, seder);
     }
   });
 
   it('TC022: Dedication tab and results in hebrew and english', async function () {
-    // Scroll strongly all the way to button
-    await GESTURE.swipeUpOrDown(client, SWIPE_CONFIG.DIRECTIONS.UP, SWIPE_CONFIG.LONG_DISTANCE, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE);
+    // Scroll strongly all the way to bottom where dedication is 
+    await GESTURE.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "Dedicated in honor of", true, SWIPE_ATTEMPTS.MAX_SCROLL_ATTEMPTS, SWIPE_CONFIG.LONG_DISTANCE);
 
-    // Look for Dedication
+    // Look for Dedication button and click it
     let dedication_button = await TEXT_FINDER.findTextContaining(client, "Dedicated in honor of")
     await dedication_button.click();
 

@@ -184,6 +184,7 @@ export async function autoScrollTextIntoView(
  * @param client - The WebDriver client instance.
  * @param direction - 'up' to swipe up, 'down' to swipe down.
  * @param text - The text to bring into view.
+ * @param contains - If true, uses textContains instead of exact text match. Default: false.
  * @param maxAttempts - Maximum number of swipe attempts.
  * @param swipeDistance - Distance to swipe each time.
  * @returns true if the element is found, false otherwise.
@@ -192,12 +193,16 @@ export async function swipeIntoView(
   client: WebdriverIO.Browser,
   direction: 'up' | 'down',
   text: string,
+  contains: boolean = false,
   maxAttempts: number = SWIPE_ATTEMPTS.DEFAULT_MAX_ATTEMPTS,
   swipeDistance: number = SWIPE_CONFIG.TEXT_SCROLL_DISTANCE
 ): Promise<boolean> {
-  
-  const selector = SELECTORS.TEXT_SELECTORS.exactText(text);
-
+  let selector: string;
+  if (contains) {
+    selector = SELECTORS.TEXT_SELECTORS.containsText(text);
+  } else {
+    selector = SELECTORS.TEXT_SELECTORS.exactText(text);
+  }
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const element = await client.$(selector);
     

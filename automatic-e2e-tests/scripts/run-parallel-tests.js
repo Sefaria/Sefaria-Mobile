@@ -16,7 +16,10 @@ if (PLATFORM === 'ios') {
   devices = devicesConfig.devices.filter(d => d.platform === 'android');
 }
 
-const processes = devices.map(device => {
+const results = [];
+let finishedCount = 0;
+
+devices.forEach(device => {
   const logFile = path.resolve(__dirname, `../logs/${PLATFORM}/verbose-${PLATFORM}-${device.name}-${timestamp}.log`);
   const env = Object.assign({}, process.env, {
     PLATFORM: PLATFORM,
@@ -42,7 +45,17 @@ const processes = devices.map(device => {
 
   proc.on('close', code => {
     console.log(`${device.name} finished with code ${code}`);
+    results.push({ device: device.name, code });
+    finishedCount++;
+    if (finishedCount === devices.length) {
+      // All done, print summary
+      const failed = results.filter(r => r.code !== 0);
+      if (failed.length) {
+        console.log('\nFAILED DEVICES:');
+        failed.forEach(r => console.log(`- ${r.device} (exit code ${r.code})`));
+      } else {
+        console.log('\nAll devices passed!');
+      }
+    }
   });
-
-  return proc;
 });
