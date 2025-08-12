@@ -17,6 +17,7 @@ It is intended for both new contributors and experienced maintainers, and covers
 - [Debugging & Troubleshooting](#debugging--troubleshooting)
 
 ---
+
 ## General Principles
 
 - **Write cross-platform tests:**  
@@ -78,23 +79,24 @@ Place cross-cutting helpers, such as gestures, color checks, or text finding, in
 ## Using Constants & Selectors
 
 The framework uses a **centralized constants architecture** for selectors, timeouts, gestures, colors, errors, and text.  
-All constants are organized in `shared/constants/` and imported from a single index file.
+All constants are organized in `constants/` and imported from a single index file.
 
 ### Platform-Specific Selectors
 
-- Android selectors: [`android/selectors/selectors.ts`](../android/selectors/selectors.ts)
-- iOS selectors: [`ios/selectors/selectors.ts`](../ios/selectors/selectors.ts)
-- The shared [`constants/index.ts`](../shared/constants/index.ts) **automatically loads the correct selectors** at runtime based on the current platform (`PLATFORM` env var).
+- Android selectors: [`selectors/android/selectors.ts`](selectors/android/selectors.ts)
+- iOS selectors: [`selectors/ios/selectors.ts`](selectors/ios/selectors.ts)
+- The shared [`constants/index.ts`](constants/index.ts) **automatically loads the correct selectors** at runtime based on the current platform (`PLATFORM` env var).
 
 **When adding a new selector:**  
-- **Always add the selector to both `android/selectors/selectors.ts` and `ios/selectors/selectors.ts` using the exact same property name.**
+
+- **Always add the selector to both `selectors/android/selectors.ts` and `selectors/ios/selectors.ts` using the exact same property name.**
 - This ensures that your helpers and tests will work seamlessly on both platforms, since `SELECTORS` will always provide the correct value for the current platform.
 - If a selector is not relevant for one platform, add a placeholder or comment for clarity.
 
 **Example: Adding a new selector**
 
 ```typescript
-// android/selectors/selectors.ts
+// selectors/android/selectors.ts
 export const NAVBAR_SELECTORS = {
   navItems: {
     account: '//*[@content-desc="Account"]',
@@ -104,7 +106,7 @@ export const NAVBAR_SELECTORS = {
   // ...other selectors
 };
 
-// ios/selectors/selectors.ts
+// selectors/ios/selectors.ts
 export const NAVBAR_SELECTORS = {
   navItems: {
     account: '//XCUIElementTypeButton[@name="Account"]',
@@ -116,7 +118,9 @@ export const NAVBAR_SELECTORS = {
 ```
 
 ### How to Import Constants
-the `index.ts`  files the `shared/constants/` directory automatically exports all constants, so you can import them directly in your test files or components. This allows you to use a single import statement for all constant types.
+
+the `index.ts`  files the `constants/` directory automatically exports all constants, so you can import them directly in your test files or components. This allows you to use a single import statement for all constant types.
+
 ```typescript
 import { SELECTORS, OPERATION_TIMEOUTS, SEFARIA_COLORS } from '../constants';
 ```
@@ -124,9 +128,10 @@ import { SELECTORS, OPERATION_TIMEOUTS, SEFARIA_COLORS } from '../constants';
 ---
 
 ## Test File Structure & Best Practices
+
 Tests should be simple and easy to read. They should focus on high-level user flows and interactions. Therefore, we hide the logic behind the components and utilities, allowing tests to be more straightforward.
 
-- All test files live in [`shared/tests/`](./shared/tests).
+- All test files live in [`tests/`](./tests).
 - Use `describe` blocks for grouping related tests.
 - Use `beforeEach`/`afterEach` for setup and teardown.
 - Use helpers from `components/` and `utils/` for all repetitive actions (e.g., navigation, gestures).
@@ -178,7 +183,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
 > **Tip:** Use `.only` to run a single test (`it.only`) or describe block for debugging.
 
-1. **Add regression tests in `e2e.spec.ts`** or create a new test in a new file in `shared/tests/`.
+1. **Add regression tests in `e2e.spec.ts`** or create a new test in a new file in `tests/`.
 2. **Naming convention:** Use descriptive names for `describe` and `it` blocks (no more than a sentence).
    - Example: `it('should open the Topics tab and verify the header')`
 3. **Use or create a component helper** for actions related to specific pages or features.
@@ -206,9 +211,10 @@ it('should open the Topics tab and verify the header', async function () {
 ---
 
 ## How to Create a Component
+
 Components are reusable page or feature helpers that encapsulate actions and verifications for specific parts of the app. They are central to keeping tests clean and maintainable, as they allow specific pages or features to have corresponding code that can be reused across multiple tests.
 
-- Components live in [`shared/components/`](./shared/components/).
+- Components live in [`components/`](./components/).
 - Each file represents a page or feature and exports functions for interacting with it.
 - Use clear, descriptive function names (e.g., `verifyTopicTitle`, `navigateBackFromTopic`).
 - **Import constants** from the centralized constants directory.
@@ -236,7 +242,7 @@ export async function switchToHebrew(client: Browser): Promise<void> {
 
 ## How to Add a Utility Function
 
-- Utilities live in [`shared/utils/`](./shared/utils/).
+- Utilities live in [`utils/`](./utils/).
 - Add new helpers for gestures, color checks, API calls, etc.
 - Keep functions generic and reusable.
 - **Import constants** from the centralized constants directory.
@@ -262,24 +268,28 @@ export async function waitForVisible(client: Browser, selector: string): Promise
 ## Common Patterns & Examples
 
 - **Find and click an element by text:**  
+
   ```typescript
   import { TEXT_FINDER } from '../utils';
   await (await TEXT_FINDER.findTextElement(client, 'Settings')).click();
   ```
 
 - **Swipe to refresh a list:**  
+
   ```typescript
   import { GESTURE } from '../utils';
   await GESTURE.swipeDown(client, SELECTORS.LIST_VIEW);
   ```
 
 - **Check for error message:**  
+
   ```typescript
   import { ERROR_MESSAGES } from '../constants';
   await TEXT_FINDER.findTextElement(client, ERROR_MESSAGES.NETWORK_ERROR);
   ```
 
 - **Wait for a loading spinner to disappear:**  
+
   ```typescript
   await client.$(SELECTORS.SPINNER).waitForDisplayed({ reverse: true });
   ```
@@ -302,7 +312,8 @@ export async function waitForVisible(client: Browser, selector: string): Promise
 ---
 
 **Reminder:**  
-- When adding a selector, always add it to both `android/selectors/selectors.ts` and `ios/selectors/selectors.ts` with the same property name.
+
+- When adding a selector, always add it to both `selectors/android/selectors.ts` and `selectors/ios/selectors.ts` with the same property name.
 - Always use helpers and constants for selectors—never hardcode them in tests.
 - This ensures your tests are truly cross-platform and maintainable.
 
