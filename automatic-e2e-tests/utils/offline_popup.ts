@@ -27,7 +27,7 @@ export async function waitForOfflinePopUp(client: Browser, timeout: number = ELE
     console.debug('Popup is visible!');
     return true;
   } catch {
-    console.log('[INFO] Popup not visible! If tests fail later, check if app even loaded.');
+    console.log('Popup not visible! If tests fail later, check if app even loaded.');
     return false;
   }
 }
@@ -45,7 +45,7 @@ export async function clickNotNowIfPresent(client: Browser): Promise<void> {
     console.debug('"NOT NOW" button clicked!');
   }
   else {
-    console.log('[INFO] "NOT NOW" button not present.');
+    console.log('"NOT NOW" button not present.');
   }
 
 }
@@ -63,7 +63,7 @@ export async function clickOkIfPresent(client: Browser): Promise<void> {
     console.debug('"OK" button clicked!');
   }
   else {
-    console.log('[INFO] "OK" button not present.');
+    console.log('"OK" button not present.');
   }
 }
 

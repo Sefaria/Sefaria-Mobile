@@ -24,7 +24,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // Fetch the current test title
     testTitle = HELPER_FUNCTIONS.getTestTitle(this);
 
-    console.log(`[INFO] (STARTING) Running test: ${testTitle}`);
+    console.log(`[STARTING] Running test: ${testTitle}`);
 
     // WebdriverIO browser instance for interacting with the Sefaria app
     client = await remote(LOAD_CREDENTIALS.getOpts(buildName, testTitle, NO_RESET));

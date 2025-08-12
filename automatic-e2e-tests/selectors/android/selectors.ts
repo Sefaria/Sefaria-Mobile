@@ -95,7 +95,7 @@ export const SCROLL_SELECTORS = {
     `android=new UiScrollable(new UiSelector().scrollable(true).instance(0)).setAsVerticalList().${direction}().scrollIntoView(new UiSelector().className("android.widget.TextView").${textSelector})`,
 } as const;
 
-// Reader page selectors
+// Android Reader page selectors
 export const READER_SELECTORS = {
   scrollView: BASE_SELECTORS.scrollView(),
   titleTextView: `android=new UiSelector().className("android.widget.TextView").index(2)`,

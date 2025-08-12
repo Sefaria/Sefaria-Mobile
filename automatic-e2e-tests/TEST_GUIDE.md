@@ -154,7 +154,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
   beforeEach(async function () {
     testTitle = HELPER_FUNCTIONS.getTestTitle(this);
-    console.log(`[INFO] (STARTING) Running test: ${testTitle}`);
+    console.log(`(STARTING) Running test: ${testTitle}`);
     client = await remote(LOAD_CREDENTIALS.getOpts(buildName, testTitle, NO_RESET));
     await HELPER_FUNCTIONS.HandleSetup(client);
 

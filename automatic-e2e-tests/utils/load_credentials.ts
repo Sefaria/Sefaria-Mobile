@@ -43,7 +43,7 @@ if (PLATFORM === 'ios') {
 export function getOpts(buildName?: string, sessionName?: string, noReset?: boolean) {
   const RUN_ENV = process.env.RUN_ENV || 'local';
   
-  console.log(`[INFO] Running on ${RUN_ENV.toUpperCase()} for ${PLATFORM.toUpperCase()} platform on Device: ${process.env.DEVICE_NAME || 'Unknown'}`);
+  console.log(`[RUN] Running on ${RUN_ENV.toUpperCase()} for ${PLATFORM.toUpperCase()} platform on Device: ${process.env.DEVICE_NAME || 'Unknown'}`);
   
   let effectiveBuildName = buildName || '';
   if (process.env.DEVICE_NAME) {

@@ -34,7 +34,7 @@ export async function typeIntoSearchBar(client: Browser, text: string): Promise<
 
   // Debug log
   const value = await searchBar.getText();
-  console.log('[INFO] Search field now contains:', value);
+  console.debug('Search field now contains:', value);
 
 }
 
@@ -73,8 +73,7 @@ export async function selectFromList(client: Browser, text: string): Promise<voi
  * @throws Will throw an error if the empty search bar is not displayed
  */
 export async function verifyEmptySearchBar(client: Browser): Promise<void> {
-  const emptySearchBarSelector = SELECTORS.SEARCH_SELECTORS.emptySearchBar();
-  const emptySearchBar = await client.$(emptySearchBarSelector);
+  const emptySearchBar = await client.$(SELECTORS.SEARCH_SELECTORS.emptySearchBar);
   const isDisplayed = await emptySearchBar.waitForDisplayed().then(() => true).catch(() => false);
 
   if (!isDisplayed) {
@@ -90,7 +89,7 @@ export async function verifyEmptySearchBar(client: Browser): Promise<void> {
  * @throws Will throw an error if the clear button is not displayed or not clickable
  */
 export async function clearSearchBar(client: Browser): Promise<void> {
-  const clearButtonSelector = SELECTORS.SEARCH_SELECTORS.clearSearchBar();
+  const clearButtonSelector = SELECTORS.SEARCH_SELECTORS.clearSearchBar;
   const clearButton = await client.$(clearButtonSelector);
   const isDisplayed = await clearButton.waitForDisplayed().then(() => true).catch(() => false);
 

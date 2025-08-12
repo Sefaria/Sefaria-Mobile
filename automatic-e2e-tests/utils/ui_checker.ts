@@ -198,7 +198,7 @@ function saveDebugImages(cropped: PNG, screenshot: PNG, label: string, index?: n
   fs.writeFileSync(croppedPath, PNG.sync.write(cropped));
   fs.writeFileSync(screenshotPath, PNG.sync.write(screenshot));
   
-  console.error(`[INFO] Debug images saved: ${croppedPath} & ${screenshotPath}`);
+  console.error(`Debug images saved: ${croppedPath} & ${screenshotPath}`);
 }
 
 /**
