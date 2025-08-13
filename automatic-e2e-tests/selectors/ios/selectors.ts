@@ -92,6 +92,7 @@ export const DISPLAY_SETTINGS_SELECTORS = {
 } as const;
 
 // iOS Topics selectors
+// Note: ios does not always have labels for topics, so we use index-based selectors (knowing it does not change often)
 export const TOPICS_SELECTORS = {  
   backButton: `//XCUIElementTypeApplication/XCUIElementTypeWindow[1]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeOther[2]/XCUIElementTypeScrollView/XCUIElementTypeOther[1]/XCUIElementTypeOther/XCUIElementTypeOther[1]/XCUIElementTypeOther[1]`,
   textView: (index: number) => 

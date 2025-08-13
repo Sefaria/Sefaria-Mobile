@@ -1,6 +1,6 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: Search Page Component Helpers for Testing Framework
+ * FILE ROLE: Interact and Validate Search Functionality on Search Screen
  * 
  * DESCRIPTION:
  *  - Provides functions to interact with the search bar and select items from search results.

@@ -1,6 +1,6 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: Navigation Bar Component Helpers for Testing Framework
+ * FILE ROLE: Interactions with Navigation Bar Footer on any screen
  * 
  * DESCRIPTION:
  *  - Provides functions to interact with the app's navigation bar.

@@ -1,6 +1,6 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: Topics Page Component Helpers for Testing Framework
+ * FILE ROLE: Interaction and Validation for the Topics Screen and its sub screens
  * 
  * DESCRIPTION:
  *  - Provides functions to interact with and validate the Topics page.

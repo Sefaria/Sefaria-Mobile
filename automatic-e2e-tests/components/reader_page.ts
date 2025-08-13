@@ -1,6 +1,6 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: Reader Page Component Helpers for Testing Framework
+ * FILE ROLE: Interact with the Reader Page Screen
  * 
  * DESCRIPTION:
  *  - Provides functions to interact with and validate the app's reader page content.
@@ -13,7 +13,8 @@
  */
 
 import type { Browser } from 'webdriverio';
-import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, SELECTORS } from '../constants';
+import { DYNAMIC_ERRORS, SELECTORS } from '../constants';
+import { TEXT_FINDER } from '../utils';
 
 /**
  * Checks if the TextView title inside the ScrollView has the given text.
@@ -24,21 +25,18 @@ import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, SELECTORS } from '../constants
 export async function verifyExactTitle(client: Browser, expectedText: string): Promise<void> {
   try {
     const scrollView = await client.$(SELECTORS.READER_SELECTORS.scrollView);
-    await scrollView.waitForDisplayed().then(() => true).catch(() => false);
-    if (await scrollView.isDisplayed()) {
-      const textView = await scrollView.$(SELECTORS.READER_SELECTORS.titleTextView);
-      await textView.waitForDisplayed();
-
-      const actualText = await textView.getText();
-
-      if (actualText === expectedText) {
-        console.debug(`MATCH: Found Title text: "${actualText}" Expected Title Text: "${expectedText}"`);
-      } else {
-        throw new Error(DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
-      }
-    } else {
-      throw new Error(logError(STATIC_ERRORS.SCROLLVIEW_NOT_AVAILABLE));
+    await TEXT_FINDER.ensureElementDisplayed(scrollView, 'ScrollView');
+    
+    const textView = await scrollView.$(SELECTORS.READER_SELECTORS.titleTextView);
+    await TEXT_FINDER.ensureElementDisplayed(textView, 'Title TextView');
+    
+    const actualText = await textView.getText();
+    
+    if (actualText !== expectedText) {
+      throw new Error(DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
     }
+    
+    console.debug(`Title text verified: Found Title text: "${actualText}" Expected Title Text: "${expectedText}"`);
   } catch (error) {
     throw new Error(DYNAMIC_ERRORS.errorCheckingTitle(expectedText, error));
   }
@@ -53,22 +51,19 @@ export async function verifyExactTitle(client: Browser, expectedText: string): P
 export async function verifyTitleContains(client: Browser, expectedText: string): Promise<void> {
   try {
     const scrollView = await client.$(SELECTORS.READER_SELECTORS.scrollView);
-    await scrollView.waitForDisplayed();
-    if (await scrollView.isDisplayed()) {
-      const textView = await scrollView.$(SELECTORS.READER_SELECTORS.titleTextView);
-      await textView.waitForDisplayed();
-
-      const actualText = await textView.getText();
-      console.debug(`Found text: "${actualText}"`);
-
-      if (actualText.includes(expectedText)) {
-        console.debug(`Text contains expected: "${expectedText}"`);
-      } else {
-        throw new Error(DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
-      }
-    } else {
-      throw new Error(logError(STATIC_ERRORS.SCROLLVIEW_NOT_AVAILABLE));
+    await TEXT_FINDER.ensureElementDisplayed(scrollView, 'ScrollView');
+    
+    const textView = await scrollView.$(SELECTORS.READER_SELECTORS.titleTextView);
+    await TEXT_FINDER.ensureElementDisplayed(textView, 'Title TextView');
+    
+    const actualText = await textView.getText();
+    console.debug(`Found text: "${actualText}"`);
+    
+    if (!actualText.includes(expectedText)) {
+      throw new Error(DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
     }
+    
+    console.debug(`Text contains expected: "${expectedText}"`);
   } catch (error) {
     throw new Error(DYNAMIC_ERRORS.errorCheckingTitle(expectedText, error));
   }
@@ -82,15 +77,13 @@ export async function verifyTitleContains(client: Browser, expectedText: string)
 export async function clickBackButton(client: Browser): Promise<void> {
   try {
     const backButton = await client.$(SELECTORS.READER_SELECTORS.backButton);
-    await backButton.waitForDisplayed();
+    await TEXT_FINDER.ensureElementDisplayed(backButton, 'Back button');
     await backButton.click();
     console.debug('Back button clicked successfully');
   } catch (error) {
     throw new Error(DYNAMIC_ERRORS.errorClickingElement('back button', error));
   }
 }
-
-
 
 /**
  * Checks if the accessibilityString (expected text) appears on the visible page through the Accessibility ID (Used for finding text on reader page)
@@ -102,17 +95,20 @@ export async function clickBackButton(client: Browser): Promise<void> {
 export async function findTextByAccessibilityId(client: Browser, accessibilityString: string, isEnglish: boolean = false): Promise<boolean> {
   try {
     // Need to add invisible left-to-right character for english text
-    if (isEnglish) {
-      accessibilityString = SELECTORS.ACCESSIBILITY_PATTERNS.englishTextPrefix + accessibilityString;
+    const finalAccessibilityString = isEnglish 
+      ? SELECTORS.ACCESSIBILITY_PATTERNS.englishTextPrefix + accessibilityString
+      : accessibilityString;
+    
+    const textID = await client.$(SELECTORS.READER_SELECTORS.textByAccessibilityId(finalAccessibilityString));
+    
+    const exists = await textID.isExisting();
+    if (!exists) {
+      throw new Error(DYNAMIC_ERRORS.accessibilityIdNotFound(finalAccessibilityString));
     }
-    const textID = await client.$(SELECTORS.READER_SELECTORS.textByAccessibilityId(accessibilityString));    
-    if (!(await textID.isExisting())) {
-      throw new Error(DYNAMIC_ERRORS.accessibilityIdNotFound(accessibilityString));
-    }
-    console.debug(`ViewGroup with accessibility id "${accessibilityString}" found.`);
+    
+    console.debug(`ViewGroup with accessibility id "${finalAccessibilityString}" found.`);
     return true;
   } catch (error) {
     throw new Error(DYNAMIC_ERRORS.errorCheckingAccessibilityId(accessibilityString, error));
   }
 }
-

@@ -1,6 +1,6 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: Display Settings Component Helpers for Testing Framework
+ * FILE ROLE: Interaction Helpers for Display Settings in Sefaria App
  * 
  * DESCRIPTION:
  *  - Provides functions to open/close the display settings and toggle language in the Sefaria app.
