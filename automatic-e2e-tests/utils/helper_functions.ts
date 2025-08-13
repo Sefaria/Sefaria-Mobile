@@ -99,13 +99,33 @@ export function getHebrewDate(): string {
  * @param label Label for the value being checked (e.g., 'Category', 'Topic title')
  * @param actual The actual text found
  * @param expected The expected text to compare
+ * @returns true if the texts match, otherwise throws an error
+ * @throws Error if the texts do not match
  */
-export function assertMatch(label: string, actual: string, expected: string): void {
+export function assertMatch(label: string, actual: string, expected: string): boolean {
   const isMatch = actual === expected;
   if (!isMatch) {
     throw new Error(logError(`❌ ${label} does not match. Found: '${actual}', Expected: '${expected}'`));
   }
   console.debug(`${label} matches: '${actual}'`);
+  return isMatch;
+}
+
+/**
+ * Waits for and validates that an element is displayed
+ * @param element - WebdriverIO element
+ * @param elementName - Name for error messages
+ */
+export async function ensureElementDisplayed(element: any, elementName: string): Promise<void> {
+  try {
+    await element.waitForDisplayed();
+    const isDisplayed = await element.isDisplayed();
+    if (!isDisplayed) {
+      throw new Error(`${elementName} is not displayed`);
+    }
+  } catch (error) {
+    throw new Error(`Failed to find ${elementName}: ${error}`);
+  }
 }
 
 /**

@@ -125,21 +125,3 @@ export async function clickElementWithSelector(client: Browser, selector: string
     throw error;
   }
 }
-
-
-/**
- * Waits for and validates that an element is displayed
- * @param element - WebdriverIO element
- * @param elementName - Name for error messages
- */
-export async function ensureElementDisplayed(element: any, elementName: string): Promise<void> {
-  try {
-    await element.waitForDisplayed();
-    const isDisplayed = await element.isDisplayed();
-    if (!isDisplayed) {
-      throw new Error(`${elementName} is not displayed`);
-    }
-  } catch (error) {
-    throw new Error(`Failed to find ${elementName}: ${error}`);
-  }
-}

@@ -11,6 +11,7 @@
  */
 
 import axios from "axios";
+import { logError } from 'constants/errors';
 
 const SEFARIA_CALENDAR_API = "https://www.sefaria.org/api/calendars";
 
@@ -61,10 +62,14 @@ export async function getSefariaCalendar(
   if (cachedCalendarData && cachedParams === key) {
     return cachedCalendarData!;
   }
-  const response = await axios.get(SEFARIA_CALENDAR_API, { params });
-  cachedCalendarData = response.data;
-  cachedParams = key;
-  return cachedCalendarData!;
+  try {
+    const response = await axios.get(SEFARIA_CALENDAR_API, { params });
+    cachedCalendarData = response.data;
+    cachedParams = key;
+    return cachedCalendarData!;
+  } catch (error) {
+    throw new Error(logError(`Failed to fetch Sefaria calendar: ${error}`));
+  }
 }
 
 /**

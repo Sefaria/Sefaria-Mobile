@@ -48,7 +48,7 @@ Tests should be **descriptive and easy to read**. All logic for interacting with
 
 ### Using Page/Component Helpers
 
-Place actions and verifications that are specific to a particular page or feature in `components/` files. These helpers encapsulate all interactions with that part of the app, making your tests more modular and reusable.
+Place actions and verifications that are specific to a particular page or feature in `components/` files. These helpers encapsulate all interactions with that part of the app, making your tests more modular and reusable. The files in this directory follow the Page Object Model (POM) pattern, where each file represents a specific page or component of the app.
 
 - **Example:**  
   Instead of clicking a selector directly in your test, call a helper like `NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.account)`.

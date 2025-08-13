@@ -14,7 +14,7 @@
 
 import type { Browser } from 'webdriverio';
 import { DYNAMIC_ERRORS, SELECTORS } from '../constants';
-import { TEXT_FINDER } from '../utils';
+import { HELPER_FUNCTIONS } from '../utils';
 
 /**
  * Checks if the TextView title inside the ScrollView has the given text.
@@ -25,10 +25,10 @@ import { TEXT_FINDER } from '../utils';
 export async function verifyExactTitle(client: Browser, expectedText: string): Promise<void> {
   try {
     const scrollView = await client.$(SELECTORS.READER_SELECTORS.scrollView);
-    await TEXT_FINDER.ensureElementDisplayed(scrollView, 'ScrollView');
+    await HELPER_FUNCTIONS.ensureElementDisplayed(scrollView, 'ScrollView');
     
     const textView = await scrollView.$(SELECTORS.READER_SELECTORS.titleTextView);
-    await TEXT_FINDER.ensureElementDisplayed(textView, 'Title TextView');
+    await HELPER_FUNCTIONS.ensureElementDisplayed(textView, 'Title TextView');
     
     const actualText = await textView.getText();
     
@@ -51,10 +51,10 @@ export async function verifyExactTitle(client: Browser, expectedText: string): P
 export async function verifyTitleContains(client: Browser, expectedText: string): Promise<void> {
   try {
     const scrollView = await client.$(SELECTORS.READER_SELECTORS.scrollView);
-    await TEXT_FINDER.ensureElementDisplayed(scrollView, 'ScrollView');
+    await HELPER_FUNCTIONS.ensureElementDisplayed(scrollView, 'ScrollView');
     
     const textView = await scrollView.$(SELECTORS.READER_SELECTORS.titleTextView);
-    await TEXT_FINDER.ensureElementDisplayed(textView, 'Title TextView');
+    await HELPER_FUNCTIONS.ensureElementDisplayed(textView, 'Title TextView');
     
     const actualText = await textView.getText();
     console.debug(`Found text: "${actualText}"`);
@@ -77,7 +77,7 @@ export async function verifyTitleContains(client: Browser, expectedText: string)
 export async function clickBackButton(client: Browser): Promise<void> {
   try {
     const backButton = await client.$(SELECTORS.READER_SELECTORS.backButton);
-    await TEXT_FINDER.ensureElementDisplayed(backButton, 'Back button');
+    await HELPER_FUNCTIONS.ensureElementDisplayed(backButton, 'Back button');
     await backButton.click();
     console.debug('Back button clicked successfully');
   } catch (error) {
