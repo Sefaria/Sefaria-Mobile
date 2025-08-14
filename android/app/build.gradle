@@ -1,7 +1,7 @@
-def VERSION_BUILD=62061012
+def VERSION_BUILD=62061013
 def VERSION_MAJOR=6
 def VERSION_MINOR=4
-def VERSION_PATCH=55
+def VERSION_PATCH=56
 
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
@@ -13,7 +13,7 @@ apply plugin: "com.facebook.react"
  */
 
 
-react {O
+react {
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
     // root = file("../../")
