@@ -10,9 +10,9 @@
  * ──────────────────────────────────────────────────────────────
  */
 
-import { logError, HEBREW_MONTHS, COLOR_THRESHOLDS, SELECTORS} from '../constants';
-import { NAVBAR } from '../components';
-import { OFFLINE_POPUP, BROWSERSTACK_REPORT } from '.';
+import { logError, Texts, COLOR_THRESHOLDS, Selectors} from '../constants';
+import { Navbar } from '../components';
+import { OfflinePopUp, BrowserstackReport } from '.';
 
 /**
  * Allows double qoutes (and other potentially breaking characters) to be inside .text()
@@ -87,7 +87,7 @@ export function getHebrewDate(): string {
   // Get the Hebrew month number (1-based)
   const monthNum = Number(now.toLocaleString('en-u-ca-hebrew', { month: 'numeric' }));
 
-  const month = HEBREW_MONTHS[monthNum] || "";
+  const month = Texts.HEBREW_MONTHS[monthNum] || "";
   const day = now.toLocaleString('en-u-ca-hebrew', { day: 'numeric' });
   const year = now.toLocaleString('en-u-ca-hebrew', { year: 'numeric' });
   return `${month} ${day}, ${year}`;
@@ -163,9 +163,9 @@ export function getBuildName(): string {
  * - Navigates to Texts tab
  */
 export async function handleSetup(client: WebdriverIO.Browser) {
-  await OFFLINE_POPUP.handleOfflinePopUp(client);
-  await NAVBAR.waitForNavBar(client);
-  await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.texts);
+  await OfflinePopUp.handleOfflinePopUp(client);
+  await Navbar.waitForNavBar(client);
+  await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
 }
 
 /**
@@ -177,7 +177,7 @@ export async function handleSetup(client: WebdriverIO.Browser) {
 export async function handleTeardown(client: WebdriverIO.Browser, testContext: Mocha.Context, testTitle: string) {
   if (client) {
     if (process.env.RUN_ENV == 'browserstack') {
-      await BROWSERSTACK_REPORT.reportToBrowserstack(client, testContext);
+      await BrowserstackReport.reportToBrowserstack(client, testContext);
     }
     if (testContext.currentTest?.state === 'passed') {
       console.log(`✅ (PASSED); Finished test: ${testTitle}\n`);

@@ -23,9 +23,7 @@ export function logError(message: string): string {
   return message;
 }
 
-// ══════════════════════════════════════════════════════════════
 // STATIC ERROR MESSAGES
-// ══════════════════════════════════════════════════════════════
 
 export const STATIC_ERRORS = {
   NAV_BAR_NOT_DISPLAYED: '❌ Navigation bar is not displayed!',
@@ -37,9 +35,7 @@ export const STATIC_ERRORS = {
   CLOSE_POPUP_NOT_VISIBLE: '❌ Close button not visible',
 } as const;
 
-// ══════════════════════════════════════════════════════════════
 // DYNAMIC ERROR MESSAGES (Functions)
-// ══════════════════════════════════════════════════════════════
 
 export const DYNAMIC_ERRORS = {
   /**
@@ -131,9 +127,7 @@ export const DYNAMIC_ERRORS = {
     logError(`❌ Error clicking element "${elementName}": ${error}`),
 } as const;
 
-// ══════════════════════════════════════════════════════════════
 // SUCCESS MESSAGES
-// ══════════════════════════════════════════════════════════════
 
 export const SUCCESS_MESSAGES = {
   CLOSE_POPUP_SUCCESS: '[DEBUG] Closed pop-up',

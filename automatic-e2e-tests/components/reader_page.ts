@@ -13,8 +13,8 @@
  */
 
 import type { Browser } from 'webdriverio';
-import { DYNAMIC_ERRORS, SELECTORS } from '../constants';
-import { HELPER_FUNCTIONS } from '../utils';
+import { Errors, Selectors } from '../constants';
+import { HelperFunctions } from '../utils';
 
 /**
  * Checks if the TextView title inside the ScrollView has the given text.
@@ -24,21 +24,21 @@ import { HELPER_FUNCTIONS } from '../utils';
  */
 export async function verifyExactTitle(client: Browser, expectedText: string): Promise<void> {
   try {
-    const scrollView = await client.$(SELECTORS.READER_SELECTORS.scrollView);
-    await HELPER_FUNCTIONS.ensureElementDisplayed(scrollView, 'ScrollView');
+    const scrollView = await client.$(Selectors.READER_SELECTORS.scrollView);
+    await HelperFunctions.ensureElementDisplayed(scrollView, 'ScrollView');
     
-    const textView = await scrollView.$(SELECTORS.READER_SELECTORS.titleTextView);
-    await HELPER_FUNCTIONS.ensureElementDisplayed(textView, 'Title TextView');
+    const textView = await scrollView.$(Selectors.READER_SELECTORS.titleTextView);
+    await HelperFunctions.ensureElementDisplayed(textView, 'Title TextView');
     
     const actualText = await textView.getText();
     
     if (actualText !== expectedText) {
-      throw new Error(DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
+      throw new Error(Errors.DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
     }
     
     console.debug(`Title text verified: Found Title text: "${actualText}" Expected Title Text: "${expectedText}"`);
   } catch (error) {
-    throw new Error(DYNAMIC_ERRORS.errorCheckingTitle(expectedText, error));
+    throw new Error(Errors.DYNAMIC_ERRORS.errorCheckingTitle(expectedText, error));
   }
 }
 
@@ -50,22 +50,22 @@ export async function verifyExactTitle(client: Browser, expectedText: string): P
  */
 export async function verifyTitleContains(client: Browser, expectedText: string): Promise<void> {
   try {
-    const scrollView = await client.$(SELECTORS.READER_SELECTORS.scrollView);
-    await HELPER_FUNCTIONS.ensureElementDisplayed(scrollView, 'ScrollView');
+    const scrollView = await client.$(Selectors.READER_SELECTORS.scrollView);
+    await HelperFunctions.ensureElementDisplayed(scrollView, 'ScrollView');
     
-    const textView = await scrollView.$(SELECTORS.READER_SELECTORS.titleTextView);
-    await HELPER_FUNCTIONS.ensureElementDisplayed(textView, 'Title TextView');
+    const textView = await scrollView.$(Selectors.READER_SELECTORS.titleTextView);
+    await HelperFunctions.ensureElementDisplayed(textView, 'Title TextView');
     
     const actualText = await textView.getText();
     console.debug(`Found text: "${actualText}"`);
     
     if (!actualText.includes(expectedText)) {
-      throw new Error(DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
+      throw new Error(Errors.DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
     }
     
     console.debug(`Text contains expected: "${expectedText}"`);
   } catch (error) {
-    throw new Error(DYNAMIC_ERRORS.errorCheckingTitle(expectedText, error));
+    throw new Error(Errors.DYNAMIC_ERRORS.errorCheckingTitle(expectedText, error));
   }
 }
 
@@ -76,12 +76,12 @@ export async function verifyTitleContains(client: Browser, expectedText: string)
  */
 export async function clickBackButton(client: Browser): Promise<void> {
   try {
-    const backButton = await client.$(SELECTORS.READER_SELECTORS.backButton);
-    await HELPER_FUNCTIONS.ensureElementDisplayed(backButton, 'Back button');
+    const backButton = await client.$(Selectors.READER_SELECTORS.backButton);
+    await HelperFunctions.ensureElementDisplayed(backButton, 'Back button');
     await backButton.click();
     console.debug('Back button clicked successfully');
   } catch (error) {
-    throw new Error(DYNAMIC_ERRORS.errorClickingElement('back button', error));
+    throw new Error(Errors.DYNAMIC_ERRORS.errorClickingElement('back button', error));
   }
 }
 
@@ -96,19 +96,19 @@ export async function findTextByAccessibilityId(client: Browser, accessibilitySt
   try {
     // Need to add invisible left-to-right character for english text
     const finalAccessibilityString = isEnglish 
-      ? SELECTORS.ACCESSIBILITY_PATTERNS.englishTextPrefix + accessibilityString
+      ? Selectors.ACCESSIBILITY_PATTERNS.englishTextPrefix + accessibilityString
       : accessibilityString;
     
-    const textID = await client.$(SELECTORS.READER_SELECTORS.textByAccessibilityId(finalAccessibilityString));
+    const textID = await client.$(Selectors.READER_SELECTORS.textByAccessibilityId(finalAccessibilityString));
     
     const exists = await textID.isExisting();
     if (!exists) {
-      throw new Error(DYNAMIC_ERRORS.accessibilityIdNotFound(finalAccessibilityString));
+      throw new Error(Errors.DYNAMIC_ERRORS.accessibilityIdNotFound(finalAccessibilityString));
     }
     
     console.debug(`ViewGroup with accessibility id "${finalAccessibilityString}" found.`);
     return true;
   } catch (error) {
-    throw new Error(DYNAMIC_ERRORS.errorCheckingAccessibilityId(accessibilityString, error));
+    throw new Error(Errors.DYNAMIC_ERRORS.errorCheckingAccessibilityId(accessibilityString, error));
   }
 }

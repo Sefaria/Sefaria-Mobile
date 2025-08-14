@@ -11,9 +11,9 @@
  * ──────────────────────────────────────────────────────────────
  */
 
-import { DYNAMIC_ERRORS, SUCCESS_MESSAGES,
+import { Errors, SUCCESS_MESSAGES,
   SWIPE_CONFIG, GESTURE_TIMING, TOUCH_CONFIG, SWIPE_ATTEMPTS,
-  SELECTORS } from '../constants';
+  Selectors } from '../constants';
 
 
 // Cache for screen dimensions - will be set once per test session
@@ -130,7 +130,7 @@ export async function swipeUpOrDown(
       console.debug(`Swipe ${direction} performed successfully.`);
     }
   } catch (error) {
-    throw new Error(DYNAMIC_ERRORS.swipeDirectionFailed(direction, error));
+    throw new Error(Errors.DYNAMIC_ERRORS.swipeDirectionFailed(direction, error));
   }
 }
 
@@ -157,15 +157,15 @@ export async function autoScrollTextIntoView(
     const direction = goUp ? 'down' : 'up';
     const found = await swipeIntoView(client, direction, text);
     if (found) {
-      const selector = SELECTORS.TEXT_SELECTORS.exactText(text);
+      const selector = Selectors.TEXT_SELECTORS.exactText(text);
       return await client.$(selector);
     }
   }
   
   // Android logic - use UiScrollable
   const selectorForScroll = contains 
-    ? SELECTORS.SCROLL_SELECTORS.scrollToTextContains(text, goUp)
-    : SELECTORS.SCROLL_SELECTORS.scrollToText(text, goUp);
+    ? Selectors.SCROLL_SELECTORS.scrollToTextContains(text, goUp)
+    : Selectors.SCROLL_SELECTORS.scrollToText(text, goUp);
     
   const element = await client.$(selectorForScroll);
   try {
@@ -173,7 +173,7 @@ export async function autoScrollTextIntoView(
     console.debug(`Scrolled into view (${goUp ? 'up' : 'down'}): "${text}"${contains ? ' (contains)' : ''}`);
     return element;
   } catch (error) {
-    throw new Error(DYNAMIC_ERRORS.textNotFound(text));
+    throw new Error(Errors.DYNAMIC_ERRORS.textNotFound(text));
   }
 }
 
@@ -199,9 +199,9 @@ export async function swipeIntoView(
 ): Promise<boolean> {
   let selector: string;
   if (contains) {
-    selector = SELECTORS.TEXT_SELECTORS.containsText(text);
+    selector = Selectors.TEXT_SELECTORS.containsText(text);
   } else {
-    selector = SELECTORS.TEXT_SELECTORS.exactText(text);
+    selector = Selectors.TEXT_SELECTORS.exactText(text);
   }
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const element = await client.$(selector);
@@ -215,5 +215,5 @@ export async function swipeIntoView(
     // Only swipe if not visible
     await swipeUpOrDown(client, direction, swipeDistance, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE, true);
   }
-  throw new Error(DYNAMIC_ERRORS.elementNotFoundAfterSwipes(text, maxAttempts));
+  throw new Error(Errors.DYNAMIC_ERRORS.elementNotFoundAfterSwipes(text, maxAttempts));
 }

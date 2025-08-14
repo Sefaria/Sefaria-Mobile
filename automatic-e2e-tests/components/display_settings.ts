@@ -13,7 +13,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { STATIC_ERRORS, logError, SELECTORS } from '../constants';
+import { STATIC_ERRORS, logError, Selectors } from '../constants';
 
 /**
  * toggle the display settings open and close.
@@ -21,7 +21,7 @@ import { STATIC_ERRORS, logError, SELECTORS } from '../constants';
  * @param client - WebdriverIO browser instance.
  */
 export async function toggleDisplaySettings(client: Browser): Promise<void> {
-  const displaySettingsButton = await client.$(SELECTORS.DISPLAY_SETTINGS_SELECTORS.openButton);
+  const displaySettingsButton = await client.$(Selectors.DisplaySettings_SELECTORS.openButton);
   const isDisplayed = await displaySettingsButton.waitForDisplayed().catch(() => false);
   if (!isDisplayed) {
     throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ' (display settings button)'));
@@ -38,7 +38,7 @@ export async function toggleDisplaySettings(client: Browser): Promise<void> {
 export async function toggleLanguageButton(client: Browser, isEnglish: boolean = true): Promise<void> {
   // Determine the description based on the current language
   const targetLanguage = isEnglish ? "Hebrew" : "English";
-  const selector = SELECTORS.DISPLAY_SETTINGS_SELECTORS.languageToggle(targetLanguage);
+  const selector = Selectors.DisplaySettings_SELECTORS.languageToggle(targetLanguage);
 
   // Find and click the toggle language button
   const toggleLanguageButton = await client.$(selector);

@@ -75,7 +75,7 @@ Centralized constants for timeouts, gestures, colors, errors, and text.
 
 - **index.ts**  
   Central import point for all constants, with dynamic platform selector loading.
-  This file **automatically loads the correct selectors** at runtime based on the current platform (Android or iOS), so you can always import `SELECTORS` from `constants` and it will "just work".
+  This file **automatically loads the correct selectors** at runtime based on the current platform (Android or iOS), so you can always import `Selectors` from `constants` and it will "just work".
 
 ---
 

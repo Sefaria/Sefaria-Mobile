@@ -8,38 +8,40 @@
  *  - Provides a single entry point for all testing framework constants
  *  - Supports both Android and iOS platforms with automatic selector switching
  * USAGE:
- *  - Import specific constants: import { NAVBAR_SELECTORS, TIMEOUTS } from '../constants'
+ *  - Import specific constants: import { Timeouts } from '../constants'
  *  - Import everything: import * as CONSTANTS from '../constants'
  *  - Set PLATFORM=android or PLATFORM=ios environment variable before importing
  * ──────────────────────────────────────────────────────────────
  */
-// Error constants and text constants (existing)
+
+
+// Error constants and text constants
 export * from './errors';
-export * from './text_constants';
+// export * from './text_constants';
 
 // New organized constants
 export * from './timeouts';
-export * from './gestures';
+export * from './gesture_constants';
 export * from './colors';
 
 // Platform detection
 export const PLATFORM = process.env.PLATFORM || 'android';
 
 // Dynamically import platform-specific selectors (ios/android)
-let SELECTORS: any;
+let Selectors: any;
 if (PLATFORM === 'ios') {
-  SELECTORS = require('../selectors/ios/selectors');
+  Selectors = require('../selectors/ios/selectors');
 } else {
-  SELECTORS = require('../selectors/android/selectors');
+  Selectors = require('../selectors/android/selectors');
 }
 
 
-export { SELECTORS };
+export { Selectors };
 
 
 // Convenience object exports for namespace-style imports
-export * as TIMEOUTS from './timeouts';
-export * as GESTURES from './gestures';
-export * as COLORS from './colors';
-export * as ERRORS from './errors';
-export * as TEXTS from './text_constants';
+export * as Timeouts from './timeouts';
+export * as GestureConstants from './gesture_constants';
+export * as Colors from './colors';
+export * as Errors from './errors';
+export * as Texts from './text_constants';

@@ -51,7 +51,7 @@ Tests should be **descriptive and easy to read**. All logic for interacting with
 Place actions and verifications that are specific to a particular page or feature in `components/` files. These helpers encapsulate all interactions with that part of the app, making your tests more modular and reusable. The files in this directory follow the Page Object Model (POM) pattern, where each file represents a specific page or component of the app.
 
 - **Example:**  
-  Instead of clicking a selector directly in your test, call a helper like `NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.account)`.
+  Instead of clicking a selector directly in your test, call a helper like `Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.account)`.
 
 - **Benefits:**  
   - Keeps test files short and readable.
@@ -65,7 +65,7 @@ Place actions and verifications that are specific to a particular page or featur
 Place cross-cutting helpers, such as gestures, color checks, or text finding, in `utils/`. Utilities should be generic and reusable across multiple components and tests.
 
 - **Example:**  
-  Use a utility like `GESTURE.swipeDown(client, SELECTORS.LIST_VIEW)` instead of writing swipe logic in every test.
+  Use a utility like `Gesture.swipeDown(client, Selectors.LIST_VIEW)` instead of writing swipe logic in every test.
 
 - **Benefits:**  
   - Reduces duplication.
@@ -90,7 +90,7 @@ All constants are organized in `constants/` and imported from a single index fil
 **When adding a new selector:**  
 
 - **Always add the selector to both `selectors/android/selectors.ts` and `selectors/ios/selectors.ts` using the exact same property name.**
-- This ensures that your helpers and tests will work seamlessly on both platforms, since `SELECTORS` will always provide the correct value for the current platform.
+- This ensures that your helpers and tests will work seamlessly on both platforms, since `Selectors` will always provide the correct value for the current platform.
 - If a selector is not relevant for one platform, add a placeholder or comment for clarity.
 
 **Example: Adding a new selector**
@@ -122,7 +122,7 @@ export const NAVBAR_SELECTORS = {
 the `index.ts`  files the `constants/` directory automatically exports all constants, so you can import them directly in your test files or components. This allows you to use a single import statement for all constant types.
 
 ```typescript
-import { SELECTORS, OPERATION_TIMEOUTS, SEFARIA_COLORS } from '../constants';
+import { Selectors, OPERATION_TIMEOUTS, Colors } from '../constants';
 ```
 
 ---
@@ -143,9 +143,9 @@ Tests should be simple and easy to read. They should focus on high-level user fl
 
 ```typescript
 import { remote } from 'webdriverio';
-import { NAVBAR } from '../components';
-import { BROWSERSTACK_REPORT, OFFLINE_POPUP, LOAD_CREDENTIALS, TEXT_FINDER, HELPER_FUNCTIONS } from '../utils';
-import { TEST_TIMEOUTS, SELECTORS } from '../constants';
+import { Navbar } from '../components';
+import { BrowserstackReport, OfflinePopUp, LoadCredentials, TextFinder, HelperFunctions } from '../utils';
+import { TEST_TIMEOUTS, Selectors } from '../constants';
 
 import './test_init';
 
@@ -158,21 +158,21 @@ describe('e2e Sefaria Mobile regression tests', function () {
   let testTitle: string;
 
   beforeEach(async function () {
-    testTitle = HELPER_FUNCTIONS.getTestTitle(this);
+    testTitle = HelperFunctions.getTestTitle(this);
     console.log(`(STARTING) Running test: ${testTitle}`);
-    client = await remote(LOAD_CREDENTIALS.getOpts(buildName, testTitle, NO_RESET));
-    await HELPER_FUNCTIONS.HandleSetup(client);
+    client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
+    await HelperFunctions.HandleSetup(client);
 
   });
 
   afterEach(async function () {
-      await HELPER_FUNCTIONS.handleTeardown(client, this, testTitle);
+      await HelperFunctions.handleTeardown(client, this, testTitle);
 
   });
 
   it('Navigate to Account tab and verify we are there', async function () {
-    await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.account);
-    await TEXT_FINDER.verifyHeaderOnPage(client, 'Account');
+    await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.account);
+    await TextFinder.verifyHeaderOnPage(client, 'Account');
   });
 });
 ```
@@ -200,11 +200,11 @@ describe('e2e Sefaria Mobile regression tests', function () {
 **Example:**
 
 ```typescript
-import {NAVBAR} from '../components';
-import {TEXT_FINDER} from '../utils';
+import {Navbar} from '../components';
+import {TextFinder} from '../utils';
 it('should open the Topics tab and verify the header', async function () {
-  await NAVBAR.clickNavBarItem(client, SELECTORS.NAVBAR_SELECTORS.navItems.topics);
-  await TEXT_FINDER.verifyHeaderOnPage(client, 'Explore by Topic');
+  await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.topics);
+  await TextFinder.verifyHeaderOnPage(client, 'Explore by Topic');
 });
 ```
 
@@ -221,18 +221,18 @@ Components are reusable page or feature helpers that encapsulate actions and ver
 - Document each function with JSDoc comments.
 - Use robust selectors (prefer content-desc or text over index).
   - Using content-desc / labels makes your tests more stable as those attributes are less likely to change than index-based selectors.
-- **Write helpers to be cross-platform**—use `SELECTORS` and avoid platform checks in test files.
+- **Write helpers to be cross-platform**—use `Selectors` and avoid platform checks in test files.
 
 **Example: `components/display_settings.ts`**
 
 ```typescript
-import { SELECTORS } from '../constants';
+import { Selectors } from '../constants';
 
 /**
  * Switches the app language to Hebrew.
  */
 export async function switchToHebrew(client: Browser): Promise<void> {
-  const langButton = await client.$(SELECTORS.DISPLAY_SETTINGS.languageButton);
+  const langButton = await client.$(Selectors.DisplaySettings.languageButton);
   await langButton.waitForDisplayed();
   await langButton.click();
 }
@@ -246,7 +246,7 @@ export async function switchToHebrew(client: Browser): Promise<void> {
 - Add new helpers for gestures, color checks, API calls, etc.
 - Keep functions generic and reusable.
 - **Import constants** from the centralized constants directory.
-- **Write utilities to be cross-platform**—use constants and selectors from `SELECTORS`.
+- **Write utilities to be cross-platform**—use constants and selectors from `Selectors`.
 
 **Example: `utils/helper_functions.ts`**
 
@@ -270,28 +270,28 @@ export async function waitForVisible(client: Browser, selector: string): Promise
 - **Find and click an element by text:**  
 
   ```typescript
-  import { TEXT_FINDER } from '../utils';
-  await (await TEXT_FINDER.findTextElement(client, 'Settings')).click();
+  import { TextFinder } from '../utils';
+  await (await TextFinder.findTextElement(client, 'Settings')).click();
   ```
 
 - **Swipe to refresh a list:**  
 
   ```typescript
-  import { GESTURE } from '../utils';
-  await GESTURE.swipeDown(client, SELECTORS.LIST_VIEW);
+  import { Gesture } from '../utils';
+  await Gesture.swipeDown(client, Selectors.LIST_VIEW);
   ```
 
 - **Check for error message:**  
 
   ```typescript
   import { ERROR_MESSAGES } from '../constants';
-  await TEXT_FINDER.findTextElement(client, ERROR_MESSAGES.NETWORK_ERROR);
+  await TextFinder.findTextElement(client, ERROR_MESSAGES.NETWORK_ERROR);
   ```
 
 - **Wait for a loading spinner to disappear:**  
 
   ```typescript
-  await client.$(SELECTORS.SPINNER).waitForDisplayed({ reverse: true });
+  await client.$(Selectors.SPINNER).waitForDisplayed({ reverse: true });
   ```
 
 ---

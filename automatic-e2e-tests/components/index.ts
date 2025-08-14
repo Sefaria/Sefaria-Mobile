@@ -6,7 +6,7 @@
  *  - Automatically exports all component modules with standardized naming.
  *  - Provides a single import point for all page/component helpers.
  * USAGE:
- *  - Import components using: import { TOPICS_PAGE, READER_PAGE } from '../components';
+ *  - Import components using: import { TopicsPage, ReaderPage } from '../components';
  * ──────────────────────────────────────────────────────────────
  */
 
@@ -18,8 +18,8 @@ import * as searchPage from './search_page';
 import * as topicsPage from './topics_page';
 
 // Export with standardized names
-export const DISPLAY_SETTINGS = displaySettings;
-export const NAVBAR = navbar;
-export const READER_PAGE = readerPage;
-export const SEARCH_PAGE = searchPage;
-export const TOPICS_PAGE = topicsPage;
+export const DisplaySettings = displaySettings;
+export const Navbar = navbar;
+export const ReaderPage = readerPage;
+export const SearchPage = searchPage;
+export const TopicsPage = topicsPage;

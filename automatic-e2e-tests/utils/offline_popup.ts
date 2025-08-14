@@ -11,7 +11,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { ELEMENT_TIMEOUTS, SELECTORS } from '../constants';
+import { ELEMENT_TIMEOUTS, Selectors } from '../constants';
 
 /**
  * Waits for the popup with resource-id "org.sefaria.sefaria:id/action_bar_root" to appear within a timeout.
@@ -22,7 +22,7 @@ import { ELEMENT_TIMEOUTS, SELECTORS } from '../constants';
  */
 export async function waitForOfflinePopUp(client: Browser, timeout: number = ELEMENT_TIMEOUTS.POPUP_WAIT): Promise<boolean> {
   try {
-    const element = await client.$(SELECTORS.OFFLINE_POPUP_SELECTORS.popupContainer);
+    const element = await client.$(Selectors.OFFLINE_POPUP_SELECTORS.popupContainer);
     await element.waitForDisplayed({ timeout });
     console.debug('Popup is visible!');
     return true;
@@ -38,7 +38,7 @@ export async function waitForOfflinePopUp(client: Browser, timeout: number = ELE
  * @param client WebdriverIO browser instance
  */
 export async function clickNotNowIfPresent(client: Browser): Promise<void> {
-  const notNowButton = await client.$(SELECTORS.OFFLINE_POPUP_SELECTORS.notNowButton);
+  const notNowButton = await client.$(Selectors.OFFLINE_POPUP_SELECTORS.notNowButton);
 
   if (await notNowButton.isDisplayed()) {
     await notNowButton.click();
@@ -56,7 +56,7 @@ export async function clickNotNowIfPresent(client: Browser): Promise<void> {
  * @param client WebdriverIO browser instance
  */
 export async function clickOkIfPresent(client: Browser): Promise<void> {
-  const okButton = await client.$(SELECTORS.OFFLINE_POPUP_SELECTORS.okButton);
+  const okButton = await client.$(Selectors.OFFLINE_POPUP_SELECTORS.okButton);
 
   if (await okButton.isDisplayed()) {
     await okButton.click();

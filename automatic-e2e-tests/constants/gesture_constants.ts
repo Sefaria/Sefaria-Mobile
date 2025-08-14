@@ -6,7 +6,7 @@
  *  - Contains all gesture-related constants including swipe distances, coordinates, and durations
  *  - Provides consistent gesture parameters across all test components
  * USAGE:
- *  - Import gesture configs to replace hardcoded gesture values
+ *  - Import gesture configs to automate swipe and touch actions in tests and change based on browserstack or local execution
  * ──────────────────────────────────────────────────────────────
  */
 

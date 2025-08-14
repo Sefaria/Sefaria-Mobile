@@ -12,8 +12,8 @@
 
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { HELPER_FUNCTIONS, TEXT_FINDER } from '../utils';
-import { logError, STATIC_ERRORS, SELECTORS, DYNAMIC_ERRORS } from '../constants';
+import { HelperFunctions, TextFinder } from '../utils';
+import { logError, STATIC_ERRORS, Selectors, Errors } from '../constants';
 
 
 // || Helper Functions for topics_page ||
@@ -25,7 +25,7 @@ import { logError, STATIC_ERRORS, SELECTORS, DYNAMIC_ERRORS } from '../constants
  * @returns ChainablePromiseElement The TextView element at the specified index
  */
 function getTextView(client: Browser, index: number): ChainablePromiseElement {
-    return client.$(SELECTORS.TOPICS_SELECTORS.textView(index));
+    return client.$(Selectors.TOPICS_SELECTORS.textView(index));
 }
 
 
@@ -41,7 +41,7 @@ function getTextView(client: Browser, index: number): ChainablePromiseElement {
  */
 export async function navigateBackFromTopic(client: Browser): Promise<boolean> {
   
-    const backButton = await client.$(SELECTORS.TOPICS_SELECTORS.backButton);
+    const backButton = await client.$(Selectors.TOPICS_SELECTORS.backButton);
     const isDisplayed = await backButton.waitForDisplayed().catch(() => false);
     if (isDisplayed) {
         await backButton.click();
@@ -61,7 +61,7 @@ export async function navigateBackFromTopic(client: Browser): Promise<boolean> {
 export async function verifyTopicTitle(client: Browser, expectedTitle: string): Promise<boolean> {
     const textView = await getTextView(client, 1);
     const topicText = await textView.getText();
-    return HELPER_FUNCTIONS.assertMatch('Topic title', topicText, expectedTitle);
+    return HelperFunctions.assertMatch('Topic title', topicText, expectedTitle);
 }
 
 /**
@@ -74,7 +74,7 @@ export async function verifyTopicTitle(client: Browser, expectedTitle: string): 
 export async function verifyTopicCategory(client: Browser, expectedCategory: string): Promise<boolean> {
     const textView = await getTextView(client, 2);
     const categoryText = await textView.getText();
-    return HELPER_FUNCTIONS.assertMatch('Category', categoryText, expectedCategory);
+    return HelperFunctions.assertMatch('Category', categoryText, expectedCategory);
 }
 
 /**
@@ -86,7 +86,7 @@ export async function verifyTopicCategory(client: Browser, expectedCategory: str
 export async function verifyTopicBlurb(client: Browser, expectedBlurb: string): Promise<boolean> {
     const textView = await getTextView(client, 3);
     const blurbText = await textView.getText();
-    HELPER_FUNCTIONS.assertMatch('Blurb', blurbText, expectedBlurb);
+    HelperFunctions.assertMatch('Blurb', blurbText, expectedBlurb);
     return true;
 }
 
@@ -98,7 +98,7 @@ export async function verifyTopicBlurb(client: Browser, expectedBlurb: string): 
  * @returns boolean indicating success
  */
 export async function clickSources(client: Browser): Promise<boolean> {
-    const sourcesSelector = await client.$(SELECTORS.TOPICS_SELECTORS.sources);
+    const sourcesSelector = await client.$(Selectors.TOPICS_SELECTORS.sources);
     const isDisplayed = await sourcesSelector.waitForDisplayed().catch(() => false);
     if (isDisplayed) {
         await sourcesSelector.click();
@@ -106,7 +106,7 @@ export async function clickSources(client: Browser): Promise<boolean> {
         return true;
     }
     else {
-        throw new Error(logError(DYNAMIC_ERRORS.elementNameNotFound("Sources")));
+        throw new Error(logError(Errors.DYNAMIC_ERRORS.elementNameNotFound("Sources")));
     }
 }
 
@@ -119,15 +119,15 @@ export async function clickSources(client: Browser): Promise<boolean> {
 export async function clickSheets(client: Browser): Promise<boolean> {
     try {
 
-        const sheetsSelector = await client.$(SELECTORS.TOPICS_SELECTORS.sheets);
-        await HELPER_FUNCTIONS.ensureElementDisplayed(sheetsSelector, 'Sheets');
+        const sheetsSelector = await client.$(Selectors.TOPICS_SELECTORS.sheets);
+        await HelperFunctions.ensureElementDisplayed(sheetsSelector, 'Sheets');
         await sheetsSelector.click();
         console.debug("Sheets clicked on Topics page.");
         return true;
         
     }
     catch {
-        throw new Error(logError(DYNAMIC_ERRORS.elementNameNotFound("Sheets")));
+        throw new Error(logError(Errors.DYNAMIC_ERRORS.elementNameNotFound("Sheets")));
     }   
     }
 
@@ -139,7 +139,7 @@ export async function clickSheets(client: Browser): Promise<boolean> {
  * @return boolean indicating success
  */
 export async function clickThreeDotsMenu(client: Browser): Promise<boolean> {
-    const threeDotsElem = await client.$(SELECTORS.TOPICS_SELECTORS.threeDotsMenu);
+    const threeDotsElem = await client.$(Selectors.TOPICS_SELECTORS.threeDotsMenu);
     const isDisplayed = await threeDotsElem.waitForDisplayed().catch(() => false);
     if (isDisplayed) {
         await threeDotsElem.click();

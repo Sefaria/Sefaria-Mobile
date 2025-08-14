@@ -12,7 +12,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { STATIC_ERRORS, DYNAMIC_ERRORS, logError, SELECTORS } from '../constants';
+import { STATIC_ERRORS, Errors, logError, Selectors } from '../constants';
 
 /**
  * Types into the search bar character by character with a delay to simulate real user input.
@@ -20,7 +20,7 @@ import { STATIC_ERRORS, DYNAMIC_ERRORS, logError, SELECTORS } from '../constants
  * @param text - The text to type into the search bar.
  */
 export async function typeIntoSearchBar(client: Browser, text: string): Promise<void> {
-  const searchBarSelector = SELECTORS.BASE_SELECTORS.editText()
+  const searchBarSelector = Selectors.BASE_SELECTORS.editText()
   
   // Wait for the search bar to be visible
   const searchBar = await client.$(searchBarSelector);
@@ -46,8 +46,8 @@ export async function typeIntoSearchBar(client: Browser, text: string): Promise<
  * @throws Will throw an error if the item is not found or not clickable
  */
 export async function selectFromList(client: Browser, text: string): Promise<void> {
-  const scrollView = await client.$(SELECTORS.BASE_SELECTORS.scrollView());
-  const textViewSelector = SELECTORS.SEARCH_SELECTORS.exactText(text);
+  const scrollView = await client.$(Selectors.BASE_SELECTORS.scrollView());
+  const textViewSelector = Selectors.SEARCH_SELECTORS.exactText(text);
 
   const isScrollViewVisible = await scrollView.waitForDisplayed().then(() => true).catch(() => false);
   if (!isScrollViewVisible) {
@@ -62,7 +62,7 @@ export async function selectFromList(client: Browser, text: string): Promise<voi
     await item.click();
     console.debug(`Item with text "${item_text}" clicked!`);
   } else {
-    throw new Error(DYNAMIC_ERRORS.textNotFound(text));
+    throw new Error(Errors.DYNAMIC_ERRORS.textNotFound(text));
   }
 }
 
@@ -73,7 +73,7 @@ export async function selectFromList(client: Browser, text: string): Promise<voi
  * @throws Will throw an error if the empty search bar is not displayed
  */
 export async function verifyEmptySearchBar(client: Browser): Promise<void> {
-  const emptySearchBar = await client.$(SELECTORS.SEARCH_SELECTORS.emptySearchBar);
+  const emptySearchBar = await client.$(Selectors.SEARCH_SELECTORS.emptySearchBar);
   const isDisplayed = await emptySearchBar.waitForDisplayed().then(() => true).catch(() => false);
 
   if (!isDisplayed) {
@@ -89,7 +89,7 @@ export async function verifyEmptySearchBar(client: Browser): Promise<void> {
  * @throws Will throw an error if the clear button is not displayed or not clickable
  */
 export async function clearSearchBar(client: Browser): Promise<void> {
-  const clearButtonSelector = SELECTORS.SEARCH_SELECTORS.clearSearchBar;
+  const clearButtonSelector = Selectors.SEARCH_SELECTORS.clearSearchBar;
   const clearButton = await client.$(clearButtonSelector);
   const isDisplayed = await clearButton.waitForDisplayed().then(() => true).catch(() => false);
 

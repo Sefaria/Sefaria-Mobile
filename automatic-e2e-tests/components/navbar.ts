@@ -12,7 +12,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { STATIC_ERRORS, SUCCESS_MESSAGES, logError, SELECTORS } from '../constants';
+import { STATIC_ERRORS, SUCCESS_MESSAGES, logError, Selectors } from '../constants';
 
 
 
@@ -21,7 +21,7 @@ import { STATIC_ERRORS, SUCCESS_MESSAGES, logError, SELECTORS } from '../constan
  * @param client WebdriverIO browser instance
  */
 export async function waitForNavBar(client: Browser): Promise<void> {
-  const navBar = await client.$(SELECTORS.NAVIGATION_SELECTORS.navBar);
+  const navBar = await client.$(Selectors.NAVIGATION_SELECTORS.navBar);
   const isDisplayed = await navBar.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
     console.debug('Navigation bar is displayed!');
@@ -37,7 +37,7 @@ export async function waitForNavBar(client: Browser): Promise<void> {
  * @throws Will throw an error if the nav bar item is not visible
  */
 export async function clickNavBarItem(client: Browser, contentDesc: string): Promise<void> {
-  const itemSelector = SELECTORS.NAVIGATION_SELECTORS.navBarItem(contentDesc);
+  const itemSelector = Selectors.NAVIGATION_SELECTORS.navBarItem(contentDesc);
   const item = await client.$(itemSelector);
   const isDisplayed = await item.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
@@ -54,7 +54,7 @@ export async function clickNavBarItem(client: Browser, contentDesc: string): Pro
  * @throws Will throw an error if the close button is not visible
  */
 export async function closePopUp(client: Browser): Promise<void> {
-  const closeBtn = await client.$(SELECTORS.NAVIGATION_SELECTORS.closePopUp);
+  const closeBtn = await client.$(Selectors.NAVIGATION_SELECTORS.closePopUp);
   const isDisplayed = await closeBtn.waitForDisplayed().catch(() => false);
   if (isDisplayed) {
     await closeBtn.click();

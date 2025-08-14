@@ -13,13 +13,11 @@
 import type { Browser } from 'webdriverio';
 import { PNG } from 'pngjs';
 import * as fs from 'fs';
-import { HELPER_FUNCTIONS } from '.';
-import { DYNAMIC_ERRORS, logError, SELECTORS, COLOR_THRESHOLDS, PLATFORM, ELEMENT_TIMEOUTS } from '../constants';
+import { HelperFunctions } from '.';
+import { Errors, logError, Selectors, Colors, PLATFORM } from '../constants';
 
 
-// ═══════════════════════════════════════════════════════════════
 // CORE PIXEL VALIDATION UTILITIES
-// ═══════════════════════════════════════════════════════════════
 
 /**
  * Extracts element bounds from bounds attribute string - Cross-platform compatible.
@@ -217,9 +215,9 @@ function validatePixelColor(
   const { cx, cy } = pixelCoords;
   const idx = (cropped.width * cy + cx) << 2;
   const actual = { r: cropped.data[idx], g: cropped.data[idx + 1], b: cropped.data[idx + 2] };
-  const expected = HELPER_FUNCTIONS.hexToRgb(expectedColorHex);
+  const expected = HelperFunctions.hexToRgb(expectedColorHex);
 
-  if (HELPER_FUNCTIONS.colorsAreClose(actual, expected, threshold)) {
+  if (HelperFunctions.colorsAreClose(actual, expected, threshold)) {
     console.debug(`${label} matches expected color. Actual: rgb(${actual.r},${actual.g},${actual.b}), Expected: rgb(${expected.r},${expected.g},${expected.b}); Threshold (Allowed rgb distance): ${JSON.stringify(threshold)}`);
     return true;
   }
@@ -228,12 +226,10 @@ function validatePixelColor(
   
   const actualStr = `rgb(${actual.r},${actual.g},${actual.b})`;
   const expectedStr = `rgb(${expected.r},${expected.g},${expected.b})`;
-  throw new Error(DYNAMIC_ERRORS.colorMismatch(actualStr, expectedStr));
+  throw new Error(Errors.DYNAMIC_ERRORS.colorMismatch(actualStr, expectedStr));
 }
 
-// ═══════════════════════════════════════════════════════════════
 // MAIN COLOR VALIDATION FUNCTIONS
-// ═══════════════════════════════════════════════════════════════
 
 /**
  * Core function to validate element pixel color.
@@ -244,7 +240,7 @@ async function validateElementPixel(
   expectedColorHex: string,
   pixelSelector: (width: number, height: number) => { cx: number; cy: number },
   debugImage: boolean = true,
-  threshold: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_THRESHOLD,
+  threshold: number | { r: number; g: number; b: number } = Colors.COLOR_THRESHOLDS.STANDARD_THRESHOLD,
   label: string = 'Pixel'
 ): Promise<boolean> {
   await element.waitForDisplayed();
@@ -277,10 +273,10 @@ async function validateViewGroupPixel(
   expectedColorHex: string,
   pixelSelector: (width: number, height: number) => { cx: number; cy: number },
   debugImage: boolean = true,
-  threshold: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_THRESHOLD,
+  threshold: number | { r: number; g: number; b: number } = Colors.COLOR_THRESHOLDS.STANDARD_THRESHOLD,
   label: string = 'Pixel'
 ): Promise<boolean> {
-  const selector = SELECTORS.VIEWGROUP_SELECTORS.byIndex(viewGroupIndex);
+  const selector = Selectors.VIEWGROUP_SELECTORS.byIndex(viewGroupIndex);
   const viewGroup = await client.$(selector);
   try {
     await viewGroup.waitForDisplayed();
@@ -309,9 +305,8 @@ async function validateViewGroupPixel(
   return validatePixelColor(cropped, screenshot, pixelCoords, expectedColorHex, threshold, label, debugImage, viewGroupIndex);
 }
 
-// ═══════════════════════════════════════════════════════════════
 // PUBLIC FUNCTIONS
-// ═══════════════════════════════════════════════════════════════
+
 
 /**
  * Validates center pixel color of a ViewGroup by index.
@@ -319,7 +314,7 @@ async function validateViewGroupPixel(
  * @param viewGroupIndex - The index of the ViewGroup to validate.
  * @param expectedColorHex - The expected color in hex format (e.g., '#FF0000').
  * @param debugImage - If true, saves debug images on failure (default: true).
- * @param threshold - Color threshold for comparison (default: COLOR_THRESHOLDS.STANDARD_THRESHOLD).
+ * @param threshold - Color threshold for comparison (default: Colors.COLOR_THRESHOLDS.STANDARD_THRESHOLD).
  * @return Promise<boolean> true if color matches, throws error on mismatch
  */
 export async function validateViewGroupCenterColor(
@@ -327,7 +322,7 @@ export async function validateViewGroupCenterColor(
   viewGroupIndex: number,
   expectedColorHex: string,
   debugImage: boolean = true,
-  threshold: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_THRESHOLD
+  threshold: number | { r: number; g: number; b: number } = Colors.COLOR_THRESHOLDS.STANDARD_THRESHOLD
 ): Promise<boolean> {
   return validateViewGroupPixel(
     client,
@@ -346,7 +341,7 @@ export async function validateViewGroupCenterColor(
  * @param viewGroupIndex - The index of the ViewGroup to validate.
  * @param expectedColorHex - The expected color in hex format (e.g., '#FF0000').
  * @param debugImage - If true, saves debug images on failure (default: true).
- * @param threshold - Color threshold for comparison (default: COLOR_THRESHOLDS.STANDARD_THRESHOLD).
+ * @param threshold - Color threshold for comparison (default: Colors.COLOR_THRESHOLDS.STANDARD_THRESHOLD).
  * @return Promise<boolean> true if color matches, throws error on mismatch
  */
 export async function validateViewGroupBottomColor(
@@ -354,7 +349,7 @@ export async function validateViewGroupBottomColor(
   viewGroupIndex: number,
   expectedColorHex: string,
   debugImage: boolean = true,
-  threshold: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_THRESHOLD
+  threshold: number | { r: number; g: number; b: number } = Colors.COLOR_THRESHOLDS.STANDARD_THRESHOLD
 ): Promise<boolean> {
   return validateViewGroupPixel(
     client,
@@ -376,9 +371,9 @@ export async function validateElementColorByDesc(
   expectedColorHex: string,
   position: 'center' | 'bottom',
   debugImage: boolean = true,
-  threshold: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_THRESHOLD
+  threshold: number | { r: number; g: number; b: number } = Colors.COLOR_THRESHOLDS.STANDARD_THRESHOLD
 ): Promise<boolean> {
-  const selector = SELECTORS.TEXT_SELECTORS.byDescription(contentDesc);
+  const selector = Selectors.TEXT_SELECTORS.byDescription(contentDesc);
   const element = await client.$(selector);
 
   if (!(await element.waitForDisplayed())) {
