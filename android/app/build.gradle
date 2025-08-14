@@ -1,7 +1,7 @@
-def VERSION_BUILD=62061013
+def VERSION_BUILD=62061014
 def VERSION_MAJOR=6
 def VERSION_MINOR=4
-def VERSION_PATCH=56
+def VERSION_PATCH=57
 
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
