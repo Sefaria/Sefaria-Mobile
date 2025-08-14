@@ -12,19 +12,22 @@
 
 
 import type { Browser } from 'webdriverio';
-import { STATIC_ERRORS, Errors, logError, Selectors } from '../constants';
+import { Selectors } from '../constants';
+import { HelperFunctions } from '../utils';
 
 /**
  * Types into the search bar character by character with a delay to simulate real user input.
  * @param client - WebdriverIO browser instance.
  * @param text - The text to type into the search bar.
+ * @throws Will throw an error if the search bar is not displayed.
+ * @returns boolean indicating success.
  */
-export async function typeIntoSearchBar(client: Browser, text: string): Promise<void> {
+export async function typeIntoSearchBar(client: Browser, text: string): Promise<boolean> {
   const searchBarSelector = Selectors.BASE_SELECTORS.editText()
   
-  // Wait for the search bar to be visible
+  // Wait for the search bar to be visible and click it
   const searchBar = await client.$(searchBarSelector);
-  await searchBar.waitForDisplayed();
+  await HelperFunctions.ensureElementDisplayed(searchBar, 'Search Bar');
   await searchBar.click();
 
   // Clear any existing text in the search bar
@@ -35,6 +38,7 @@ export async function typeIntoSearchBar(client: Browser, text: string): Promise<
   // Debug log
   const value = await searchBar.getText();
   console.debug('Search field now contains:', value);
+  return true;
 
 }
 
@@ -44,26 +48,21 @@ export async function typeIntoSearchBar(client: Browser, text: string): Promise<
  * @param client WebdriverIO browser instance
  * @param text The text of the item to select
  * @throws Will throw an error if the item is not found or not clickable
+ * @returns boolean indicating success
  */
-export async function selectFromList(client: Browser, text: string): Promise<void> {
+export async function selectFromList(client: Browser, text: string): Promise<boolean> {
   const scrollView = await client.$(Selectors.BASE_SELECTORS.scrollView());
   const textViewSelector = Selectors.SEARCH_SELECTORS.exactText(text);
-
-  const isScrollViewVisible = await scrollView.waitForDisplayed().then(() => true).catch(() => false);
-  if (!isScrollViewVisible) {
-    throw new Error(logError(`${STATIC_ERRORS.SCROLLVIEW_NOT_VISIBLE} (${text} has no results in search).`));
-  }
-
+  // Do checks to ensure the scrollView and item are displayed
+  await HelperFunctions.ensureElementDisplayed(scrollView, 'ScrollView');
   const item = await scrollView.$(textViewSelector);
-  await item.waitForDisplayed();
-
-  if (await item.isDisplayed()) {
-    let item_text = await item.getText();
-    await item.click();
-    console.debug(`Item with text "${item_text}" clicked!`);
-  } else {
-    throw new Error(Errors.DYNAMIC_ERRORS.textNotFound(text));
-  }
+  await HelperFunctions.ensureElementDisplayed(item, `Item with text "${text}"`);
+  
+  // Retrieve the text of the item before clicking
+  let item_text = await item.getText();
+  await item.click();
+  console.debug(`Item with text "${item_text}" clicked!`);
+  return true;
 }
 
 
@@ -71,15 +70,14 @@ export async function selectFromList(client: Browser, text: string): Promise<voi
  * Verifies that the search bar is empty by checking the presence of the empty search bar selector.
  * @param client WebdriverIO browser instance
  * @throws Will throw an error if the empty search bar is not displayed
+ * @returns boolean indicating success
  */
-export async function verifyEmptySearchBar(client: Browser): Promise<void> {
+export async function verifyEmptySearchBar(client: Browser): Promise<boolean> {
   const emptySearchBar = await client.$(Selectors.SEARCH_SELECTORS.emptySearchBar);
-  const isDisplayed = await emptySearchBar.waitForDisplayed().then(() => true).catch(() => false);
-
-  if (!isDisplayed) {
-    throw new Error('Empty search bar is not displayed.');
-  }
+  await HelperFunctions.ensureElementDisplayed(emptySearchBar, 'Empty Search Bar');
+  
   console.debug('Empty search bar is displayed as expected.');
+  return true;
 }
 
 
@@ -87,16 +85,15 @@ export async function verifyEmptySearchBar(client: Browser): Promise<void> {
  * Clicks the 'X' button to clear the search bar.
  * @param client WebdriverIO browser instance
  * @throws Will throw an error if the clear button is not displayed or not clickable
+ * @returns boolean indicating success
  */
-export async function clearSearchBar(client: Browser): Promise<void> {
+export async function clearSearchBar(client: Browser): Promise<boolean> {
   const clearButtonSelector = Selectors.SEARCH_SELECTORS.clearSearchBar;
   const clearButton = await client.$(clearButtonSelector);
-  const isDisplayed = await clearButton.waitForDisplayed().then(() => true).catch(() => false);
-
-  if (!isDisplayed) {
-    throw new Error('Clear search bar button is not displayed.');
-  }
-
+  await HelperFunctions.ensureElementDisplayed(clearButton, 'Clear Search Bar Button');
+  
+  // Click the clear button to clear the search bar
   await clearButton.click();
   console.debug('Clear search bar button clicked.');
+  return true;
 }

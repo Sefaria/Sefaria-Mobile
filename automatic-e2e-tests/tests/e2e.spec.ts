@@ -26,11 +26,13 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
     console.log(`[STARTING] Running test: ${testTitle}`);
 
-    // WebdriverIO browser instance for interacting with the Sefaria app
-    client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
-
-    await HelperFunctions.handleSetup(client)
-
+    try {
+      // WebdriverIO browser instance for interacting with the Sefaria app
+      client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
+      await HelperFunctions.handleSetup(client)
+    } catch (err) {
+      throw new Error(`[SESSION ERROR] Could not create session for test. App might not have been launched. "${testTitle}": ${err}`);
+    }
   });
 
   afterEach(async function () {
@@ -218,7 +220,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await mishna.click();
 
     // check we are on the Mishna page
-    await ReaderPage.verifyExactTitle(client, "Texts.MISHNAH");
+    await ReaderPage.verifyExactTitle(client, "MISHNAH");
 
     // Check if part of the blurb is present
     await TextFinder.findTextContaining(client, Texts.MISHNAH.blurb);

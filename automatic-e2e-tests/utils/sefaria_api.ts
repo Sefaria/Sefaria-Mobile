@@ -11,7 +11,7 @@
  */
 
 import axios from "axios";
-import { logError } from 'constants/errors';
+import { logError } from '../constants';
 
 const SEFARIA_CALENDAR_API = "https://www.sefaria.org/api/calendars";
 

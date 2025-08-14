@@ -12,8 +12,8 @@
 
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { HelperFunctions, TextFinder } from '../utils';
-import { logError, STATIC_ERRORS, Selectors, Errors } from '../constants';
+import { HelperFunctions } from '../utils';
+import { Selectors } from '../constants';
 
 
 // || Helper Functions for topics_page ||
@@ -40,16 +40,11 @@ function getTextView(client: Browser, index: number): ChainablePromiseElement {
  * @returns boolean indicating success
  */
 export async function navigateBackFromTopic(client: Browser): Promise<boolean> {
-  
     const backButton = await client.$(Selectors.TOPICS_SELECTORS.backButton);
-    const isDisplayed = await backButton.waitForDisplayed().catch(() => false);
-    if (isDisplayed) {
-        await backButton.click();
-        console.debug("Back button clicked on Topics page.");
-        return true;
-    } else {
-        throw new Error(logError(STATIC_ERRORS.BACK_BUTTON_NOT_FOUND));
-    }
+    await HelperFunctions.ensureElementDisplayed(backButton, 'Back Button');
+    await backButton.click();
+    console.debug("Back button clicked on Topics page.");
+    return true;
 }
 
 /**
@@ -86,8 +81,7 @@ export async function verifyTopicCategory(client: Browser, expectedCategory: str
 export async function verifyTopicBlurb(client: Browser, expectedBlurb: string): Promise<boolean> {
     const textView = await getTextView(client, 3);
     const blurbText = await textView.getText();
-    HelperFunctions.assertMatch('Blurb', blurbText, expectedBlurb);
-    return true;
+    return HelperFunctions.assertMatch('Blurb', blurbText, expectedBlurb);
 }
 
 
@@ -99,15 +93,10 @@ export async function verifyTopicBlurb(client: Browser, expectedBlurb: string): 
  */
 export async function clickSources(client: Browser): Promise<boolean> {
     const sourcesSelector = await client.$(Selectors.TOPICS_SELECTORS.sources);
-    const isDisplayed = await sourcesSelector.waitForDisplayed().catch(() => false);
-    if (isDisplayed) {
-        await sourcesSelector.click();
-        console.debug("Sources clicked on Topics page.");
-        return true;
-    }
-    else {
-        throw new Error(logError(Errors.DYNAMIC_ERRORS.elementNameNotFound("Sources")));
-    }
+    await HelperFunctions.ensureElementDisplayed(sourcesSelector, 'Sources');
+    await sourcesSelector.click();
+    console.debug("Sources clicked on Topics page.");
+    return true;
 }
 
 /**
@@ -117,19 +106,12 @@ export async function clickSources(client: Browser): Promise<boolean> {
  * @return boolean indicating success
  */
 export async function clickSheets(client: Browser): Promise<boolean> {
-    try {
-
-        const sheetsSelector = await client.$(Selectors.TOPICS_SELECTORS.sheets);
-        await HelperFunctions.ensureElementDisplayed(sheetsSelector, 'Sheets');
-        await sheetsSelector.click();
-        console.debug("Sheets clicked on Topics page.");
-        return true;
-        
-    }
-    catch {
-        throw new Error(logError(Errors.DYNAMIC_ERRORS.elementNameNotFound("Sheets")));
-    }   
-    }
+    const sheetsSelector = await client.$(Selectors.TOPICS_SELECTORS.sheets);
+    await HelperFunctions.ensureElementDisplayed(sheetsSelector, 'Sheets');
+    await sheetsSelector.click();
+    console.debug("Sheets clicked on Topics page.");
+    return true; 
+}
 
 
 /**
@@ -140,12 +122,8 @@ export async function clickSheets(client: Browser): Promise<boolean> {
  */
 export async function clickThreeDotsMenu(client: Browser): Promise<boolean> {
     const threeDotsElem = await client.$(Selectors.TOPICS_SELECTORS.threeDotsMenu);
-    const isDisplayed = await threeDotsElem.waitForDisplayed().catch(() => false);
-    if (isDisplayed) {
-        await threeDotsElem.click();
-        console.debug("Three dots menu clicked on Topics page.");
-        return true;
-    } else {
-        throw new Error(logError(STATIC_ERRORS.THREE_DOTS_NOT_FOUND));
-    }
+    await HelperFunctions.ensureElementDisplayed(threeDotsElem, 'Three Dots Menu');
+    await threeDotsElem.click();
+    console.debug("Three dots menu clicked on Topics page.");
+    return true;
 }

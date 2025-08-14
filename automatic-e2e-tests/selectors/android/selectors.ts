@@ -112,7 +112,7 @@ export const SEARCH_SELECTORS = {
   clearSearchBar: '//android.view.ViewGroup[@content-desc="close"]/android.widget.ImageView',
 }
 // Display settings selectors
-export const DISPLAY_SETTINGS_SELECTORS = {
+export const DISPLAY_SETTINGS = {
   openButton: '~Open display settings',
   languageToggle: (targetLanguage: string) => 
     `android=new UiSelector().description("Change language to ${targetLanguage}")`,

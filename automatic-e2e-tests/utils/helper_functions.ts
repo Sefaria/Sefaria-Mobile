@@ -112,9 +112,11 @@ export function assertMatch(label: string, actual: string, expected: string): bo
 }
 
 /**
- * Waits for and validates that an element is displayed
+ * Waits for and validates that an element is displayed. Used for allowing a longer check for elements that may take time to appear.
+ * Used to not repeat the same code in multiple places.
  * @param element - WebdriverIO element
  * @param elementName - Name for error messages
+ * @throws Will throw an error if the element is not displayed
  */
 export async function ensureElementDisplayed(element: any, elementName: string): Promise<void> {
   try {
