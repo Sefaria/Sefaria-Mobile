@@ -1,0 +1,69 @@
+name: Run iOS BrowserStack Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to test'
+        required: true
+        default: 'ios'
+        type: choice
+        options:
+        - ios
+
+jobs:
+  run-ios-tests:
+    runs-on: ubuntu-latest
+    name: iOS Tests
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Navigate to test directory
+      run: cd automatic-e2e-tests
+
+    - name: Clean npm cache
+      working-directory: automatic-e2e-tests
+      run: npm cache clean --force
+
+    - name: Clean up logs and screenshots
+      working-directory: automatic-e2e-tests
+      run: |
+        npm run cleanup:ios
+
+    - name: Install Dependencies
+      working-directory: automatic-e2e-tests
+      run: npm install
+
+    - name: Run iOS Tests on BrowserStack
+      working-directory: automatic-e2e-tests
+      env:
+        PLATFORM: ios
+        RUN_ENV: browserstack
+        BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+        BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        IOS_BROWSERSTACK_APP_ID: ${{ secrets.IOS_BROWSERSTACK_APP_ID }}
+        GITHUB_ACTIONS: true
+      run: npm run test:ios:browserstack
+
+    - name: Upload iOS test logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-logs
+        path: automatic-e2e-tests/logs/ios/
+        if-no-files-found: warn
+
+    - name: Upload iOS screenshots if tests fail
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-screenshots
+        path: automatic-e2e-tests/screenshots/ios/
+        if-no-files-found: ignore
