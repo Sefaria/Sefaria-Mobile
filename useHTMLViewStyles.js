@@ -42,6 +42,21 @@ export function useHTMLViewStyles(bilingual, textType) {
         },
         sub : {
           fontSize: fontSize * 0.6 * (textType === "hebrew" ? 1 : 0.8)
+        },
+        b: {
+          fontWeight: 'bold'
+        },
+        strong: {
+          fontWeight: 'bold'
+        },
+        i: {
+          fontStyle: 'italic'
+        },
+        em: {
+          fontStyle: 'italic'
+        },
+        u: {
+          textDecorationLine: 'underline'
         }
       };
 
