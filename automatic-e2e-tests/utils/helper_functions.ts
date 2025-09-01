@@ -123,10 +123,10 @@ export async function ensureElementDisplayed(element: any, elementName: string):
     await element.waitForDisplayed();
     const isDisplayed = await element.isDisplayed();
     if (!isDisplayed) {
-      throw new Error(`${elementName} is not displayed`);
+      throw new Error(logError(`${elementName} is not displayed`));
     }
   } catch (error) {
-    throw new Error(`Failed to find ${elementName}: ${error}`);
+    throw new Error(logError(`Failed to find ${elementName}: ${error}`));
   }
 }
 

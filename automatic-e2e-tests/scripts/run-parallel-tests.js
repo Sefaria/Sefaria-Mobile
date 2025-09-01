@@ -44,8 +44,37 @@ devices.forEach(device => {
   });
 
   proc.on('close', code => {
-    console.log(`${device.name} finished with code ${code}`);
-    results.push({ device: device.name, code });
+    console.log(`\n${device.name} finished with code ${code}`);
+    // Default failures empty
+    let failures = [];
+
+    if (code !== 0) {
+      try {
+        const logContent = fs.readFileSync(logFile, 'utf8');
+        // Try to find Mocha-style failure headings like "1) Suite should do X"
+        const failRegex = /^\s*\d+\)\s*(.+)$/gm;
+        let m;
+        while ((m = failRegex.exec(logContent)) !== null) {
+          failures.push(m[1].trim());
+        }
+
+        if (failures.length) {
+          console.log(`\n${device.name} failed:`);
+          failures.forEach(f => console.log(`- ${f}`));
+        } else {
+          // Fallback: show last lines of the log to help identify the error
+          const tail = logContent.split('\n').slice(-60).join('\n');
+          console.log(`\n${device.name} failed but specific test names could not be parsed from the log.`);
+          console.log('--- Log tail (last 60 lines) ---');
+          console.log(tail);
+          console.log('--- End log tail ---');
+        }
+      } catch (err) {
+        console.log(`Could not read log file ${logFile} to determine failing tests: ${err.message}`);
+      }
+    }
+
+    results.push({ device: device.name, code, failures });
     finishedCount++;
     if (finishedCount === devices.length) {
       // All done, print summary

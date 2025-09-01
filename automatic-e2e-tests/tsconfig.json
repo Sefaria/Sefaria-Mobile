@@ -34,8 +34,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "logs",
-    "screenshots",
   ],
   "ts-node": {
     "esm": false,

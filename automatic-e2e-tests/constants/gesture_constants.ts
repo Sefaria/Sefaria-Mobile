@@ -21,7 +21,7 @@ export const SWIPE_CONFIG = {
   LONG_DISTANCE: isBrowserstack ? 2000 : 1000,
   
   // Specific use case durations
-  TEXT_SCROLL_DISTANCE: isBrowserstack ? 400 : 200,    // For scrolling text into view
+  TEXT_SCROLL_DISTANCE: isBrowserstack ? 380 : 200,    // For scrolling text into view
   PAGE_SCROLL_DISTANCE: isBrowserstack ? 1000 : 500,   // For page-level scrolling
   FAST_SCROLL_DISTANCE: isBrowserstack ? 3000 : 1000,  // For quick navigation
   
