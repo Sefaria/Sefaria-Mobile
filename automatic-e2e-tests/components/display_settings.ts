@@ -24,7 +24,7 @@ import { HelperFunctions } from '../utils';
  * @returns boolean indicating success
  */
 export async function toggleDisplaySettings(client: Browser): Promise<boolean> {
-  const displaySettingsButton = await client.$(Selectors.DisplaySettings_SELECTORS.openButton);
+  const displaySettingsButton = await client.$(Selectors.DISPLAY_SETTINGS.openButton);
   await HelperFunctions.ensureElementDisplayed(displaySettingsButton, 'Display Settings Button');
   await displaySettingsButton.click();
   console.debug('Opened display settings.');

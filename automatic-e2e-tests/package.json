@@ -8,11 +8,21 @@
     "test:ios:local": "cross-env PLATFORM=ios RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts tests/*.spec.ts --timeout 300000",
     "test:android:browserstack": "cross-env PLATFORM=android RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts tests/*.spec.ts --timeout 300000",
     "test:ios:browserstack": "cross-env PLATFORM=ios RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts tests/*.spec.ts --timeout 300000",
+    
+    "sanity:android:local": "cross-env PLATFORM=android RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.sanity.json",
+    "sanity:ios:local": "cross-env PLATFORM=ios RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.sanity.json",
+    "sanity:android:browserstack": "cross-env PLATFORM=android RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.sanity.json",
+    "sanity:ios:browserstack": "cross-env PLATFORM=ios RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.sanity.json",
+
+    "test:android:parallel": "cross-env PLATFORM=android node scripts/run-parallel-tests.js",
+    "test:ios:parallel": "cross-env PLATFORM=ios node scripts/run-parallel-tests.js",
+    "sanity:android:parallel": "cross-env PLATFORM=android MOCHA_CONFIG=.mocharc.sanity.json node scripts/run-parallel-tests.js",
+    "sanity:ios:parallel": "cross-env PLATFORM=ios MOCHA_CONFIG=.mocharc.sanity.json node scripts/run-parallel-tests.js",
+    
     "cleanup:android": "node scripts/cleanup.js android",
     "cleanup:ios": "node scripts/cleanup.js ios",
-    "cleanup": "npm run cleanup:android && npm run cleanup:ios",
-    "test:android:parallel": "cross-env PLATFORM=android node scripts/run-parallel-tests.js",
-    "test:ios:parallel": "cross-env PLATFORM=ios node scripts/run-parallel-tests.js"
+    "cleanup": "npm run cleanup:android && npm run cleanup:ios"
+    
   },
   "keywords": [
     "sefaria",

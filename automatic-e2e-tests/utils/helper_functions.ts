@@ -150,12 +150,13 @@ export function getTestTitle(testContext: Mocha.Context): string {
 /**
  * Generates the build name seen on browserstack.
  * This is used to identify the test run in reports.
+ * @param type - Type of build (e.g., "Regression", "Sanity")
  * @returns A cleaned version of the test title, suitable for use in logs or reports.
  */
-export function getBuildName(): string {
+export function getBuildName(type: String): string {
   const platform = process.env.PLATFORM?.toUpperCase() || 'UNKNOWN';
   const date = new Date().toISOString().slice(0, 10);
-  return `Sefaria E2E ${platform}: ${date}`;
+  return `Sefaria ${type} ${platform}: ${date}`;
 }
 
 /**

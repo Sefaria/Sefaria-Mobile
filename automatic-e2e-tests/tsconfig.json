@@ -6,7 +6,7 @@
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -45,7 +45,7 @@
       "moduleResolution": "node",
       "strict": true,
       "noImplicitAny": true,
-      "skipLibCheck": false
+      "skipLibCheck": true
     }
   }
 }

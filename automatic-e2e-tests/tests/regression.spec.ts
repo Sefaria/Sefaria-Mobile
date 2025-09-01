@@ -9,7 +9,7 @@ import { Texts, Errors, TEST_TIMEOUTS,
 import '../log_init'; 
 
 const NO_RESET = false; // Set to true if you want same device session to continue with each test
-const buildName = HelperFunctions.getBuildName();
+const buildName = HelperFunctions.getBuildName("Regression");
 
 describe('Sefaria Mobile regression tests', function () {
   // Global test timeout for all tests in this block

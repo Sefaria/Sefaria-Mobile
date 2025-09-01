@@ -30,12 +30,16 @@ devices.forEach(device => {
     LOG_FILE: logFile
   });
 
-  const mochaArgs = [
-    '--require', 'ts-node/register',
-    '--extensions', 'ts',
-    'tests/*.spec.ts',
-    '--timeout', '300000'
-  ];
+  // Allow overriding which spec to run via the SPEC env var (e.g., "tests/sanity.spec.ts")
+  // Or provide a MOCHA_CONFIG env var to use a dedicated mocha config (e.g., .mocharc.sanity.json)
+  const mochaArgs = ['--require', 'ts-node/register', '--extensions', 'ts', '--timeout', '300000'];
+  if (process.env.MOCHA_CONFIG) {
+    mochaArgs.push('--config', process.env.MOCHA_CONFIG);
+  } else if (process.env.SPEC) {
+    mochaArgs.push('--spec', process.env.SPEC, '--no-recursive');
+  } else {
+    mochaArgs.push('tests/*.spec.ts');
+  }
 
   const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
   const proc = spawn(npxCmd, ['mocha', ...mochaArgs], {
