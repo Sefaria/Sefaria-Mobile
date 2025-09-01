@@ -60,7 +60,7 @@ export async function getSefariaCalendar(
 ): Promise<CalendarResponse> {
   const key = paramsKey(params);
   if (cachedCalendarData && cachedParams === key) {
-    return cachedCalendarData!;
+    return cachedCalendarData;
   }
   try {
     const response = await axios.get(SEFARIA_CALENDAR_API, { params });

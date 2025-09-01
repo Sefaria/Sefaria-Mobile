@@ -188,7 +188,7 @@ export async function handleTeardown(client: WebdriverIO.Browser, testContext: M
     }
     await client.deleteSession();
   }
-  else{
+  else {
     console.warn('No client session to delete.');
   }
 }

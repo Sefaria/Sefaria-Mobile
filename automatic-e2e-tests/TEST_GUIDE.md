@@ -183,7 +183,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
 > **Tip:** Use `.only` to run a single test (`it.only`) or describe block for debugging.
 
-1. **Add regression tests in `e2e.spec.ts`** or create a new test in a new file in `tests/`.
+1. **Add regression tests in `regression.spec.ts`** or create a new test in a new file in `tests/`.
 2. **Naming convention:** Use descriptive names for `describe` and `it` blocks (no more than a sentence).
    - Example: `it('should open the Topics tab and verify the header')`
 3. **Use or create a component helper** for actions related to specific pages or features.

@@ -7,7 +7,7 @@
  *  - Ensures logs directory exists and creates a unique log file for each test run.
  *  - Captures and logs uncaught exceptions and unhandled promise rejections for better debugging.
  * USAGE:
- *  - Import this file at the top of your test entry point (e.g., e2e.spec.ts) to enable logging and error capture.
+ *  - Import this file at the top of your test entry point (e.g., regression.spec.ts) to enable logging and error capture.
  * ──────────────────────────────────────────────────────────────
  */
 

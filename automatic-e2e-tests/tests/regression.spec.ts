@@ -11,7 +11,7 @@ import '../log_init';
 const NO_RESET = false; // Set to true if you want same device session to continue with each test
 const buildName = HelperFunctions.getBuildName();
 
-describe('e2e Sefaria Mobile regression tests', function () {
+describe('Sefaria Mobile regression tests', function () {
   // Global test timeout for all tests in this block
   // This sets the maximum time each test can take before failing
   this.timeout(TEST_TIMEOUTS.SINGLE_TEST);
@@ -156,7 +156,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     if (parasha) {
       await TextFinder.findTextElement(client, parasha.displayValue.en);
     } else {
-      throw new Error(Errors.DYNAMIC_ERRORS.apiResultMismatch("Parashat Hashavua", parasha!.displayValue.en));    
+      throw new Error(Errors.DYNAMIC_ERRORS.apiResultMismatch("Parashat Hashavua", "(missing)"));    
     }
     // Scroll to the Parashat Hashavua text (Ensures it is visible)
     const haftarah = await SefariaAPI.getCurrentHaftarah();
@@ -164,7 +164,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     if (haftarah) {
       await Gesture.autoScrollTextIntoView(client, haftarah.displayValue.en);
     } else {
-      throw new Error(Errors.DYNAMIC_ERRORS.apiResultMismatch("Haftarah", haftarah!.displayValue.en));
+      throw new Error(Errors.DYNAMIC_ERRORS.apiResultMismatch("Haftarah", "(haftarah!.displayValue.en)"));
     }
     
     // Scroll to Daily Learning
@@ -193,7 +193,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     if (DAF_A_WEEK) {
       await TextFinder.findTextElement(client, DAF_A_WEEK.displayValue.en);
     } else {
-      throw new Error(Errors.DYNAMIC_ERRORS.apiResultMismatch("Daf a Week", DAF_A_WEEK!.displayValue.en));
+      throw new Error(Errors.DYNAMIC_ERRORS.apiResultMismatch("Daf a Week", "(missing)"));
     }
     
     // Navigate to the Daf a Week section

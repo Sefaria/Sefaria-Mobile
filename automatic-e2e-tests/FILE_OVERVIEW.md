@@ -83,7 +83,7 @@ Centralized constants for timeouts, gestures, colors, errors, and text.
 
 Where your actual test suites live.
 
-- **e2e.spec.ts**  
+- **regression.spec.ts**  
   Main end-to-end regression test suite.
 
 - **\*.spec.ts**  
