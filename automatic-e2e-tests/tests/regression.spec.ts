@@ -2,7 +2,7 @@ import { remote } from 'webdriverio';
 import { Navbar, SearchPage, ReaderPage, DisplaySettings, 
   TopicsPage } from '../components'
 import { LoadCredentials, Gesture, 
-  UiChecker, TextFinder, SefariaAPI, HelperFunctions } from '../utils';
+  UiChecker, TextFinder, SefariaAPI, HelperFunctions, PopUps } from '../utils';
 import { Texts, Errors, TEST_TIMEOUTS, 
   Colors, SWIPE_CONFIG, Selectors, SWIPE_ATTEMPTS, 
   PLATFORM} from '../constants';
@@ -30,6 +30,8 @@ describe('Sefaria Mobile regression tests', function () {
       // WebdriverIO browser instance for interacting with the Sefaria app
       client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
       await HelperFunctions.handleSetup(client)
+      // Used to close seasonal popups that might appear on app launch
+      await PopUps.closePopUpIfPresent(client);
     } catch (err) {
       throw new Error(`[SESSION ERROR] Could not create session for test. App might not have been launched. "${testTitle}": ${err}`);
     }

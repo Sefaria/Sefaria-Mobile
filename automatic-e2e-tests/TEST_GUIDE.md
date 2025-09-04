@@ -144,7 +144,7 @@ Tests should be simple and easy to read. They should focus on high-level user fl
 ```typescript
 import { remote } from 'webdriverio';
 import { Navbar } from '../components';
-import { BrowserstackReport, OfflinePopUp, LoadCredentials, TextFinder, HelperFunctions } from '../utils';
+import { BrowserstackReport, PopUps, LoadCredentials, TextFinder, HelperFunctions, PopUps } from '../utils';
 import { TEST_TIMEOUTS, Selectors } from '../constants';
 
 import './test_init';
@@ -162,6 +162,8 @@ describe('e2e Sefaria Mobile regression tests', function () {
     console.log(`(STARTING) Running test: ${testTitle}`);
     client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
     await HelperFunctions.HandleSetup(client);
+    // Used to close seasonal popups that might appear on app launch
+    await PopUps.closePopUpIfPresent(client);
 
   });
 

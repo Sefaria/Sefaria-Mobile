@@ -3,7 +3,7 @@
  * FILE ROLE: Offline Popup Utilities for Testing Framework
  * 
  * DESCRIPTION:
- *  - Helper functions to detect and interact with offline popups in the app.
+ *  - Helper functions to detect and interact with popups in the app.
  * USAGE:
  *  - Used in tests to handle network/offline dialogs.
  * ──────────────────────────────────────────────────────────────
@@ -14,8 +14,7 @@ import type { Browser } from 'webdriverio';
 import { ELEMENT_TIMEOUTS, Selectors } from '../constants';
 
 /**
- * Waits for the popup with resource-id "org.sefaria.sefaria:id/action_bar_root" to appear within a timeout.
- * Uses centralized selector for the offline popup container.
+ * Waits for the offline pop-up to appear within a specified timeout.
  * @param client WebdriverIO browser instance
  * @param timeout Timeout in milliseconds (default: POPUP_WAIT) Needs timeout as the popup could not be visible
  * @returns true if the popup appears, false otherwise
@@ -81,3 +80,23 @@ export async function handleOfflinePopUp(client: WebdriverIO.Browser, timeout: n
   }
 }
 
+/**
+ * Safe-close the "X" (donate / generic popup close) button if present.
+ * @param client WebdriverIO browser instance
+ * @return true if a popup was found and closed, false otherwise
+ */
+export async function closePopUpIfPresent(client: Browser): Promise<boolean> {
+  try {
+    const selector = Selectors.DISPLAY_SETTINGS.closePopUp;
+    const closeBtn = await client.$(selector);
+    if (await closeBtn.isDisplayed()) {
+      await closeBtn.click();
+      console.debug(`Close pop-up button clicked (${selector})`);
+      return true;
+    }
+  } catch (err) {
+    // element not present or not interactable — ignore
+    // console.debug(`No donate popup to close: ${err}`);
+  }
+  return false;
+}

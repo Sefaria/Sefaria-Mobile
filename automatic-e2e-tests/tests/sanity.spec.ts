@@ -3,9 +3,11 @@ import { Navbar } from '../components'
 import { LoadCredentials, HelperFunctions, TextFinder } from '../utils';
 import { TEST_TIMEOUTS, Selectors } from '../constants';
 import { DisplaySettings, SearchPage, ReaderPage } from '../components';
+import { PopUps } from '../utils';
 import '../log_init';
 
-const NO_RESET = false;
+
+const NO_RESET = true;
 const buildName = HelperFunctions.getBuildName("Sanity");
 
 describe('Sefaria Mobile sanity checks', function () {
@@ -18,6 +20,9 @@ describe('Sefaria Mobile sanity checks', function () {
     console.log(`[SANITY START] ${testTitle}`);
     client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
     await HelperFunctions.handleSetup(client);
+    // Close any popups that might appear on startup (like donation)
+    await PopUps.closePopUpIfPresent(client);
+
   });
 
   afterEach(async function () {
@@ -46,10 +51,14 @@ describe('Sefaria Mobile sanity checks', function () {
   it('S004: Display settings open and toggle language', async function () {
     // Toggle to Hebrew then back to English
     await DisplaySettings.toggleLanguageButton(client, true);
-    await DisplaySettings.toggleLanguageButton(client, false);
-    // Close display settings by clicking nav Texts
-    await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
+    // See if header is still english
     await TextFinder.verifyHeaderOnPage(client, 'Browse the Library');
+    // See if Tanakh now is in Hebrew
+    await TextFinder.verifyHeaderOnPage(client, 'תנ');
+    // Toggle back to English
+    await DisplaySettings.toggleLanguageButton(client, false);
+    // Verify back to English
+    await TextFinder.verifyHeaderOnPage(client, 'Tanakh');
   });
 
   
@@ -71,6 +80,7 @@ describe('Sefaria Mobile sanity checks', function () {
 
     // Verify reader opened and title contains 'Genesis 1' and we are on chapter 1
     await TextFinder.findTextElement(client, 'Genesis 1');
+    await PopUps.closePopUpIfPresent(client);
     await ReaderPage.verifyTitleContains(client, '1');
   });
 });

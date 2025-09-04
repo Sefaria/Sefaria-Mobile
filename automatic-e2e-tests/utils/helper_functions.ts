@@ -12,7 +12,7 @@
 
 import { logError, Texts, COLOR_THRESHOLDS, Selectors} from '../constants';
 import { Navbar } from '../components';
-import { OfflinePopUp, BrowserstackReport } from '.';
+import { PopUps, BrowserstackReport } from '.';
 
 /**
  * Allows double qoutes (and other potentially breaking characters) to be inside .text()
@@ -166,7 +166,7 @@ export function getBuildName(type: String): string {
  * - Navigates to Texts tab
  */
 export async function handleSetup(client: WebdriverIO.Browser) {
-  await OfflinePopUp.handleOfflinePopUp(client);
+  await PopUps.handleOfflinePopUp(client);
   await Navbar.waitForNavBar(client);
   await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
 }

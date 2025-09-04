@@ -116,7 +116,7 @@ export const DISPLAY_SETTINGS = {
   openButton: '~Open display settings',
   languageToggle: (targetLanguage: string) => 
     `android=new UiSelector().description("Change language to ${targetLanguage}")`,
-  donateButton: `///android.view.ViewGroup[@content-desc="Close pop up"]`,
+  donateButton: `///android.view.ViewGroup[@content-desc="Donate Now"]`,
   closePopUp: `//android.view.ViewGroup[@content-desc="Close pop up"]`,
 } as const;
 

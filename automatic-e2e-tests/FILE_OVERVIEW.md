@@ -84,7 +84,10 @@ Centralized constants for timeouts, gestures, colors, errors, and text.
 Where your actual test suites live.
 
 - **regression.spec.ts**  
-  Main end-to-end regression test suite.
+  Main end-to-end regression test suite. Used for full app validation.
+
+- **sanity.spec.ts**  
+  Quick sanity checks to verify basic app functionality. Runs faster than full regression. Used for quick validation.
 
 - **\*.spec.ts**  
   Add new test files for specific features or components.
@@ -107,7 +110,7 @@ Helper modules for low-level actions, API calls, and cross-cutting concerns.
 - **load_credentials.ts**  
   Loads environment variables and credentials from `.env` file in the root directory of `automatic-e2e-tests/`.
 
-- **offlinePopUp.ts**  
+- **PopUps.ts**  
   Handles the initial offline popup in the app.
 
 - **sefariaAPI.ts**  

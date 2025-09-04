@@ -25,7 +25,6 @@ It is designed to help contributors and maintainers write, run, and maintain rob
 > **You do NOT need the full Sefaria-Mobile application source code** to run or write tests.  
 > This test framework is fully self-contained and works with APK/AAB (Android) or IPA (iOS) app builds.
 
-
 ## Quick Links
 
 - [Setup & Environment Guide](./SETUP.md)  
@@ -39,29 +38,45 @@ It is designed to help contributors and maintainers write, run, and maintain rob
 
 ## Basic Commands
 
-- **Run all tests (Android local):**
+- **Run all regression tests (Android local / browserstack):**
+
   ```sh
   npm run test:android:local
-  ```
-- **Run all tests (iOS local):**
-  ```sh
-  npm run test:ios:local
-  ```
-- **Run all tests (Android BrowserStack):**
-  ```sh
   npm run test:android:browserstack
   ```
-- **Run all tests (iOS BrowserStack):**
+
+- **Run all regression tests (iOS local / browserstack):**
+
   ```sh
+  npm run test:ios:local
   npm run test:ios:browserstack
   ```
-- **Run tests in parallel on multiple devices:** (set devices in `devices.json`)
+
+- **Run sanity tests (Android local / browserstack):**
+
+  ```sh
+  npm run sanity:android:local
+  npm run sanity:android:browserstack
+  ```
+
+- **Run sanity tests (iOS local / browserstack):**
+
+  ```sh
+  npm run sanity:ios:local
+  npm run sanity:ios:browserstack
+  ```
+
+- **Run tests (regression / sanity) in parallel on multiple devices:** (set devices in `devices.json`)
+
   ```sh
   npm run test:android:parallel
   npm run test:ios:parallel
+  npm run sanity:android:parallel
+  npm run sanity:ios:parallel
   ```
 
 - **Clean up logs/screenshots:**
+
   ```sh
   npm run cleanup
   npm run cleanup:android
@@ -81,4 +96,4 @@ It is designed to help contributors and maintainers write, run, and maintain rob
 - **GitHub Issues:** [Sefaria-Mobile](https://github.com/Sefaria/Sefaria-Mobile/issues)
 - **Contact:** [Sefaria Developer Portal](https://developers.sefaria.org/page/contact-us)
 - **Troubleshooting:**  
-  See the [Troubleshooting](./SETUP.md#troubleshooting) section in the setup guide for common issues and solutions.
+  See the [Troubleshooting](./SETUP.md#troubleshooting) section in the setup guide for common issues and solutions
