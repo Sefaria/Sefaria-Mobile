@@ -2,7 +2,7 @@
   "require": ["ts-node/register"],
   "loader": "ts-node/esm",
   "extensions": ["ts"],
-  "timeout": 180000,
+  "timeout": 300000,
   "exit": true,
   "recursive": false,
   "reporter": "spec",

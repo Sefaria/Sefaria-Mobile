@@ -141,7 +141,7 @@ export function getTestTitle(testContext: Mocha.Context): string {
   }
   let testTitle = testContext.test.title;
   if (testTitle.includes('before each')) {
-    testTitle = testTitle.replace(/.*before each.*hook for /, '');
+    testTitle = testTitle.replace(/.*before each.*hook for.*before all /, '');
   }
   testTitle = testTitle.replace(/["\\]/g, '');
   return testTitle;
@@ -185,9 +185,17 @@ export async function handleTeardown(client: WebdriverIO.Browser, testContext: M
     if (testContext.currentTest?.state === 'passed') {
       console.log(`✅ (PASSED); Finished test: ${testTitle}\n`);
     } else {
+      // On failure, take a screenshot
+      const screenshotPath = `./screenshots/${process.env.PLATFORM}/FAIL_${testTitle.replace(/\s+/g, '_')}.png`;
+      try {
+        await client.saveScreenshot(screenshotPath);
+        console.log(`[SCREENSHOT SAVED] ${screenshotPath}`);
+      } catch (err) {
+        console.error('Failed to save screenshot:', err);
+      }
       console.log(`❌ (FAILED); Finished test: ${testTitle}\n`);
     }
-    await client.deleteSession();
+    // await client.deleteSession();
   }
   else {
     console.warn('No client session to delete.');
