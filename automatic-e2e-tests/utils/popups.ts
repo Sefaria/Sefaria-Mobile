@@ -80,23 +80,32 @@ export async function handleOfflinePopUp(client: WebdriverIO.Browser, timeout: n
   }
 }
 
+// Pop up only appears once per session, so do not check again if already appeared
+// This avoids unnecessary waits in tests where no popup appears
+// (e.g., if app is online or popup already handled)
+let POPUPAPPEARD = false;
 /**
  * Safe-close the "X" (donate / generic popup close) button if present.
  * @param client WebdriverIO browser instance
  * @return true if a popup was found and closed, false otherwise
  */
 export async function closePopUpIfPresent(client: Browser): Promise<boolean> {
-  try {
-    const selector = Selectors.DISPLAY_SETTINGS.closePopUp;
-    const closeBtn = await client.$(selector);
-    if (await closeBtn.isDisplayed()) {
-      await closeBtn.click();
-      console.debug(`Close pop-up button clicked (${selector})`);
-      return true;
+  if (POPUPAPPEARD) {
+    try {
+      const selector = Selectors.DISPLAY_SETTINGS.closePopUp;
+      const closeBtn = await client.$(selector);
+      if (await closeBtn.isDisplayed()) {
+        await closeBtn.click();
+        console.debug(`Close pop-up button clicked (${selector})`);
+        POPUPAPPEARD = true;
+        return true;
+      }
+    } catch (err) {
+      // element not present or not interactable — ignore
+      // console.debug(`No donate popup to close: ${err}`);
     }
-  } catch (err) {
-    // element not present or not interactable — ignore
-    // console.debug(`No donate popup to close: ${err}`);
+    return false;
+  } else {
+    return false;
   }
-  return false;
 }

@@ -1,6 +1,6 @@
 import { remote } from 'webdriverio';
 import { Navbar } from '../components'
-import { LoadCredentials, HelperFunctions, TextFinder } from '../utils';
+import { LoadCredentials, HelperFunctions, TextFinder, BrowserstackReport } from '../utils';
 import { TEST_TIMEOUTS, Selectors } from '../constants';
 import { DisplaySettings, SearchPage, ReaderPage } from '../components';
 import { PopUps } from '../utils';
@@ -20,18 +20,44 @@ describe('Sefaria Mobile sanity checks', function () {
     console.log(`[SANITY START] ${testTitle}`);
     client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
     await HelperFunctions.handleSetup(client);
-    // Close any popups that might appear on startup (like donation)
-    await PopUps.closePopUpIfPresent(client);
-    await PopUps.closePopUpIfPresent(client);
-
   });
   beforeEach(async function () {
+    await PopUps.closePopUpIfPresent(client);
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
+    await PopUps.closePopUpIfPresent(client);
     await TextFinder.verifyHeaderOnPage(client, 'Browse the Library');
   });
 
   afterEach(async function () {
-    await HelperFunctions.handleTeardown(client, this, HelperFunctions.getTestTitle(this));
+    const testName = HelperFunctions.getTestTitle(this);
+    // Use the same teardown as regression tests, but don't delete session
+    await HelperFunctions.handleTeardown(client, this, testName, false);
+    
+    // Add BrowserStack annotations for individual test tracking
+    if (process.env.RUN_ENV === 'browserstack') {
+      const testStatus = this.currentTest?.state === 'passed' ? 'passed' : 'failed';
+      const reason = this.currentTest?.err?.message ?? undefined;
+      
+      await BrowserstackReport.annotateBrowserstackTest(client, testName, testStatus, reason);
+    }
+  });
+
+  after(async function () {
+    if (client) {
+      // Set final suite status for BrowserStack
+      if (process.env.RUN_ENV === 'browserstack') {
+        const tests = this.test?.parent?.tests || [];
+        await BrowserstackReport.setBrowserstackSuiteStatus(client, tests, 'Sanity Suite');
+      }
+      
+      // Now delete the session
+      try {
+        await client.deleteSession();
+        console.log('[SESSION] Session closed successfully');
+      } catch (err) {
+        console.error('Failed to close session:', err);
+      }
+    }
   });
 
   it('S001: App launches and main header is present', async function () {
@@ -40,6 +66,7 @@ describe('Sefaria Mobile sanity checks', function () {
   });
 
   it('S002: Search opens from navbar and is empty', async function () {
+    await PopUps.closePopUpIfPresent(client);
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.search);
     await TextFinder.verifyHeaderOnPage(client, 'Search');
     await SearchPage.verifyEmptySearchBar(client);
@@ -52,14 +79,19 @@ describe('Sefaria Mobile sanity checks', function () {
     // Ensure navbar is visible and can click Texts and Topics
     await PopUps.closePopUpIfPresent(client);
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.topics);
+    await PopUps.closePopUpIfPresent(client);
     await TextFinder.verifyHeaderOnPage(client, 'Explore by Topic');
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.account);
+    await PopUps.closePopUpIfPresent(client);
     await TextFinder.verifyHeaderOnPage(client, 'Account');
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
+    await PopUps.closePopUpIfPresent(client);
     await TextFinder.verifyHeaderOnPage(client, 'Browse the Library');
+    await PopUps.closePopUpIfPresent(client);
   });
-
+  
   it('S004: Display settings open and toggle language', async function () {
+    await PopUps.closePopUpIfPresent(client);
     // Toggle to Hebrew then back to English
     await DisplaySettings.toggleLanguageButton(client, true);
     // See if header is still english

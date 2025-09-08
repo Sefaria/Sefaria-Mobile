@@ -13,6 +13,7 @@
 import { logError, Texts, COLOR_THRESHOLDS, Selectors} from '../constants';
 import { Navbar } from '../components';
 import { PopUps, BrowserstackReport } from '.';
+import * as fs from 'fs';
 
 /**
  * Allows double qoutes (and other potentially breaking characters) to be inside .text()
@@ -141,7 +142,16 @@ export function getTestTitle(testContext: Mocha.Context): string {
   }
   let testTitle = testContext.test.title;
   if (testTitle.includes('before each')) {
-    testTitle = testTitle.replace(/.*before each.*hook for.*before all /, '');
+    testTitle = testTitle.replace(/.*before each.*hook for /, '');
+  }
+  if (testTitle.includes('after each')) {
+    testTitle = testTitle.replace(/.*after each.*hook for /, '');
+  }
+  if (testTitle.includes('before all')) {
+    testTitle = testTitle.replace(/.*before all.*hook for /, '');
+  }
+  if (testTitle.includes('after all')) {
+    testTitle = testTitle.replace(/.*after all.*hook for /, '');
   }
   testTitle = testTitle.replace(/["\\]/g, '');
   return testTitle;
@@ -175,9 +185,9 @@ export async function handleSetup(client: WebdriverIO.Browser) {
  * Handles teardown after each test:
  * - Reports status to BrowserStack
  * - Logs result
- * - Deletes client session
+ * - Deletes client session if deleteSession is true (default)
  */
-export async function handleTeardown(client: WebdriverIO.Browser, testContext: Mocha.Context, testTitle: string) {
+export async function handleTeardown(client: WebdriverIO.Browser, testContext: Mocha.Context, testTitle: string, deleteSession: boolean=true) {
   if (client) {
     if (process.env.RUN_ENV == 'browserstack') {
       await BrowserstackReport.reportToBrowserstack(client, testContext);
@@ -188,14 +198,27 @@ export async function handleTeardown(client: WebdriverIO.Browser, testContext: M
       // On failure, take a screenshot
       const screenshotPath = `./screenshots/${process.env.PLATFORM}/FAIL_${testTitle.replace(/\s+/g, '_')}.png`;
       try {
-        await client.saveScreenshot(screenshotPath);
+        // Ensure directory exists
+        const fs = require('fs');
+        const path = require('path');
+        const dir = path.dirname(screenshotPath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        // Take screenshot using the manual approach
+        const screenshotBase64 = await client.takeScreenshot();
+        const screenshotBuffer = Buffer.from(screenshotBase64, 'base64');
+        fs.writeFileSync(screenshotPath, screenshotBuffer);
         console.log(`[SCREENSHOT SAVED] ${screenshotPath}`);
       } catch (err) {
-        console.error('Failed to save screenshot:', err);
+        console.error('❌ Failed to save screenshot:', err);
       }
       console.log(`❌ (FAILED); Finished test: ${testTitle}\n`);
     }
-    // await client.deleteSession();
+    if (deleteSession) {
+      await client.deleteSession();
+    }
   }
   else {
     console.warn('No client session to delete.');
