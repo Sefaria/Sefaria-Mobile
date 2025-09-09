@@ -23,11 +23,11 @@ export async function waitForOfflinePopUp(client: Browser, timeout: number = ELE
   try {
     const element = await client.$(Selectors.OFFLINE_POPUP_SELECTORS.popupContainer);
     await element.waitForDisplayed({ timeout });
-    console.debug('Popup is visible!');
+    console.debug('Offline Popup is visible!');
     return true;
   } catch {
     if (log) {
-      console.log('Popup not visible! If tests fail later, check if app even loaded.');
+      console.log('[WARNING] Offline Popup not visible! If tests fail later, check if app even loaded.');
     }
     return false;
   }

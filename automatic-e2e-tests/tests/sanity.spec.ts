@@ -1,5 +1,5 @@
 import { remote } from 'webdriverio';
-import { Navbar } from '../components'
+import { Navbar } from '../components';
 import { LoadCredentials, HelperFunctions, TextFinder, BrowserstackReport } from '../utils';
 import { TEST_TIMEOUTS, Selectors } from '../constants';
 import { DisplaySettings, SearchPage, ReaderPage } from '../components';
@@ -8,7 +8,7 @@ import '../log_init';
 
 
 const NO_RESET = false;
-const buildName = HelperFunctions.getBuildName("Sanity");
+const buildName = HelperFunctions.getBuildName(`Sanity`);
 
 describe('Sefaria Mobile sanity checks', function () {
   this.timeout(TEST_TIMEOUTS.SINGLE_TEST);
@@ -20,7 +20,7 @@ describe('Sefaria Mobile sanity checks', function () {
     console.log(`[SANITY START] ${testTitle}`);
     client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
     await HelperFunctions.handleSetup(client);
-    PopUps.initializePopupInterceptor(client);
+    // PopUps.initializePopupInterceptor(client);
 
   });
   beforeEach(async function () {

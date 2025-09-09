@@ -13,7 +13,6 @@
 import { logError, Texts, COLOR_THRESHOLDS, Selectors} from '../constants';
 import { Navbar } from '../components';
 import { PopUps, BrowserstackReport } from '.';
-import * as fs from 'fs';
 
 /**
  * Allows double qoutes (and other potentially breaking characters) to be inside .text()
