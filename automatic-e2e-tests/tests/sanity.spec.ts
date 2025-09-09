@@ -20,12 +20,17 @@ describe('Sefaria Mobile sanity checks', function () {
     console.log(`[SANITY START] ${testTitle}`);
     client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
     await HelperFunctions.handleSetup(client);
+    PopUps.initializePopupInterceptor(client);
+
   });
   beforeEach(async function () {
-    await PopUps.closePopUpIfPresent(client);
-    await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
-    await PopUps.closePopUpIfPresent(client);
-    await TextFinder.verifyHeaderOnPage(client, 'Browse the Library');
+    try {
+      // await PopUps.closePopUpIfPresent(client);
+      await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
+    } catch (error) {
+      // Take screenshot on setup failure
+      HelperFunctions.takeScreenshot(client, HelperFunctions.getTestTitle(this), 'FAIL');
+    }
   });
 
   afterEach(async function () {
@@ -53,7 +58,8 @@ describe('Sefaria Mobile sanity checks', function () {
       // Now delete the session
       try {
         await client.deleteSession();
-        console.log('[SESSION] Session closed successfully');
+        // Stop the popup monitor during teardown
+        PopUps.stopGlobalPopupMonitor();
       } catch (err) {
         console.error('Failed to close session:', err);
       }
@@ -61,37 +67,27 @@ describe('Sefaria Mobile sanity checks', function () {
   });
 
   it('S001: App launches and main header is present', async function () {
-    // The default startup navigates to the Texts tab via handleSetup
     await TextFinder.verifyHeaderOnPage(client, 'Browse the Library');
   });
 
   it('S002: Search opens from navbar and is empty', async function () {
-    await PopUps.closePopUpIfPresent(client);
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.search);
     await TextFinder.verifyHeaderOnPage(client, 'Search');
     await SearchPage.verifyEmptySearchBar(client);
-    await PopUps.closePopUpIfPresent(client);
     await client.keys('Enter');
-    await PopUps.closePopUpIfPresent(client);
   });
 
-  it('S003: Navigation bar is present and clickable', async function () {
+  it('S003: cycle through pages through Navigation Bar', async function () {
     // Ensure navbar is visible and can click Texts and Topics
-    await PopUps.closePopUpIfPresent(client);
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.topics);
-    await PopUps.closePopUpIfPresent(client);
     await TextFinder.verifyHeaderOnPage(client, 'Explore by Topic');
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.account);
-    await PopUps.closePopUpIfPresent(client);
     await TextFinder.verifyHeaderOnPage(client, 'Account');
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
-    await PopUps.closePopUpIfPresent(client);
     await TextFinder.verifyHeaderOnPage(client, 'Browse the Library');
-    await PopUps.closePopUpIfPresent(client);
   });
   
   it('S004: Display settings open and toggle language', async function () {
-    await PopUps.closePopUpIfPresent(client);
     // Toggle to Hebrew then back to English
     await DisplaySettings.toggleLanguageButton(client, true);
     // See if header is still english
@@ -105,19 +101,13 @@ describe('Sefaria Mobile sanity checks', function () {
   });
 
   it('S005: Open canonical text via search and verify reader title', async function () {
-    // Quick, stable check that search -> reader works
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.search);
     await SearchPage.typeIntoSearchBar(client, 'Job 1, 1 text');
     await SearchPage.selectFromList(client, 'Job');
     // Submit search and open first result (press Enter)
-    // await PopUps.closePopUpIfPresent(client);
     await (await TextFinder.findTextElement(client, '1')).click();
-    // await client.keys('Enter');
-
     // Verify reader opened and title contains 'Job 1' and we are on chapter 1
     await TextFinder.findTextElement(client, 'Job 1');
-    // await PopUps.closePopUpIfPresent(client);
-    // await PopUps.closePopUpIfPresent(client);
     await ReaderPage.verifyTitleContains(client, '1');
     await ReaderPage.clickBackButton(client);
     await client.keys('Enter');

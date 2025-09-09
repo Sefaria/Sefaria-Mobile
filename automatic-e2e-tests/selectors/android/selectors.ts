@@ -44,7 +44,7 @@ export const NAVIGATION_SELECTORS = {
   navBar: `android=new UiSelector().className("android.view.ViewGroup").packageName("${APP_PACKAGE}")`,
   navBarItem: (contentDesc: string) => 
     `android=new UiSelector().className("android.view.ViewGroup").packageName("${APP_PACKAGE}").description("${contentDesc}")`,
-  closePopUp: '//android.view.ViewGroup[@content-desc="Close pop up"]/android.widget.ImageView',
+  closePopUp: '//android.view.ViewGroup[@content-desc="Close"]/android.widget.ImageView',
 } as const;
 
 // Content selectors for Navigation Bar

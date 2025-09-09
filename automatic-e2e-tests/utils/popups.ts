@@ -19,14 +19,16 @@ import { ELEMENT_TIMEOUTS, Selectors } from '../constants';
  * @param timeout Timeout in milliseconds (default: POPUP_WAIT) Needs timeout as the popup could not be visible
  * @returns true if the popup appears, false otherwise
  */
-export async function waitForOfflinePopUp(client: Browser, timeout: number = ELEMENT_TIMEOUTS.POPUP_WAIT): Promise<boolean> {
+export async function waitForOfflinePopUp(client: Browser, timeout: number = ELEMENT_TIMEOUTS.POPUP_WAIT, log: boolean=true): Promise<boolean> {
   try {
     const element = await client.$(Selectors.OFFLINE_POPUP_SELECTORS.popupContainer);
     await element.waitForDisplayed({ timeout });
     console.debug('Popup is visible!');
     return true;
   } catch {
-    console.log('Popup not visible! If tests fail later, check if app even loaded.');
+    if (log) {
+      console.log('Popup not visible! If tests fail later, check if app even loaded.');
+    }
     return false;
   }
 }
@@ -90,7 +92,7 @@ let POPUPAPPEARD = false;
  * @return true if a popup was found and closed, false otherwise
  */
 export async function closePopUpIfPresent(client: Browser): Promise<boolean> {
-  if (POPUPAPPEARD) {
+  if (!POPUPAPPEARD) {
     try {
       const selector = Selectors.DISPLAY_SETTINGS.closePopUp;
       const closeBtn = await client.$(selector);
@@ -108,4 +110,87 @@ export async function closePopUpIfPresent(client: Browser): Promise<boolean> {
   } else {
     return false;
   }
+}
+
+/**
+ * Global popup monitor that runs in the background
+ */
+let popupMonitorRunning = false;
+let popupMonitorInterval: NodeJS.Timeout | null = null;
+
+/**
+ * /**
+ * Starts a background monitor that continuously checks for and closes popups
+ * This runs automatically and handles ALL types of popups
+ */
+export async function startContinuousPopupMonitor(client: Browser): Promise<void> {
+  if (popupMonitorRunning) {
+    console.log('[POPUP MONITOR] Already running');
+    return;
+  }
+
+  console.log('[POPUP MONITOR] Starting CONTINUOUS popup monitoring...');
+  popupMonitorRunning = true;
+
+  let checkCount = 0;
+
+  popupMonitorInterval = setInterval(async () => {
+    try {
+      checkCount++;
+      
+      // Reset POPUPAPPEARD flag every 30 checks (1 minute) to catch new popups
+      if (checkCount % 30 === 0) {
+        POPUPAPPEARD = false;
+        console.debug('[POPUP MONITOR] Reset popup flag to catch new popups');
+      }
+
+      let foundPopup = false;
+
+      // Check for donation/generic popup
+      if (await closePopUpIfPresent(client)) {
+        console.debug('[POPUP MONITOR] Found and closed donation popup!');
+        foundPopup = true;
+      }
+
+      // // Check for offline popup - THIS IS KEY!
+      try {
+        if (await waitForOfflinePopUp(client, 1000, false)) {
+          await clickNotNowIfPresent(client);
+          await clickOkIfPresent(client);
+          console.log('[POPUP MONITOR] Found and closed offline popup!');
+          foundPopup = true;
+        }
+      } catch (error) {
+        // Normal when no offline popup present
+      }
+
+      if (foundPopup) {
+        console.log('[POPUP MONITOR] Popup handled! Continuing to monitor...');
+      }
+
+    } catch (error) {
+      // Ignore errors - they're expected when no popup is present
+      console.debug('[POPUP MONITOR] Check completed (no popup found)');
+    }
+  }, 1500); // Check every 1.5 seconds for more responsive monitoring
+}
+
+// Update the initializer to use continuous monitoring
+export function initializePopupInterceptor(client: WebdriverIO.Browser) {
+  console.log('[POPUP INTERCEPTOR] Initializing CONTINUOUS popup monitoring...');
+  
+  // Use continuous monitoring
+  startContinuousPopupMonitor(client);
+}
+
+/**
+ * Stops the background popup monitor
+ */
+export function stopGlobalPopupMonitor(): void {
+  if (popupMonitorInterval) {
+    clearInterval(popupMonitorInterval);
+    popupMonitorInterval = null;
+  }
+  popupMonitorRunning = false;
+  console.log('[POPUP MONITOR] Stopped');
 }

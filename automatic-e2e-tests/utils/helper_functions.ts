@@ -169,6 +169,59 @@ export function getBuildName(type: String): string {
   return `Sefaria ${type} ${platform}: ${date}`;
 }
 
+
+/**
+ * Takes a screenshot and saves it to the screenshots directory
+ * @param client WebdriverIO browser instance
+ * @param testTitle Test title for filename
+ * @param errorType Optional error type to include in filename (default: 'FAIL')
+ * @returns Promise<string> The path where the screenshot was saved
+ */
+export async function takeScreenshot(
+  client: WebdriverIO.Browser, 
+  testTitle: string, 
+  errorType: string = 'FAIL'
+): Promise<string> {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  
+  // Clean the test title more thoroughly for Windows file naming
+  const cleanTestTitle = testTitle
+    .replace(/[<>:"/\\|?*]/g, '_')  // Remove Windows invalid filename characters
+    .replace(/\s+/g, '_')           // Replace spaces with underscores
+    .replace(/_+/g, '_')            // Replace multiple underscores with single
+    .replace(/^_|_$/g, '');         // Remove leading/trailing underscores
+  
+  const filename = `${errorType}_${cleanTestTitle}_${timestamp}.png`;
+  const platform = process.env.PLATFORM || 'unknown';
+  const screenshotPath = `./screenshots/${platform}/${filename}`;
+  
+  try {
+    const path = require('path');
+    const fs = require('fs');
+    
+    // Resolve the full path and ensure directory exists
+    const fullPath = path.resolve(screenshotPath);
+    const dir = path.dirname(fullPath);
+    
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    
+    // Take screenshot
+    const screenshotBase64 = await client.takeScreenshot();
+    const screenshotBuffer = Buffer.from(screenshotBase64, 'base64');
+    
+    // Write file with full path
+    fs.writeFileSync(fullPath, screenshotBuffer);
+    console.log(`[SCREENSHOT SAVED] ${screenshotPath}`);
+    return screenshotPath;
+  } catch (err) {
+    console.error('❌ Failed to save screenshot:', err);
+    console.error('❌ Attempted path:', screenshotPath);
+    throw err;
+  }
+}
+
 /**
  * Performs initial setup steps for the test client:
  * - Handles offline popup
@@ -188,6 +241,8 @@ export async function handleSetup(client: WebdriverIO.Browser) {
  * - Deletes client session if deleteSession is true (default)
  */
 export async function handleTeardown(client: WebdriverIO.Browser, testContext: Mocha.Context, testTitle: string, deleteSession: boolean=true) {
+  
+  
   if (client) {
     if (process.env.RUN_ENV == 'browserstack') {
       await BrowserstackReport.reportToBrowserstack(client, testContext);
@@ -195,25 +250,7 @@ export async function handleTeardown(client: WebdriverIO.Browser, testContext: M
     if (testContext.currentTest?.state === 'passed') {
       console.log(`✅ (PASSED); Finished test: ${testTitle}\n`);
     } else {
-      // On failure, take a screenshot
-      const screenshotPath = `./screenshots/${process.env.PLATFORM}/FAIL_${testTitle.replace(/\s+/g, '_')}.png`;
-      try {
-        // Ensure directory exists
-        const fs = require('fs');
-        const path = require('path');
-        const dir = path.dirname(screenshotPath);
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
-        }
-        
-        // Take screenshot using the manual approach
-        const screenshotBase64 = await client.takeScreenshot();
-        const screenshotBuffer = Buffer.from(screenshotBase64, 'base64');
-        fs.writeFileSync(screenshotPath, screenshotBuffer);
-        console.log(`[SCREENSHOT SAVED] ${screenshotPath}`);
-      } catch (err) {
-        console.error('❌ Failed to save screenshot:', err);
-      }
+      await takeScreenshot(client, testTitle, 'FAIL');
       console.log(`❌ (FAILED); Finished test: ${testTitle}\n`);
     }
     if (deleteSession) {
