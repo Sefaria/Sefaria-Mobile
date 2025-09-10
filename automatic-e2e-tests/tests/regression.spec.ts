@@ -29,7 +29,7 @@ describe('Sefaria Mobile regression tests', function () {
     try {
       // WebdriverIO browser instance for interacting with the Sefaria app
       client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
-      await HelperFunctions.handleSetup(client)
+      await HelperFunctions.handleSetup(client);
       // Used to close seasonal popups that might appear on app launch
       // PopUps.initializePopupInterceptor(client);
     } catch (err) {

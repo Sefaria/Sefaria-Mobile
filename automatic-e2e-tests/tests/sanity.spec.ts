@@ -20,10 +20,11 @@ describe('Sefaria Mobile sanity checks', function () {
     console.log(`[SANITY START] ${testTitle}`);
     client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
     await HelperFunctions.handleSetup(client);
-    // Used to close seasonal popups that might appear on app launch
     PopUps.initializePopupInterceptor(client);
+    // Used to close seasonal popups that might appear on app launch
 
   });
+
   beforeEach(async function () {
     try {
       testTitle = HelperFunctions.getTestTitle(this);
@@ -40,7 +41,6 @@ describe('Sefaria Mobile sanity checks', function () {
     const testName = HelperFunctions.getTestTitle(this);
     // Use the same teardown as regression tests, but don't delete session
     await HelperFunctions.handleTeardown(client, this, testName, false);
-    
     // Add BrowserStack annotations for individual test tracking
     if (process.env.RUN_ENV === 'browserstack') {
       const testStatus = this.currentTest?.state === 'passed' ? 'passed' : 'failed';

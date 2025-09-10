@@ -24,6 +24,7 @@ export function logError(message: string): string {
 }
 
 // STATIC ERROR MESSAGES
+// TODO: Figure out why not in use
 
 export const STATIC_ERRORS = {
   NAV_BAR_NOT_DISPLAYED: '❌ Navigation bar is not displayed!',

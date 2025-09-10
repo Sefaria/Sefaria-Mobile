@@ -49,7 +49,6 @@ export async function reportToBrowserstack(client: WebdriverIO.Browser, test: Mo
   }
 }
 
-// ...existing code...
 
 /**
  * Annotates individual test results in BrowserStack session timeline

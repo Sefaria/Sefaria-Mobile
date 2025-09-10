@@ -46,7 +46,8 @@ export async function clickNavBarItem(client: Browser, contentDesc: string): Pro
 }
 
 /**
- * Clicks the close button on a pop-up if it is visible.
+ * Clicks the close button on a pop-up that is not seasonable. Example:
+ * the popup that appears when clicking the dedication button.
  * @param client WebdriverIO browser instance
  * @throws Will throw an error if the close button is not visible
  */

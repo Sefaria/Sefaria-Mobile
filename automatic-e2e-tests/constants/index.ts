@@ -15,11 +15,7 @@
  */
 
 
-// Error constants and text constants
 export * from './errors';
-// export * from './text_constants';
-
-// New organized constants
 export * from './timeouts';
 export * from './gesture_constants';
 export * from './colors';
@@ -34,7 +30,6 @@ if (PLATFORM === 'ios') {
 } else {
   Selectors = require('../selectors/android/selectors');
 }
-
 
 export { Selectors };
 
