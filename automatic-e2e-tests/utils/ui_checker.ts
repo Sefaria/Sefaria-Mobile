@@ -58,7 +58,7 @@ function parseBounds(boundsStr: string | object): { x1: number; y1: number; x2: 
     // Try Android bounds format [x1,y1][x2,y2]
     const match = boundsStr.match(/\[(\d+),(\d+)\]\[(\d+),(\d+)\]/);
     if (match) {
-      const [, x1, y1, x2, y2] = match.map(Number);
+      const [x1, y1, x2, y2] = match.slice(1).map(Number);
       return { x1, y1, x2, y2 };
     }
   }
@@ -379,7 +379,7 @@ export async function validateElementColorByDesc(
   if (!(await element.waitForDisplayed())) {
     throw new Error(logError(`Element with content description "${contentDesc}" is not displayed. Selector: ${selector}`));
   }
-  
+
   // Use pixel selector based on position
   const pixelSelector = position === 'center' 
     ? (width: number, height: number) => ({ cx: Math.floor(width / 2), cy: Math.floor(height / 2) })

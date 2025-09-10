@@ -12,7 +12,6 @@
  * ──────────────────────────────────────────────────────────────
  */
 
-import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { ELEMENT_TIMEOUTS, TEST_TIMEOUTS } from '../constants';
 

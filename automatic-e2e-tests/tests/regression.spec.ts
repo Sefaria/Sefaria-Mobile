@@ -1,15 +1,15 @@
 import { remote } from 'webdriverio';
-import { Navbar, SearchPage, ReaderPage, DisplaySettings, 
-  TopicsPage } from '../components'
-import { LoadCredentials, Gesture, 
-  UiChecker, TextFinder, SefariaAPI, HelperFunctions, PopUps } from '../utils';
-import { Texts, Errors, TEST_TIMEOUTS, 
-  Colors, SWIPE_CONFIG, Selectors, SWIPE_ATTEMPTS, 
+import { Navbar, SearchPage, ReaderPage, DisplaySettings,
+  TopicsPage } from '../components';
+import { LoadCredentials, Gesture,
+  UiChecker, TextFinder, SefariaAPI, HelperFunctions } from '../utils';
+import { Texts, Errors, TEST_TIMEOUTS,
+  Colors, SWIPE_CONFIG, Selectors, SWIPE_ATTEMPTS,
   PLATFORM} from '../constants';
-import '../log_init'; 
+import '../log_init';
 
 const NO_RESET = false; // Set to true if you want same device session to continue with each test
-const buildName = HelperFunctions.getBuildName("Regression");
+const buildName = HelperFunctions.getBuildName('Regression');
 
 describe('Sefaria Mobile regression tests', function () {
   // Global test timeout for all tests in this block
@@ -24,14 +24,14 @@ describe('Sefaria Mobile regression tests', function () {
     // Fetch the current test title
     testTitle = HelperFunctions.getTestTitle(this);
 
-    console.log(`[STARTING] Running test: ${testTitle}`);
+    console.log(`\n[STARTING] Running test: ${testTitle}`);
 
     try {
       // WebdriverIO browser instance for interacting with the Sefaria app
       client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
       await HelperFunctions.handleSetup(client)
       // Used to close seasonal popups that might appear on app launch
-      await PopUps.closePopUpIfPresent(client);
+      // PopUps.initializePopupInterceptor(client);
     } catch (err) {
       throw new Error(`[SESSION ERROR] Could not create session for test. App might not have been launched. "${testTitle}": ${err}`);
     }

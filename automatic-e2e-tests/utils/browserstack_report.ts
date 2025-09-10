@@ -59,9 +59,9 @@ export async function reportToBrowserstack(client: WebdriverIO.Browser, test: Mo
  * @param reason Optional error message
  */
 export async function annotateBrowserstackTest(
-  client: Browser, 
-  testName: string, 
-  testStatus: 'passed' | 'failed', 
+  client: Browser,
+  testName: string,
+  testStatus: 'passed' | 'failed',
   reason?: string
 ): Promise<void> {
   try {
@@ -83,9 +83,9 @@ export async function annotateBrowserstackTest(
       }
     })}`, []);
 
-    console.log(`[BROWSERSTACK] Annotated ${testStatus} for test: ${testName}`);
+    console.log(`[BROWSERSTACK] Annotated ${testStatus} for test: ${testName}\n`);
   } catch (error) {
-    console.error('❌ Failed to annotate BrowserStack test:', error);
+    console.error('\r❌ Failed to annotate BrowserStack test:\n', error);
   }
 }
 
