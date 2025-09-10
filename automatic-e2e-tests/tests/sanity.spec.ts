@@ -1,6 +1,6 @@
 import { remote } from 'webdriverio';
 import { Navbar } from '../components';
-import { LoadCredentials, HelperFunctions, TextFinder, BrowserstackReport } from '../utils';
+import { LoadCredentials, HelperFunctions, TextFinder, BrowserstackReport, UiChecker } from '../utils';
 import { TEST_TIMEOUTS, Selectors } from '../constants';
 import { DisplaySettings, SearchPage, ReaderPage } from '../components';
 import { PopUps } from '../utils';
@@ -32,7 +32,7 @@ describe('Sefaria Mobile sanity checks', function () {
       await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
     } catch (error) {
       // Take screenshot on setup failure
-      HelperFunctions.takeScreenshot(client, testTitle, 'FAIL');
+      UiChecker.takeScreenshot(client, testTitle, 'FAIL');
     }
   });
 
