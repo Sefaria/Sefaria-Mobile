@@ -172,13 +172,20 @@ export function getBuildName(type: String): string {
 /**
  * Performs initial setup steps for the test client:
  * - Handles offline popup
- * - Waits for navbar
- * - Navigates to Texts tab
+ * - Waits for navbar to be visible
+ * - Starts global popup monitor if enabled
+ * @param client - WebdriverIO browser instance
+ * @param testName - Name of the test or suite (for logging)
+ * @param enablePopupHandling - Whether to start continuous popup handling (default: false)
  */
-export async function handleSetup(client: WebdriverIO.Browser) {
+export async function handleSetup(client: WebdriverIO.Browser, enablePopupHandling: boolean = false) {
   await PopUps.handleOfflinePopUp(client);
   await Navbar.waitForNavBar(client);
   await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
+  // Start continuous popup handling if enabled
+  if (enablePopupHandling) {
+    PopUps.startGlobalPopupMonitor(client);
+  }
 }
 
 /**

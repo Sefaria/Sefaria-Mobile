@@ -99,7 +99,7 @@ export async function closePopUpIfPresent(client: Browser): Promise<boolean> {
       if (await closeBtn.isDisplayed()) {
         await closeBtn.click();
         console.debug(`Close pop-up button clicked (${selector})`);
-        POPUPAPPEARD = true;
+        // POPUPAPPEARD = true;
         return true;
       }
     } catch (err) {
@@ -128,7 +128,7 @@ export async function startGlobalPopupMonitor(client: Browser): Promise<void> {
     return;
   }
 
-  console.log('[POPUP MONITOR] Starting CONTINUOUS popup monitoring...');
+  console.log('[POPUP MONITOR] Starting CONTINUOUS popup monitoring...\n');
   popupMonitorRunning = true;
   let foundDonationPopup = false;
   let currentAction = '';

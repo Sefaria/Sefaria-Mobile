@@ -9,6 +9,7 @@ import '../log_init';
 
 const NO_RESET = false;
 const buildName = HelperFunctions.getBuildName(`Sanity`);
+const SuiteName = 'Sanity Suite Tests for Sefaria Mobile';
 
 describe('Sefaria Mobile sanity checks', function () {
   this.timeout(TEST_TIMEOUTS.SINGLE_TEST);
@@ -16,20 +17,15 @@ describe('Sefaria Mobile sanity checks', function () {
   let testTitle: string;
 
   before(async function () {
-    testTitle = HelperFunctions.getTestTitle(this);
-    console.log(`[SANITY START] ${testTitle}`);
-    client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
-    await HelperFunctions.handleSetup(client);
-    PopUps.startGlobalPopupMonitor(client);
-    // Used to close seasonal popups that might appear on app launch
-
+    client = await remote(LoadCredentials.getOpts(buildName, SuiteName, NO_RESET));
+    console.log(`[SANITY START] ${SuiteName}`);
+    await HelperFunctions.handleSetup(client, true);
   });
 
   beforeEach(async function () {
+    testTitle = HelperFunctions.getTestTitle(this);
+    console.log(`[STARTING] Running test: ${testTitle}`);
     try {
-      testTitle = HelperFunctions.getTestTitle(this);
-      console.log(`[STARTING] Running test: ${testTitle}`);
-      // await PopUps.closePopUpIfPresent(client);
       await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
     } catch (error) {
       // Take screenshot on setup failure
@@ -38,15 +34,14 @@ describe('Sefaria Mobile sanity checks', function () {
   });
 
   afterEach(async function () {
-    const testName = HelperFunctions.getTestTitle(this);
     // Use the same teardown as regression tests, but don't delete session
-    await HelperFunctions.handleTeardown(client, this, testName, false);
+    await HelperFunctions.handleTeardown(client, this, testTitle, false);
     // Add BrowserStack annotations for individual test tracking
     if (process.env.RUN_ENV === 'browserstack') {
       const testStatus = this.currentTest?.state === 'passed' ? 'passed' : 'failed';
       const reason = this.currentTest?.err?.message ?? undefined;
       
-      await BrowserstackReport.annotateBrowserstackTest(client, testName, testStatus, reason);
+      await BrowserstackReport.annotateBrowserstackTest(client, testTitle, testStatus, reason);
     }
   });
 
@@ -109,7 +104,12 @@ describe('Sefaria Mobile sanity checks', function () {
     await SearchPage.typeIntoSearchBar(client, 'Job 1, 1 text');
     await SearchPage.selectFromList(client, 'Job');
     // Submit search and open first result (press Enter)
-    await (await TextFinder.findTextElement(client, '1')).click();
+    try {
+      await (await TextFinder.findTextElement(client, '1')).click();
+    } catch (err) {
+      console.error('Failed to click on text element:', err);
+      throw err; // Re-throw to fail the test
+    }
     // Verify reader opened and title contains 'Job 1' and we are on chapter 1
     await TextFinder.findTextElement(client, 'Job 1');
     await ReaderPage.verifyTitleContains(client, '1');
