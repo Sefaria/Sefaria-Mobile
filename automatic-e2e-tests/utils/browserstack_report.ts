@@ -60,10 +60,12 @@ export async function reportToBrowserstack(client: WebdriverIO.Browser, test: Mo
 export async function annotateBrowserstackTest(
   client: Browser,
   testName: string,
-  testStatus: 'passed' | 'failed',
-  reason?: string
+  testContext: Mocha.Context,
 ): Promise<void> {
   try {
+    // Fetch status and reason from testContext
+    const testStatus = testContext.currentTest?.state === 'passed' ? 'passed' : 'failed';
+    const reason = testContext.currentTest?.err?.message ?? undefined;
     // Mark the test name
     await client.executeScript(`browserstack_executor: ${JSON.stringify({
       action: 'annotate',
@@ -89,21 +91,21 @@ export async function annotateBrowserstackTest(
 }
 
 /**
- * Sets final suite status with annotation summary for BrowserStack
+ * Sets final test suite status with annotation summary for BrowserStack
  * @param client WebdriverIO browser instance
  * @param tests Array of test results
  * @param suiteName Name of the test suite
  */
 export async function setBrowserstackSuiteStatus(
   client: Browser,
-  tests: any[],
+  testContext: Mocha.Context,
   suiteName: string = 'Test Suite'
 ): Promise<void> {
+  let tests: any[] = testContext.test?.parent?.tests || [];
   const allTestsPassed = tests.every(test => test.state === 'passed');
   const finalStatus = allTestsPassed ? 'passed' : 'failed';
   const totalTests = tests.length;
   const passedTests = tests.filter(test => test.state === 'passed').length;
-  
   try {
     // Final annotation summary
     await client.executeScript(`browserstack_executor: ${JSON.stringify({

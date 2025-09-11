@@ -8,7 +8,7 @@ import { Texts, Errors, TEST_TIMEOUTS,
   PLATFORM} from '../constants';
 import '../log_init';
 
-const NO_RESET = true; // Set to true if you want same device session to continue with each test
+const NO_RESET = false; // Set to true if you want same device session to continue with each test
 const buildName = HelperFunctions.getBuildName('Regression');
 
 describe('Sefaria Mobile regression tests', function () {
@@ -23,9 +23,7 @@ describe('Sefaria Mobile regression tests', function () {
   beforeEach(async function () {
     // Fetch the current test title
     testTitle = HelperFunctions.getTestTitle(this);
-
     console.log(`\n[STARTING] Running test: ${testTitle}`);
-
     try {
       // WebdriverIO browser instance for interacting with the Sefaria app
       client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
@@ -38,7 +36,7 @@ describe('Sefaria Mobile regression tests', function () {
 
   afterEach(async function () {
     PopUps.stopGlobalPopupMonitor();
-    await HelperFunctions.handleTeardown(client, this, testTitle, false);
+    await HelperFunctions.handleTeardown(client, this, testTitle);
   });
 
 

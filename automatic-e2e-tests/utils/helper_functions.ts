@@ -157,6 +157,23 @@ export function getTestTitle(testContext: Mocha.Context): string {
 }
 
 /**
+ * Prints the results of tests to the console.
+ * @param tests Array of test results
+ */
+export async function logTestResults(testContext: Mocha.Context): Promise<void> {
+  const tests = testContext.test?.parent?.tests || [];
+  tests.forEach(t => {
+    const status = t.state === 'passed' ? 'PASSED' : 'FAILED';
+    console.log(`   - ${status}: ${t.title}`);
+  });
+  const passedTests = tests.filter(t => t.state === 'passed').length;
+  const failedTests = tests.filter(t => t.state === 'failed').length;
+  console.log(`Test Summary: ${passedTests} passed, ${failedTests} failed, out of ${tests.length} tests.\n`);
+  // Add a short delay to ensure logs are printed and added to log file
+  await new Promise(resolve => setTimeout(resolve, 1000));
+}
+
+/**
  * Generates the build name seen on browserstack.
  * This is used to identify the test run in reports.
  * @param type - Type of build (e.g., "Regression", "Sanity")
@@ -193,13 +210,18 @@ export async function handleSetup(client: WebdriverIO.Browser, enablePopupHandli
  * - Reports status to BrowserStack
  * - Logs result
  * - Deletes client session if deleteSession is true (default)
+ * - Annotates BrowserStack with test result
+ * @param client - WebdriverIO browser instance
+ * @param testContext - Mocha test context (this)
+ * @param testTitle - Name of the test (for logging)
+ * @param deleteSession - Whether to delete the client session (default: true)
  */
 export async function handleTeardown(client: WebdriverIO.Browser, testContext: Mocha.Context, testTitle: string, deleteSession: boolean=true) {
-  
-  
   if (client) {
-    if (process.env.RUN_ENV == 'browserstack') {
+    if (process.env.RUN_ENV === 'browserstack') {
       await BrowserstackReport.reportToBrowserstack(client, testContext);
+      // Add BrowserStack annotations for individual test tracking
+      await BrowserstackReport.annotateBrowserstackTest(client, testTitle, testContext);
     }
     if (testContext.currentTest?.state === 'passed') {
       console.log(`✅ (PASSED); Finished test: ${testTitle}\n`);

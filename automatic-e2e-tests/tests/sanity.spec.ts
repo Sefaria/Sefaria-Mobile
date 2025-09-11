@@ -17,9 +17,14 @@ describe('Sefaria Mobile sanity checks', function () {
   let testTitle: string;
 
   before(async function () {
-    client = await remote(LoadCredentials.getOpts(buildName, SuiteName, NO_RESET));
-    console.log(`[SANITY START] ${SuiteName}`);
-    await HelperFunctions.handleSetup(client, true);
+    try {
+      client = await remote(LoadCredentials.getOpts(buildName, SuiteName, NO_RESET));
+      console.log(`[SANITY START] ${SuiteName}`);
+      await HelperFunctions.handleSetup(client, true);
+    } catch (err) {
+      UiChecker.takeScreenshot(client, testTitle, 'FAIL');
+      throw new Error(`[SESSION ERROR] Could not create session for test. App might not have been launched. "${testTitle}": ${err}`);
+    }
   });
 
   beforeEach(async function () {
@@ -28,40 +33,25 @@ describe('Sefaria Mobile sanity checks', function () {
     try {
       await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
     } catch (error) {
-      // Take screenshot on setup failure
       UiChecker.takeScreenshot(client, testTitle, 'FAIL');
     }
   });
 
   afterEach(async function () {
-    // Use the same teardown as regression tests, but don't delete session
+    // Handle teardown eithout deleting sessions including BrowserStack reporting and annotations
     await HelperFunctions.handleTeardown(client, this, testTitle, false);
-    // Add BrowserStack annotations for individual test tracking
-    if (process.env.RUN_ENV === 'browserstack') {
-      const testStatus = this.currentTest?.state === 'passed' ? 'passed' : 'failed';
-      const reason = this.currentTest?.err?.message ?? undefined;
-      
-      await BrowserstackReport.annotateBrowserstackTest(client, testTitle, testStatus, reason);
-    }
   });
 
   after(async function () {
     if (client) {
+      PopUps.stopGlobalPopupMonitor();
       // Set final suite status for BrowserStack
       if (process.env.RUN_ENV === 'browserstack') {
-        const tests = this.test?.parent?.tests || [];
-        await BrowserstackReport.setBrowserstackSuiteStatus(client, tests, 'Sanity Suite');
+        await BrowserstackReport.setBrowserstackSuiteStatus(client, this, 'Sanity Suite');
       }
-      
-      // Now delete the session
-      try {
-        // Stop the popup monitor during teardown
-        PopUps.stopGlobalPopupMonitor();
-        await client.deleteSession();
-        // await HelperFunctions.handleTeardown(client, this, testTitle);
-      } catch (err) {
-        console.error('Failed to close session:', err);
-      }
+      // Delete and log results of testing
+      await client.deleteSession();
+      await HelperFunctions.logTestResults(this);
     }
   });
 
