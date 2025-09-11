@@ -17,7 +17,7 @@ import { Selectors } from '../constants';
 import { HelperFunctions } from '../utils';
 
 /**
- * toggle the display settings open and close.
+ * toggle the display settings on the reader page open and close.
  * Used before operating actions on the display settings
  * @param client - WebdriverIO browser instance.
  * @throws Will throw an error if the display settings button is not displayed

@@ -31,7 +31,7 @@ describe('Sefaria Mobile regression tests', function () {
       client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
       await HelperFunctions.handleSetup(client);
       // Used to close seasonal popups that might appear on app launch
-      // PopUps.initializePopupInterceptor(client);
+      // PopUps.startGlobalPopupMonitor(client);
     } catch (err) {
       throw new Error(`[SESSION ERROR] Could not create session for test. App might not have been launched. "${testTitle}": ${err}`);
     }

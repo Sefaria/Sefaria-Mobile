@@ -20,7 +20,7 @@ describe('Sefaria Mobile sanity checks', function () {
     console.log(`[SANITY START] ${testTitle}`);
     client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
     await HelperFunctions.handleSetup(client);
-    PopUps.initializePopupInterceptor(client);
+    PopUps.startGlobalPopupMonitor(client);
     // Used to close seasonal popups that might appear on app launch
 
   });
@@ -62,7 +62,8 @@ describe('Sefaria Mobile sanity checks', function () {
       try {
         // Stop the popup monitor during teardown
         PopUps.stopGlobalPopupMonitor();
-        await HelperFunctions.handleTeardown(client, this, testTitle);
+        await client.deleteSession();
+        // await HelperFunctions.handleTeardown(client, this, testTitle);
       } catch (err) {
         console.error('Failed to close session:', err);
       }
