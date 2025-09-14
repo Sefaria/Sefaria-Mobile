@@ -82,33 +82,40 @@ export async function handleOfflinePopUp(client: WebdriverIO.Browser, timeout: n
   }
 }
 
-// Pop up only appears once per session, so do not check again if already appeared
-// This avoids unnecessary waits in tests where no popup appears
-// (e.g., if app is online or popup already handled)
-let POPUPAPPEARD = false;
 /**
- * Safe-close the "X" (donate / generic popup close) button if present.
+ * Checks if the popup is present on screen.
  * @param client WebdriverIO browser instance
- * @return true if a popup was found and closed, false otherwise
+ * @returns true if the popup close button is displayed and popup hasn't appeared yet, false otherwise
  */
-export async function closePopUpIfPresent(client: Browser): Promise<boolean> {
-  if (!POPUPAPPEARD) {
+export async function isPopUpPresent(client: Browser): Promise<boolean> {
+  try {
+    const selector = Selectors.DISPLAY_SETTINGS.closePopUp;
+    console.debug(`Checking for pop-up presence (${selector})  ${new Date().toISOString()}`);
+    const closeBtn = await client.$(selector);
+    return await closeBtn.isDisplayed();
+  } catch (err) {
+    return false;
+  }
+}
+
+/**
+ * Closes the popup by clicking the close button.
+ * @param client WebdriverIO browser instance
+ */
+export async function closePopUp(client: Browser): Promise<boolean> {
     try {
       const selector = Selectors.DISPLAY_SETTINGS.closePopUp;
       const closeBtn = await client.$(selector);
-      if (await closeBtn.isDisplayed()) {
-        await closeBtn.click();
-        console.debug(`Close pop-up button clicked (${selector})`);
-        // POPUPAPPEARD = true;
-        return true;
-      }
+      console.debug(`Attempting to close pop-up (${selector})  ${new Date().toISOString()}`);
+      await closeBtn.click();
+      console.debug(`Close pop-up button clicked (${selector})  ${new Date().toISOString()}`);
+      return true;
     } catch (err) {
-      // element not present — ignore
+      // element not present — should not have been used without isPopUpPresent check
+      console.debug('Pop Up could not be closed');
+      return false;
     }
-    return false;
-  } else {
-    return false;
-  }
+
 }
 
 /**
@@ -131,28 +138,30 @@ export async function startGlobalPopupMonitor(client: Browser): Promise<void> {
   console.log('[POPUP MONITOR] Starting CONTINUOUS popup monitoring...\n');
   popupMonitorRunning = true;
   let foundDonationPopup = false;
-  let currentAction = '';
+  let isChecking = false; // New: Lock to prevent concurrent checks
 
   popupMonitorInterval = setInterval(async () => {
+    // New: Skip if already checking or popup already handled
+    if (isChecking || foundDonationPopup) {
+      return;
+    }
+
+    isChecking = true; // Lock the check
     try {
       // Check for donation/generic popup
-      if (!foundDonationPopup) {
-        if (await closePopUpIfPresent(client)) {
-          console.debug('[POPUP MONITOR] Found and closed donation popup!');
-          foundDonationPopup = true;
-          currentAction = 'donation';
-        }
-      }
-
-      if (foundDonationPopup && currentAction) {
-          console.debug(`[POPUP MONITOR] Popup handled for ${currentAction}! Stopped checking ${currentAction} Popup.`);
-          currentAction = '';
+      if (await isPopUpPresent(client)) {
+        foundDonationPopup = true;
+        console.debug(`[POPUP MONITOR] Found donation popup! ${new Date().toISOString()}`);
+        await closePopUp(client); // Close immediately after detection
+        console.debug(`[POPUP MONITOR] Popup handled for donation! Stopped checking donation Popup.`);
       }
     } catch (error) {
       // Ignore errors - they're expected when no popup is present
       console.debug('[POPUP MONITOR] Check completed (no popup found)');
+    } finally {
+      isChecking = false; // Unlock after check completes
     }
-  }, 1500); // Check every 1.5 seconds
+  }, 250); // Check every .25 seconds (needed to close it fast)
 }
 
 /**
