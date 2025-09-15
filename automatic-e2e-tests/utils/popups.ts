@@ -87,36 +87,70 @@ export async function handleOfflinePopUp(client: WebdriverIO.Browser, timeout: n
  * @param client WebdriverIO browser instance
  * @returns true if the popup close button is displayed and popup hasn't appeared yet, false otherwise
  */
-export async function isPopUpPresent(client: Browser): Promise<boolean> {
+export async function closePopUpIfPresent(client: Browser): Promise<boolean> {
   try {
     const selector = Selectors.DISPLAY_SETTINGS.closePopUp;
-    console.debug(`Checking for pop-up presence (${selector})  ${new Date().toISOString()}`);
+    // console.debug(`Checking for pop-up presence (${selector})  ${new Date().toISOString()}`);
     const closeBtn = await client.$(selector);
-    return await closeBtn.isDisplayed();
+    if (await closeBtn.isDisplayed()) {
+      console.debug(`Pop-up is present (${selector}) ${new Date().toISOString()}`);
+      await closeBtn.click(); // Attempt to close immediately
+      console.debug(`Clicked close button on pop-up (${selector}) ${new Date().toISOString()}`);
+      return true;
+    }
+    return false;
   } catch (err) {
     return false;
   }
 }
 
-/**
- * Closes the popup by clicking the close button.
- * @param client WebdriverIO browser instance
- */
-export async function closePopUp(client: Browser): Promise<boolean> {
-    try {
-      const selector = Selectors.DISPLAY_SETTINGS.closePopUp;
-      const closeBtn = await client.$(selector);
-      console.debug(`Attempting to close pop-up (${selector})  ${new Date().toISOString()}`);
-      await closeBtn.click();
-      console.debug(`Close pop-up button clicked (${selector})  ${new Date().toISOString()}`);
-      return true;
-    } catch (err) {
-      // element not present — should not have been used without isPopUpPresent check
-      console.debug('Pop Up could not be closed');
-      return false;
-    }
+// /**
+//  * Closes the popup by clicking the close button.
+//  * @param client WebdriverIO browser instance
+//  * @returns true if closed successfully, false otherwise
+//  */
+// export async function closePopUp(client: Browser): Promise<boolean> {
+//   const maxRetries = 3; // Retry up to 3 times
+//   let attempt = 0;
 
-}
+//   while (attempt < maxRetries) {
+//     try {
+//       const selector = Selectors.DISPLAY_SETTINGS.closePopUp;
+//       const closeBtn = await client.$(selector);
+      
+//       // Wait briefly for button to be displayed and enabled (short timeout to avoid hangs)
+//       await closeBtn.waitForDisplayed({ timeout: 1000 });
+//       if (!(await closeBtn.isEnabled())) {
+//         throw new Error('Close button not enabled');
+//       }
+      
+//       console.debug(`Attempting to close pop-up (${selector}) ${new Date().toISOString()}`);
+      
+//       // Click with timeout to avoid hangs (use Promise.race for mobile compatibility)
+//       const clickPromise = closeBtn.click();
+//       const timeoutPromise = new Promise((_, reject) => 
+//         setTimeout(() => reject(new Error('Click timed out')), 3000)
+//       );
+//       await Promise.race([clickPromise, timeoutPromise]);
+      
+//       console.debug(`Close pop-up button clicked (${selector}) ${new Date().toISOString()}`);
+      
+//       // Wait for popup to disappear
+//       await closeBtn.waitForDisplayed({ reverse: true, timeout: 2000 });
+//       return true; // Success
+//     } catch (err) {
+//       attempt++;
+//       console.debug(`Close attempt ${attempt} failed: ${(err as Error).message}`);
+//       if (attempt >= maxRetries) {
+//         console.error('Failed to close popup after retries');
+//         return false; // Don't throw—let monitor continue
+//       }
+//       // Wait a bit before retry
+//       await new Promise(resolve => setTimeout(resolve, 500));
+//     }
+//   }
+//   return false;
+// }
 
 /**
  * Global popup monitor that runs in the background
@@ -149,11 +183,9 @@ export async function startGlobalPopupMonitor(client: Browser): Promise<void> {
     isChecking = true; // Lock the check
     try {
       // Check for donation/generic popup
-      if (await isPopUpPresent(client)) {
+      if (await closePopUpIfPresent(client)) {
         foundDonationPopup = true;
-        console.debug(`[POPUP MONITOR] Found donation popup! ${new Date().toISOString()}`);
-        await closePopUp(client); // Close immediately after detection
-        console.debug(`[POPUP MONITOR] Popup handled for donation! Stopped checking donation Popup.`);
+        console.debug(`[POPUP MONITOR] Popup handled for donation! Stopped checking donation Popup. ${new Date().toISOString()}`);
       }
     } catch (error) {
       // Ignore errors - they're expected when no popup is present
@@ -161,7 +193,7 @@ export async function startGlobalPopupMonitor(client: Browser): Promise<void> {
     } finally {
       isChecking = false; // Unlock after check completes
     }
-  }, 250); // Check every .25 seconds (needed to close it fast)
+  }, 1000); // Check every 1 second (needed to close it fast)
 }
 
 /**
