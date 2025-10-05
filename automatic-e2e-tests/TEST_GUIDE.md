@@ -1,0 +1,322 @@
+# Sefaria App Automated Testing – Guide to Writing Cross-Platform Tests, Components, and Utilities
+
+This document explains **how to write new tests**, **create reusable components**, and **add utility functions** for the Sefaria Mobile automated testing framework.  
+It is intended for both new contributors and experienced maintainers, and covers both **Android and iOS**.
+
+---
+
+## Table of Contents
+
+- [General Principles](#general-principles)
+- [Using Constants & Selectors](#using-constants--selectors)
+- [Test File Structure & Best Practices](#test-file-structure--best-practices)
+- [How to Write a New Test](#how-to-write-a-new-test)
+- [How to Create a Component](#how-to-create-a-component)
+- [How to Add a Utility Function](#how-to-add-a-utility-function)
+- [Common Patterns & Examples](#common-patterns--examples)
+- [Debugging & Troubleshooting](#debugging--troubleshooting)
+
+---
+
+## General Principles
+
+- **Write cross-platform tests:**  
+  All helpers and tests should work seamlessly for both Android and iOS. If a platform-specific workaround is required, document it clearly and isolate it within helpers or utilities—not in the test files themselves.
+
+- **Keep tests independent:**  
+  Each test should set up its own state and not rely on the outcome or side effects of previous tests. This ensures reliability and makes debugging easier.
+
+- **Fail fast:**  
+  Throw errors as soon as a check fails, with clear, actionable messages. This helps pinpoint issues quickly and prevents cascading failures.
+
+- **Prefer selectors by content-desc or text:**  
+  Use robust selectors such as content-desc (Android) or accessibility labels/text (iOS). Avoid brittle index-based selectors, which are more likely to break if the UI changes.
+
+---
+
+### Keeping Tests Clean & Readable
+
+Tests should be **descriptive and easy to read**. All logic for interacting with the app should be hidden away in Page Object Models (POMs), component helpers, or utility functions. This separation keeps test files focused on high-level user flows and makes them maintainable.
+
+- **Do not use selectors or log statements directly in your test files.**  
+  Always use helpers and constants for selectors, and let helpers handle logging and error reporting.
+
+- **Structure tests for clarity:**  
+  Use clear naming for `describe` and `it` blocks. Each test should read like a user story, describing what the test does without exposing implementation details.
+
+---
+
+### Using Page/Component Helpers
+
+Place actions and verifications that are specific to a particular page or feature in `components/` files. These helpers encapsulate all interactions with that part of the app, making your tests more modular and reusable. The files in this directory follow the Page Object Model (POM) pattern, where each file represents a specific page or component of the app.
+
+- **Example:**  
+  Instead of clicking a selector directly in your test, call a helper like `Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.account)`.
+
+- **Benefits:**  
+  - Keeps test files short and readable.
+  - Centralizes logic for each page, making updates easier.
+  - Ensures cross-platform compatibility by abstracting platform differences.
+
+---
+
+### Using Utility Functions
+
+Place cross-cutting helpers, such as gestures, color checks, or text finding, in `utils/`. Utilities should be generic and reusable across multiple components and tests.
+
+- **Example:**  
+  Use a utility like `Gesture.swipeDown(client, Selectors.LIST_VIEW)` instead of writing swipe logic in every test.
+
+- **Benefits:**  
+  - Reduces duplication.
+  - Improves maintainability.
+  - Keeps test logic focused on user flows, not implementation details.
+
+---
+
+---
+
+## Using Constants & Selectors
+
+The framework uses a **centralized constants architecture** for selectors, timeouts, gestures, colors, errors, and text.  
+All constants are organized in `constants/` and imported from a single index file.
+
+### Platform-Specific Selectors
+
+- Android selectors: [`selectors/android/selectors.ts`](selectors/android/selectors.ts)
+- iOS selectors: [`selectors/ios/selectors.ts`](selectors/ios/selectors.ts)
+- The shared [`constants/index.ts`](constants/index.ts) **automatically loads the correct selectors** at runtime based on the current platform (`PLATFORM` env var).
+
+**When adding a new selector:**  
+
+- **Always add the selector to both `selectors/android/selectors.ts` and `selectors/ios/selectors.ts` using the exact same property name.**
+- This ensures that your helpers and tests will work seamlessly on both platforms, since `Selectors` will always provide the correct value for the current platform.
+- If a selector is not relevant for one platform, add a placeholder or comment for clarity.
+
+**Example: Adding a new selector**
+
+```typescript
+// selectors/android/selectors.ts
+export const NAVBAR_SELECTORS = {
+  navItems: {
+    account: '//*[@content-desc="Account"]',
+    topics: '//*[@content-desc="Topics"]',
+    bookmarks: '//*[@content-desc="Bookmarks"]', // New selector
+  }
+  // ...other selectors
+};
+
+// selectors/ios/selectors.ts
+export const NAVBAR_SELECTORS = {
+  navItems: {
+    account: '//XCUIElementTypeButton[@name="Account"]',
+    topics: '//XCUIElementTypeButton[@name="Topics"]',
+    bookmarks: '//XCUIElementTypeButton[@name="Bookmarks"]', // New selector, same property name
+  }
+  // ...other selectors
+};
+```
+
+### How to Import Constants
+
+the `index.ts`  files the `constants/` directory automatically exports all constants, so you can import them directly in your test files or components. This allows you to use a single import statement for all constant types.
+
+```typescript
+import { Selectors, OPERATION_TIMEOUTS, Colors } from '../constants';
+```
+
+---
+
+## Test File Structure & Best Practices
+
+Tests should be simple and easy to read. They should focus on high-level user flows and interactions. Therefore, we hide the logic behind the components and utilities, allowing tests to be more straightforward.
+
+- All test files live in [`tests/`](./tests).
+- Use `describe` blocks for grouping related tests.
+- Use `beforeEach`/`afterEach` for setup and teardown.
+- Use helpers from `components/` and `utils/` for all repetitive actions (e.g., navigation, gestures).
+- Log the start and end of each test for traceability.
+- Save logs and screenshots for failed tests (handled automatically).
+- **Tests should not reference platform-specific selectors directly**—always use helpers and constants.
+
+**Example Test Skeleton:**
+
+```typescript
+import { remote } from 'webdriverio';
+import { Navbar } from '../components';
+import { BrowserstackReport, PopUps, LoadCredentials, TextFinder, HelperFunctions, PopUps } from '../utils';
+import { TEST_TIMEOUTS, Selectors } from '../constants';
+
+import './test_init';
+
+const NO_RESET = false;
+const buildName = `Sefaria E2E ${process.env.PLATFORM?.toUpperCase()}: ${new Date().toISOString().slice(0, 10)}`;
+
+describe('e2e Sefaria Mobile regression tests', function () {
+  this.timeout(TEST_TIMEOUTS.SINGLE_TEST);
+  let client: WebdriverIO.Browser;
+  let testTitle: string;
+
+  beforeEach(async function () {
+    testTitle = HelperFunctions.getTestTitle(this);
+    console.log(`(STARTING) Running test: ${testTitle}`);
+    client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
+    await HelperFunctions.HandleSetup(client);
+    // Used to close seasonal popups that might appear on app launch
+    await PopUps.closePopUpIfPresent(client);
+
+  });
+
+  afterEach(async function () {
+      await HelperFunctions.handleTeardown(client, this, testTitle);
+
+  });
+
+  it('Navigate to Account tab and verify we are there', async function () {
+    await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.account);
+    await TextFinder.verifyHeaderOnPage(client, 'Account');
+  });
+});
+```
+
+---
+
+## How to Write a New Test
+
+> **Tip:** Use `.only` to run a single test (`it.only`) or describe block for debugging.
+
+1. **Add regression tests in `regression.spec.ts`** or create a new test in a new file in `tests/`.
+2. **Naming convention:** Use descriptive names for `describe` and `it` blocks (no more than a sentence).
+   - Example: `it('should open the Topics tab and verify the header')`
+3. **Use or create a component helper** for actions related to specific pages or features.
+4. **Use utility functions** for gestures, color checks, text finding, or other non-page specific actions.
+5. **Structure:**
+   - Use `beforeEach` to set up the app state.
+   - Use `afterEach` to clean up.
+   - Use `it` blocks for each scenario.
+6. **Keep your test code clean:** Only call helper functions.
+7. **Log important steps** and always log errors.
+8. **Remove .only** before committing your test file.
+9. **Tests should work for both Android and iOS**—avoid platform-specific logic in test files.
+
+**Example:**
+
+```typescript
+import {Navbar} from '../components';
+import {TextFinder} from '../utils';
+it('should open the Topics tab and verify the header', async function () {
+  await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.topics);
+  await TextFinder.verifyHeaderOnPage(client, 'Explore by Topic');
+});
+```
+
+---
+
+## How to Create a Component
+
+Components are reusable page or feature helpers that encapsulate actions and verifications for specific parts of the app. They are central to keeping tests clean and maintainable, as they allow specific pages or features to have corresponding code that can be reused across multiple tests.
+
+- Components live in [`components/`](./components/).
+- Each file represents a page or feature and exports functions for interacting with it.
+- Use clear, descriptive function names (e.g., `verifyTopicTitle`, `navigateBackFromTopic`).
+- **Import constants** from the centralized constants directory.
+- Document each function with JSDoc comments.
+- Use robust selectors (prefer content-desc or text over index).
+  - Using content-desc / labels makes your tests more stable as those attributes are less likely to change than index-based selectors.
+- **Write helpers to be cross-platform**—use `Selectors` and avoid platform checks in test files.
+
+**Example: `components/display_settings.ts`**
+
+```typescript
+import { Selectors } from '../constants';
+
+/**
+ * Switches the app language to Hebrew.
+ */
+export async function switchToHebrew(client: Browser): Promise<void> {
+  const langButton = await client.$(Selectors.DisplaySettings.languageButton);
+  await langButton.waitForDisplayed();
+  await langButton.click();
+}
+```
+
+---
+
+## How to Add a Utility Function
+
+- Utilities live in [`utils/`](./utils/).
+- Add new helpers for gestures, color checks, API calls, etc.
+- Keep functions generic and reusable.
+- **Import constants** from the centralized constants directory.
+- **Write utilities to be cross-platform**—use constants and selectors from `Selectors`.
+
+**Example: `utils/helper_functions.ts`**
+
+```typescript
+import { ELEMENT_TIMEOUTS } from '../constants';
+
+/**
+ * Waits for an element to be visible and returns it.
+ */
+export async function waitForVisible(client: Browser, selector: string): Promise<WebdriverIO.Element> {
+  const elem = await client.$(selector);
+  await elem.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.LONG_WAIT });
+  return elem;
+}
+```
+
+---
+
+## Common Patterns & Examples
+
+- **Find and click an element by text:**  
+
+  ```typescript
+  import { TextFinder } from '../utils';
+  await (await TextFinder.findTextElement(client, 'Settings')).click();
+  ```
+
+- **Swipe to refresh a list:**  
+
+  ```typescript
+  import { Gesture } from '../utils';
+  await Gesture.swipeDown(client, Selectors.LIST_VIEW);
+  ```
+
+- **Check for error message:**  
+
+  ```typescript
+  import { ERROR_MESSAGES } from '../constants';
+  await TextFinder.findTextElement(client, ERROR_MESSAGES.NETWORK_ERROR);
+  ```
+
+- **Wait for a loading spinner to disappear:**  
+
+  ```typescript
+  await client.$(Selectors.SPINNER).waitForDisplayed({ reverse: true });
+  ```
+
+---
+
+## Debugging & Troubleshooting
+
+- **Logs:**  
+  All console output is saved to `logs/` (`logs/android/`, `logs/ios/`).
+- **Screenshots:**  
+  Failed color checks save images to `screenshots/` (`screenshots/android/`, `screenshots/ios/`).
+- **Uncaught errors:**  
+  Are logged and will fail the test.
+- **Flaky selectors:**  
+  If a selector is unreliable, try to use content-desc or text instead of index.
+- **Cannot read .ts extension:**  
+  If you see this error, it usually means you have an unused import or variable in your test or helper file.
+
+---
+
+**Reminder:**  
+
+- When adding a selector, always add it to both `selectors/android/selectors.ts` and `selectors/ios/selectors.ts` with the same property name.
+- Always use helpers and constants for selectors—never hardcode them in tests.
+- This ensures your tests are truly cross-platform and maintainable.
+
+[⬅ README](./README.md)

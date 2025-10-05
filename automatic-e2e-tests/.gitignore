@@ -1,0 +1,29 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.*
+.secrets
+
+
+# Build output
+.dist/
+dist/
+build/
+out/
+
+
+# logs and screenshots
+screenshots/ios/*
+screenshots/android/*
+logs/android/*
+logs/ios/* 
+
+# IDE files
+.vscode/
+
+# APK, AAB, and IPA
+*.apk
+*.aab
+*.ipa

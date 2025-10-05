@@ -1,0 +1,69 @@
+name: Run Android BrowserStack Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to test'
+        required: true
+        default: 'android'
+        type: choice
+        options:
+        - android
+
+jobs:
+  run-android-tests:
+    runs-on: ubuntu-latest
+    name: Android Tests
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Navigate to test directory
+      run: cd automatic-e2e-tests
+
+    - name: Clean npm cache
+      working-directory: automatic-e2e-tests
+      run: npm cache clean --force
+
+    - name: Clean up logs and screenshots
+      working-directory: automatic-e2e-tests
+      run: |
+        npm run cleanup:android
+
+    - name: Install Dependencies
+      working-directory: automatic-e2e-tests
+      run: npm install
+
+    - name: Run Android Tests on BrowserStack
+      working-directory: automatic-e2e-tests
+      env:
+        PLATFORM: android
+        RUN_ENV: browserstack
+        BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+        BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        ANDROID_BROWSERSTACK_APP_ID: ${{ secrets.ANDROID_BROWSERSTACK_APP_ID }}
+        GITHUB_ACTIONS: true
+      run: npm run test:android:browserstack
+
+    - name: Upload Android test logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-logs
+        path: automatic-e2e-tests/logs/android/
+        if-no-files-found: warn
+
+    - name: Upload Android screenshots if tests fail
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-screenshots
+        path: automatic-e2e-tests/screenshots/android/
+        if-no-files-found: ignore
