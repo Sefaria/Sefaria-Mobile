@@ -9,7 +9,6 @@ let strings = new LocalizedStrings({
     updates: "Updates",
     help: "Get Help",
     aboutSefaria: "About Sefaria",
-    mySheets: "My Sheets",
     history: "History",
     saved: "Saved",
     saved2: "Saved",  // duplicated for different Hebrew translations
@@ -232,7 +231,6 @@ let strings = new LocalizedStrings({
     updates: "עדכונים",
     help: "עזרה",
     aboutSefaria: "אודות ספריא",
-    mySheets: "דפי המקורות שלי",
     history: "היסטוריה",
     saved: "שמורים",
     saved2: "נשמר בהצלחה",

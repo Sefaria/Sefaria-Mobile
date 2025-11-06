@@ -48,7 +48,6 @@ import InterruptingMessage from './InterruptingMessage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-root-toast';
 import { TabHistory, TabMetadata } from './PageHistory';
-import ReaderNavigationSheetList from "./ReaderNavigationSheetList";
 import SheetMeta from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
@@ -1329,10 +1328,6 @@ class ReaderApp extends React.PureComponent {
     this.openMenu("autocomplete");
   }
 
-  openMySheets = (via) => {
-    this.openMenu("mySheets", via);
-  };
-
   clearMenuState = () => {
       this.setState({
           navigationCategories: [],
@@ -2149,19 +2144,6 @@ class ReaderApp extends React.PureComponent {
           />
         );
 
-      case ("mySheets"):
-        trackCurrentScreen("my sheets page", "navigation")
-        return(
-          loading ?
-          <LoadingView /> :
-           <ReaderNavigationSheetList
-            menuOpen={this.state.menuOpen}
-            onBack={this.manageBackMain}
-            openRef={this.openRefSheet}
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
-           />
-        );
         case('dedication'):
             return <Dedication
               close={this.manageBackMain}

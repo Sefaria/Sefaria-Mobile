@@ -593,13 +593,6 @@ var Api = {
     });
   },
 
-  mySheets: async function() {
-    await Sefaria.api.getAuthToken();
-    if (!Sefaria._auth.uid) { console.log("Not signed in"); return []; }
-    const response = await Sefaria.api.userSheets(Sefaria._auth.uid);
-    return response.sheets;
-  },
-
   userSheets: async function(uid) {
     const response = await Sefaria.api._request('', 'userSheets', false, { uid }, false, true);
     return response;
