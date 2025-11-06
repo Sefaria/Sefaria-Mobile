@@ -32,7 +32,6 @@ const SearchBar = ({
     if (query) {
       setIsNewSearch(true);
       search('text', query, true, false, true);
-      search('sheet', query, true, false, true);
     }
   };
   const textInputStyle = [styles.searchInput, isHeb ? styles.hebrewSystemFont : null, {textAlign: isHeb ? "right" : "left"}, theme.text];

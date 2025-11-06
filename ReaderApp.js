@@ -136,9 +136,6 @@ class ReaderApp extends React.PureComponent {
         textSearchState: new SearchState({
           type: 'text'
         }),
-        sheetSearchState: new SearchState({
-          type: 'sheet'
-        }),
         searchType: 'text',
         searchQuery: '',
         sheet: null,
@@ -217,7 +214,6 @@ class ReaderApp extends React.PureComponent {
   };
   setSearchTypeState = type => {
     this.setState({searchType: type});
-    console.log(type)
   };
 
   componentWillUnmount() {
@@ -355,7 +351,6 @@ class ReaderApp extends React.PureComponent {
         oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
       }
     } else if (oldState.menuOpen === 'search') {
-      this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
       this.onQueryChange('text', oldState.searchQuery, true, true, true);
     }
     this.setState(oldState, () => {
@@ -1171,8 +1166,6 @@ class ReaderApp extends React.PureComponent {
           // only pass small state variables to forward() (eg avoid passing `results`) because cloning large variables takes too long.
           let { appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.textSearchState;
           this.state.textSearchState = new SearchState({type: 'text', appliedFilters, appliedFilterAggTypes});
-          ({ appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.sheetSearchState);
-          this.state.sheetSearchState = new SearchState({type: 'sheet', appliedFilters, appliedFilterAggTypes, currPage, initScrollPos});
         }
         this.modifyHistory({ dir: "forward", state: this.state, calledFrom });
       }
@@ -1230,13 +1223,11 @@ class ReaderApp extends React.PureComponent {
 
   openNav = () => {
       this.clearAllSearchFilters('text');
-      this.clearAllSearchFilters('sheet');
       this.setState({
         loaded: true,
         searchQuery: "",
         navigationCategories: [],
         textSearchState: new SearchState({type: 'text'}),
-        sheetSearchState: new SearchState({type: 'sheet'}),
         textListVisible: false,
         connectionsMode: null,
         dictLookup: null,
@@ -2033,7 +2024,6 @@ class ReaderApp extends React.PureComponent {
             query={this.state.searchQuery}
             searchState={this._getSearchState(this.state.searchType)}
             searchType={this.state.searchType}
-            sheetSearchState={this._getSearchState('sheet')}
             textSearchState={this._getSearchState('text')}
             toggleFilter={this.toggleSearchFilter}
             isNewSearch={this.state.isNewSearch}
@@ -2059,7 +2049,6 @@ class ReaderApp extends React.PureComponent {
             openTextTocDirectly={this.openTextTocDirectly}
             openTopic={this.openTopic}
             setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setNavigationCategories(cats);} }
-            searchType={this.state.searchType}
             openUri={this.openUri}
           />);
         break;
