@@ -501,12 +501,6 @@ var Api = {
       }
     }
     data.textRefs = Object.values(refMap);
-    let sheetMap = {};
-    for (let refObj of data.refs.filter(s => s.is_sheet)) {
-      const sid = refObj.ref.replace('Sheet ', '');
-      sheetMap[sid] = {sid, order: refObj.order};
-    }
-    data.sheetRefs = Object.values(sheetMap);
     return data;
   },
 
