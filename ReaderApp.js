@@ -556,9 +556,6 @@ class ReaderApp extends React.PureComponent {
 
   };
 
-  sheetSegmentPressed = (textRef, sheetRef, toggle) => {
-    this.textSegmentPressed(sheetRef[0], sheetRef[1], textRef, toggle)
-  }
   getHistoryObject = () => {
     // get ref to send to /api/profile/user_history
     try {
@@ -997,105 +994,8 @@ class ReaderApp extends React.PureComponent {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
-  openRefSheet = (sheetID, sheetMeta, addToBackStack=true, calledFrom) => {
-    if (addToBackStack) {
-      this.modifyHistory({ dir: "forward", state: this.state, calledFrom });
-    }
-    this.setState({
-      loaded: false,
-      textListVisible: false,
-      sheet: null,
-      sheetMeta: null,
-      textTitle: "",
-    }, () => {
-      this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
-    });
-  };
-
   openRefConnectionsPanel = (ref, versions, loadNewVersions=false) => {
     this.openRef(ref,"text list", versions, undefined, undefined, loadNewVersions);
-  };
-
-  updateActiveSheetNode = (node) => {
-    this.setState({ activeSheetNode: node });
-  };
-
-  transformSheetData = sheet => {
-    // transforms sheet into standard jagged-array style `data` rendered in TextColumn
-    const sources = sheet.sources.filter(source => "ref" in source || "comment" in source || "outsideText" in source || "outsideBiText" in source || "media" in source);
-    return [sources.map((source, index) => {
-      let segmentData = {he: '', text: '', segmentNumber: index+1};
-      if (source.ref) {
-        segmentData = {
-          ...segmentData,
-          he: source.text.he,
-          text: source.text.en,
-          sourceRef: source.ref,
-          sourceHeRef: source.heRef,
-          type: 'ref',
-        };
-      } else if (source.comment) {
-        const langField = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(source.comment)) ? "he" : "text";
-        segmentData[langField] = Sefaria.util.cleanSheetHTML(source.comment);
-        segmentData.type = 'comment';
-      } else if (source.outsideText) {
-        const langField = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(source.outsideText)) ? "he" : "text";
-        segmentData[langField] =  Sefaria.util.cleanSheetHTML(source.outsideText);
-        segmentData.type = 'outsideText';
-      } else if (source.outsideBiText) {
-        segmentData.text = Sefaria.util.cleanSheetHTML(source.outsideBiText.en);
-        segmentData.he = Sefaria.util.cleanSheetHTML(source.outsideBiText.he);
-        segmentData.type = 'outsideBiText';
-      } else if (source.media) {
-        segmentData = {
-          ...segmentData,
-          he: undefined,
-          text: undefined,
-          url: source.media,
-          type: 'media',
-        };
-      }
-      return segmentData;
-    })];
-  };
-
-  loadSheet = async (sheetID, sheetMeta) => {
-    const more_data = !sheetMeta  // # if sheetMeta is null, need to request more data from api call
-    const sheet = await Sefaria.api.sheets(sheetID, more_data);
-    if (more_data) {
-      // extract sheetMeta from result
-      sheetMeta = {
-        ownerName: sheet.ownerName,
-        ownerImageUrl: sheet.ownerImageUrl,
-        views: sheet.views,
-      };
-    }
-    sheetMeta.title = sheet.title;
-    sheetMeta.sheetID = sheet.id;
-    
-    // First setState
-    this.setState({
-      sheet,
-      sheetMeta,
-      data: [],
-      relatedBySectionRef: {},
-      sectionArray: [],
-      sectionHeArray: [],
-      offsetRef: null,
-      connectionsMode: null,
-    }, () => {
-      this.closeMenu(); // Don't close until these values are in state, so sheet can load
-      
-      // Second setState
-      this.setState({
-        data: this.transformSheetData(sheet),
-        sectionArray: [`Sheet ${sheet.id}`],
-        sectionHeArray: [`דף ${sheet.id}`],
-        loaded: true,
-      }, () => {
-        this.loadRelatedSheet(sheet);
-      });
-    });
   };
 
   textUnavailableAlert = ref => {
@@ -1117,10 +1017,6 @@ class ReaderApp extends React.PureComponent {
   enableAliyot - true when you click on an aliya form ReaderTextTableOfContents
   */
   openRef = (ref, calledFrom, versions, addToBackStack=true, enableAliyot=false, loadNewVersions=false) => {
-    if (ref.startsWith("Sheet")){
-        this.openRefSheet(ref.match(/\d+/)[0], null, addToBackStack, calledFrom) //open ref sheet expects just the sheet ID
-    }
-
     return new Promise((resolve, reject) => {
       if (enableAliyot) {
         this.setAliyot(true);
@@ -2252,7 +2148,6 @@ class ReaderApp extends React.PureComponent {
                 categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
                 textFlow={this.state.textFlow}
                 openRef={this.openRefConnectionsPanel}
-                openRefSheet={this.openRefSheet}
                 setConnectionsMode={this.setConnectionsMode}
                 openFilter={this.openFilter}
                 closeCat={this.closeLinkCat}
@@ -2424,7 +2319,6 @@ class ReaderApp extends React.PureComponent {
             openMenu={this.openMenu}
             openRef={this.openRef}
             openUri={this.openUri}
-            openRefSheet={this.openRefSheet}
             openSearch={this.openSearch}
             openTopic={this.openTopic}
             setSearchOptions={this.setSearchOptions}
