@@ -213,10 +213,6 @@ var Api = {
         case "parashaNextRead":
           url += "api/calendars/next-read/";
           break;
-        case "userSheets":
-          const { uid } = extra_args;
-          url += `api/sheets/user/${uid}/`;
-          break;
         case "tagCategory":
           url += "api/tag-category/";
           //urlSuffix = '?ref_only=0';
@@ -591,11 +587,6 @@ var Api = {
           reject();
         });
     });
-  },
-
-  userSheets: async function(uid) {
-    const response = await Sefaria.api._request('', 'userSheets', false, { uid }, false, true);
-    return response;
   },
 
   isACaseVariant: function(query, data) {
