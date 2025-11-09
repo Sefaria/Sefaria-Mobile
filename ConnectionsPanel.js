@@ -477,6 +477,7 @@ TopButtons.propTypes = {
 const ResourcesList = ({themeStr, setConnectionsMode, topicsCount}) => {
   return (
       <ConnectionsPanelSection title={strings.resources}>
+        {/*here was sheets button that's removed as part of Modularization - the old con can be found in link - https://github.com/Sefaria/Sefaria-Mobile/pull/186/commits/63252a7d20c469b34ba2d3ea6b02e8f5b8dc4bdf  */}
         {!!topicsCount && <ToolsButton
             text={strings.topics} count={topicsCount}
             icon={iconData.get('hashtag', themeStr)}
