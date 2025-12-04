@@ -54,6 +54,7 @@
 		<string>Amiri-Regular.ttf</string>
 		<string>Amiri-Bold.ttf</string>
 		<string>Amiri-BoldSlanted.ttf</string>
+		<string>MiriamLibre-VariableFont_wght.ttf</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
