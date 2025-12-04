@@ -46,7 +46,7 @@ const CSS_CLASS_STYLES = {
     textAlign: 'justify',
     paddingTop: 0,
   },
-  'infoText': {
+  infoText: {
     fontFamily: "MiriamLibre-Regular",
   }
 };
