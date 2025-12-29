@@ -223,9 +223,9 @@ var Api = {
           ref = ref ? `&lookup_ref=${ref}`:""
           break;
         case "topic":
-          const { slug, with_refs, annotate_links, group_related, with_links } = extra_args;
+          const { slug, with_refs, annotate_links, group_related, with_links, with_indexes } = extra_args;
           url += `api/topics/${slug}`;
-          urlSuffix = `?with_links=${0+with_links}&annotate_links=${0+annotate_links}&with_refs=${0+with_refs}&group_related=${0+group_related}`;
+          urlSuffix = `?with_links=${0+with_links}&annotate_links=${0+annotate_links}&with_refs=${0+with_refs}&group_related=${0+group_related}&with_indexes=${0+with_indexes}`;
           break;
         case "portal":
           const { portalSlug } = extra_args;
@@ -466,7 +466,7 @@ var Api = {
     });
   },
 
-  topic: async function(slug, with_links=true, annotate_links=true, with_refs=true, group_related=true) {
+  topic: async function(slug, with_links=true, annotate_links=true, with_refs=true, group_related=true, with_indexes=true) {
     await Sefaria.api._abortRequestType('topic');
     const cached = Sefaria.api._topic[slug];
     if (!!cached) { return cached; }
@@ -475,6 +475,7 @@ var Api = {
       annotate_links,
       with_refs,
       group_related,
+      with_indexes,
       slug,
     }, false);
     response = Sefaria.api.processTopicsData(response);
