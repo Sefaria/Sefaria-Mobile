@@ -328,11 +328,11 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, setT
   const [query, setQuery] = useState(null);
   const [portal, setPortal] = useState(null);
   const isAuthor = topicData?.subclass === 'author';
-  const hasWorks = isAuthor && topicData?.indexes?.length > 0;
+  const hasWorks = isAuthor && topicData?.indexes?.length;
   const tabs = [];
   if (hasWorks) {
     tabs.push({text: strings.worksOnSefaria, id: 'works'});
-  } else if (!!topicData && !!topicData.textRefs?.length) {
+  } else if (topicData?.textRefs?.length) {
     tabs.push({text: strings.sources, id: 'sources'});
   }
   useEffect(() => {
@@ -459,7 +459,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, setT
 
   return (
     <View style={[styles.menu, theme.mainTextPanel]} key={topic.slug}>
-      { hasWorks ? WorksListRendered : SourcesListRendered }
+      { WorksListRendered || SourcesListRendered }
     </View>
   )
 };
