@@ -184,7 +184,7 @@ const VersionNumberChangeHost = ({versionNumber}) => {
   // changing host in 7 clicks
   const clickCount = useRef(0);
   const [showHostChange, setShowHostChange] = useState(false);
-  const [host, setHost] = useState('')
+  const [host, setHost] = useState('');
   const handlePress = () => {
     clickCount.current += 1;
     if (clickCount.current === 7) {
