@@ -42,6 +42,7 @@ import strings from './LocalizedStrings';
 import styles from './Styles';
 import {iconData} from "./IconData";
 import {SimpleMarkdown} from './Misc'
+import ReaderAppContext from './context'
 
 const sortTopicCategories = (a, b, interfaceLanguage, isRoot) => {
   // Don't use display order intended for top level a category level. Bandaid for unclear semantics on displayOrder.
@@ -420,7 +421,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, setT
       key="works"
       data={topicData.indexes}
       renderItem={({ item }) => (
-        <AuthorWork work={item} openUri={openUri} />
+        <AuthorWork work={item} />
       )}
       keyExtractor={item => item.url}
       ListHeaderComponent={TopicPageHeaderRendered}
@@ -596,29 +597,18 @@ TextPassage.propTypes = {
   text: textPropType,
 };
 
-const AuthorWork = ({ work, openUri }) => {
-  const { theme, interfaceLanguage } = useGlobalState();
+const AuthorWork = ({ work }) => {
+  const { theme } = useGlobalState();
+  const { handleOpenURL } = useContext(ReaderAppContext);
   const { url, title, description } = work;
-  const hasDescription = description?.en || description?.he;
   const onPress = () => {
     const fullUrl = `https://www.sefaria.org${url}`;
-    openUri(fullUrl);
+    handleOpenURL(fullUrl);
   };
   return (
-    <SefariaPressable onPress={onPress} extraStyles={{marginHorizontal: 15, marginBottom: 20}}>
-      <ContentTextWithFallback
-        {...title}
-        lang={interfaceLanguage}
-        extraStyles={[{fontSize: 24}, theme.text]}
-      />
-      {hasDescription ? (
-        <InterfaceTextWithFallback
-          {...description}
-          lang={interfaceLanguage}
-          extraStyles={[{marginTop: 6, fontSize: 13}, theme.tertiaryText]}
-        />
-      ) : null}
-    </SefariaPressable>
+    <View style={[styles.topicCategoryButtonWrapper, theme.lighterGreyBorder]}>
+      <CategoryButton title={title} description={description} onPress={onPress} />
+    </View>
   );
 };
 
