@@ -208,10 +208,10 @@ const VersionNumberChangeHost = ({versionNumber}) => {
   }
   return <>
     <Text onPress={handlePress}> {versionNumber}</Text>
-    {showHostChange && <>
+    {showHostChange && <View style={{ flexDirection: 'row', gap: 8 }}>
         <TextInput placeholder="Set host url" onChangeText={setHost} value={host}/>
         <Button title="Save" onPress={handleSubmit} />
-    </>}
+    </View>}
   </>;
 }
 
