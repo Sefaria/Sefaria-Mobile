@@ -32,7 +32,6 @@ class AutocompletePage extends React.Component {
     openTopic:       PropTypes.func.isRequired,
     setCategories:   PropTypes.func.isRequired,
     openUri:         PropTypes.func.isRequired,
-    searchType:      PropTypes.oneOf(['text', 'sheet']).isRequired,
   };
 
   constructor(props) {
@@ -64,7 +63,6 @@ class AutocompletePage extends React.Component {
 
   search = query => {
     this.props.openSearch('text', query);
-    this.props.openSearch('sheet', query);
   };
 
   onSearchPress = (...openSearchParams) => {
@@ -93,7 +91,7 @@ class AutocompletePage extends React.Component {
           leftMenuButton="back"
           search={this.onSearchPress}
           query={this.props.query}
-          searchType={this.props.searchType}
+          searchType={'text'}
           setIsNewSearch={this.props.setIsNewSearch}
           onChange={this.props.onChange}
           hideSearchButton={true}

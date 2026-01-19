@@ -14,7 +14,6 @@ import TextList from './TextList';
 import { LinkFilter } from './Filter';
 import TranslationsBox from './TranslationsBox';
 import AboutBox from './AboutBox';
-import SheetListInConnections from './SheetListInConnections';
 import TopicList from './TopicList';
 import LexiconBox from './LexiconBox';
 import {iconData} from "./IconData";
@@ -188,17 +187,6 @@ class ConnectionsPanel extends React.PureComponent {
               openUri={this.props.openUri}
               segmentRef={this.props.segmentRef}
               versions={this.props.versions}
-            />
-          </View>
-        );
-      case 'sheetsByRef':
-        return (
-          <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
-            {connectionsPanelHeader}
-            <SheetListInConnections
-              sheets={this.props.relatedData.sheets}
-              openRefSheet={this.props.openRefSheet}
-              openTopic={this.props.openTopic}
             />
           </View>
         );
@@ -381,7 +369,6 @@ const MainMenuButtons = ({linkSummary,
     <ResourcesList
       themeStr={themeStr}
       topicsCount={relatedData.topics ? Sefaria.links.topicsCount(relatedData.topics) : 0}
-      sheetsCount={relatedData.sheets ? relatedData.sheets.length : 0}
       setConnectionsMode={setConnectionsMode}
     />
     <ToolsList
@@ -487,15 +474,10 @@ TopButtons.propTypes = {
     sheet:              PropTypes.object,
 };
 
-const ResourcesList = ({themeStr, sheetsCount, setConnectionsMode, topicsCount}) => {
+const ResourcesList = ({themeStr, setConnectionsMode, topicsCount}) => {
   return (
       <ConnectionsPanelSection title={strings.resources}>
-        <ToolsButton
-          text={strings.sheets}
-          icon={iconData.get('sheet', themeStr)}
-          count={sheetsCount}
-          onPress={()=>{ setConnectionsMode("sheetsByRef"); }}
-        />
+        {/*here was sheets button that's removed as part of Modularization - the old con can be found in link - https://github.com/Sefaria/Sefaria-Mobile/pull/186/commits/63252a7d20c469b34ba2d3ea6b02e8f5b8dc4bdf  */}
         {!!topicsCount && <ToolsButton
             text={strings.topics} count={topicsCount}
             icon={iconData.get('hashtag', themeStr)}
@@ -507,7 +489,6 @@ const ResourcesList = ({themeStr, sheetsCount, setConnectionsMode, topicsCount})
 ResourcesList.propTypes = {
   themeStr:           PropTypes.string.isRequired,
   setConnectionsMode: PropTypes.func.isRequired,
-  sheetsCount:        PropTypes.number.isRequired,
   topicsCount:        PropTypes.number.isRequired,
 };
 

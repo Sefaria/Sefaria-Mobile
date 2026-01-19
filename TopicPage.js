@@ -28,7 +28,6 @@ import {
 } from './Misc';
 
 import {
-  SheetBlock,
   SaveLine,
   StoryTitleBlock,
   ColorBarBox,
@@ -83,18 +82,6 @@ const fetchBulkText = inRefs =>
 );
 
 
-const fetchBulkSheet = inSheets =>
-    Sefaria.api.getBulkSheets(inSheets.map(x => x.sid)).then(outSheets => {
-    for (let tempSheet of inSheets) {
-      if (outSheets[tempSheet.sid]) {
-        outSheets[tempSheet.sid].order = tempSheet.order;
-      }
-    }
-    return Object.values(outSheets);
-  }
-);
-
-
 const refSort = (currSortOption, a, b, { interfaceLanguage }) => {
   a = a[1]; b = b[1];
   if (!a.order && !b.order) { return 0; }
@@ -128,32 +115,6 @@ const refSort = (currSortOption, a, b, { interfaceLanguage }) => {
 };
 
 
-const sheetSort = (currSortOption, a, b, { interfaceLanguage }) => {
-  if (!a.order && !b.order) { return 0; }
-  if ((0+!!a.order) !== (0+!!b.order)) { return (0+!!b.order) - (0+!!a.order); }
-  const aTLangHe = 0 + (a.order.titleLanguage === 'hebrew');
-  const bTLangHe = 0 + (b.order.titleLanguage === 'hebrew');
-  const aLangHe  = 0 + (a.order.language      === 'hebrew');
-  const bLangHe  = 0 + (b.order.language      === 'hebrew');
-  if (interfaceLanguage === 'hebrew' && (aTLangHe ^ bTLangHe || aLangHe ^ bLangHe)) {
-    if (aTLangHe ^ bTLangHe && aLangHe ^ bLangHe) { return bTLangHe - aTLangHe; }  // title lang takes precedence over content lang
-    return (bTLangHe + bLangHe) - (aTLangHe + aLangHe);
-  } else if (interfaceLanguage === 'english' && (aTLangHe ^ bTLangHe || aLangHe ^ bLangHe)) {
-    if (aTLangHe ^ bTLangHe && aLangHe ^ bLangHe) { return aTLangHe - bTLangHe; }  // title lang takes precedence over content lang
-    return (aTLangHe + aLangHe) - (bTLangHe + bLangHe);
-  }
-  if (currSortOption === 'Views') {
-    return b.order.views - a.order.views;
-  } else if (currSortOption === 'Newest') {
-    if (b.order.dateCreated < a.order.dateCreated) { return -1; }
-    if (a.order.dateCreated < b.order.dateCreated) { return 1; }
-  } else {
-    // relevance
-    if (b.order.relevance == a.order.relevance) { return b.order.views - a.order.views; }
-    return (Math.log(b.order.views) * b.order.relevance) - (Math.log(a.order.views) * a.order.relevance);
-  }
-};
-
 const refFilter = (currFilter, ref) => {
   const n = text => !!text ? text.toLowerCase() : '';
   currFilter = n(currFilter);
@@ -161,14 +122,6 @@ const refFilter = (currFilter, ref) => {
   ref[1].categories = cats.join(" ");
   for (let field of ['en', 'he', 'ref', 'categories']) {
     if (n(ref[1][field]).indexOf(currFilter) > -1) { return true; }
-  }
-};
-
-const sheetFilter = (currFilter, sheet) => {
-  const n = text => !!text ? text.toLowerCase() : '';
-  currFilter = n(currFilter);
-  for (let field of ['sheet_title', 'publisher_name', 'publisher_position', 'publisher_organization']) {
-    if (n(sheet[field]).indexOf(currFilter) > -1) { return true; }
   }
 };
 
@@ -256,8 +209,8 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
       en: "Explore by Topic", he: "חיפוש לפי נושאים",
     },
     description: {
-      en: "Selections of texts and user created source sheets about thousands of subjects",
-      he: "מבחר מקורות ודפי מקורות שיצרו המשתמשים באלפי נושאים שונים",
+      en: "Selections of texts about thousands of subjects",
+      he: "מבחר מקורות באלפי נושאים שונים",
     }
   };
 
@@ -363,22 +316,19 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   );
 };
 
-const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, openRefSheet, setTopicsTab, topicsTab, openUri }) => {
+const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, setTopicsTab, topicsTab, openUri }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   // why doesn't this variable update?
   const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
-  const defaultTopicData = {primaryTitle: null, textRefs: false, sheetRefs: false, isLoading: true};
+  const defaultTopicData = {primaryTitle: null, textRefs: false, isLoading: true};
   const [topicData, setTopicData] = useState(Sefaria.api._topic[topic.slug] || defaultTopicData);
-  const [sheetData, setSheetData] = useState(topicData ? topicData.sheetData : null);
   const [textData, setTextData]   = useState(topicData ? topicData.textData : null);
   const [textRefsToFetch, setTextRefsToFetch] = useState(false);
-  const [sheetRefsToFetch, setSheetRefsToFetch] = useState(false);
   const [parashaData, setParashaData] = useState(null);
   const [query, setQuery] = useState(null);
   const [portal, setPortal] = useState(null);
   const tabs = [];
   if (!!topicData && !!topicData.textRefs.length) { tabs.push({text: strings.sources, id: 'sources'}); }
-  if (!!topicData && !!topicData.sheetRefs.length) { tabs.push({text: strings.sheets, id: 'sheets'}); }
   useEffect(() => {
     if (tabs.length && tabs[0].id !== topicsTab) { setTopicsTab(tabs[0].id); }
   }, [topic.slug, topicData]);
@@ -395,20 +345,15 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
       setTopicData(d);
       // Data remaining to fetch that was not already in the cache
       const textRefsWithoutData = d.textData ? d.textRefs.slice(d.textData.length) : d.textRefs;
-      const sheetRefsWithoutData = d.sheetData ? d.sheetRefs.slice(d.sheetData.length) : d.sheetRefs;
       if (textRefsWithoutData.length) { setTextRefsToFetch(textRefsWithoutData); }
       else { setTextData(d.textData); }
-      if (sheetRefsWithoutData.length) { setSheetRefsToFetch(sheetRefsWithoutData); }
-      else { setSheetData(d.sheetData); }
     })());
     promise.catch((error) => { if (!error.isCanceled) { console.log('TopicPage Error', error); } });
     return () => {
       cancel();
       setTopicData(false);
       setTextData(null);
-      setSheetData(null);
       setTextRefsToFetch(false);
-      setSheetRefsToFetch(false);
     }
   }, [topic.slug]);
 
@@ -425,18 +370,6 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
     topic.slug
   );
 
-  // Fetching sheet data in chunks
-  const sheetFinishedLoading = useIncrementalLoad(
-    fetchBulkSheet,
-    sheetRefsToFetch,
-    70,
-    data => setSheetData(prev => {
-      const updatedData = (!prev || data === false) ? data : [...prev, ...data];
-      if (topicData) { topicData.sheetData = updatedData; } // Persist sheetData in cache
-      return updatedData;
-    }),
-    topic.slug
-  );
   const [searchBarY, setSearchBarY] = useState(null);
   const flatListRef = useRef();
   const jumpToSearchBar = () => {
@@ -475,60 +408,32 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
     />
   );
   const ListRendered = (
-    topicsTab === 'sources' ? (
-      <FilterableFlatList
-        ref={flatListRef}
-        key="sources"
-        data={textData}
-        renderItem={({ item }) =>(
-          item.isSplice ? (
-            TopicSideColumnRendered
-          ) : (
-            <TextPassage
-              text={item[1]}
-              topicTitle={topicData && topicData.primaryTitle}
-              showToast={showToast}
-              openRef={openRef}
-            />
-          )
-        )}
-        keyExtractor={item => item.isSplice ? 'splice' : item[0]}
-        ListHeaderComponent={TopicPageHeaderRendered}
-        ListFooterComponent={textFinishedLoading ? null : <LoadingView />}
-        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} isLoading={!textFinishedLoading} />}
-        spliceIndex={query ? undefined : 2}
-        currFilter={query}
-        filterFunc={refFilter}
-        sortFunc={(a, b) => refSort('Relevance', a, b, { interfaceLanguage })}
-        contentContainerStyle={{minHeight: 700}}
-      />
-    ) : (
-      <FilterableFlatList
-        ref={flatListRef}
-        key="sheets"
-        data={sheetData}
-        renderItem={({ item }) => (
-          item.isSplice ? (
-            TopicSideColumnRendered
-          ) : (
-            <SheetBlock
-              sheet={item} compact showToast={showToast}
-              onClick={()=>{ openRefSheet(item.sheet_id, item, true, 'topic'); }}
-              extraStyles={styles.topicItemMargins}
-            />
-          )
-        )}
-        keyExtractor={item => item.isSplice ? 'splice' : ""+item.sheet_id}
-        ListHeaderComponent={TopicPageHeaderRendered}
-        ListFooterComponent={sheetFinishedLoading ? null : <LoadingView />}
-        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} isLoading={!sheetFinishedLoading} />}
-        spliceIndex={query ? undefined : 2}
-        currFilter={query}
-        filterFunc={sheetFilter}
-        sortFunc={(a, b) => sheetSort('Relevance', a, b, { interfaceLanguage })}
-        contentContainerStyle={{minHeight: 700}}
-      />
-    )
+    <FilterableFlatList
+      ref={flatListRef}
+      key="sources"
+      data={textData}
+      renderItem={({ item }) =>(
+        item.isSplice ? (
+          TopicSideColumnRendered
+        ) : (
+          <TextPassage
+            text={item[1]}
+            topicTitle={topicData && topicData.primaryTitle}
+            showToast={showToast}
+            openRef={openRef}
+          />
+        )
+      )}
+      keyExtractor={item => item.isSplice ? 'splice' : item[0]}
+      ListHeaderComponent={TopicPageHeaderRendered}
+      ListFooterComponent={textFinishedLoading ? null : <LoadingView />}
+      ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} isLoading={!textFinishedLoading} />}
+      spliceIndex={query ? undefined : 2}
+      currFilter={query}
+      filterFunc={refFilter}
+      sortFunc={(a, b) => refSort('Relevance', a, b, { interfaceLanguage })}
+      contentContainerStyle={{minHeight: 700}}
+    />
   );
 
   return (
@@ -539,7 +444,6 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
 };
 TopicPage.propTypes = {
   openRef: PropTypes.func.isRequired,
-  openRefSheet: PropTypes.func.isRequired,
 };
 
 const TopicListEmpty = ({ query, tab, isLoading }) => {

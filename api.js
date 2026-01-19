@@ -15,7 +15,7 @@ var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _baseHost: 'https://www.sefaria.org/',
+  _baseHost: 'https://www.sefariastaging.org/',
   _textCache: {}, //in memory cache for API data
   _bulkText: {},
   _bulkSheets: {},
@@ -212,10 +212,6 @@ var Api = {
           break;
         case "parashaNextRead":
           url += "api/calendars/next-read/";
-          break;
-        case "userSheets":
-          const { uid } = extra_args;
-          url += `api/sheets/user/${uid}/`;
           break;
         case "tagCategory":
           url += "api/tag-category/";
@@ -501,12 +497,6 @@ var Api = {
       }
     }
     data.textRefs = Object.values(refMap);
-    let sheetMap = {};
-    for (let refObj of data.refs.filter(s => s.is_sheet)) {
-      const sid = refObj.ref.replace('Sheet ', '');
-      sheetMap[sid] = {sid, order: refObj.order};
-    }
-    data.sheetRefs = Object.values(sheetMap);
     return data;
   },
 
@@ -597,18 +587,6 @@ var Api = {
           reject();
         });
     });
-  },
-
-  mySheets: async function() {
-    await Sefaria.api.getAuthToken();
-    if (!Sefaria._auth.uid) { console.log("Not signed in"); return []; }
-    const response = await Sefaria.api.userSheets(Sefaria._auth.uid);
-    return response.sheets;
-  },
-
-  userSheets: async function(uid) {
-    const response = await Sefaria.api._request('', 'userSheets', false, { uid }, false, true);
-    return response;
   },
 
   isACaseVariant: function(query, data) {

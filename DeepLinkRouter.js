@@ -10,7 +10,6 @@ class DeepLinkRouter extends React.PureComponent {
     openMenu:                PropTypes.func.isRequired,
     openRef:                 PropTypes.func.isRequired,
     openUri:                 PropTypes.func.isRequired,
-    openRefSheet:            PropTypes.func.isRequired,
     openTextTocDirectly:     PropTypes.func.isRequired,
     openSearch:              PropTypes.func.isRequired,
     openTopic:               PropTypes.func.isRequired,
@@ -36,10 +35,6 @@ class DeepLinkRouter extends React.PureComponent {
   }
   openMenu = ({ menu }) => {
     this.props.openMenu(menu);
-  };
-  openRefSheet = ({ sheetid }) => {
-    sheetid = sheetid.split(".")[0];  // throw away node number
-    this.props.openRefSheet(sheetid);
   };
   openTopicFromTag = ({ tag }) => {
     const slug = tag.toLowerCase().replace(/ /g, '-');  // approximation at what the slug should be
