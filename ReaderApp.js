@@ -1,7 +1,7 @@
 'use strict';
 
 import PropTypes from 'prop-types';
-import crashlytics from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
+import {getCrashlytics, recordError} from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 
 import React from 'react';
 import {
@@ -189,7 +189,7 @@ class ReaderApp extends React.PureComponent {
             installVersion: installReferrerInfo.installVersion
           });
         } else {
-          crashlytics().recordError(new Error(`Install Referrer Track Failed. Response code: ${error.responseCode}. Message: ${error.message}`));
+          recordError(getCrashlytics(), new Error(`Install Referrer Track Failed. Response code: ${error.responseCode}. Message: ${error.message}`));
         }
       });
     }
@@ -300,7 +300,7 @@ class ReaderApp extends React.PureComponent {
         }
     })
     .catch(error => {
-      crashlytics().recordError(error, "error with app init");
+      recordError(getCrashlytics(), error, "error with app init");
       this.props.showErrorBoundary(error);
     });
   }
@@ -582,7 +582,7 @@ class ReaderApp extends React.PureComponent {
         he_ref = (textListVisible && segmentRef) ? (heSegmentRef || Sefaria.toHeSegmentRef(sectionHeArray[sectionIndexRef], segmentRef)) : sectionHeArray[sectionIndexRef];
       }
       if (!ref) {
-        crashlytics().recordError(new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${String(segmentRef)}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
+        recordError(getCrashlytics(), new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${String(segmentRef)}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
       }
       const versions = this.removeDefaultVersions(ref, selectedVersions);
       return {
@@ -803,7 +803,7 @@ class ReaderApp extends React.PureComponent {
         this.setState({translations: translations});
       });
     } catch (error) {
-      crashlytics().recordError(new Error(`Translations load error: Message: ${error}`));
+      recordError(getCrashlytics(), new Error(`Translations load error: Message: ${error}`));
     }
   }
   loadRelated = async (ref, isSheet) => {
@@ -814,7 +814,7 @@ class ReaderApp extends React.PureComponent {
         hadSuccess = true;
         // TODO check that online call is necessary even after offline call
       } catch (error) {
-        crashlytics().recordError(new Error(`Related load error: Message: ${error}`));
+        recordError(getCrashlytics(), new Error(`Related load error: Message: ${error}`));
       }
     }
     if (!hadSuccess) {
@@ -1312,7 +1312,7 @@ class ReaderApp extends React.PureComponent {
       this.setState({linkSummary, loadingLinks: false});
       this.updateLinkCat(null, linkSummary); // Set up `linkContents` in their initial state as an array of nulls
     } catch (error) {
-      crashlytics().recordError(new Error(`Link summary error: Message: ${error}`));
+      recordError(getCrashlytics(), new Error(`Link summary error: Message: ${error}`));
       this.setState({linkSummary: [], loadingLinks: false});
       this.updateLinkCat(null, []); // Set up `linkContents` in their initial state as an array of nulls
     }
