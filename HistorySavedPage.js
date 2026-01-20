@@ -283,7 +283,7 @@ const HistoryItem = ({item, openRef}) => {
     let { ref, versions } = item;
     const openHistoryItem = () => openRef(ref, null, versions);
     return(
-        <TouchableOpacity onPress={openHistoryItem}>
+        <TouchableOpacity onPress={openHistoryItem} delayPressIn={200}>
             <View style={[styles.navReHistoryItem, theme.lighterGreyBorder]}>
                 {is_sheet ? <SheetHistoryItem sheet={item} /> : <TextHistoryItem text={item} />}
             </View>
