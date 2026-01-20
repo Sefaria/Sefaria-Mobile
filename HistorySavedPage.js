@@ -32,7 +32,6 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
             // When this page loads, we make sure to sync with the application server to get latest history/saved synced.
             // If the sync fails we still use what we have locally and work off that.
             await Sefaria.history.syncProfile(dispatch, await getUserSettings());
-            //console.log(Sefaria.history.history.slice(0, 100));
             setSynced(true);
         })();
     }, [dispatch, getUserSettings]);
@@ -113,9 +112,14 @@ const HistoryList = ({changeMode, openRef, openMenu, hasInternet}) => {
 const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => {
     const [localData, setLocalData] = useState([]);
     const [data, setData] = useState([]);
-    const [loadingAPIData, setLoadingAPIData] = useState(false);
-    const [skip, setSkip] = useState(0);
-    const [hasMoreData, setHasMoreData] = useState(true);
+    const [loadingState, setLoadingState] = useState({
+        loadingAPIData: false,
+        currSkipLoaded: 0,
+        hasMoreData: true,
+    });
+    // Both loadingAPIData and loadingRef are needed.
+    // loadingRef is synchronous which is good for blocking double load calls. loadingAPIData is a state var which can be used to render footer.
+    const loadingRef = React.useRef(false);
     const SKIP_STEP = 20;
 
     const {theme, interfaceLanguage} = useGlobalState();
@@ -183,50 +187,63 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
                 element = {...element, ...apiResponseObj[element[key]]};
             }
             return [...result, element];
-            //return hisElement?.is_sheet ? {...hisElement, ...sheetsAnnotated[hisElement.sheet_id]} : {...hisElement, ...textsAnnotated[hisElement.ref]};
         }, []);
     }, [getAnnotatedItems]);
 
     const loadData = useCallback(() => {
-        if (!hasMoreData) {
+        if (!loadingState.hasMoreData || loadingRef.current) {
             return;
         }
 
-        let nitems = localData.slice(skip, skip + SKIP_STEP); //get the next 20 items from the raw local history
-        if(!nitems.length) { setHasMoreData(false); return;}
-        setLoadingAPIData(true);
+        loadingRef.current = true;
+        let nitems = localData.slice(loadingState.currSkipLoaded, loadingState.currSkipLoaded + SKIP_STEP); //get the next 20 items from the raw local history
+        if(!nitems.length) {
+            setLoadingState(prev => ({...prev, hasMoreData: false}));
+            loadingRef.current = false;
+            return;
+        }
+        setLoadingState(prev => ({...prev, loadingAPIData: true}));
         getAnnotatedNextItems(nitems).then( nextItems => {
             setData(prevItems => {
-                //console.log([...prevItems, ...nextItems]);
                 return [...prevItems, ...nextItems];
             });
-            if (skip + SKIP_STEP >= localData.length) {
-                setHasMoreData(false);
-            }
-            setLoadingAPIData(false);
+            setLoadingState(prev => ({
+                ...prev,
+                hasMoreData: (prev.currSkipLoaded + SKIP_STEP) < localData.length,  // Use prev.currSkipLoaded instead of closure value
+                currSkipLoaded: prev.currSkipLoaded + SKIP_STEP,
+                loadingAPIData: false,
+            }));
+            loadingRef.current = false;
         });
-    }, [hasMoreData, localData, skip, getAnnotatedNextItems]);
+    }, [loadingState.hasMoreData, localData, getAnnotatedNextItems, loadingState.currSkipLoaded]);
 
     useEffect(() => {
         //here we are getting a 'copy' of local history items that we will perform operations on.
         let rstore = Sefaria.history.getLocalHistoryArray(mode);
         let nstore = dedupeAndNormalizeHistoryArray(rstore, mode === 'saved');
         setLocalData([...nstore]);
+        // Reset data and loading state when mode changes
+        setData([]);
+        setLoadingState({
+            loadingAPIData: false,
+            currSkipLoaded: 0,
+            hasMoreData: true,
+        });
+        loadingRef.current = false;
     }, [dedupeAndNormalizeHistoryArray, mode]);
 
     useEffect(()=> {
-        if(!localData.length) { return;}
-        loadData();
-    }, [localData, loadData]);
-
-    useEffect(() => {
-        if(!localData.length || skip === 0) {return;}
-        loadData();
-    }, [skip, localData.length, loadData]);
-
+        // Load initial data when localData is set and we don't have any data yet
+        if(localData.length > 0 && data.length === 0 && !loadingRef.current) {
+            loadData();
+        }
+    }, [localData, data.length, loadData]);
 
     const onItemsEndReached = () => {
-        setSkip(skip + SKIP_STEP);
+        if (!loadingState.hasMoreData || loadingRef.current || localData.length === 0) {
+            return;
+        }
+        loadData();
     };
 
     const getSheetIdFromRef = (sref) => {
@@ -244,7 +261,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
     };
 
     const renderFooter = () => {
-        if (!loadingAPIData) {
+        if (!loadingState.loadingAPIData) {
             return null;
         }
         return (
