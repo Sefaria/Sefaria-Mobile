@@ -1,7 +1,7 @@
 import { Alert, Linking, Platform } from 'react-native';
 import qs from 'qs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import crashlytics from '@react-native-firebase/crashlytics';
+import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';
 import VersionNumber from 'react-native-version-number';
 import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html'
@@ -11,7 +11,6 @@ import History from './history';
 import { initAsyncStorage } from './StateManager';
 import { VOCALIZATION } from './VocalizationEnum';
 import URL from 'url-parse';
-import analytics from '@react-native-firebase/analytics';
 import {HDate} from "@hebcal/core";
 import {parseDocument, ElementType} from 'htmlparser2';
 import {
@@ -813,7 +812,7 @@ Sefaria = {
         try {
           result = data.result;
         } catch (e) {
-          crashlytics().recordError(new Error(`loadLinkData failed to load ${data.requestedRef}`));
+          recordError(getCrashlytics(), new Error(`loadLinkData failed to load ${data.requestedRef}`));
         }
         let prev = Sefaria.links._linkContentLoadingStack.shift();
         //delete Sefaria.links._linkContentLoadingHash[prev.ref];

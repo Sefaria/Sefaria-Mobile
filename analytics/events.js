@@ -1,4 +1,4 @@
-import analytics from "@react-native-firebase/analytics";
+import { getAnalytics, logEvent, setAnalyticsCollectionEnabled } from "@react-native-firebase/analytics";
 import { devLog } from '../devUtils';
 import { enrichAttributes } from './enrichments';
 
@@ -6,7 +6,7 @@ import { enrichAttributes } from './enrichments';
  * Initializes analytics collection
  */
 const initAnalytics = () => {
-  analytics().setAnalyticsCollectionEnabled(true);
+  setAnalyticsCollectionEnabled(getAnalytics(), true);
   devLog(`Analytics initialized`);
 };
 
@@ -17,7 +17,7 @@ const initAnalytics = () => {
  * @param {string} screen_class - The class of the screen
  */
 const trackCurrentScreen = (screen_name, screen_class) => {
-  analytics().logScreenView({ screen_class, screen_name });
+  logEvent(getAnalytics(), 'screen_view', { screen_class, screen_name });
   devLog(`Analytics Screen Set: ${screen_name}; Screen class: ${screen_class}`);
 };
 
@@ -30,7 +30,7 @@ const trackCurrentScreen = (screen_name, screen_class) => {
 const trackEvent = async (eventName, eventParams = {}) => {
   const augmentedParams = await enrichAttributes(eventParams);
 
-  analytics().logEvent(eventName, augmentedParams);
+  logEvent(getAnalytics(), eventName, augmentedParams);
   devLog(`Analytics Event Tracked: ${eventName}`, augmentedParams);
 };
 

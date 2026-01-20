@@ -8,14 +8,14 @@ import 'abortcontroller-polyfill';
 import strings from './LocalizedStrings';
 import LinkContent from './LinkContent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import crashlytics from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
+import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 import jwt_decode from 'jwt-decode';
 
 var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _baseHost: 'https://www.sefariastaging.org/',
+  _baseHost: 'https://www.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _bulkText: {},
   _bulkSheets: {},
@@ -716,7 +716,7 @@ var Api = {
         await Sefaria.api.storeAuthToken(parsedRes);
       }
     } catch (error) {
-      crashlytics().recordError(error);
+      recordError(getCrashlytics(), error);
       return {
         non_field_errors: "Unknown authentication error"
       };
