@@ -37,11 +37,14 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
     }, [dispatch, getUserSettings]);
 
 
-    const changeMode = (newmode) => {
-        if(newmode !== mode){
-            setMode(newmode);
-        }
-    };
+    const changeMode = useCallback((newmode) => {
+        setMode(prevMode => {
+            if(newmode !== prevMode){
+                return newmode;
+            }
+            return prevMode;
+        });
+    }, []);
 
     return(
         <View style={styles.menu}>
@@ -73,16 +76,13 @@ const HistorySavedPageHeader = ({mode, changeMode, openMenu}) => {
     const {theme, isLoggedIn, hasDismissedSyncModal, readingHistory} = useGlobalState();
     const openLogin = () => openMenu('login', 'HistorySavedPage');
     const openSettings = () => openMenu('settings', 'HistorySavedPage');
-    const fireModeChange = (mode) => {
-        changeMode(mode);
-    }; 
     return(
         <View>
             <View style={[styles.navRePage, styles.navReHistoryItem, theme.lighterGreyBorder]}>
                 <PageHeader>
                     <FlexFrame justifyContent={'flex-start'}>
-                        <StatefulHeader titleKey={'saved'} icon={'bookmark2'} active={mode === 'saved'} callbackFunc={()=>fireModeChange('saved')}/>
-                        <StatefulHeader titleKey={'history'} icon={'clock'} active={mode === 'history'} callbackFunc={()=>fireModeChange('history')}/>
+                        <StatefulHeader titleKey={'saved'} icon={'bookmark2'} active={mode === 'saved'} callbackFunc={()=>changeMode('saved')}/>
+                        <StatefulHeader titleKey={'history'} icon={'clock'} active={mode === 'history'} callbackFunc={()=>changeMode('history')}/>
                     </FlexFrame>
                 </PageHeader>
             </View>
