@@ -76,13 +76,15 @@ const HistorySavedPageHeader = ({mode, changeMode, openMenu}) => {
     const {theme, isLoggedIn, hasDismissedSyncModal, readingHistory} = useGlobalState();
     const openLogin = () => openMenu('login', 'HistorySavedPage');
     const openSettings = () => openMenu('settings', 'HistorySavedPage');
+    const changeToSaved = useCallback(() => changeMode('saved'), [changeMode]);
+    const changeToHistory = useCallback(() => changeMode('history'), [changeMode]);
     return(
         <View>
             <View style={[styles.navRePage, styles.navReHistoryItem, theme.lighterGreyBorder]}>
                 <PageHeader>
                     <FlexFrame justifyContent={'flex-start'}>
-                        <StatefulHeader titleKey={'saved'} icon={'bookmark2'} active={mode === 'saved'} callbackFunc={()=>changeMode('saved')}/>
-                        <StatefulHeader titleKey={'history'} icon={'clock'} active={mode === 'history'} callbackFunc={()=>changeMode('history')}/>
+                        <StatefulHeader titleKey={'saved'} icon={'bookmark2'} active={mode === 'saved'} callbackFunc={changeToSaved}/>
+                        <StatefulHeader titleKey={'history'} icon={'clock'} active={mode === 'history'} callbackFunc={changeToHistory}/>
                     </FlexFrame>
                 </PageHeader>
             </View>
@@ -269,19 +271,15 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
         );
     };
 
-    const renderHeader = () => {
-        return(
-            <HistorySavedPageHeader mode={mode} changeMode={changeMode} openMenu={openMenu} />
-        );
-    };
-
     const renderItem = ({item, index}) => {
         return (<HistoryItem item={item} key={index} openRef={openRef} />);
     };
 
     return (
         <FlatList
-            ListHeaderComponent={renderHeader}
+            ListHeaderComponent={
+                <HistorySavedPageHeader mode={mode} changeMode={changeMode} openMenu={openMenu} />
+            }
             ListEmptyComponent={renderEmpty}
             data={data}
             keyExtractor={(item, index) => `${item.ref}-${index}`}
