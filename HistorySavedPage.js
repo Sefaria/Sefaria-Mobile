@@ -19,10 +19,18 @@ import {useGetUserSettingsObj, useGlobalState, useRtlFlexDir} from './Hooks.js';
 import Sefaria from './sefaria';
 import {ColorBarBox, StoryBodyBlock, StoryFrame, StoryTitleBlock} from './Story';
 
-
-export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
+const useSyncProfile = () => {
     const dispatch = useContext(DispatchContext);
     const getUserSettings = useGetUserSettingsObj();
+
+    return useCallback(async () => {
+        await Sefaria.history.syncProfile(dispatch, await getUserSettings());
+    }, [dispatch, getUserSettings]);
+};
+
+
+export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
+    const syncProfile = useSyncProfile();
     const [synced, setSynced] = useState(false);
     const [mode, setMode] = useState('saved');
 
@@ -31,10 +39,10 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
         (async () => { //using an async IAFE so the whole function doest become async
             // When this page loads, we make sure to sync with the application server to get latest history/saved synced.
             // If the sync fails we still use what we have locally and work off that.
-            await Sefaria.history.syncProfile(dispatch, await getUserSettings());
+            await syncProfile();
             setSynced(true);
         })();
-    }, [dispatch, getUserSettings]);
+    }, [syncProfile]);
 
 
     const changeMode = useCallback((newmode) => {
@@ -112,8 +120,10 @@ const HistoryList = ({changeMode, openRef, openMenu, hasInternet}) => {
 };
 
 const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => {
+    const syncProfile = useSyncProfile();
     const [localData, setLocalData] = useState([]);
     const [data, setData] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
     const [loadingState, setLoadingState] = useState({
         loadingAPIData: false,
         currSkipLoaded: 0,
@@ -151,6 +161,19 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
             }
         }, []);
     }, []);
+
+    const reinitializeData = useCallback(() => {
+        let rstore = Sefaria.history.getLocalHistoryArray(mode);
+        let nstore = dedupeAndNormalizeHistoryArray(rstore, mode === 'saved');
+        setLocalData([...nstore]);
+        setData([]);
+        setLoadingState({
+            loadingAPIData: false,
+            currSkipLoaded: 0,
+            hasMoreData: true,
+        });
+        loadingRef.current = false;
+    }, [mode, dedupeAndNormalizeHistoryArray]);
 
     const getAnnotatedItems = useCallback(async(refs, sheets) => {
         if(!hasInternet){
@@ -221,18 +244,8 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
 
     useEffect(() => {
         //here we are getting a 'copy' of local history items that we will perform operations on.
-        let rstore = Sefaria.history.getLocalHistoryArray(mode);
-        let nstore = dedupeAndNormalizeHistoryArray(rstore, mode === 'saved');
-        setLocalData([...nstore]);
-        // Reset data and loading state when mode changes
-        setData([]);
-        setLoadingState({
-            loadingAPIData: false,
-            currSkipLoaded: 0,
-            hasMoreData: true,
-        });
-        loadingRef.current = false;
-    }, [dedupeAndNormalizeHistoryArray, mode]);
+        reinitializeData();
+    }, [reinitializeData]);
 
     useEffect(()=> {
         // Load initial data when localData is set and we don't have any data yet
@@ -275,6 +288,13 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
         return (<HistoryItem item={item} key={index} openRef={openRef} />);
     };
 
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await syncProfile();
+        reinitializeData();
+        setRefreshing(false);
+    }, [syncProfile, reinitializeData]);
+
     return (
         <FlatList
             ListHeaderComponent={
@@ -287,6 +307,8 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
             onEndReached={onItemsEndReached}
             onEndReachedThreshold={0.3}
             ListFooterComponent={renderFooter}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
         />
     );
 };
