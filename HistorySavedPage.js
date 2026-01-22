@@ -144,17 +144,17 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
      */
     const dedupeAndNormalizeHistoryArray = useCallback((historyArray, onlyNormalize = false) => {
         return historyArray.reduce((accum, curr, index) => {
-            //local history sheet items may not have the required data, so parse it out.
-            if(curr?.is_sheet && !curr.hasOwnProperty('sheet_id')) { curr.sheet_id = getSheetIdFromRef(curr.ref); }
+            if (curr.is_sheet) {
+                // skip all sheets post-MDL
+                return accum;
+            }
             if(curr.hasOwnProperty('he_ref')) { curr.heRef = curr.he_ref; }
             if(!curr.hasOwnProperty('book')) { curr.book = Sefaria.textTitleForRef(curr.ref); }
             //for saved items we don't want to dedupe at all
             if (!accum.length || onlyNormalize) {return accum.concat([curr]); }
             const prev = accum[accum.length-1];
 
-            if (curr.is_sheet && curr.sheet_id === prev.sheet_id) {
-                return accum;
-            } else if (!curr.is_sheet && curr.book === prev.book) {
+            if (curr.book === prev.book) {
                 return accum;
             } else {
                 return accum.concat([curr]);
