@@ -1392,6 +1392,18 @@ export default StyleSheet.create({
     fontStyle: "italic",
     fontWeight: "500",
   },
+  underline: {
+    textDecorationLine: "underline",
+  },
+  textCenter: {
+    textAlign: "center",
+  },
+  historyPublisherName: {
+    marginTop: 10,
+  },
+  historyItemTitle: {
+    marginBottom: 10,
+  },
   a: {
     textDecorationLine: "underline",
     color: "#4b71b7",
@@ -1416,6 +1428,26 @@ export default StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
+  },
+  historyLoadingView: {
+    paddingVertical: 30,
+  },
+  readingHistoryPrompt: {
+    textAlign: "center",
+    marginTop: 20,
+    paddingHorizontal: 15,
+  },
+  historyPromptCloseIcon: {
+   width: 14,
+   height: 14,
+  },
+  historyOpenLoginButton: {
+    backgroundColor: '#18345D',
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   userAvatarMini: {
     marginHorizontal: 6,
