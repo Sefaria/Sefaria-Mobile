@@ -198,7 +198,7 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
     // only set trending topics when at topic toc root => slug == null
     if (!slug) {
       Sefaria.api.trendingTags(true).then((trendingTags) => {
-        setTrendingTopics(trendingTags.map(tag => new Topic({ slug: tag.slug, title: {en: tag.en, he: tag.he}})));
+        setTrendingTopics(trendingTags.map(tag => new Topic({ slug: tag.slug, title: tag.primaryTitle})));
       });
     }
     else { setTrendingTopics(null); }
@@ -211,7 +211,7 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
     description: {
       en: "Selections of texts about thousands of subjects",
       he: "מבחר מקורות באלפי נושאים שונים",
-    }
+    },
   };
 
   return (
@@ -302,14 +302,14 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
 }
 
 const TopicCategoryButton = ({ topic, openTopic }) => {
-  const { slug, en, he, description, categoryDescription } = topic;
+  const { slug, title, description, categoryDescription } = topic;
   const onPress = useCallback(() => {
-    openTopic(new Topic({ slug, title: {en, he}, description, categoryDescription}), !!Sefaria.topicTocPage(slug));
+    openTopic(new Topic({ slug, title, description, categoryDescription}), !!Sefaria.topicTocPage(slug));
   }, [slug]);
   const displayDescription = categoryDescription || description;
   return (
       <CategoryButton
-          title={{en, he}}
+          title={title}
           description={displayDescription}
           onPress={onPress}
       />
@@ -497,7 +497,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
       { category ? (
         <InterfaceTextWithFallback
           extraStyles={[{fontSize: 13, marginBottom: 20}, theme.tertiaryText]}
-          he={category.he} en={category.en.toUpperCase()}
+          he={category.title.he} en={category.title.en.toUpperCase()}
         />
       ) : null }
       { description ? (
