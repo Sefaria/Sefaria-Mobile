@@ -51,13 +51,13 @@ const sortTopicCategories = (a, b, interfaceLanguage, isRoot) => {
     const stripInitialPunctuation = str => str.replace(/^["#]/, "");
     const [aAlpha, bAlpha] = [a, b].map(x => {
       if (interfaceLanguage === "hebrew") {
-        return (x.he.length) ?
-          stripInitialPunctuation(x.he) :
-         "תתת" + stripInitialPunctuation(x.en);
+        return (x.title.he.length) ?
+          stripInitialPunctuation(x.title.he) :
+         "תתת" + stripInitialPunctuation(x.title.en);
       } else {
-        return (x.en.length) ?
-          stripInitialPunctuation(x.en) :
-          stripInitialPunctuation(x.he)
+        return (x.title.en.length) ?
+          stripInitialPunctuation(x.title.en) :
+          stripInitialPunctuation(x.title.he);
       }
     });
     return aAlpha < bAlpha ? -1 : 1;
