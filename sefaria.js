@@ -583,12 +583,12 @@ Sefaria = {
   _topicTocObjectMap: {},  // dictionary from slug to topic object as it appears in topicToc
   _initTopicTocPages: function() {
     Sefaria._topicTocPages = Sefaria.topic_toc.reduce(Sefaria._initTopicTocReducer, {});
-    Sefaria._topicTocPages[Sefaria._topicTocPageKey(null)] = Sefaria.topic_toc.map(({children, ...goodstuff}) => goodstuff);
+    Sefaria._topicTocPages[Sefaria._topicTocPageKey(null)] = Sefaria.topic_toc.map(({children, primaryTitle, ...rootTopic}) => ({...rootTopic, title: primaryTitle}));
   },
   _initTopicTocReducer: function(a,c) {
-    Sefaria._topicTocObjectMap[c.slug] = new Topic({...c, title: {en: c.en, he: c.he}});
+    Sefaria._topicTocObjectMap[c.slug] = new Topic({...c, title: c.primaryTitle});
     if (!c.children) { return a; }
-    a[Sefaria._topicTocPageKey(c.slug)] = c.children;
+    a[Sefaria._topicTocPageKey(c.slug)] = c.children.map(({primaryTitle, ...otherFields}) => ({...otherFields, title: primaryTitle}));
     for (let sub_c of c.children) {
       Sefaria._initTopicTocReducer(a, sub_c);
     }
@@ -604,7 +604,7 @@ Sefaria = {
       return a;
     }
     for (let sub_c of c.children) {
-      sub_c.parent = { en: c.en, he: c.he, slug: c.slug };
+      sub_c.parent = { title: c.primaryTitle, slug: c.slug };
       Sefaria._initTopicTocCategoryReducer(a, sub_c);
     }
     return a;
