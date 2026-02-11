@@ -1452,7 +1452,23 @@ Sefaria.util = {
     (lineMultiplier || 1) * (Platform.OS === 'ios' ?
     (lang !== "hebrew" ? (fsize * 1.2) : fsize) :
     (lang !== "hebrew" ? (fsize * 1.333) : fsize))
-  )
+  ),
+   shortLangToLong: function(shortLang) {
+    const map = {
+      "en": "english",
+      "he": "hebrew",
+      "bi": "bilingual",
+    };
+    return map[shortLang];
+  },
+    longLangToShort: function(longLang) {
+        const map = {
+        "english": "en",
+        "hebrew": "he",
+        "bilingual": "bi",
+        }
+        return map[longLang];
+    },
 };
 
 Sefaria.api = Api;
