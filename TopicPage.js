@@ -42,6 +42,7 @@ import strings from './LocalizedStrings';
 import styles from './Styles';
 import {iconData} from "./IconData";
 import {SimpleMarkdown} from './Misc'
+import ReaderAppContext from './context'
 
 const sortTopicCategories = (a, b, interfaceLanguage, isRoot) => {
   // Don't use display order intended for top level a category level. Bandaid for unclear semantics on displayOrder.
@@ -327,8 +328,14 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, setT
   const [parashaData, setParashaData] = useState(null);
   const [query, setQuery] = useState(null);
   const [portal, setPortal] = useState(null);
+  const isAuthor = topicData?.subclass === 'author';
+  const hasWorks = isAuthor && topicData?.indexes?.length;
   const tabs = [];
-  if (!!topicData && !!topicData.textRefs.length) { tabs.push({text: strings.sources, id: 'sources'}); }
+  if (hasWorks) {
+    tabs.push({text: strings.worksOnSefaria, id: 'works'});
+  } else if (topicData?.textRefs?.length) {
+    tabs.push({text: strings.sources, id: 'sources'});
+  }
   useEffect(() => {
     if (tabs.length && tabs[0].id !== topicsTab) { setTopicsTab(tabs[0].id); }
   }, [topic.slug, topicData]);
@@ -405,9 +412,24 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, setT
       jumpToSearchBar={jumpToSearchBar}
       setSearchBarY={setSearchBarY}
       portal={portal}
+      showSearch={!hasWorks}
     />
   );
-  const ListRendered = (
+  const WorksListRendered = hasWorks ? (
+    <FlatList
+      ref={flatListRef}
+      key="works"
+      data={topicData.indexes}
+      renderItem={({ item }) => (
+        <AuthorWork work={item} />
+      )}
+      keyExtractor={item => item.url}
+      ListHeaderComponent={TopicPageHeaderRendered}
+      contentContainerStyle={{minHeight: 700}}
+    />
+  ) : null;
+
+  const SourcesListRendered = !hasWorks ? (
     <FilterableFlatList
       ref={flatListRef}
       key="sources"
@@ -434,11 +456,11 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, setT
       sortFunc={(a, b) => refSort('Relevance', a, b, { interfaceLanguage })}
       contentContainerStyle={{minHeight: 700}}
     />
-  );
+  ) : null;
 
   return (
     <View style={[styles.menu, theme.mainTextPanel]} key={topic.slug}>
-      { ListRendered }
+      { WorksListRendered || SourcesListRendered }
     </View>
   )
 };
@@ -479,7 +501,7 @@ const TopicTabView = ({text, active}) => {
   );
 };
 
-const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY, onBack, openUri, portal }) => {
+const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY, onBack, openUri, portal, showSearch = true }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const flexDirection = useRtlFlexDir(interfaceLanguage);
   const isHeb = interfaceLanguage === 'hebrew';
@@ -527,15 +549,17 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
         setTab={setTopicsTab}
         flexDirection={flexDirection}
       />
-      <View style={{ marginTop: 15, marginBottom: 10 }} onLayout={event => {
-        setSearchBarY(event.nativeEvent.layout.y);
-      }}>
-        <SearchBarWithIcon
-          onFocus={jumpToSearchBar}
-          query={query}
-          onChange={setQuery}
-        />
-      </View>
+      {showSearch ? (
+        <View style={{ marginTop: 15, marginBottom: 10 }} onLayout={event => {
+          setSearchBarY(event.nativeEvent.layout.y);
+        }}>
+          <SearchBarWithIcon
+            onFocus={jumpToSearchBar}
+            query={query}
+            onChange={setQuery}
+          />
+        </View>
+      ) : null}
     </View>
   );
 };
@@ -571,6 +595,21 @@ const TextPassage = ({text, topicTitle, showToast, openRef }) => {
 };
 TextPassage.propTypes = {
   text: textPropType,
+};
+
+const AuthorWork = ({ work }) => {
+  const { theme } = useGlobalState();
+  const { handleOpenURL } = useContext(ReaderAppContext);
+  const { url, title, description } = work;
+  const onPress = () => {
+    const fullUrl = `https://www.sefaria.org${url}`;
+    handleOpenURL(fullUrl);
+  };
+  return (
+    <View style={[styles.topicCategoryButtonWrapper, theme.lighterGreyBorder]}>
+      <CategoryButton title={title} description={description} onPress={onPress} />
+    </View>
+  );
 };
 
 const TopicLink = ({topic, openTopic, isTransliteration, isCategory, lang}) => {
