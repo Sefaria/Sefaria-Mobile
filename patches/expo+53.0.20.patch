@@ -1,0 +1,28 @@
+diff --git a/node_modules/expo/ios/AppDelegates/ExpoReactNativeFactory.swift b/node_modules/expo/ios/AppDelegates/ExpoReactNativeFactory.swift
+index 7dc82e2..10f1f73 100644
+--- a/node_modules/expo/ios/AppDelegates/ExpoReactNativeFactory.swift
++++ b/node_modules/expo/ios/AppDelegates/ExpoReactNativeFactory.swift
+@@ -36,7 +36,7 @@ public class ExpoReactNativeFactory: RCTReactNativeFactory {
+     }
+ 
+     configuration.customizeRootView = { rootView in
+-      weakDelegate.customize(rootView)
++      weakDelegate.customizeReactNativeRootView(rootView)
+     }
+ 
+     // NOTE(kudo): `sourceURLForBridge` is not referenced intentionally because it does not support New Architecture.
+diff --git a/node_modules/expo/ios/AppDelegates/ExpoReactNativeFactoryDelegate.swift b/node_modules/expo/ios/AppDelegates/ExpoReactNativeFactoryDelegate.swift
+index d17a2f8..f4401b8 100644
+--- a/node_modules/expo/ios/AppDelegates/ExpoReactNativeFactoryDelegate.swift
++++ b/node_modules/expo/ios/AppDelegates/ExpoReactNativeFactoryDelegate.swift
+@@ -1,7 +1,9 @@
+ import React_RCTAppDelegate
+ 
+ open class ExpoReactNativeFactoryDelegate: RCTDefaultReactNativeFactoryDelegate {
+-  open override func customize(_ rootView: UIView) {
++  /// Hook for root view customization (New Architecture–safe `UIView` path). Not an override of
++  /// `customizeRootView:` — the ObjC API uses `RCTRootView`, which often fails under Fabric.
++  @objc open func customizeReactNativeRootView(_ rootView: UIView) {
+     ExpoAppDelegateSubscriberRepository.subscribers.forEach { $0.customizeRootView?(rootView) }
+   }
+ 

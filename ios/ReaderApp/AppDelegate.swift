@@ -75,8 +75,8 @@ class ReactNativeDelegate: ExpoReactNativeFactoryDelegate {
 #endif
   }
 
-  override func customize(_ rootView: RCTRootView!) {
-    super.customize(rootView)
-    RNBootSplash.initWithStoryboard("Launch Screen", rootView: rootView) // ⬅️ initialize the splash screen
+  override func customizeReactNativeRootView(_ rootView: UIView) {
+    super.customizeReactNativeRootView(rootView)
+    RNBootSplash.initWithStoryboard("Launch Screen", rootView: rootView)
   }
 }

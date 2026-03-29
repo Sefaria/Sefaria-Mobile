@@ -57,7 +57,7 @@ import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
-import { initAnalytics, trackCurrentScreen, trackEvent, trackPageview } from './analytics/events';
+import { trackCurrentScreen, trackEvent, trackPageview } from './analytics/events';
 import CrashlyticsService from './analytics/crashlytics';
 import {
   LoadingView,
@@ -165,7 +165,6 @@ class ReaderApp extends React.PureComponent {
       requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
     }, this.onBackgroundSync, error => console.log('error starting BackgroundFetch'));
     this.initFiles();
-    initAnalytics();
     this.NetInfoEventListener = NetInfo.addEventListener(
       this.networkChangeListener
     );

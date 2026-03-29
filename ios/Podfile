@@ -1,3 +1,5 @@
+source 'https://cdn.cocoapods.org/'
+
 ENV['RCT_NEW_ARCH_ENABLED'] = '1'
 require File.join(File.dirname(`node --print "require.resolve('expo/package.json')"`), "scripts/autolinking")
 # Resolve react_native_pods.rb with node to allow for hoisting
@@ -14,9 +16,15 @@ end
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 $RNFirebaseAnalyticsWithoutAdIdSupport=true
+# Swift Firebase pods (FirebaseSharedSwift, FirebaseCoreInternal, etc.) need static frameworks;
+# see https://github.com/invertase/react-native-firebase/issues/8215
+$RNFirebaseAsStaticFramework = true
 production = ENV["PRODUCTION"] == "1"
 linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
+if linkage.nil? || linkage.empty?
+  Pod::UI.puts 'Configuring Pod with statically linked Frameworks (required for Firebase Swift).'.green
+  use_frameworks! :linkage => :static
+else
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
 end
@@ -64,6 +72,32 @@ post_install do |installer|
   )
   installer.pods_project.build_configurations.each do |curr_config|
     curr_config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+  end
+
+  # fmt 11 (via RCT-Folly): Apple Clang may fail consteval format-string checks with
+  # "call to consteval function 'fmt::basic_format_string<...>' is not a constant expression".
+  # fmt only disabled this for __apple_build_version__ < 14000029; newer Xcode needs it off too.
+  fmt_base_h = File.join(__dir__, 'Pods/fmt/include/fmt/base.h')
+  if File.exist?(fmt_base_h)
+    contents = File.read(fmt_base_h)
+    old = "#elif defined(__apple_build_version__) && __apple_build_version__ < 14000029L\n#  define FMT_USE_CONSTEVAL 0  // consteval is broken in Apple clang < 14."
+    new = "#elif defined(__apple_build_version__)\n#  define FMT_USE_CONSTEVAL 0  // Apple clang: disable consteval (fmt 11 / newer Xcode; see fmt#4264)."
+    if contents.include?(old)
+      begin
+        st = File.stat(fmt_base_h)
+        File.chmod(st.mode | 0200, fmt_base_h)
+      rescue Errno::EPERM, Errno::EACCES
+      end
+      begin
+        File.write(fmt_base_h, contents.sub(old, new))
+      rescue Errno::EACCES, Errno::EPERM => e
+        pods_root = File.join(__dir__, 'Pods')
+        Pod::UI.warn "Could not write #{fmt_base_h}: #{e.message}"
+        Pod::UI.warn 'Fix ownership (common after `sudo pod install`), then run pod install again:'
+        Pod::UI.warn "  sudo chown -R \"$(whoami)\" \"#{pods_root}\""
+        raise
+      end
+    end
   end
 end
 
