@@ -45,11 +45,32 @@ describe('plainTextFromSegmentHtml', () => {
         expect(Sefaria.util.plainTextFromSegmentHtml('x&#xA0;y&#x2009;z')).toBe('x y z');
     });
 
-    test('leaves non-spacing numeric entities unchanged', () => {
-        expect(Sefaria.util.plainTextFromSegmentHtml('&#1488;')).toBe('&#1488;');
+    test('decodes Hebrew numeric entities to characters', () => {
+        expect(Sefaria.util.plainTextFromSegmentHtml('&#1488;')).toBe('\u05d0');
     });
 
     test('decodes &amp; for plain text', () => {
         expect(Sefaria.util.plainTextFromSegmentHtml('a &amp; b')).toBe('a & b');
+    });
+
+    test('decodes common typography named entities', () => {
+        expect(Sefaria.util.plainTextFromSegmentHtml('&ldquo;Hi&rdquo;')).toBe('\u201cHi\u201d');
+        expect(Sefaria.util.plainTextFromSegmentHtml('a&mdash;b&ndash;c')).toBe('a\u2014b\u2013c');
+        expect(Sefaria.util.plainTextFromSegmentHtml('&hellip;')).toBe('\u2026');
+    });
+
+    test('decodes numeric punctuation and Latin-1', () => {
+        expect(Sefaria.util.plainTextFromSegmentHtml('&#8212;')).toBe('\u2014');
+        expect(Sefaria.util.plainTextFromSegmentHtml('&#233;')).toBe('\u00e9');
+    });
+
+    test('strips invisible bidi marks and zero-width space', () => {
+        expect(Sefaria.util.plainTextFromSegmentHtml(`a\u200eb\u200fc`)).toBe('abc');
+        expect(Sefaria.util.plainTextFromSegmentHtml('x\u200by')).toBe('xy');
+        expect(Sefaria.util.plainTextFromSegmentHtml('\ufeffhello')).toBe('hello');
+    });
+
+    test('double-encoded &amp;quot; becomes a quote character', () => {
+        expect(Sefaria.util.plainTextFromSegmentHtml('&amp;quot;x&amp;quot;')).toBe('"x"');
     });
 });

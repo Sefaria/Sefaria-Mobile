@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';
 import VersionNumber from 'react-native-version-number';
 import { Search } from '@sefaria/search';
-import sanitizeHtml from 'sanitize-html'
+import sanitizeHtml from 'sanitize-html';
+import { decodeHTML } from 'entities';
 import Api from './api';
 import * as OfflineOnline from './offlineOnline';
 import History from './history';
@@ -1407,48 +1408,25 @@ Sefaria.util = {
     return str.replace(/<[^>]+>/g, '');
   },
   /**
-   * Strips tags and normalizes HTML spacing entities / Unicode space chars to a regular space.
-   * Used in multiple pathways (copy, share, and email), where want to remove HTML tags and literals like &nbsp; from the text.
-   *
-   * Flow: `removeHtml` only deletes `<...>` tags; it leaves entity text (e.g. `&nbsp;`) and raw Unicode as-is.
-   * We then normalize every “invisible width” space variant to a normal ASCII space so pasted/copied text
-   * does not show odd gaps or NBSP behavior. Other numeric entities (e.g. letters) are left unchanged.
+   * Strips tags, decodes HTML entities (`entities` decodeHTML), then normalizes Unicode space separators
+   * to a regular ASCII space and strips invisible bidi / ZWSP / BOM so pasted text matches what users see.
+   * Double-encoded entities (e.g. `&amp;quot;`) are resolved by applying decodeHTML until stable.
    */
   plainTextFromSegmentHtml: function(str) {
     if (typeof str !== 'string' || !str.length) {
       return '';
     }
     let s = Sefaria.util.removeHtml(str);
-
-    // Named entities: common space types + decode &amp; so we do not turn a literal "&" into garbage later.
-    s = s
-      .replace(/&nbsp;/gi, ' ')
-      .replace(/&thinsp;/gi, ' ')
-      .replace(/&hairsp;/gi, ' ')
-      .replace(/&ensp;/gi, ' ')
-      .replace(/&emsp;/gi, ' ')
-      .replace(/&amp;/g, '&');
-
-    // Decimal numeric refs: only map space-like codepoints (NBSP, en/em space, thin/hair space). Others stay as &#...;
-    s = s.replace(/&#(\d+);/g, (match, dec) => {
-      const n = parseInt(dec, 10);
-      if (n === 160 || n === 8194 || n === 8195 || n === 8201 || n === 8202) {
-        return ' ';
+    while (true) {  // decodeHTML until we reach a stable state where the input equals the output
+      const next = decodeHTML(s);  
+      if (next === s) {
+        break;
       }
-      return match;
-    });
-
-    // Same as above for hexadecimal form (&#xA0; etc.).
-    s = s.replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => {
-      const n = parseInt(hex, 16);
-      if (n === 0xa0 || n === 0x2002 || n === 0x2003 || n === 0x2009 || n === 0x200a) {
-        return ' ';
-      }
-      return match;
-    });
-    
-    // Catch actual Unicode characters if they were never written as entities (paste, export quirks).
-    s = s.replace(/[\u00a0\u2002\u2003\u2009\u200a]/g, ' ');
+      s = next;
+    }
+    // NBSP, en/em/thin/hair spaces, figure/narrow no-break space, ideographic space, etc.
+    s = s.replace(/[\u00a0\u2000-\u200a\u202f\u205f\u3000]/g, ' ');
+    s = s.replace(/[\u200b\ufeff\u200e\u200f\u2066\u2067\u2068\u2069]/g, '');
     return s;
   },
   translateISOLanguageCode(code) {

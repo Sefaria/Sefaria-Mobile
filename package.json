@@ -29,6 +29,7 @@
     "buffer": "^5.2.1",
     "depcheck": "^1.4.3",
     "deprecated-react-native-prop-types": "^5.0.0",
+    "entities": "^4.5.0",
     "eslint": "^8.0.0",
     "events": "^3.0.0",
     "expo": "~53.0.0",
