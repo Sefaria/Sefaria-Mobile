@@ -28,3 +28,28 @@ describe('sefaria url', () => {
         expect(ref).toBe("Guide for the Perplexed, Part 2 1");
     })
 });
+
+describe('plainTextFromSegmentHtml', () => {
+    test('strips tags and replaces named spacing entities with space', () => {
+        const input = '<span>foo&nbsp;bar&thinsp;baz</span>';
+        expect(Sefaria.util.plainTextFromSegmentHtml(input)).toBe('foo bar baz');
+    });
+
+    test('replaces unicode nbsp and thin space with regular space', () => {
+        const input = `a\u00a0b\u2009c`;
+        expect(Sefaria.util.plainTextFromSegmentHtml(input)).toBe('a b c');
+    });
+
+    test('decodes numeric spacing entities', () => {
+        expect(Sefaria.util.plainTextFromSegmentHtml('x&#160;y&#8201;z')).toBe('x y z');
+        expect(Sefaria.util.plainTextFromSegmentHtml('x&#xA0;y&#x2009;z')).toBe('x y z');
+    });
+
+    test('leaves non-spacing numeric entities unchanged', () => {
+        expect(Sefaria.util.plainTextFromSegmentHtml('&#1488;')).toBe('&#1488;');
+    });
+
+    test('decodes &amp; for plain text', () => {
+        expect(Sefaria.util.plainTextFromSegmentHtml('a &amp; b')).toBe('a & b');
+    });
+});

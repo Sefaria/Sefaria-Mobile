@@ -1406,6 +1406,39 @@ Sefaria.util = {
   removeHtml: function(str) {
     return str.replace(/<[^>]+>/g, '');
   },
+  /**
+   * Strips tags and normalizes HTML spacing entities / Unicode space chars to a regular space.
+   * Used for copy, share, and email bodies so literals like &nbsp; do not reach the clipboard.
+   */
+  plainTextFromSegmentHtml: function(str) {
+    if (typeof str !== 'string' || !str.length) {
+      return '';
+    }
+    let s = Sefaria.util.removeHtml(str);
+    s = s
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&thinsp;/gi, ' ')
+      .replace(/&hairsp;/gi, ' ')
+      .replace(/&ensp;/gi, ' ')
+      .replace(/&emsp;/gi, ' ')
+      .replace(/&amp;/g, '&');
+    s = s.replace(/&#(\d+);/g, (match, dec) => {
+      const n = parseInt(dec, 10);
+      if (n === 160 || n === 8194 || n === 8195 || n === 8201 || n === 8202) {
+        return ' ';
+      }
+      return match;
+    });
+    s = s.replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => {
+      const n = parseInt(hex, 16);
+      if (n === 0xa0 || n === 0x2002 || n === 0x2003 || n === 0x2009 || n === 0x200a) {
+        return ' ';
+      }
+      return match;
+    });
+    s = s.replace(/[\u00a0\u2002\u2003\u2009\u200a]/g, ' ');
+    return s;
+  },
   translateISOLanguageCode(code) {
     //takes two-letter ISO 639.2 code and returns full language name
     const codeMap = {

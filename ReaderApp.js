@@ -1751,8 +1751,8 @@ class ReaderApp extends React.PureComponent {
     if (typeof segmentIndex == 'undefined') { segmentIndex = this.state.segmentIndexRef; }
     if (typeof segmentRef == 'undefined')   { segmentRef = this.state.segmentRef; }
     const {text, he} = this.state.data[sectionIndex][segmentIndex];
-    const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
-    const heText = Sefaria.util.applyVocalizationSettings(Sefaria.util.removeHtml(typeof he === "string" ? he : ""), this.props.vocalization) || "";
+    const enText = Sefaria.util.plainTextFromSegmentHtml(typeof text === "string" ? text : "") || "";
+    const heText = Sefaria.util.applyVocalizationSettings(Sefaria.util.plainTextFromSegmentHtml(typeof he === "string" ? he : ""), this.props.vocalization) || "";
     const isHeb = this.props.textLanguage !== "english";
     const isEng = this.props.textLanguage !== "hebrew";
     const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
