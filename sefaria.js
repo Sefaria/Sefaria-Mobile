@@ -1408,7 +1408,7 @@ Sefaria.util = {
   },
   /**
    * Strips tags and normalizes HTML spacing entities / Unicode space chars to a regular space.
-   * Used for copy, share, and email bodies so literals like &nbsp; do not reach the clipboard.
+   * Used in multiple pathways (copy, share, and email), where want to remove HTML tags and literals like &nbsp; from the text.
    */
   plainTextFromSegmentHtml: function(str) {
     if (typeof str !== 'string' || !str.length) {
