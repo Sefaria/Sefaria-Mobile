@@ -30,19 +30,35 @@ describe('sefaria url', () => {
 });
 
 describe('plainTextFromSegmentHtml', () => {
-    test('strips tags and replaces named spacing entities with space', () => {
+    test('matches canonical html-to-text cases', () => {
+        const cases = [
+            ['nbsp_decodes_to_unicode_nbsp', 'a&nbsp;b', `a\u00a0b`],
+            ['thinsp_decodes_to_unicode_thin_space', 'a&thinsp;b', `a\u2009b`],
+            ['numeric_entities_decode', 'x&#160;y&#x2009;z', `x\u00a0y\u2009z`],
+            ['br_becomes_newline', 'a<br>b<br />c<br/>d', 'a\nb\nc\nd'],
+            ['literal_newlines_removed_before_br', 'a\nb<br>c', 'ab\nc'],
+            ['div_and_p_close_become_newlines', '<div>a</div><p>b</p>c', 'a\nb\nc'],
+            ['table_cells_become_tabs_and_rows_newlines', '<table><tr><td>1</td><td>2</td></tr></table>', '1\t2\t\n'],
+            ['collapse_duplicate_blank_lines', 'a<br><br>b', 'a\nb'],
+        ];
+        for (const [name, input, expected] of cases) {
+            expect(Sefaria.util.plainTextFromSegmentHtml(input)).toBe(expected);
+        }
+    });
+
+    test('strips tags and decodes named spacing entities to unicode spaces', () => {
         const input = '<span>foo&nbsp;bar&thinsp;baz</span>';
-        expect(Sefaria.util.plainTextFromSegmentHtml(input)).toBe('foo bar baz');
+        expect(Sefaria.util.plainTextFromSegmentHtml(input)).toBe(`foo\u00a0bar\u2009baz`);
     });
 
-    test('replaces unicode nbsp and thin space with regular space', () => {
+    test('preserves unicode nbsp and thin space (canonical behavior)', () => {
         const input = `a\u00a0b\u2009c`;
-        expect(Sefaria.util.plainTextFromSegmentHtml(input)).toBe('a b c');
+        expect(Sefaria.util.plainTextFromSegmentHtml(input)).toBe(`a\u00a0b\u2009c`);
     });
 
-    test('decodes numeric spacing entities', () => {
-        expect(Sefaria.util.plainTextFromSegmentHtml('x&#160;y&#8201;z')).toBe('x y z');
-        expect(Sefaria.util.plainTextFromSegmentHtml('x&#xA0;y&#x2009;z')).toBe('x y z');
+    test('decodes numeric spacing entities to unicode spaces', () => {
+        expect(Sefaria.util.plainTextFromSegmentHtml('x&#160;y&#8201;z')).toBe(`x\u00a0y\u2009z`);
+        expect(Sefaria.util.plainTextFromSegmentHtml('x&#xA0;y&#x2009;z')).toBe(`x\u00a0y\u2009z`);
     });
 
     test('decodes Hebrew numeric entities to characters', () => {
@@ -64,13 +80,13 @@ describe('plainTextFromSegmentHtml', () => {
         expect(Sefaria.util.plainTextFromSegmentHtml('&#233;')).toBe('\u00e9');
     });
 
-    test('strips invisible bidi marks and zero-width space', () => {
-        expect(Sefaria.util.plainTextFromSegmentHtml(`a\u200eb\u200fc`)).toBe('abc');
-        expect(Sefaria.util.plainTextFromSegmentHtml('x\u200by')).toBe('xy');
-        expect(Sefaria.util.plainTextFromSegmentHtml('\ufeffhello')).toBe('hello');
+    test('preserves invisible bidi marks and zero-width characters (canonical behavior)', () => {
+        expect(Sefaria.util.plainTextFromSegmentHtml(`a\u200eb\u200fc`)).toBe(`a\u200eb\u200fc`);
+        expect(Sefaria.util.plainTextFromSegmentHtml('x\u200by')).toBe('x\u200by');
+        expect(Sefaria.util.plainTextFromSegmentHtml('\ufeffhello')).toBe('\ufeffhello');
     });
 
-    test('double-encoded &amp;quot; becomes a quote character', () => {
-        expect(Sefaria.util.plainTextFromSegmentHtml('&amp;quot;x&amp;quot;')).toBe('"x"');
+    test('double-encoded &amp;quot; decodes only once (canonical behavior)', () => {
+        expect(Sefaria.util.plainTextFromSegmentHtml('&amp;quot;x&amp;quot;')).toBe('&quot;x&quot;');
     });
 });

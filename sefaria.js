@@ -1408,26 +1408,36 @@ Sefaria.util = {
     return str.replace(/<[^>]+>/g, '');
   },
   /**
-   * Strips tags, decodes HTML entities (`entities` decodeHTML), then normalizes Unicode space separators
-   * to a regular ASCII space and strips invisible bidi / ZWSP / BOM so pasted text matches what users see.
-   * Double-encoded entities (e.g. `&amp;quot;`) are resolved by applying decodeHTML until stable.
+   * Canonical HTML-to-text normalization matching Sefaria-Project `Sefaria.util.htmlToText`.
+   * Spec: `docs/html-to-text-spec.md`
    */
-  plainTextFromSegmentHtml: function(str) {
-    if (typeof str !== 'string' || !str.length) {
+  htmlToTextCanonical: function(html) {
+    if (typeof html !== 'string' || !html.length) {
       return '';
     }
-    let s = Sefaria.util.removeHtml(str);
-    while (true) {  // decodeHTML until we reach a stable state where the input equals the output
-      const next = decodeHTML(s);  
-      if (next === s) {
-        break;
-      }
-      s = next;
-    }
-    // NBSP, en/em/thin/hair spaces, figure/narrow no-break space, ideographic space, etc.
-    s = s.replace(/[\u00a0\u2000-\u200a\u202f\u205f\u3000]/g, ' ');
-    s = s.replace(/[\u200b\ufeff\u200e\u200f\u2066\u2067\u2068\u2069]/g, '');
+    // Remove literal newlines and tabs
+    let s = html.replace(/\n/g, '').replace(/\t/g, '');
+    // Insert structural separators (case-sensitive, to match canonical behavior)
+    s = s.replace(/<\/td>/g, '\t');
+    s = s.replace(/<\/table>/g, '\n');
+    s = s.replace(/<\/tr>/g, '\n');
+    s = s.replace(/<\/p>/g, '\n');
+    s = s.replace(/<\/div>/g, '\n');
+    s = s.replace(/<br>/g, '\n');
+    s = s.replace(/<br( )*\/>/g, '\n');
+    // Strip tags, then decode entities once (browser DOMParser decodes once)
+    s = Sefaria.util.removeHtml(s);
+    s = decodeHTML(s);
+    // Collapse duplicate blank lines
+    s = s.replace(/\n\s*\n/g, '\n');
     return s;
+  },
+  /**
+   * Canonical plain-text extraction from HTML-ish segment strings.
+   * Matches Sefaria-Project's copy-event behavior (see `docs/html-to-text-spec.md`).
+   */
+  plainTextFromSegmentHtml: function(str) {
+    return Sefaria.util.htmlToTextCanonical(str);
   },
   translateISOLanguageCode(code) {
     //takes two-letter ISO 639.2 code and returns full language name
