@@ -1432,13 +1432,6 @@ Sefaria.util = {
     s = s.replace(/\n\s*\n/g, '\n');
     return s;
   },
-  /**
-   * Canonical plain-text extraction from HTML-ish segment strings.
-   * Matches Sefaria-Project's copy-event behavior (see `docs/html-to-text-spec.md`).
-   */
-  plainTextFromSegmentHtml: function(str) {
-    return Sefaria.util.htmlToTextCanonical(str);
-  },
   translateISOLanguageCode(code) {
     //takes two-letter ISO 639.2 code and returns full language name
     const codeMap = {

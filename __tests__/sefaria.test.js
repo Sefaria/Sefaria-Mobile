@@ -29,7 +29,7 @@ describe('sefaria url', () => {
     })
 });
 
-describe('plainTextFromSegmentHtml', () => {
+describe('htmlToTextCanonical', () => {
     test('matches canonical html-to-text cases', () => {
         const cases = [
             ['nbsp_decodes_to_unicode_nbsp', 'a&nbsp;b', `a\u00a0b`],
@@ -42,51 +42,51 @@ describe('plainTextFromSegmentHtml', () => {
             ['collapse_duplicate_blank_lines', 'a<br><br>b', 'a\nb'],
         ];
         for (const [name, input, expected] of cases) {
-            expect(Sefaria.util.plainTextFromSegmentHtml(input)).toBe(expected);
+            expect(Sefaria.util.htmlToTextCanonical(input)).toBe(expected);
         }
     });
 
     test('strips tags and decodes named spacing entities to unicode spaces', () => {
         const input = '<span>foo&nbsp;bar&thinsp;baz</span>';
-        expect(Sefaria.util.plainTextFromSegmentHtml(input)).toBe(`foo\u00a0bar\u2009baz`);
+        expect(Sefaria.util.htmlToTextCanonical(input)).toBe(`foo\u00a0bar\u2009baz`);
     });
 
     test('preserves unicode nbsp and thin space (canonical behavior)', () => {
         const input = `a\u00a0b\u2009c`;
-        expect(Sefaria.util.plainTextFromSegmentHtml(input)).toBe(`a\u00a0b\u2009c`);
+        expect(Sefaria.util.htmlToTextCanonical(input)).toBe(`a\u00a0b\u2009c`);
     });
 
     test('decodes numeric spacing entities to unicode spaces', () => {
-        expect(Sefaria.util.plainTextFromSegmentHtml('x&#160;y&#8201;z')).toBe(`x\u00a0y\u2009z`);
-        expect(Sefaria.util.plainTextFromSegmentHtml('x&#xA0;y&#x2009;z')).toBe(`x\u00a0y\u2009z`);
+        expect(Sefaria.util.htmlToTextCanonical('x&#160;y&#8201;z')).toBe(`x\u00a0y\u2009z`);
+        expect(Sefaria.util.htmlToTextCanonical('x&#xA0;y&#x2009;z')).toBe(`x\u00a0y\u2009z`);
     });
 
     test('decodes Hebrew numeric entities to characters', () => {
-        expect(Sefaria.util.plainTextFromSegmentHtml('&#1488;')).toBe('\u05d0');
+        expect(Sefaria.util.htmlToTextCanonical('&#1488;')).toBe('\u05d0');
     });
 
     test('decodes &amp; for plain text', () => {
-        expect(Sefaria.util.plainTextFromSegmentHtml('a &amp; b')).toBe('a & b');
+        expect(Sefaria.util.htmlToTextCanonical('a &amp; b')).toBe('a & b');
     });
 
     test('decodes common typography named entities', () => {
-        expect(Sefaria.util.plainTextFromSegmentHtml('&ldquo;Hi&rdquo;')).toBe('\u201cHi\u201d');
-        expect(Sefaria.util.plainTextFromSegmentHtml('a&mdash;b&ndash;c')).toBe('a\u2014b\u2013c');
-        expect(Sefaria.util.plainTextFromSegmentHtml('&hellip;')).toBe('\u2026');
+        expect(Sefaria.util.htmlToTextCanonical('&ldquo;Hi&rdquo;')).toBe('\u201cHi\u201d');
+        expect(Sefaria.util.htmlToTextCanonical('a&mdash;b&ndash;c')).toBe('a\u2014b\u2013c');
+        expect(Sefaria.util.htmlToTextCanonical('&hellip;')).toBe('\u2026');
     });
 
     test('decodes numeric punctuation and Latin-1', () => {
-        expect(Sefaria.util.plainTextFromSegmentHtml('&#8212;')).toBe('\u2014');
-        expect(Sefaria.util.plainTextFromSegmentHtml('&#233;')).toBe('\u00e9');
+        expect(Sefaria.util.htmlToTextCanonical('&#8212;')).toBe('\u2014');
+        expect(Sefaria.util.htmlToTextCanonical('&#233;')).toBe('\u00e9');
     });
 
     test('preserves invisible bidi marks and zero-width characters (canonical behavior)', () => {
-        expect(Sefaria.util.plainTextFromSegmentHtml(`a\u200eb\u200fc`)).toBe(`a\u200eb\u200fc`);
-        expect(Sefaria.util.plainTextFromSegmentHtml('x\u200by')).toBe('x\u200by');
-        expect(Sefaria.util.plainTextFromSegmentHtml('\ufeffhello')).toBe('\ufeffhello');
+        expect(Sefaria.util.htmlToTextCanonical(`a\u200eb\u200fc`)).toBe(`a\u200eb\u200fc`);
+        expect(Sefaria.util.htmlToTextCanonical('x\u200by')).toBe('x\u200by');
+        expect(Sefaria.util.htmlToTextCanonical('\ufeffhello')).toBe('\ufeffhello');
     });
 
     test('double-encoded &amp;quot; decodes only once (canonical behavior)', () => {
-        expect(Sefaria.util.plainTextFromSegmentHtml('&amp;quot;x&amp;quot;')).toBe('&quot;x&quot;');
+        expect(Sefaria.util.htmlToTextCanonical('&amp;quot;x&amp;quot;')).toBe('&quot;x&quot;');
     });
 });
