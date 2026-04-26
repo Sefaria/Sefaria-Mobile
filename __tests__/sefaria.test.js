@@ -40,62 +40,26 @@ describe('htmlToTextCanonical', () => {
             ['div_and_p_close_become_newlines', '<div>a</div><p>b</p>c', 'a\nb\nc'],
             ['table_cells_become_tabs_and_rows_newlines', '<table><tr><td>1</td><td>2</td></tr></table>', '1\t2\t\n'],
             ['collapse_duplicate_blank_lines', 'a<br><br>b', 'a\nb'],
+            ['strips_tags_and_decodes_named_spacing_entities', '<span>foo&nbsp;bar&thinsp;baz</span>', `foo\u00a0bar\u2009baz`],
+            ['preserves_unicode_nbsp_and_thin_space', `a\u00a0b\u2009c`, `a\u00a0b\u2009c`],
+            ['decodes_numeric_spacing_entities_decimal', 'x&#160;y&#8201;z', `x\u00a0y\u2009z`],
+            ['decodes_numeric_spacing_entities_hex', 'x&#xA0;y&#x2009;z', `x\u00a0y\u2009z`],
+            ['decodes_hebrew_numeric_entity', '&#1488;', '\u05d0'],
+            ['decodes_amp_for_plain_text', 'a &amp; b', 'a & b'],
+            ['decodes_typography_left_right_quotes', '&ldquo;Hi&rdquo;', '\u201cHi\u201d'],
+            ['decodes_typography_em_dash_en_dash', 'a&mdash;b&ndash;c', 'a\u2014b\u2013c'],
+            ['decodes_typography_ellipsis', '&hellip;', '\u2026'],
+            ['decodes_numeric_punctuation', '&#8212;', '\u2014'],
+            ['decodes_numeric_latin1', '&#233;', '\u00e9'],
+            ['preserves_invisible_bidi_marks', `a\u200eb\u200fc`, `a\u200eb\u200fc`],
+            ['preserves_zero_width_characters', 'x\u200by', 'x\u200by'],
+            ['preserves_bom_character', '\ufeffhello', '\ufeffhello'],
+            ['double_encoded_amp_quot_decodes_once', '&amp;quot;x&amp;quot;', '&quot;x&quot;'],
+            ['preserves_literal_less_than_characters', '1 < 2 and 3 < 4', '1 < 2 and 3 < 4'],
+            ['handles_gt_inside_quoted_tag_attributes', '<a title="1 > 0">keep</a> text', 'keep text'],
         ];
         for (const [name, input, expected] of cases) {
             expect(Sefaria.util.htmlToTextCanonical(input)).toBe(expected);
         }
-    });
-
-    test('strips tags and decodes named spacing entities to unicode spaces', () => {
-        const input = '<span>foo&nbsp;bar&thinsp;baz</span>';
-        expect(Sefaria.util.htmlToTextCanonical(input)).toBe(`foo\u00a0bar\u2009baz`);
-    });
-
-    test('preserves unicode nbsp and thin space (canonical behavior)', () => {
-        const input = `a\u00a0b\u2009c`;
-        expect(Sefaria.util.htmlToTextCanonical(input)).toBe(`a\u00a0b\u2009c`);
-    });
-
-    test('decodes numeric spacing entities to unicode spaces', () => {
-        expect(Sefaria.util.htmlToTextCanonical('x&#160;y&#8201;z')).toBe(`x\u00a0y\u2009z`);
-        expect(Sefaria.util.htmlToTextCanonical('x&#xA0;y&#x2009;z')).toBe(`x\u00a0y\u2009z`);
-    });
-
-    test('decodes Hebrew numeric entities to characters', () => {
-        expect(Sefaria.util.htmlToTextCanonical('&#1488;')).toBe('\u05d0');
-    });
-
-    test('decodes &amp; for plain text', () => {
-        expect(Sefaria.util.htmlToTextCanonical('a &amp; b')).toBe('a & b');
-    });
-
-    test('decodes common typography named entities', () => {
-        expect(Sefaria.util.htmlToTextCanonical('&ldquo;Hi&rdquo;')).toBe('\u201cHi\u201d');
-        expect(Sefaria.util.htmlToTextCanonical('a&mdash;b&ndash;c')).toBe('a\u2014b\u2013c');
-        expect(Sefaria.util.htmlToTextCanonical('&hellip;')).toBe('\u2026');
-    });
-
-    test('decodes numeric punctuation and Latin-1', () => {
-        expect(Sefaria.util.htmlToTextCanonical('&#8212;')).toBe('\u2014');
-        expect(Sefaria.util.htmlToTextCanonical('&#233;')).toBe('\u00e9');
-    });
-
-    test('preserves invisible bidi marks and zero-width characters (canonical behavior)', () => {
-        expect(Sefaria.util.htmlToTextCanonical(`a\u200eb\u200fc`)).toBe(`a\u200eb\u200fc`);
-        expect(Sefaria.util.htmlToTextCanonical('x\u200by')).toBe('x\u200by');
-        expect(Sefaria.util.htmlToTextCanonical('\ufeffhello')).toBe('\ufeffhello');
-    });
-
-    test('double-encoded &amp;quot; decodes only once (canonical behavior)', () => {
-        expect(Sefaria.util.htmlToTextCanonical('&amp;quot;x&amp;quot;')).toBe('&quot;x&quot;');
-    });
-
-    test('preserves literal less-than characters in plain text', () => {
-        expect(Sefaria.util.htmlToTextCanonical('1 < 2 and 3 < 4')).toBe('1 < 2 and 3 < 4');
-    });
-
-    test('handles > inside quoted tag attributes without text corruption', () => {
-        const input = '<a title="1 > 0">keep</a> text';
-        expect(Sefaria.util.htmlToTextCanonical(input)).toBe('keep text');
     });
 });
