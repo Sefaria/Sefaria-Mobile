@@ -1409,7 +1409,6 @@ Sefaria.util = {
   },
   /**
    * Canonical HTML-to-text normalization matching Sefaria-Project `Sefaria.util.htmlToText`.
-   * Spec: `docs/html-to-text-spec.md`
    */
   htmlToTextCanonical: function(html) {
     if (typeof html !== 'string' || !html.length) {
