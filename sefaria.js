@@ -1424,8 +1424,12 @@ Sefaria.util = {
     s = s.replace(/<\/div>/g, '\n');
     s = s.replace(/<br>/g, '\n');
     s = s.replace(/<br( )*\/>/g, '\n');
-    // Strip tags, then decode entities once (browser DOMParser decodes once)
-    s = Sefaria.util.removeHtml(s);
+    // Strip all HTML tags via sanitize-html, preserving only text content.
+    s = sanitizeHtml(s, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+    // Decode entities once (canonical behavior should not double-decode)
     s = decodeHTML(s);
     // Collapse duplicate blank lines
     s = s.replace(/\n\s*\n/g, '\n');

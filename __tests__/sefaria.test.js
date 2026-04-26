@@ -89,4 +89,13 @@ describe('htmlToTextCanonical', () => {
     test('double-encoded &amp;quot; decodes only once (canonical behavior)', () => {
         expect(Sefaria.util.htmlToTextCanonical('&amp;quot;x&amp;quot;')).toBe('&quot;x&quot;');
     });
+
+    test('preserves literal less-than characters in plain text', () => {
+        expect(Sefaria.util.htmlToTextCanonical('1 < 2 and 3 < 4')).toBe('1 < 2 and 3 < 4');
+    });
+
+    test('handles > inside quoted tag attributes without text corruption', () => {
+        const input = '<a title="1 > 0">keep</a> text';
+        expect(Sefaria.util.htmlToTextCanonical(input)).toBe('keep text');
+    });
 });
