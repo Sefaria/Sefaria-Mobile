@@ -1,6 +1,6 @@
 'use strict';
 
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import {unzip} from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import strings from './LocalizedStrings'
 import {Alert, Platform} from 'react-native';
