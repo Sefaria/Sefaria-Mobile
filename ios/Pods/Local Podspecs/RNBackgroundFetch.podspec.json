@@ -1,7 +1,7 @@
 {
   "name": "RNBackgroundFetch",
   "cocoapods_version": ">= 1.10.0",
-  "version": "4.4.2",
+  "version": "4.2.8",
   "summary": "iOS & Android BackgroundFetch API implementation for React Native",
   "description": "iOS BackgroundFetch API Implementation",
   "homepage": "https://transistorsoft.github.io/react-native-background-fetch",
@@ -9,11 +9,14 @@
   "authors": "Chris Scott, Transistor Software <chris@transistorsoft.com>",
   "source": {
     "git": "https://github.com/transistorsoft/react-native-background-fetch.git",
-    "tag": "4.4.2"
+    "tag": "4.2.8"
   },
   "requires_arc": true,
   "platforms": {
-    "ios": "13.4"
+    "ios": "8.0"
+  },
+  "dependencies": {
+    "React-Core": []
   },
   "preserve_paths": [
     "docs",
@@ -24,45 +27,12 @@
   ],
   "source_files": [
     "ios/RNBackgroundFetch/RNBackgroundFetch.h",
-    "ios/RNBackgroundFetch/RNBackgroundFetch.mm"
+    "ios/RNBackgroundFetch/RNBackgroundFetch.m"
   ],
-  "dependencies": {
-    "TSBackgroundFetch": [
-      "~> 4.1.0"
-    ],
-    "React-Core": [],
-    "React-RCTFabric": [],
-    "ReactCodegen": [],
-    "RCTRequired": [],
-    "RCTTypeSafety": [],
-    "ReactCommon/turbomodule/bridging": [],
-    "ReactCommon/turbomodule/core": [],
-    "React-NativeModulesApple": [],
-    "Yoga": [],
-    "React-Fabric": [],
-    "React-graphics": [],
-    "React-utils": [],
-    "React-featureflags": [],
-    "React-debug": [],
-    "React-ImageManager": [],
-    "React-rendererdebug": [],
-    "React-jsi": [],
-    "React-renderercss": [],
-    "hermes-engine": [],
-    "glog": [],
-    "boost": [],
-    "DoubleConversion": [],
-    "fast_float": [],
-    "fmt": [],
-    "RCT-Folly": [],
-    "SocketRocket": [],
-    "RCT-Folly/Fabric": []
-  },
-  "compiler_flags": "-DRCT_NEW_ARCH_ENABLED=1",
-  "pod_target_xcconfig": {
-    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/Headers/Private/Yoga\"",
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
-    "OTHER_CPLUSPLUSFLAGS": "$(inherited) -DRCT_NEW_ARCH_ENABLED=1 ",
-    "OTHER_SWIFT_FLAGS": "$(inherited) -DRCT_NEW_ARCH_ENABLED"
+  "vendored_frameworks": "ios/RNBackgroundFetch/TSBackgroundFetch.xcframework",
+  "resource_bundles": {
+    "TSBackgroundFetchPrivacy": [
+      "ios/Resources/PrivacyInfo.xcprivacy"
+    ]
   }
 }
