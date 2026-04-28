@@ -2962,15 +2962,15 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNZipArchive (6.1.2):
+  - RNZipArchive (7.1.0):
     - React-Core
-    - RNZipArchive/Core (= 6.1.2)
-    - SSZipArchive (~> 2.2)
-  - RNZipArchive/Core (6.1.2):
+    - RNZipArchive/Core (= 7.1.0)
+    - SSZipArchive (~> 2.5.5)
+  - RNZipArchive/Core (7.1.0):
     - React-Core
-    - SSZipArchive (~> 2.2)
+    - SSZipArchive (~> 2.5.5)
   - SocketRocket (0.7.1)
-  - SSZipArchive (2.6.0)
+  - SSZipArchive (2.5.5)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -3434,9 +3434,9 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 8364333ca888b1b7ec9d2daf04b010ee5436366e
   RNSoundPlayer: 563ab445cb44c8dd5e3178ff10b0c89f4463d1e2
   RNSVG: 681be694d501c0af971615811d4f2ea9baf58966
-  RNZipArchive: 29236989a51e92d44e0a5d4c02555426e4e4726c
+  RNZipArchive: f2806ba80e24cf1984d6a7cb361d8a07d734997d
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  SSZipArchive: 8a6ee5677c8e304bebc109e39cf0da91ccef22ea
+  SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
   Yoga: 3196a843cc5f4bc433f1a41cf17cdf804a01a529
 
 PODFILE CHECKSUM: b95dca5b91d865cbe1d5e48bf0e34ffdf7df29c5
