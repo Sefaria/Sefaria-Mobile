@@ -19,13 +19,13 @@ import {
   autoUpdateCheck, simpleDelete,
   checkUpdatesFromServer,
 } from './DownloadControl'
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Topic } from './Topic';
 import {openFileInSources} from "./offline";
 import {trackEvent} from "./analytics/events";
 
 
-Sefaria = {
+global.Sefaria = {
   _auth: {},
   recentQueries: [],
   people: {},

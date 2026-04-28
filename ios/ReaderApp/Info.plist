@@ -41,6 +41,8 @@
 	<string>Sefaria does not use your location.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Sefaria does not use your location.</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>SertoBatnan.otf</string>
