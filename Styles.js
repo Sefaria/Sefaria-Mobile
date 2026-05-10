@@ -174,6 +174,16 @@ export default StyleSheet.create({
   authTextInput: {
     marginVertical: 7,
   },
+  orDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 12,
+  },
+  orDividerLine: {
+    flex: 1,
+    height: 1,
+    borderBottomWidth: 1,
+  },
   pageTitle: {
     color: 'black', // should be removed but not removing right now b/c haven't checked the consequences
     fontSize: 30,

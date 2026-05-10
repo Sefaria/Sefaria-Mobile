@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@hebcal/core": "^3.50.3",
+    "@invertase/react-native-apple-authentication": "^2.5.1",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-clipboard/clipboard": "^1.16.0",
     "@react-native-community/netinfo": "^12.0.1",
@@ -21,6 +22,7 @@
     "@react-native-firebase/app": "^23.8.3",
     "@react-native-firebase/crashlytics": "^23.8.3",
     "@react-native-firebase/remote-config": "^23.8.3",
+    "@react-native-google-signin/google-signin": "^16.1.2",
     "@sefaria/search": "^0.9.9",
     "@welldone-software/why-did-you-render": "^3.3.5",
     "abortcontroller-polyfill": "^1.3.0",

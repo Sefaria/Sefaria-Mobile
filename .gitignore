@@ -41,6 +41,9 @@ node_modules/
 npm-debug.log
 yarn-error.log
 .eslintrc.json
+.env
+.env.*
+!.env.example
 # VSCode
 *.code-workspace
 .vscode/

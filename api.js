@@ -1,7 +1,8 @@
 'use strict';
 
 import {
-  Alert
+  Alert,
+  Platform,
 } from 'react-native';
 import 'abortcontroller-polyfill';
 
@@ -10,12 +11,32 @@ import LinkContent from './LinkContent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 import jwt_decode from 'jwt-decode';
+import Config from 'react-native-config';
+import { GoogleSignin, statusCodes as GoogleStatusCodes } from '@react-native-google-signin/google-signin';
+
+// Apple auth is iOS-only — imported conditionally to avoid Android crash
+const appleAuth = Platform.OS === 'ios'
+  ? require('@invertase/react-native-apple-authentication').default
+  : null;
+const AppleButton = Platform.OS === 'ios'
+  ? require('@invertase/react-native-apple-authentication').AppleButton
+  : null;
+
+// Must match the SSO project's Web OAuth client and the backend's Google SSO audience.
+// The Android OAuth client in that same project must include this app's package and SHA-1.
+const GOOGLE_WEB_CLIENT_ID = Config.GOOGLE_WEB_CLIENT_ID?.trim();
+
+if (!GOOGLE_WEB_CLIENT_ID) {
+  throw new Error('Missing GOOGLE_WEB_CLIENT_ID. Create .env from .env.example before building the app.');
+}
+
+GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
 
 var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _baseHost: 'https://www.sefaria.org/',
+  _baseHost: 'https://www.sso-poc.cauldron.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _bulkText: {},
   _bulkSheets: {},
@@ -725,6 +746,76 @@ var Api = {
 
   },
 
+  googleSSO: async function() {
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const signInResult = await GoogleSignin.signIn();
+      if (signInResult.type === 'cancelled') { return {}; }
+      const idToken = signInResult.data?.idToken;
+      if (!idToken) {
+        console.warn('Google Sign-In: no idToken returned. Check webClientId registration.', signInResult);
+        return { non_field_errors: "Google sign-in failed: no identity token returned. Check webClientId setup." };
+      }
+      const url = `${Sefaria.api._baseHost}api/auth/google/callback`;
+      const res = await fetch(url, {
+        method: 'POST',
+        credentials: 'omit',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: idToken }),
+      });
+      const parsed = await res.json();
+      console.log('Google SSO backend response:', JSON.stringify(parsed));
+      if (parsed.access) {
+        await Sefaria.api.storeAuthToken(parsed);
+        return {};
+      }
+      return { non_field_errors: parsed.error || "Sign-in failed. Please try again." };
+    } catch (error) {
+      console.warn('Google SSO error:', error);
+      recordError(getCrashlytics(), error);
+      if (error.code === GoogleStatusCodes.SIGN_IN_CANCELLED) { return {}; }
+      if (error.code === GoogleStatusCodes.DEVELOPER_ERROR || String(error.message || '').includes('DEVELOPER_ERROR')) {
+        return { non_field_errors: "Google sign-in is misconfigured for this Android build. Check the package name, SHA-1 signing certificate, and webClientId." };
+      }
+      return { non_field_errors: `Sign-in failed: ${error.message || error} | ${Sefaria.api._baseHost}` };
+    }
+  },
+
+  appleSSO: async function() {
+    if (Platform.OS !== 'ios' || !appleAuth) {
+      return { non_field_errors: "Apple Sign In is only available on iOS." };
+    }
+    try {
+      const appleAuthRequestResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
+      });
+      const { identityToken, fullName } = appleAuthRequestResponse;
+      if (!identityToken) { return { non_field_errors: "Sign-in failed. Please try again." }; }
+      const url = `${Sefaria.api._baseHost}api/auth/apple/callback`;
+      const res = await fetch(url, {
+        method: 'POST',
+        credentials: 'omit',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id_token: identityToken,
+          first_name: fullName?.givenName || '',
+          last_name: fullName?.familyName || '',
+        }),
+      });
+      const parsed = await res.json();
+      if (parsed.access) {
+        await Sefaria.api.storeAuthToken(parsed);
+        return {};
+      }
+      return { non_field_errors: parsed.error || "Sign-in failed. Please try again." };
+    } catch (error) {
+      if (error.code === appleAuth?.Error?.CANCELED) { return {}; }
+      recordError(getCrashlytics(), error);
+      return { non_field_errors: "Sign-in failed. Please try again." };
+    }
+  },
+
   storeAuthToken: async function({ access, refresh }) {
     const decodedToken = jwt_decode(access);
     Sefaria._auth = {
@@ -834,3 +925,4 @@ failSilently - if true, dont display a message if api call fails
 };
 
 module.exports = Api;
+module.exports.AppleButton = AppleButton;
