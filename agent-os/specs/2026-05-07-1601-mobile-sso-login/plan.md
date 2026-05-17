@@ -4,9 +4,11 @@
 
 The Sefaria web app has working Google and Apple SSO (Phases 1–5 of the web SSO spec). This plan adds native Google and Apple Sign-In to the React Native mobile app. It requires two small backend fixes (JWT in SSO responses, Apple audience check) and mobile-side library + api.js + UI work.
 
+**Status (2026-05-13):** Phases 1–4 (sign-in/registration via Google + Apple on mobile) are shipped. Phase 5 (Account Linking in mobile Settings) is the next iteration, driven by decisions from the 2026-05-11 product meeting (see `product.md` → "Decisions from 2026-05-11 product meeting").
+
 ---
 
-## Phase 1: Backend Fixes
+## Phase 1: Backend Fixes — ✅ Shipped
 
 ### Task 1: Fix Apple audience check to accept iOS bundle ID
 
@@ -53,7 +55,7 @@ The web ignores `access` and `refresh`; the mobile app reads them.
 
 ---
 
-## Phase 2: Mobile Libraries
+## Phase 2: Mobile Libraries — ✅ Shipped
 
 ### Task 3: Install native OAuth packages
 
@@ -92,7 +94,7 @@ Confirm `google-services` plugin is applied (already present for Firebase). Ensu
 
 ---
 
-## Phase 3: Mobile api.js
+## Phase 3: Mobile api.js — ✅ Shipped
 
 ### Task 6: Extract `_storeAuthTokens()` and add `googleSSO()` + `appleSSO()`
 
@@ -167,7 +169,7 @@ GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
 
 ---
 
-## Phase 4: AuthPage.js UI
+## Phase 4: AuthPage.js UI — ✅ Shipped
 
 ### Task 7: Add SSO buttons to AuthPage
 
@@ -196,7 +198,126 @@ SSO handlers follow the same pattern as `onSubmit`: call the api method, check f
 
 ---
 
+---
+
+## Phase 5: Account Linking (Login Methods in Settings)
+
+Driven by the 2026-05-11 product meeting. The link/unlink backend endpoints (`/api/auth/link/<provider>` POST and `/api/auth/unlink/<provider>` DELETE) are already shipped — they were added during Phase 1 work. What's missing is (a) a way for mobile to read the user's current linked-providers state, (b) `api.js` methods that wrap link/unlink, and (c) the Settings UI.
+
+### Task 8: Backend — `user_auth_status` endpoint
+
+**File:** `sefaria/views.py`
+
+The data already exists on `request.user.social_identities` — `reader.views.account_settings` reads `request.user.social_identities.values_list("provider", flat=True)` for the web settings page. Mirror that for mobile in a JSON endpoint:
+
+```python
+@login_required
+@api_view(["GET"])
+def user_auth_status(request):
+    connected = list(request.user.social_identities.values_list("provider", flat=True))
+    return jsonResponse({
+        "linked_providers": connected,
+        "has_usable_password": request.user.has_usable_password(),
+    })
+```
+
+**File:** `sefaria/urls_shared.py`
+
+Add next to the existing link/unlink routes:
+
+```python
+path('api/auth/status', sefaria_views.user_auth_status, name='user_auth_status'),
+```
+
+No new templates, no new migrations.
+
+### Task 9: Mobile api.js — auth status + link/unlink
+
+**File:** `api.js`
+
+Add three methods after `appleSSO`, before `storeAuthToken`. Reuse the existing Bearer-token pattern (`await Sefaria.api.getAuthToken(); ... Authorization: Bearer ${Sefaria._auth.token}`) from `deleteUserAccount`, and reuse the native SDK invocations from `googleSSO`/`appleSSO` to mint a fresh `idToken` for the link call. No `_authHeaders()` helper is introduced — the inline header is a one-liner and two callsites isn't enough to justify abstraction.
+
+```javascript
+getAuthStatus: async function() {
+  await Sefaria.api.getAuthToken();
+  if (!Sefaria._auth.token) return null;
+  const res = await fetch(`${Sefaria.api._baseHost}api/auth/status`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${Sefaria._auth.token}` },
+  });
+  return res.json();   // { linked_providers: string[], has_usable_password: bool }
+},
+
+linkProvider: async function(provider) {
+  await Sefaria.api.getAuthToken();
+  let body;
+  try {
+    if (provider === 'google') {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const result = await GoogleSignin.signIn();
+      if (result.type === 'cancelled') return {};
+      const idToken = result.data?.idToken;
+      if (!idToken) return { error: "Google sign-in failed: no identity token." };
+      body = { credential: idToken };
+    } else if (provider === 'apple') {
+      if (Platform.OS !== 'ios' || !appleAuth) {
+        return { error: "Apple Sign In is only available on iOS." };
+      }
+      const resp = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
+      });
+      if (!resp.identityToken) return { error: "Apple sign-in failed: no identity token." };
+      body = { id_token: resp.identityToken };
+    } else {
+      return { error: "Unknown provider." };
+    }
+  } catch (error) {
+    if (error.code === GoogleStatusCodes.SIGN_IN_CANCELLED) return {};
+    if (error.code === appleAuth?.Error?.CANCELED) return {};
+    return { error: `Sign-in failed: ${error.message || error}` };
+  }
+  const res = await fetch(`${Sefaria.api._baseHost}api/auth/link/${provider}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${Sefaria._auth.token}`,
+    },
+    body: JSON.stringify(body),
+  });
+  const parsed = await res.json();
+  return parsed.status === 'ok' ? {} : { error: parsed.error };
+},
+
+unlinkProvider: async function(provider) {
+  await Sefaria.api.getAuthToken();
+  const res = await fetch(`${Sefaria.api._baseHost}api/auth/unlink/${provider}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${Sefaria._auth.token}` },
+  });
+  const parsed = await res.json();
+  return parsed.status === 'ok' ? {} : { error: parsed.error };
+},
+```
+
+Methods return an empty object on success (matching `googleSSO`/`appleSSO`) so the UI layer can use the same `if (errors.error) ... ` pattern.
+
+### Task 10: Mobile SettingsPage.js — Login Methods section (pending product storyboards)
+
+**Blocked on:** Penina's storyboards covering link/unlink permutations and final copy. Once unblocked:
+
+**File:** `SettingsPage.js`
+
+Add a "Login Methods" section. On mount call `Sefaria.api.getAuthStatus()`; render rows for Google (always) and Apple (iOS only). For each row:
+- Linked: show "Connected" badge + "Disconnect" button. On disconnect, call `unlinkProvider()`; if it returns the `LastLoginMethodError` 409 message, surface it inline with a hyperlink/note directing the user to the web settings page to set a password.
+- Not linked: show "Connect Google" / "Connect Apple" button. On press, call `linkProvider()`; if it returns an `AlreadyLinkedError` 409, surface it inline.
+- Refresh state after every successful action.
+
+---
+
 ## Critical Files
+
+### Shipped (Phases 1–4)
 
 | File | Location | Change |
 |---|---|---|
@@ -205,7 +326,16 @@ SSO handlers follow the same pattern as `onSubmit`: call the api method, check f
 | `sefaria/local_settings_example.py` | Backend | Document new setting |
 | `sefaria/views.py` | Backend | Return `access` + `refresh` from both SSO callbacks |
 | `package.json` | Mobile | Add two native OAuth libraries |
-| `api.js` | Mobile | `_storeAuthTokens()`, `googleSSO()`, `appleSSO()`, `doAuthenticate()` |
+| `api.js` | Mobile | `googleSSO()`, `appleSSO()`, `storeAuthToken()` |
 | `AuthPage.js` | Mobile | SSO buttons, `isSSOLoading` state, SSO handlers |
 | `ios/Sefaria/Info.plist` | Mobile/iOS | Reversed client ID URL scheme |
 | `android/app/google-services.json` | Mobile/Android | Web client entry (verify present) |
+
+### Phase 5 (pending)
+
+| File | Location | Change |
+|---|---|---|
+| `sefaria/views.py` | Backend | Add `user_auth_status` view |
+| `sefaria/urls_shared.py` | Backend | Register `api/auth/status` route |
+| `api.js` | Mobile | Add `getAuthStatus()`, `linkProvider()`, `unlinkProvider()` |
+| `SettingsPage.js` | Mobile | Add "Login Methods" section (blocked on product storyboards) |

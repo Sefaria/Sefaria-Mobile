@@ -32,6 +32,48 @@ if (!GOOGLE_WEB_CLIENT_ID) {
 
 GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
 
+const SSO_LOG_PREFIX = '[SSO]';
+
+const logSSO = (provider, message, data = undefined) => {
+  if (data === undefined) {
+    console.log(`${SSO_LOG_PREFIX} ${provider}: ${message}`);
+  } else {
+    console.log(`${SSO_LOG_PREFIX} ${provider}: ${message}`, data);
+  }
+};
+
+const warnSSO = (provider, message, data = undefined) => {
+  if (data === undefined) {
+    console.warn(`${SSO_LOG_PREFIX} ${provider}: ${message}`);
+  } else {
+    console.warn(`${SSO_LOG_PREFIX} ${provider}: ${message}`, data);
+  }
+};
+
+const decodeJwtForDiagnostics = (token) => {
+  try {
+    const claims = jwt_decode(token);
+    const header = jwt_decode(token, { header: true });
+    return {
+      header: {
+        alg: header?.alg,
+        kid: header?.kid,
+      },
+      claims: {
+        iss: claims?.iss,
+        aud: claims?.aud,
+        exp: claims?.exp,
+        iat: claims?.iat,
+        subPresent: Boolean(claims?.sub),
+        emailPresent: Boolean(claims?.email),
+        emailVerified: claims?.email_verified,
+      },
+    };
+  } catch (error) {
+    return { decodeError: error.message || String(error) };
+  }
+};
+
 var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
@@ -783,15 +825,39 @@ var Api = {
 
   appleSSO: async function() {
     if (Platform.OS !== 'ios' || !appleAuth) {
+      warnSSO('Apple', 'attempted on unsupported platform', {
+        platform: Platform.OS,
+        hasAppleAuthModule: Boolean(appleAuth),
+      });
       return { non_field_errors: "Apple Sign In is only available on iOS." };
     }
     try {
+      logSSO('Apple', 'starting native request', {
+        baseHost: Sefaria.api._baseHost,
+        appleAuthIsSupported: appleAuth.isSupported,
+        requestedScopes: ['FULL_NAME', 'EMAIL'],
+      });
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
         requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
       });
       const { identityToken, fullName } = appleAuthRequestResponse;
-      if (!identityToken) { return { non_field_errors: "Sign-in failed. Please try again." }; }
+      logSSO('Apple', 'native request completed', {
+        responseKeys: Object.keys(appleAuthRequestResponse || {}),
+        hasIdentityToken: Boolean(identityToken),
+        hasAuthorizationCode: Boolean(appleAuthRequestResponse?.authorizationCode),
+        hasUser: Boolean(appleAuthRequestResponse?.user),
+        realUserStatus: appleAuthRequestResponse?.realUserStatus,
+        fullNameProvided: Boolean(fullName?.givenName || fullName?.familyName),
+        emailProvided: Boolean(appleAuthRequestResponse?.email),
+      });
+      if (!identityToken) {
+        warnSSO('Apple', 'native request returned no identityToken', {
+          responseKeys: Object.keys(appleAuthRequestResponse || {}),
+        });
+        return { non_field_errors: "Apple sign-in failed: no identity token returned." };
+      }
+      logSSO('Apple', 'identity token diagnostics', decodeJwtForDiagnostics(identityToken));
       const url = `${Sefaria.api._baseHost}api/auth/apple/callback`;
       const res = await fetch(url, {
         method: 'POST',
@@ -803,17 +869,110 @@ var Api = {
           last_name: fullName?.familyName || '',
         }),
       });
-      const parsed = await res.json();
+      const responseText = await res.text();
+      let parsed;
+      try {
+        parsed = responseText ? JSON.parse(responseText) : {};
+      } catch (parseError) {
+        warnSSO('Apple', 'backend returned non-JSON response', {
+          url,
+          status: res.status,
+          ok: res.ok,
+          bodyPreview: responseText.slice(0, 500),
+          parseError: parseError.message || String(parseError),
+        });
+        return { non_field_errors: `Apple sign-in failed: server returned ${res.status}.` };
+      }
+      logSSO('Apple', 'backend response received', {
+        url,
+        status: res.status,
+        ok: res.ok,
+        responseKeys: Object.keys(parsed || {}),
+        hasAccess: Boolean(parsed?.access),
+        hasRefresh: Boolean(parsed?.refresh),
+        error: parsed?.error,
+        nonFieldErrors: parsed?.non_field_errors,
+      });
       if (parsed.access) {
         await Sefaria.api.storeAuthToken(parsed);
         return {};
       }
-      return { non_field_errors: parsed.error || "Sign-in failed. Please try again." };
+      return { non_field_errors: parsed.error || parsed.non_field_errors || `Apple sign-in failed: server returned ${res.status}.` };
     } catch (error) {
       if (error.code === appleAuth?.Error?.CANCELED) { return {}; }
+      warnSSO('Apple', 'exception during sign-in', {
+        code: error.code,
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      });
       recordError(getCrashlytics(), error);
-      return { non_field_errors: "Sign-in failed. Please try again." };
+      return { non_field_errors: `Apple sign-in failed: ${error.message || error}` };
     }
+  },
+
+  getAuthStatus: async function() {
+    await Sefaria.api.getAuthToken();
+    if (!Sefaria._auth.token) { return null; }
+    const res = await fetch(`${Sefaria.api._baseHost}api/auth/status`, {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${Sefaria._auth.token}` },
+    });
+    return res.json();
+  },
+
+  linkProvider: async function(provider) {
+    await Sefaria.api.getAuthToken();
+    if (!Sefaria._auth.token) { return { error: "You must be signed in." }; }
+    let body;
+    try {
+      if (provider === 'google') {
+        await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+        const result = await GoogleSignin.signIn();
+        if (result.type === 'cancelled') { return {}; }
+        const idToken = result.data?.idToken;
+        if (!idToken) { return { error: "Google sign-in failed: no identity token." }; }
+        body = { credential: idToken };
+      } else if (provider === 'apple') {
+        if (Platform.OS !== 'ios' || !appleAuth) {
+          return { error: "Apple Sign In is only available on iOS." };
+        }
+        const resp = await appleAuth.performRequest({
+          requestedOperation: appleAuth.Operation.LOGIN,
+          requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
+        });
+        if (!resp.identityToken) { return { error: "Apple sign-in failed: no identity token." }; }
+        body = { id_token: resp.identityToken };
+      } else {
+        return { error: "Unknown provider." };
+      }
+    } catch (error) {
+      if (error.code === GoogleStatusCodes.SIGN_IN_CANCELLED) { return {}; }
+      if (error.code === appleAuth?.Error?.CANCELED) { return {}; }
+      recordError(getCrashlytics(), error);
+      return { error: `Sign-in failed: ${error.message || error}` };
+    }
+    const res = await fetch(`${Sefaria.api._baseHost}api/auth/link/${provider}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Sefaria._auth.token}`,
+      },
+      body: JSON.stringify(body),
+    });
+    const parsed = await res.json();
+    return parsed.status === 'ok' ? {} : { error: parsed.error };
+  },
+
+  unlinkProvider: async function(provider) {
+    await Sefaria.api.getAuthToken();
+    if (!Sefaria._auth.token) { return { error: "You must be signed in." }; }
+    const res = await fetch(`${Sefaria.api._baseHost}api/auth/unlink/${provider}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${Sefaria._auth.token}` },
+    });
+    const parsed = await res.json();
+    return parsed.status === 'ok' ? {} : { error: parsed.error };
   },
 
   storeAuthToken: async function({ access, refresh }) {

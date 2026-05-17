@@ -2,7 +2,9 @@
 
 ## Scope
 
-Two backend fixes (minimal) + mobile library + api.js + AuthPage.js + platform config. The web SSO flows and the `SocialAuthService` are untouched. No new backend endpoints.
+**Phase 1 (shipped):** Two backend fixes (minimal) + mobile library + api.js + AuthPage.js + platform config. The web SSO flows and the `SocialAuthService` are untouched. No new backend endpoints required for the sign-in/registration flow itself.
+
+**Phase 2 (account linking, pending):** One new read-only backend endpoint (`/api/auth/status`) that exposes which providers the current user has linked, plus mobile-side `api.js` wrappers around the existing `/api/auth/link/<provider>` and `/api/auth/unlink/<provider>` endpoints (already shipped during Phase 1 backend work, originally added for the web). UI lives in `SettingsPage.js` and is blocked on product storyboards.
 
 ---
 
@@ -32,6 +34,16 @@ Add an "or" divider and two SSO buttons below the existing `SystemButton` (submi
 
 ---
 
+### Account linking (Phase 2)
+
+**Read endpoint, not extension of profile sync.** Linking state (`linked_providers`, `has_usable_password`) is read via a dedicated `GET /api/auth/status` endpoint rather than bolted onto `profile_sync_api`. Rationale: linking state is auth-shape data, not profile/history-shape data; it's read on demand when Settings opens, not on every sync; and it keeps the surface small and easy to evolve.
+
+**No `_authHeaders()` helper in api.js.** Two callsites (`linkProvider`, `unlinkProvider`, plus `getAuthStatus`) is below the threshold where deduplication helps — the inline `Authorization: Bearer ${Sefaria._auth.token}` header (already the established pattern in `deleteUserAccount`) reads cleaner than a helper at this scale.
+
+**Mobile reuses the web's link/unlink endpoints.** `/api/auth/link/<provider>` and `/api/auth/unlink/<provider>` are JSON endpoints (`@api_view`) that accept Bearer auth via DRF's default authentication classes. No mobile-specific endpoints required.
+
+---
+
 ## Decisions
 
 - **`webClientId` on Google Sign-In.** Without `webClientId`, the native SDK returns an `idToken` with the mobile OAuth client ID as audience. The backend's `verify_token()` validates against `GOOGLE_SSO_CLIENT_ID` (the web client ID). Setting `webClientId` causes Google to return an `idToken` whose `aud` is the web client ID — matching the backend check exactly. The web and mobile OAuth client IDs can differ; only the web client ID matters for backend verification.
@@ -40,6 +52,9 @@ Add an "or" divider and two SSO buttons below the existing `SystemButton` (submi
 - **App Store guideline 4.8 compliance.** If any third-party sign-in is offered on iOS, Apple Sign In must also be offered. Since we offer Google, we must offer Apple on iOS.
 - **Cancellation is silent.** Both native SDKs throw a cancellation error when the user dismisses the sheet. Catch it and do nothing — do not show an error to the user.
 - **`onLoginSuccess` callback reused.** The existing `onLoginSuccess` in `AuthPage.js` dispatches state, calls `syncProfile()`, closes the sheet, and shows a toast. SSO flows call the same callback — no duplication.
+- **Auto-link on email collision (reversed 2026-05-13).** When SSO sign-in matches an existing password account by email, the backend attaches a new `SocialIdentity` to that user and logs them in. The provider has signed `email_verified: true` into the ID token, so we trust the SSO user controls the mailbox. The original 2026-05-11 decision required explicit linking from Settings; that was reversed because One Tap users had no clear path forward when the prompt failed silently and a real-world user hit the issue immediately. The user's password remains valid after auto-link — either method can be used to sign in afterward.
+- **Password creation on mobile is out of scope.** A user whose only login method is SSO and who unlinks it would be locked out. The backend already guards this with `LastLoginMethodError`. Mobile surfaces the error and directs the user to the web settings page to set a password first — we are not duplicating password-creation UI on mobile in this iteration.
+- **Apple proxy email staleness is tolerated.** Identity is keyed on `(provider, sub)`, not email. Stale proxy addresses in Salesforce are accepted as the cost of supporting Apple Sign In; no defensive handling.
 
 ---
 
@@ -57,7 +72,8 @@ Add an "or" divider and two SSO buttons below the existing `SystemButton` (submi
 
 ## Out of Scope
 
-- Account linking UI in mobile settings (web settings page handles this)
+- Password creation on mobile for SSO-only users (web settings handles this)
 - `react-native-google-signin` `serverAuthCode` flow
 - Custom-styled Apple button (must use `AppleButton` from the library)
 - Changes to `SocialAuthService`, `SocialIdentity`, or any other backend logic
+- Proactive cleanup of stale Apple proxy addresses in Salesforce
