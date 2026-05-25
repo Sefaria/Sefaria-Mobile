@@ -27,11 +27,11 @@ platform :ios do
     match(type: "appstore", app_identifier: "org.sefaria.sefariaApp", readonly: true)
 
     increment_build_number(xcodeproj: "./ios/ReaderApp.xcodeproj")
+    # Note: include_bitcode omitted — Apple deprecated bitcode in Xcode 14
     build_app(
       scheme: "ReaderApp",
       workspace: "./ios/ReaderApp.xcworkspace",
-      export_method: "app-store"
-      # Note: include_bitcode removed — Apple deprecated bitcode in Xcode 14
+      export_method: "app-store",
     )
     upload_to_testflight
   end

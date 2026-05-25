@@ -37,7 +37,9 @@ jobs:
       - name: Set up Ruby + Fastlane
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
+          # 'bundler' tells setup-ruby to read the Ruby version from Gemfile.lock,
+          # keeping CI consistent with the version used to generate the lockfile.
+          ruby-version: 'bundler'
           bundler-cache: true
 
       - name: Install npm dependencies
@@ -48,19 +50,14 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" \
             | base64 --decode > android/upload-kstore.keystore
 
-      - name: Decode Google Services JSON
-        run: |
-          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" \
-            | base64 --decode > android/app/google-services.json
-
       - name: Decode Firebase service account
+        # Sets GOOGLE_APPLICATION_CREDENTIALS so get_or_create_firebase_app.sh
+        # can authenticate with gcloud. The script activates the account itself —
+        # no separate gcloud auth call needed here.
         run: |
           echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}" \
             | base64 --decode > /tmp/firebase-service-account.json
           echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/firebase-service-account.json" >> $GITHUB_ENV
-          # Activate service account for gcloud so get_or_create_firebase_app.sh can use it
-          gcloud auth activate-service-account \
-            --key-file=/tmp/firebase-service-account.json --quiet
 
       - name: Create envvars.sh
         run: |
@@ -91,7 +88,9 @@ jobs:
           if git diff --cached --quiet; then
             echo "No version bump detected; skipping commit"
           else
-            NEW=$(grep "^def VERSION_BUILD" android/app/build.gradle | awk -F'=' '{print $2}')
+            # tr removes spaces and Windows-style \r that awk may leave on the value
+            NEW=$(grep "^def VERSION_BUILD" android/app/build.gradle \
+              | awk -F'=' '{print $2}' | tr -d ' \r')
             git commit -m "ci: bump Android versionCode to $NEW [skip ci]"
             git push origin HEAD:${GITHUB_REF#refs/heads/}
           fi

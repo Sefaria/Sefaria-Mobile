@@ -38,17 +38,29 @@ platform :android do
     package_name = is_main \
       ? "org.sefaria.sefaria.staging" \
       : "org.sefaria.sefaria.#{safe_suffix}"
-    app_label = is_main \
-      ? "Sefaria Staging" \
-      : "Sefaria #{branch[0..20]}"
+
+    # Strip any characters that would break shell quoting (branch names rarely have
+    # single quotes, but sanitise defensively since this ends up in a shell command).
+    safe_branch_label = branch[0..20].gsub(/[^a-zA-Z0-9 \-_\/.]/, "")
+    app_label = is_main ? "Sefaria Staging" : "Sefaria #{safe_branch_label}"
 
     UI.message("📦 Building for branch: #{branch}")
     UI.message("📦 Package name: #{package_name}")
     UI.message("📦 App label:    #{app_label}")
 
     # Auto-register or retrieve the Firebase app for this package name.
-    # Requires GOOGLE_APPLICATION_CREDENTIALS env var (set by CI or gcloud auth locally).
-    firebase_app_id = sh("../../scripts/get_or_create_firebase_app.sh '#{package_name}' '#{app_label}'").strip
+    # The script also writes a matching google-services.json for this package name
+    # so the com.google.gms.google-services Gradle plugin finds the right client entry.
+    #
+    # sh() in the Android fastlane runs from android/fastlane/, so:
+    #   ../../scripts/  = Mobile/scripts/
+    #   ../app/         = android/app/
+    #
+    # package_name is already sanitised to [a-z0-9_.] so it's safe to quote with ''.
+    # app_label has been stripped of shell-special characters above.
+    firebase_app_id = sh(
+      "../../scripts/get_or_create_firebase_app.sh '#{package_name}' '#{app_label}' '../app/google-services.json'"
+    ).strip
     UI.message("🔥 Firebase App ID: #{firebase_app_id}")
 
     sh("../../scripts/update_sources.sh")
@@ -68,9 +80,11 @@ platform :android do
       }
     )
 
+    # Use the APK path Fastlane recorded after the gradle step instead of hardcoding it.
+    # GRADLE_APK_OUTPUT_PATH is set automatically by the gradle() action above.
     firebase_app_distribution(
       app: firebase_app_id,
-      apk_path: "app/build/outputs/apk/release/app-release.apk",
+      apk_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH],
       groups: "qa-team",
       release_notes: "Branch: #{branch}"
     )
