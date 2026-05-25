@@ -16,13 +16,23 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Push a new beta build to TestFlight"
+  desc "Push a new build to TestFlight"
   lane :beta do
     sh("../scripts/update_sources.sh")
+
+    # Fetch the distribution certificate + provisioning profile from the Match certs repo.
+    # `readonly: true` means CI only downloads what's already there — never regenerates.
+    # On a local Mac with Automatic Signing in Xcode this step is optional,
+    # but it's required in CI where there's no keychain with the Apple cert.
+    match(type: "appstore", app_identifier: "org.sefaria.sefariaApp", readonly: true)
+
     increment_build_number(xcodeproj: "./ios/ReaderApp.xcodeproj")
-    build_app(scheme: "ReaderApp",
-            workspace: "./ios/ReaderApp.xcworkspace",
-            include_bitcode: true)
+    build_app(
+      scheme: "ReaderApp",
+      workspace: "./ios/ReaderApp.xcworkspace",
+      export_method: "app-store"
+      # Note: include_bitcode removed — Apple deprecated bitcode in Xcode 14
+    )
     upload_to_testflight
   end
 end

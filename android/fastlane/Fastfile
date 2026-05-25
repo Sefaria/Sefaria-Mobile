@@ -17,23 +17,62 @@ default_platform :android
 
 platform :android do
 
-  desc "Builds a release for internal testing deployed via the Google Play Store"
+  desc "Builds a QA APK for the current branch and distributes via Firebase App Distribution.
+        The app gets a unique package name derived from the branch name, so it installs
+        alongside the production app (and any other QA branch builds) without overwriting them.
+
+        Usage:
+          bundle exec fastlane android testrelease storepass:YOUR_PASSWORD
+
+        The package name is derived automatically from the current git branch."
   lane :testrelease do |options|
+    branch = sh("git branch --show-current").strip
+
+    # Derive a safe package name suffix from the branch name.
+    # e.g. "feature/dark-mode" → "feature_dark_mode"
+    # Only letters, numbers, and underscores are valid in Java package name segments.
+    safe_suffix = branch.gsub(/[^a-zA-Z0-9]/, "_").downcase
+    safe_suffix = safe_suffix[0..40]  # keep total package name well under 255 chars
+
+    is_main = ["main", "master"].include?(branch)
+    package_name = is_main \
+      ? "org.sefaria.sefaria.staging" \
+      : "org.sefaria.sefaria.#{safe_suffix}"
+    app_label = is_main \
+      ? "Sefaria Staging" \
+      : "Sefaria #{branch[0..20]}"
+
+    UI.message("📦 Building for branch: #{branch}")
+    UI.message("📦 Package name: #{package_name}")
+    UI.message("📦 App label:    #{app_label}")
+
+    # Auto-register or retrieve the Firebase app for this package name.
+    # Requires GOOGLE_APPLICATION_CREDENTIALS env var (set by CI or gcloud auth locally).
+    firebase_app_id = sh("../../scripts/get_or_create_firebase_app.sh '#{package_name}' '#{app_label}'").strip
+    UI.message("🔥 Firebase App ID: #{firebase_app_id}")
+
     sh("../../scripts/update_sources.sh")
     sh("cd ../../ && npm install")
     gradle(task: "clean")
     increment_android_version_code(path: "app/build.gradle")
     gradle(
-      task: "bundle",
+      task: "assemble",       # assemble builds an APK; Firebase App Distribution uses APKs (not bundles)
       build_type: "Release",
       properties: {
-        "android.injected.signing.store.file" => "./upload-kstore.keystore",
-        "android.injected.signing.store.password" => options[:storepass],
-        "android.injected.signing.key.alias" => "upload-kstore",
-        "android.injected.signing.key.password" => options[:storepass],
+        "qaApplicationId"                             => package_name,
+        "qaAppName"                                   => app_label,
+        "android.injected.signing.store.file"         => "./upload-kstore.keystore",
+        "android.injected.signing.store.password"     => options[:storepass],
+        "android.injected.signing.key.alias"          => "upload-kstore",
+        "android.injected.signing.key.password"       => options[:storepass],
       }
     )
 
-    upload_to_play_store(track: 'internal')
+    firebase_app_distribution(
+      app: firebase_app_id,
+      apk_path: "app/build/outputs/apk/release/app-release.apk",
+      groups: "qa-team",
+      release_notes: "Branch: #{branch}"
+    )
   end
 end
