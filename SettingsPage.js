@@ -11,7 +11,7 @@ import {
   ScrollView,
   Alert,
   Platform,
-  PermissionsAndroid,
+  PermissionsAndroid, Button, TextInput,
 } from 'react-native';
 import VersionNumber from 'react-native-version-number';
 import NetInfo from "@react-native-community/netinfo";
@@ -180,6 +180,41 @@ function abstractUpdateChecker(disableUpdateComponent, networkMode) {
   return f
 }
 
+const VersionNumberChangeHost = ({versionNumber}) => {
+  // changing host in 7 clicks
+  const clickCount = useRef(0);
+  const [showHostChange, setShowHostChange] = useState(false);
+  const [host, setHost] = useState('');
+  const handlePress = () => {
+    clickCount.current += 1;
+    if (clickCount.current === 7) {
+      setShowHostChange(true);
+      clickCount.current = 0;
+    }
+  }
+  function normalizeUrl(input) {
+    input = input.trim();
+    if (!/:\/\//.test(input)) {
+      input = 'https://' + input;
+    }
+    if (!input.endsWith('/')) {
+      input += '/';
+    }
+    return input;
+  }
+  const handleSubmit = () => {
+    Sefaria.api._baseHost = normalizeUrl(host);
+    setShowHostChange(false);
+  }
+  return <>
+    <Text onPress={handlePress}> {versionNumber}</Text>
+    {showHostChange && <View style={{ flexDirection: 'row', gap: 8 }}>
+        <TextInput placeholder="Set host url" onChangeText={setHost} value={host}/>
+        <Button title="Save" onPress={handleSubmit} />
+    </View>}
+  </>;
+}
+
 const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
   const globalState = useContext(GlobalStateContext);
@@ -331,7 +366,8 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
         <SystemButton onPress={()=>{ openUri('https://www.sefaria.org/terms'); }} text={strings.termsAndPrivacy} isHeb={interfaceLanguage === "hebrew"} />
         <View style={{marginTop: 10}}>
           <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>
-            {`${strings.appVersion}: ${VersionNumber.appVersion}`}
+            {`${strings.appVersion}:`}
+            <VersionNumberChangeHost versionNumber={VersionNumber.appVersion} />
           </Text>
         </View>
         { isLoggedIn ?
