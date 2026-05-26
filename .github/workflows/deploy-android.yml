@@ -51,9 +51,12 @@ jobs:
         run: npm install -g firebase-tools
 
       - name: Decode Android keystore
+        # Gradle resolves ./upload-kstore.keystore relative to the :app subproject
+        # directory (android/app/), not the root project (android/).
+        # Decode to both locations so it works regardless of how the path resolves.
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" \
-            | base64 --decode > android/upload-kstore.keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/upload-kstore.keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-kstore.keystore
 
       - name: Decode Firebase service account
         # Sets GOOGLE_APPLICATION_CREDENTIALS so get_or_create_firebase_app.sh
@@ -102,4 +105,4 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: rm -f /tmp/firebase-service-account.json android/upload-kstore.keystore
+        run: rm -f /tmp/firebase-service-account.json android/upload-kstore.keystore android/app/upload-kstore.keystore
