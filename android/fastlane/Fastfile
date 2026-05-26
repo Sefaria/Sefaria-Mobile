@@ -17,6 +17,30 @@ default_platform :android
 
 platform :android do
 
+  desc "Builds a production AAB and uploads to the Play Store internal testing track.
+        Promotes from there to production via the Play Console as usual.
+
+        Usage:
+          bundle exec fastlane android release storepass:YOUR_PASSWORD"
+  lane :release do |options|
+    sh("../../scripts/update_sources.sh")
+    sh("cd ../../ && npm install")
+    gradle(task: "clean")
+    increment_android_version_code(path: "app/build.gradle")
+    gradle(
+      task: "bundle",           # Play Store requires AAB, not APK
+      build_type: "Release",
+      properties: {
+        # No qaApplicationId — falls back to "org.sefaria.sefaria" (production)
+        "android.injected.signing.store.file"     => "./upload-kstore.keystore",
+        "android.injected.signing.store.password" => options[:storepass],
+        "android.injected.signing.key.alias"      => "upload-kstore",
+        "android.injected.signing.key.password"   => options[:storepass],
+      }
+    )
+    upload_to_play_store(track: "internal")
+  end
+
   desc "Builds a QA APK for the current branch and distributes via Firebase App Distribution.
         The app gets a unique package name derived from the branch name, so it installs
         alongside the production app (and any other QA branch builds) without overwriting them.
