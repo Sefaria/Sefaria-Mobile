@@ -37,13 +37,20 @@ jobs:
       - name: Set up Ruby + Fastlane
         uses: ruby/setup-ruby@v1
         with:
-          # 'bundler' tells setup-ruby to read the Ruby version from Gemfile.lock,
-          # keeping CI consistent with the version used to generate the lockfile.
+          # 'bundler' reads the Ruby version from Gemfile.lock — keeps CI
+          # consistent with whatever version generated the lockfile.
           ruby-version: 'bundler'
           bundler-cache: true
+          working-directory: android   # read android/Gemfile.lock, not the root one
 
       - name: Install npm dependencies
         run: npm install
+
+      - name: Install Firebase CLI
+        # Firebase CLI is used by the testrelease lane to distribute the APK.
+        # It handles first-time App Distribution app initialisation, which the
+        # Fastlane plugin REST API cannot do for dynamically-created Firebase apps.
+        run: npm install -g firebase-tools
 
       - name: Decode Android keystore
         run: |
