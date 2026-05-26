@@ -13,6 +13,8 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+require 'shellwords'   # for Array#shelljoin — safely quotes Firebase CLI args
+
 default_platform :android
 
 platform :android do
@@ -84,7 +86,9 @@ platform :android do
     # app_label has been stripped of shell-special characters above.
     firebase_app_id = sh(
       "../../scripts/get_or_create_firebase_app.sh '#{package_name}' '#{app_label}' '../app/google-services.json'"
-    ).strip
+    # Fastlane's sh() captures stdout+stderr merged, so diagnostic lines from the
+    # script appear before the app ID. The app ID is always the last non-empty line.
+    ).strip.split("\n").last.to_s.strip
     UI.message("🔥 Firebase App ID: #{firebase_app_id}")
 
     sh("../../scripts/update_sources.sh")
@@ -104,13 +108,27 @@ platform :android do
       }
     )
 
-    # Use the APK path Fastlane recorded after the gradle step instead of hardcoding it.
-    # GRADLE_APK_OUTPUT_PATH is set automatically by the gradle() action above.
-    firebase_app_distribution(
-      app: firebase_app_id,
-      apk_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH],
-      groups: "qa-team",
-      release_notes: "Branch: #{branch}"
-    )
+    apk_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+    UI.message("🔥 Firebase App ID: #{firebase_app_id}")
+    UI.message("📦 APK path: #{apk_path}")
+
+    # Use Firebase CLI directly instead of the Fastlane plugin REST API.
+    #
+    # Why CLI and not the firebase_app_distribution plugin?
+    # Apps created via the Firebase Management REST API are NOT automatically
+    # initialised in App Distribution — the plugin's REST API returns 404 for
+    # newly created apps. Firebase CLI handles first-time app initialisation
+    # automatically, so it works for both new and existing branch apps.
+    #
+    # Auth (checked in this order by the Firebase CLI):
+    #   1. GOOGLE_APPLICATION_CREDENTIALS → service account key file (CI)
+    #   2. FIREBASE_TOKEN env var          → CI token from `firebase login:ci`
+    #   3. ~/.config/firebase/token        → interactive login (`firebase login`)
+    sh([
+      "firebase", "appdistribution:distribute", apk_path,
+      "--app",          firebase_app_id,
+      "--groups",       "qa-team",
+      "--release-notes", "Branch: #{branch}",
+    ].shelljoin)
   end
 end

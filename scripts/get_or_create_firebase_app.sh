@@ -34,7 +34,19 @@ fi
 
 # Helper: fetch a fresh short-lived OAuth2 token.
 # Called before every API request so long-running operations never hit token expiry.
-get_token() { gcloud auth print-access-token; }
+#
+# Two cases:
+#   - GOOGLE_APPLICATION_CREDENTIALS is set (CI / service account key file):
+#       gcloud activated the SA in the block above; use its token.
+#   - Not set (local dev after `gcloud auth application-default login`):
+#       Use ADC, which holds the developer's personal Google account credentials.
+get_token() {
+  if [ -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" ]; then
+    gcloud auth print-access-token
+  else
+    gcloud auth application-default print-access-token
+  fi
+}
 
 # Helper: parse a JSON key from stdin safely (no shell-variable injection).
 #   json_get <key_path_as_python_expr>
@@ -49,7 +61,8 @@ json_get() {
 # Prints the appId if found, prints nothing if not found.
 json_find_app_id() {
   local target="$1"
-  python3 -c "
+  # The env var must be set BEFORE the command, not after.
+  TARGET_PACKAGE="$target" python3 -c "
 import sys, json, os
 data = json.load(sys.stdin)
 target = os.environ['TARGET_PACKAGE']
@@ -57,7 +70,7 @@ for app in data.get('apps', []):
     if app.get('packageName') == target:
         print(app['appId'])
         break
-" TARGET_PACKAGE="$target"
+"
 }
 
 # ------------------------------------------------------------------
