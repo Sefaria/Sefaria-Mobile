@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';
 import VersionNumber from 'react-native-version-number';
 import { Search } from '@sefaria/search';
-import sanitizeHtml from 'sanitize-html'
+import sanitizeHtml from 'sanitize-html';
+import { decodeHTML } from 'entities';
 import Api from './api';
 import * as OfflineOnline from './offlineOnline';
 import History from './history';
@@ -19,13 +20,13 @@ import {
   autoUpdateCheck, simpleDelete,
   checkUpdatesFromServer,
 } from './DownloadControl'
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Topic } from './Topic';
 import {openFileInSources} from "./offline";
 import {trackEvent} from "./analytics/events";
 
 
-Sefaria = {
+global.Sefaria = {
   _auth: {},
   recentQueries: [],
   people: {},
@@ -1405,6 +1406,34 @@ Sefaria.util = {
   },
   removeHtml: function(str) {
     return str.replace(/<[^>]+>/g, '');
+  },
+  /**
+   * Canonical HTML-to-text normalization matching Sefaria-Project `Sefaria.util.htmlToText`.
+   */
+  htmlToTextCanonical: function(html) {
+    if (typeof html !== 'string' || !html.length) {
+      return '';
+    }
+    // Remove literal newlines and tabs
+    let s = html.replace(/\n/g, '').replace(/\t/g, '');
+    // Insert structural separators (case-sensitive, to match canonical behavior)
+    s = s.replace(/<\/td>/g, '\t');
+    s = s.replace(/<\/table>/g, '\n');
+    s = s.replace(/<\/tr>/g, '\n');
+    s = s.replace(/<\/p>/g, '\n');
+    s = s.replace(/<\/div>/g, '\n');
+    s = s.replace(/<br>/g, '\n');
+    s = s.replace(/<br( )*\/>/g, '\n');
+    // Strip all HTML tags via sanitize-html, preserving only text content.
+    s = sanitizeHtml(s, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+    // Decode entities once (canonical behavior should not double-decode)
+    s = decodeHTML(s);
+    // Collapse duplicate blank lines
+    s = s.replace(/\n\s*\n/g, '\n');
+    return s;
   },
   translateISOLanguageCode(code) {
     //takes two-letter ISO 639.2 code and returns full language name
