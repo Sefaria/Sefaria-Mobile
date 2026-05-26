@@ -1,4 +1,4 @@
-def VERSION_BUILD=62061052
+def VERSION_BUILD=62061045
 def VERSION_MAJOR=6
 def VERSION_MINOR=7
 def VERSION_PATCH=4
@@ -106,7 +106,9 @@ android {
 
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode VERSION_BUILD
+        // qaVersionCode is passed by Fastlane for QA/test builds (Unix timestamp).
+        // Production release builds use VERSION_BUILD, which is incremented and committed.
+        versionCode project.findProperty("qaVersionCode")?.toInteger() ?: VERSION_BUILD
         versionName VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH
         multiDexEnabled true
     }

@@ -94,13 +94,20 @@ platform :android do
     sh("../../scripts/update_sources.sh")
     sh("cd ../../ && npm install")
     gradle(task: "clean")
-    increment_android_version_code(path: "app/build.gradle")
+    # Use a Unix timestamp as the version code for QA builds.
+    # This avoids bumping VERSION_BUILD in build.gradle on every test run,
+    # which would create merge conflicts when multiple branches are active.
+    # The timestamp is always unique and increasing, so Android treats each
+    # build as an update. Production releases use VERSION_BUILD (incremented
+    # only in the release lane and committed to master).
+    qa_version_code = Time.now.to_i
     gradle(
       task: "assemble",       # assemble builds an APK; Firebase App Distribution uses APKs (not bundles)
       build_type: "Release",
       properties: {
         "qaApplicationId"                             => package_name,
         "qaAppName"                                   => app_label,
+        "qaVersionCode"                               => qa_version_code,
         "android.injected.signing.store.file"         => "./upload-kstore.keystore",
         "android.injected.signing.store.password"     => options[:storepass],
         "android.injected.signing.key.alias"          => "upload-kstore",

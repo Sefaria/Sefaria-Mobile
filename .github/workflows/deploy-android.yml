@@ -37,11 +37,9 @@ jobs:
       - name: Set up Ruby + Fastlane
         uses: ruby/setup-ruby@v1
         with:
-          # 'bundler' reads the Ruby version from Gemfile.lock — keeps CI
-          # consistent with whatever version generated the lockfile.
-          ruby-version: 'bundler'
+          ruby-version: '3.2'
           bundler-cache: true
-          working-directory: android   # read android/Gemfile.lock, not the root one
+          working-directory: android   # install gems from android/Gemfile, not the root one
 
       - name: Install npm dependencies
         run: npm install
