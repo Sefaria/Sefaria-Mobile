@@ -177,7 +177,7 @@ class TextList extends React.Component {
         data={this.state.dataSource}
         extraData={`${this.props.fontSize}|${this.props.themeStr}`}
         renderItem={this.renderItem}
-        contentContainerStyle={{justifyContent: "center"}}
+        contentContainerStyle={[{justifyContent: "center"}, styles.scrollContentPaddingBottom]}
         onViewableItemsChanged={this.onViewableItemsChanged}
         ListEmptyComponent={
           <View style={styles.noLinks}>

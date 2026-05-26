@@ -234,7 +234,7 @@ class ConnectionsPanel extends React.PureComponent {
             <ScrollView
               style={styles.scrollViewPaddingInOrderToScroll}
               key={""+this.props.connectionsMode}
-              contentContainerStyle={styles.textListSummaryScrollView}>
+              contentContainerStyle={[styles.textListSummaryScrollView, styles.scrollContentPaddingBottom]}>
                 {buttons}
             </ScrollView>
           );

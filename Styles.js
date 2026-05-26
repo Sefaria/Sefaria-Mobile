@@ -2,6 +2,7 @@
 import {
   StyleSheet,
   Platform,
+  Dimensions,
 } from 'react-native';
 
 import iPad from './isIPad';
@@ -9,6 +10,9 @@ const isIOS = Platform.OS === 'ios';
 const isAndroid = Platform.OS === 'android';
 const readerSideMargin = 42;
 const readerSideMarginIpad = 60;
+// 0.7 of the screen height. Allows a one-line last segment to scroll up to the top
+// of the screen when pressed, without scrolling it out of view.
+const scrollPaddingBottom = Dimensions.get('window').height * 0.7;
 
 export default StyleSheet.create({
   // Sefaria Design System - Content H2 English
@@ -1330,6 +1334,9 @@ export default StyleSheet.create({
   },
   scrollViewPaddingInOrderToScroll: {
     marginHorizontal: 1, // HACK: really unclear why this is necessary. leaving here until I figure it out
+  },
+  scrollContentPaddingBottom: {
+    paddingBottom: scrollPaddingBottom,
   },
   categorySideColorLink: {
     flex:1,
