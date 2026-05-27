@@ -10,6 +10,9 @@ on:
         required: false
         default: ''
 
+permissions:
+  contents: write   # required for the bot commit + push after the build
+
 jobs:
   android-release:
     runs-on: ubuntu-latest
@@ -97,6 +100,15 @@ jobs:
         run: |
           echo "${{ secrets.PLAY_JSON_BASE64 }}" \
             | base64 --decode > android/keystores/production-deployment-a34193910650.json
+
+      - name: Decode Google Services JSON
+        # google-services.json is gitignored; decode the production config from a secret.
+        # QA builds get a per-branch config downloaded by get_or_create_firebase_app.sh.
+        # The release build uses the production package name (org.sefaria.sefaria) so it
+        # needs the production google-services.json committed in this step.
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" \
+            | base64 --decode > android/app/google-services.json
 
       - name: Create envvars.sh
         run: |

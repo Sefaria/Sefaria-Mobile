@@ -10,8 +10,15 @@ on:
       - main
       - master
 
+permissions:
+  contents: write   # required for the bot commit + push after the build
+
 jobs:
   android-deploy:
+    # Skip if the trigger was a bot commit (e.g. the source-file update we push back).
+    # [skip ci] in the commit message is the primary guard, but this job-level check
+    # is a belt-and-suspenders fallback in case [skip ci] is not honoured.
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest   # Android builds don't need macOS — faster & cheaper
 
     steps:

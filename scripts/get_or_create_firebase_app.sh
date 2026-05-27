@@ -79,13 +79,37 @@ for app in data.get('apps', []):
 }
 
 # ------------------------------------------------------------------
-# Check whether a Firebase Android app with this package name exists
+# Check whether a Firebase Android app with this package name exists.
+# The endpoint is paginated; loop through all pages so we don't
+# accidentally create a duplicate once the project has many apps.
 # ------------------------------------------------------------------
-LIST_RESPONSE=$(curl -sf \
-  -H "Authorization: Bearer $(get_token)" \
-  "https://firebase.googleapis.com/v1beta1/projects/${FIREBASE_PROJECT_ID}/androidApps")
+EXISTING_ID=""
+PAGE_TOKEN=""
+while true; do
+  # Request up to 100 apps per page (API maximum).
+  URL="https://firebase.googleapis.com/v1beta1/projects/${FIREBASE_PROJECT_ID}/androidApps?pageSize=100"
+  if [ -n "$PAGE_TOKEN" ]; then
+    ENCODED_TOKEN=$(python3 -c \
+      "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" \
+      "$PAGE_TOKEN")
+    URL="${URL}&pageToken=${ENCODED_TOKEN}"
+  fi
 
-EXISTING_ID=$(echo "$LIST_RESPONSE" | json_find_app_id "$PACKAGE_NAME")
+  PAGE=$(curl -sf \
+    -H "Authorization: Bearer $(get_token)" \
+    "$URL")
+
+  MATCH=$(echo "$PAGE" | json_find_app_id "$PACKAGE_NAME")
+  if [ -n "$MATCH" ]; then
+    EXISTING_ID="$MATCH"
+    break
+  fi
+
+  # Advance to the next page, or stop if this was the last one.
+  PAGE_TOKEN=$(echo "$PAGE" | python3 -c \
+    "import sys, json; print(json.load(sys.stdin).get('nextPageToken', ''))")
+  [ -z "$PAGE_TOKEN" ] && break
+done
 
 get_app_id_and_maybe_config() {
   local app_id="$1"
