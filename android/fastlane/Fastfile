@@ -33,7 +33,7 @@ platform :android do
     # Version bump is handled by CI (deploy-android-release.yml) before this lane runs.
     # If running locally, bump build.gradle manually first.
     gradle(
-      task: "bundle",           # Play Store requires AAB, not APK
+      task: "bundle",
       build_type: "Release",
       properties: {
         # No qaApplicationId — falls back to "org.sefaria.sefaria" (production)

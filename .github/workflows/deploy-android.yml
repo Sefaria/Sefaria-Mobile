@@ -19,7 +19,7 @@ jobs:
     # [skip ci] in the commit message is the primary guard, but this job-level check
     # is a belt-and-suspenders fallback in case [skip ci] is not honoured.
     if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-latest   # Android builds don't need macOS — faster & cheaper
+    runs-on: ubuntu-latest
 
     steps:
       # actions/checkout leaves a detached HEAD by default, so `git branch --show-current`
