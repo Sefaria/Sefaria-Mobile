@@ -93,7 +93,10 @@ get_app_id_and_maybe_config() {
       -H "Authorization: Bearer $(get_token)" \
       "https://firebase.googleapis.com/v1beta1/projects/${FIREBASE_PROJECT_ID}/androidApps/${app_id}/config" \
       | python3 -c "import sys,json; print(json.load(sys.stdin)['configFileContents'])")
-    echo "$CONFIG_B64" | base64 --decode > "$GOOGLE_SERVICES_OUTPUT"
+    # Use python3 for decoding: `base64 --decode` is GNU-only; macOS/BSD uses `base64 -D`.
+    echo "$CONFIG_B64" | python3 -c "
+import sys, base64
+sys.stdout.buffer.write(base64.b64decode(sys.stdin.read().strip()))" > "$GOOGLE_SERVICES_OUTPUT"
     >&2 echo "✅ Written to ${GOOGLE_SERVICES_OUTPUT}"
   fi
 
@@ -110,10 +113,17 @@ fi
 # ------------------------------------------------------------------
 >&2 echo "Firebase app '${PACKAGE_NAME}' not found — creating..."
 
+# Build the JSON payload safely via python3 (sys.argv) so that quotes,
+# backslashes, or other special characters in the values cannot break the JSON.
+CREATE_PAYLOAD=$(python3 -c "
+import json, sys
+print(json.dumps({'packageName': sys.argv[1], 'displayName': sys.argv[2]})
+)" "$PACKAGE_NAME" "$DISPLAY_NAME")
+
 CREATE_RESPONSE=$(curl -sf -X POST \
   -H "Authorization: Bearer $(get_token)" \
   -H "Content-Type: application/json" \
-  -d "{\"packageName\": \"${PACKAGE_NAME}\", \"displayName\": \"${DISPLAY_NAME}\"}" \
+  -d "$CREATE_PAYLOAD" \
   "https://firebase.googleapis.com/v1beta1/projects/${FIREBASE_PROJECT_ID}/androidApps")
 
 # The create call is async — it returns a long-running Operation. Poll until done.

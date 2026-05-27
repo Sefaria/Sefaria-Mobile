@@ -15,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest   # Android builds don't need macOS — faster & cheaper
 
     steps:
+      # actions/checkout leaves a detached HEAD by default, so `git branch --show-current`
+      # returns an empty string inside the Fastlane lane.  The Fastfile reads GITHUB_REF_NAME
+      # instead (always set by GitHub Actions), so no explicit branch checkout is needed.
       - uses: actions/checkout@v4
 
       - name: Set up Java 17

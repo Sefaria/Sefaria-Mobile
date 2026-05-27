@@ -53,13 +53,21 @@ platform :android do
 
         The package name is derived automatically from the current git branch."
   lane :testrelease do |options|
-    branch = sh("git branch --show-current").strip
+    # GITHUB_REF_NAME is always set in GitHub Actions and contains the branch name.
+    # Fall back to git for local runs. git branch --show-current returns empty string
+    # in a detached HEAD (which is what actions/checkout produces by default), so
+    # default to "unknown" as a last resort rather than producing a broken package name.
+    branch = (ENV["GITHUB_REF_NAME"] || sh("git branch --show-current").strip).strip
+    branch = "unknown" if branch.empty?
 
-    # Derive a safe package name suffix from the branch name.
+    # Derive a safe Java package-name segment from the branch name.
+    # Only [a-zA-Z0-9_] are valid; the segment must not start with a digit.
     # e.g. "feature/dark-mode" → "feature_dark_mode"
-    # Only letters, numbers, and underscores are valid in Java package name segments.
+    #      "42-fix-bug"         → "b42_fix_bug"  (prefixed to avoid leading digit)
     safe_suffix = branch.gsub(/[^a-zA-Z0-9]/, "_").downcase
-    safe_suffix = safe_suffix[0..40]  # keep total package name well under 255 chars
+    safe_suffix = safe_suffix[0..40]
+    # Prefix with "b" if empty or starts with a digit (Java package segment rules)
+    safe_suffix = "b#{safe_suffix}" if safe_suffix.empty? || safe_suffix.match?(/\A[0-9]/)
 
     is_main = ["main", "master"].include?(branch)
     package_name = is_main \
