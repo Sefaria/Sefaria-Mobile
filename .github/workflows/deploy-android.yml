@@ -70,7 +70,9 @@ jobs:
       - name: Create envvars.sh
         run: |
           echo "export SOURCE_SERVER=\"https://readonly.sefaria.org/\""  >> scripts/envvars.sh
-          echo "export SOURCE_UNIX_PATH=\"static/android-export/\""      >> scripts/envvars.sh
+          # update_sources.sh copies files to both ios/sources/ and android/app/…/sources/
+          # from the same server path.  Only ios-export/ exists (android-export/ is a 404).
+          echo "export SOURCE_UNIX_PATH=\"static/ios-export/\""           >> scripts/envvars.sh
 
       - name: List keystore (debug info)
         working-directory: android
@@ -87,19 +89,21 @@ jobs:
         run: |
           bundle exec fastlane android testrelease storepass:${{ secrets.STOREPASS }}
 
-      - name: Commit version bump
+      - name: Commit updated source files
         if: success()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Stage source JSON files so iOS builds (Fastlane or CI) use the same
+          # snapshot that was bundled into the Android APK.  update_sources.sh
+          # writes to both directories in a single run, so committing both here
+          # replaces the manual "run Android then iOS from the same machine" flow.
+          git add android/app/src/main/assets/sources/ ios/sources/ || true
           git add android/app/build.gradle
           if git diff --cached --quiet; then
-            echo "No version bump detected; skipping commit"
+            echo "No changes to commit; skipping"
           else
-            # tr removes spaces and Windows-style \r that awk may leave on the value
-            NEW=$(grep "^def VERSION_BUILD" android/app/build.gradle \
-              | awk -F'=' '{print $2}' | tr -d ' \r')
-            git commit -m "ci: bump Android versionCode to $NEW [skip ci]"
+            git commit -m "ci: update source files [skip ci]"
             git push origin HEAD:${GITHUB_REF#refs/heads/}
           fi
 
