@@ -2,4 +2,5 @@
 #
 # Ensure this file is checked in to source control!
 
-gem 'fastlane-plugin-firebase_app_distribution'
+# No plugins required for the iOS beta lane.
+# (firebase_app_distribution was previously listed here but is not used by iOS.)

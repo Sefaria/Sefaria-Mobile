@@ -26,7 +26,9 @@ platform :android do
           bundle exec fastlane android release storepass:YOUR_PASSWORD"
   lane :release do |options|
     sh("../../scripts/update_sources.sh")
-    sh("cd ../../ && npm install")
+    # CI workflows run `npm install` before invoking Fastlane (with node module caching).
+    # Skip the duplicate install when CI=true to avoid running it twice.
+    sh("cd ../../ && npm install") unless ENV["CI"]
     gradle(task: "clean")
     # Version bump is handled by CI (deploy-android-release.yml) before this lane runs.
     # If running locally, bump build.gradle manually first.
@@ -101,7 +103,9 @@ platform :android do
     UI.message("🔥 Firebase App ID: #{firebase_app_id}")
 
     sh("../../scripts/update_sources.sh")
-    sh("cd ../../ && npm install")
+    # CI workflows run `npm install` before invoking Fastlane (with node module caching).
+    # Skip the duplicate install when CI=true to avoid running it twice.
+    sh("cd ../../ && npm install") unless ENV["CI"]
     gradle(task: "clean")
     # Use a Unix timestamp as the version code for QA builds.
     # This avoids bumping VERSION_BUILD in build.gradle on every test run,

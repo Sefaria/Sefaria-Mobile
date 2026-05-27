@@ -2,4 +2,8 @@
 #
 # Ensure this file is checked in to source control!
 
-gem 'fastlane-plugin-firebase_app_distribution'
+# Note: the testrelease lane uses the Firebase CLI directly (via `firebase appdistribution:distribute`)
+# rather than this plugin, because apps created via the Firebase Management REST API are not
+# automatically initialised in App Distribution — the plugin's REST API returns 404 for newly
+# created apps, while the CLI handles first-time initialisation automatically.
+# The plugin gem is therefore not needed and is intentionally absent.
