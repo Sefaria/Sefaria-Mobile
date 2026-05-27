@@ -18,7 +18,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Use a PAT so the version-bump commit can be pushed back to the protected
+      # master branch.  GITHUB_TOKEN is blocked by branch protection rules.
+      # BOT_GITHUB_PAT must be a fine-grained token with Contents: Read+Write
+      # and bypass rights configured in the branch protection rule.
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_GITHUB_PAT }}
 
       - name: Verify branch is master/main
         # Prevent accidentally releasing a feature branch.
@@ -133,9 +139,9 @@ jobs:
             echo "No changes to commit; skipping"
           else
             VNAME=$(grep -E '^def VERSION_(MAJOR|MINOR|PATCH)=' android/app/build.gradle \
-              | awk -F'=' '{print $2}' | tr '\n' '.' | sed 's/\.$//')
+              | awk -F'=' '{print $2}' | tr -d '\r' | tr '\n' '.' | sed 's/\.$//')
             VCODE=$(grep '^def VERSION_BUILD=' android/app/build.gradle \
-              | cut -d= -f2)
+              | cut -d= -f2 | tr -d ' \r')
             git commit -m "ci: release Android $VNAME (versionCode $VCODE) [skip ci]"
             git push origin HEAD:${GITHUB_REF#refs/heads/}
           fi
