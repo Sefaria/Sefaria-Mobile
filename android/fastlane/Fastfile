@@ -13,27 +13,142 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+require 'shellwords'   # for Array#shelljoin — safely quotes Firebase CLI args
+
 default_platform :android
 
 platform :android do
 
-  desc "Builds a release for internal testing deployed via the Google Play Store"
-  lane :testrelease do |options|
+  desc "Builds a production AAB and uploads to the Play Store internal testing track.
+        Promotes from there to production via the Play Console as usual.
+
+        Usage:
+          bundle exec fastlane android release storepass:YOUR_PASSWORD"
+  lane :release do |options|
     sh("../../scripts/update_sources.sh")
-    sh("cd ../../ && npm install")
+    # CI workflows run `npm install` before invoking Fastlane (with node module caching).
+    # Skip the duplicate install when CI=true to avoid running it twice.
+    sh("cd ../../ && npm install") unless ENV["CI"]
     gradle(task: "clean")
-    increment_android_version_code(path: "app/build.gradle")
+    # Version bump is handled by CI (deploy-android-release.yml) before this lane runs.
+    # If running locally, bump build.gradle manually first.
     gradle(
       task: "bundle",
       build_type: "Release",
       properties: {
-        "android.injected.signing.store.file" => "./upload-kstore.keystore",
+        # No qaApplicationId — falls back to "org.sefaria.sefaria" (production)
+        "android.injected.signing.store.file"     => "./upload-kstore.keystore",
         "android.injected.signing.store.password" => options[:storepass],
-        "android.injected.signing.key.alias" => "upload-kstore",
-        "android.injected.signing.key.password" => options[:storepass],
+        "android.injected.signing.key.alias"      => "upload-kstore",
+        "android.injected.signing.key.password"   => options[:storepass],
+      }
+    )
+    upload_to_play_store(track: "internal")
+  end
+
+  desc "Builds a QA APK for the current branch and distributes via Firebase App Distribution.
+        The app gets a unique package name derived from the branch name, so it installs
+        alongside the production app (and any other QA branch builds) without overwriting them.
+
+        Usage:
+          bundle exec fastlane android testrelease storepass:YOUR_PASSWORD
+
+        The package name is derived automatically from the current git branch."
+  lane :testrelease do |options|
+    # GITHUB_REF_NAME is always set in GitHub Actions and contains the branch name.
+    # Fall back to git for local runs. git branch --show-current returns empty string
+    # in a detached HEAD (which is what actions/checkout produces by default), so
+    # default to "unknown" as a last resort rather than producing a broken package name.
+    branch = (ENV["GITHUB_REF_NAME"] || sh("git branch --show-current").strip).strip
+    branch = "unknown" if branch.empty?
+
+    # Derive a safe Java package-name segment from the branch name.
+    # Only [a-zA-Z0-9_] are valid; the segment must not start with a digit.
+    # e.g. "feature/dark-mode" → "feature_dark_mode"
+    #      "42-fix-bug"         → "b42_fix_bug"  (prefixed to avoid leading digit)
+    safe_suffix = branch.gsub(/[^a-zA-Z0-9]/, "_").downcase
+    safe_suffix = safe_suffix[0..40]
+    # Prefix with "b" if empty or starts with a digit (Java package segment rules)
+    safe_suffix = "b#{safe_suffix}" if safe_suffix.empty? || safe_suffix.match?(/\A[0-9]/)
+
+    is_main = ["main", "master"].include?(branch)
+    package_name = is_main \
+      ? "org.sefaria.sefaria.staging" \
+      : "org.sefaria.sefaria.#{safe_suffix}"
+
+    # Strip any characters that would break shell quoting (branch names rarely have
+    # single quotes, but sanitise defensively since this ends up in a shell command).
+    safe_branch_label = branch[0..20].gsub(/[^a-zA-Z0-9 \-_\/.]/, "")
+    app_label = is_main ? "Sefaria Staging" : "Sefaria #{safe_branch_label}"
+
+    UI.message("📦 Building for branch: #{branch}")
+    UI.message("📦 Package name: #{package_name}")
+    UI.message("📦 App label:    #{app_label}")
+
+    # Auto-register or retrieve the Firebase app for this package name.
+    # The script also writes a matching google-services.json for this package name
+    # so the com.google.gms.google-services Gradle plugin finds the right client entry.
+    #
+    # sh() in the Android fastlane runs from android/fastlane/, so:
+    #   ../../scripts/  = Mobile/scripts/
+    #   ../app/         = android/app/
+    #
+    # package_name is already sanitised to [a-z0-9_.] so it's safe to quote with ''.
+    # app_label has been stripped of shell-special characters above.
+    firebase_app_id = sh(
+      "../../scripts/get_or_create_firebase_app.sh '#{package_name}' '#{app_label}' '../app/google-services.json'"
+    # Fastlane's sh() captures stdout+stderr merged, so diagnostic lines from the
+    # script appear before the app ID. The app ID is always the last non-empty line.
+    ).strip.split("\n").last.to_s.strip
+    UI.message("🔥 Firebase App ID: #{firebase_app_id}")
+
+    sh("../../scripts/update_sources.sh")
+    # CI workflows run `npm install` before invoking Fastlane (with node module caching).
+    # Skip the duplicate install when CI=true to avoid running it twice.
+    sh("cd ../../ && npm install") unless ENV["CI"]
+    gradle(task: "clean")
+    # Use a Unix timestamp as the version code for QA builds.
+    # This avoids bumping VERSION_BUILD in build.gradle on every test run,
+    # which would create merge conflicts when multiple branches are active.
+    # The timestamp is always unique and increasing, so Android treats each
+    # build as an update. Production releases use VERSION_BUILD (incremented
+    # only in the release lane and committed to master).
+    qa_version_code = Time.now.to_i
+    gradle(
+      task: "assemble",       # assemble builds an APK; Firebase App Distribution uses APKs (not bundles)
+      build_type: "Release",
+      properties: {
+        "qaApplicationId"                             => package_name,
+        "qaAppName"                                   => app_label,
+        "qaVersionCode"                               => qa_version_code,
+        "android.injected.signing.store.file"         => "./upload-kstore.keystore",
+        "android.injected.signing.store.password"     => options[:storepass],
+        "android.injected.signing.key.alias"          => "upload-kstore",
+        "android.injected.signing.key.password"       => options[:storepass],
       }
     )
 
-    upload_to_play_store(track: 'internal')
+    apk_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+    UI.message("🔥 Firebase App ID: #{firebase_app_id}")
+    UI.message("📦 APK path: #{apk_path}")
+
+    # Use Firebase CLI directly instead of the Fastlane plugin REST API.
+    #
+    # Why CLI and not the firebase_app_distribution plugin?
+    # Apps created via the Firebase Management REST API are NOT automatically
+    # initialised in App Distribution — the plugin's REST API returns 404 for
+    # newly created apps. Firebase CLI handles first-time app initialisation
+    # automatically, so it works for both new and existing branch apps.
+    #
+    # Auth (checked in this order by the Firebase CLI):
+    #   1. GOOGLE_APPLICATION_CREDENTIALS → service account key file (CI)
+    #   2. FIREBASE_TOKEN env var          → CI token from `firebase login:ci`
+    #   3. ~/.config/firebase/token        → interactive login (`firebase login`)
+    sh([
+      "firebase", "appdistribution:distribute", apk_path,
+      "--app",          firebase_app_id,
+      "--groups",       "qa-team",
+      "--release-notes", "Branch: #{branch}",
+    ].shelljoin)
   end
 end

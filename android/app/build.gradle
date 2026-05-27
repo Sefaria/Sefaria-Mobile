@@ -96,10 +96,19 @@ android {
 
     namespace "org.sefaria.sefaria"
     defaultConfig {
-        applicationId "org.sefaria.sefaria"
+        // qaApplicationId is passed by Fastlane/CI for QA builds (e.g. "org.sefaria.sefaria.my_branch").
+        // Falls back to the production ID when not set, so production builds are unaffected.
+        applicationId project.findProperty("qaApplicationId") ?: "org.sefaria.sefaria"
+
+        // qaAppName is passed by Fastlane/CI so each QA build shows its own label on the home screen.
+        // Falls back to "Sefaria" for production builds.
+        resValue "string", "app_name", project.findProperty("qaAppName") ?: "Sefaria"
+
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode VERSION_BUILD
+        // qaVersionCode is passed by Fastlane for QA/test builds (Unix timestamp).
+        // Production release builds use VERSION_BUILD, which is incremented and committed.
+        versionCode project.findProperty("qaVersionCode")?.toInteger() ?: VERSION_BUILD
         versionName VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH
         multiDexEnabled true
     }
