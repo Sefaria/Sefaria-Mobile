@@ -1,0 +1,116 @@
+name: 🚀 Deploy Android Production Release
+
+# Manual trigger only — production releases should never run automatically.
+# Must be run from master/main (enforced below).
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Version name to release, e.g. 6.8.0  (leave blank to keep current)'
+        required: false
+        default: ''
+
+jobs:
+  android-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify branch is master/main
+        # Prevent accidentally releasing a feature branch.
+        run: |
+          BRANCH=${GITHUB_REF#refs/heads/}
+          if [[ "$BRANCH" != "master" && "$BRANCH" != "main" ]]; then
+            echo "❌ Production releases must run from master or main (got: $BRANCH)"
+            exit 1
+          fi
+
+      - name: Bump version in build.gradle
+        # Always increments VERSION_BUILD by 1.
+        # If version_name was supplied (e.g. "6.8.0"), also updates MAJOR/MINOR/PATCH.
+        run: |
+          INPUT="${{ github.event.inputs.version_name }}"
+          if [[ -n "$INPUT" ]]; then
+            MAJOR=$(echo "$INPUT" | cut -d. -f1)
+            MINOR=$(echo "$INPUT" | cut -d. -f2)
+            PATCH=$(echo "$INPUT" | cut -d. -f3)
+            sed -i "s/^def VERSION_MAJOR=.*/def VERSION_MAJOR=$MAJOR/" android/app/build.gradle
+            sed -i "s/^def VERSION_MINOR=.*/def VERSION_MINOR=$MINOR/" android/app/build.gradle
+            sed -i "s/^def VERSION_PATCH=.*/def VERSION_PATCH=$PATCH/" android/app/build.gradle
+            echo "📦 Version name set to $MAJOR.$MINOR.$PATCH"
+          fi
+          CURRENT=$(grep '^def VERSION_BUILD=' android/app/build.gradle | cut -d= -f2)
+          NEW_BUILD=$((CURRENT + 1))
+          sed -i "s/^def VERSION_BUILD=.*/def VERSION_BUILD=$NEW_BUILD/" android/app/build.gradle
+          echo "📦 VERSION_BUILD bumped: $CURRENT → $NEW_BUILD"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Set up Ruby + Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: android   # install gems from android/Gemfile, not root
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Decode Android keystore
+        # Gradle resolves ./upload-kstore.keystore relative to the :app subproject
+        # directory (android/app/), not the root project (android/).
+        # Decode to both locations so it works regardless of how the path resolves.
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/upload-kstore.keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-kstore.keystore
+
+      - name: Decode Google Play service account
+        # SUPPLY_JSON_KEY is read automatically by Fastlane's upload_to_play_store action.
+        # This is a different service account from the Firebase one in the QA workflow.
+        # It needs "Release Manager" access in Google Play Console.
+        run: |
+          echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}" \
+            | base64 --decode > /tmp/play-service-account.json
+          echo "SUPPLY_JSON_KEY=/tmp/play-service-account.json" >> $GITHUB_ENV
+
+      - name: Create envvars.sh
+        run: |
+          echo "export SOURCE_SERVER=\"https://readonly.sefaria.org/\""  >> scripts/envvars.sh
+          echo "export SOURCE_UNIX_PATH=\"static/ios-export/\""           >> scripts/envvars.sh
+
+      - name: Run Fastlane release
+        working-directory: android
+        run: bundle exec fastlane android release storepass:${{ secrets.STOREPASS }}
+
+      - name: Commit version bump and source files
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add android/app/build.gradle
+          git add android/app/src/main/assets/sources/ ios/sources/ || true
+          if git diff --cached --quiet; then
+            echo "No changes to commit; skipping"
+          else
+            VNAME=$(grep -E '^def VERSION_(MAJOR|MINOR|PATCH)=' android/app/build.gradle \
+              | awk -F'=' '{print $2}' | tr '\n' '.' | sed 's/\.$//')
+            VCODE=$(grep '^def VERSION_BUILD=' android/app/build.gradle \
+              | cut -d= -f2)
+            git commit -m "ci: release Android $VNAME (versionCode $VCODE) [skip ci]"
+            git push origin HEAD:${GITHUB_REF#refs/heads/}
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: rm -f /tmp/play-service-account.json android/upload-kstore.keystore android/app/upload-kstore.keystore
