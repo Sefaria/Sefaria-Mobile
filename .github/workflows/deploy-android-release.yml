@@ -76,13 +76,11 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-kstore.keystore
 
       - name: Decode Google Play service account
-        # SUPPLY_JSON_KEY is read automatically by Fastlane's upload_to_play_store action.
-        # This is a different service account from the Firebase one in the QA workflow.
-        # It needs "Release Manager" access in Google Play Console.
+        # The Appfile (android/fastlane/Appfile) points Fastlane to this exact path.
+        # Same credential as PLAY_JSON_BASE64 used in the old deploy-android.yml.
         run: |
-          echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}" \
-            | base64 --decode > /tmp/play-service-account.json
-          echo "SUPPLY_JSON_KEY=/tmp/play-service-account.json" >> $GITHUB_ENV
+          echo "${{ secrets.PLAY_JSON_BASE64 }}" \
+            | base64 --decode > android/keystores/production-deployment-a34193910650.json
 
       - name: Create envvars.sh
         run: |
@@ -113,4 +111,6 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: rm -f /tmp/play-service-account.json android/upload-kstore.keystore android/app/upload-kstore.keystore
+        run: |
+          rm -f android/keystores/production-deployment-a34193910650.json
+          rm -f android/upload-kstore.keystore android/app/upload-kstore.keystore
