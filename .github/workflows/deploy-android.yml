@@ -70,7 +70,8 @@ jobs:
         # Firebase CLI is used by the testrelease lane to distribute the APK.
         # It handles first-time App Distribution app initialisation, which the
         # Fastlane plugin REST API cannot do for dynamically-created Firebase apps.
-        run: npm install -g firebase-tools
+        # Pinned to avoid surprise breakage from upstream CLI changes.
+        run: npm install -g firebase-tools@15.18.0
 
       - name: Decode Android keystore
         # Gradle resolves ./upload-kstore.keystore relative to the :app subproject
