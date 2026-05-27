@@ -59,12 +59,14 @@ jobs:
           java-version: 17
 
       - name: Set up Android SDK components
-        # ubuntu-latest has the SDK pre-installed but only a subset of packages.
+        # ubuntu-latest has the SDK pre-installed at $ANDROID_HOME but sdkmanager
+        # is not on PATH — use the full path to the cmdline-tools binary.
         # Explicitly install the versions pinned in android/build.gradle so builds
         # are deterministic regardless of what the runner image happens to include.
         run: |
-          yes | sdkmanager --licenses > /dev/null
-          sdkmanager \
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null
+          "$SDKMANAGER" \
             "platform-tools" \
             "platforms;android-36" \
             "build-tools;36.0.0" \
