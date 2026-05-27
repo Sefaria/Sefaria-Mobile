@@ -55,6 +55,18 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Set up Android SDK components
+        # ubuntu-latest has the SDK pre-installed but only a subset of packages.
+        # Explicitly install the versions pinned in android/build.gradle so builds
+        # are deterministic regardless of what the runner image happens to include.
+        run: |
+          yes | sdkmanager --licenses > /dev/null
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;27.1.12297006"
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:

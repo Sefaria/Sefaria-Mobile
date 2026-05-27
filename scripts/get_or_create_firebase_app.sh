@@ -26,10 +26,15 @@ GOOGLE_SERVICES_OUTPUT="${3:-}"   # optional; if set, write the app's google-ser
 FIREBASE_PROJECT_ID="sefaria-mobile-analytics"
 
 # Authenticate once if a service account key file is provided.
-# On a developer machine with `gcloud auth login` already done, this is a no-op.
+# On a developer machine with `gcloud auth login` already done, skip this block.
 if [ -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" ]; then
-  gcloud auth activate-service-account \
-    --key-file="$GOOGLE_APPLICATION_CREDENTIALS" --quiet 2>/dev/null || true
+  if ! gcloud auth activate-service-account \
+    --key-file="$GOOGLE_APPLICATION_CREDENTIALS" --quiet; then
+    >&2 echo "ERROR: Failed to activate service account."
+    >&2 echo "       Check that GOOGLE_APPLICATION_CREDENTIALS points to a valid key file:"
+    >&2 echo "       ${GOOGLE_APPLICATION_CREDENTIALS}"
+    exit 1
+  fi
 fi
 
 # Helper: fetch a fresh short-lived OAuth2 token.
