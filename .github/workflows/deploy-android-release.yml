@@ -47,7 +47,8 @@ jobs:
             sed -i "s/^def VERSION_PATCH=.*/def VERSION_PATCH=$PATCH/" android/app/build.gradle
             echo "📦 Version name set to $MAJOR.$MINOR.$PATCH"
           fi
-          CURRENT=$(grep '^def VERSION_BUILD=' android/app/build.gradle | cut -d= -f2)
+          # tr -d removes spaces and Windows-style \r that cut may leave on the value.
+          CURRENT=$(grep '^def VERSION_BUILD=' android/app/build.gradle | cut -d= -f2 | tr -d ' \r')
           NEW_BUILD=$((CURRENT + 1))
           sed -i "s/^def VERSION_BUILD=.*/def VERSION_BUILD=$NEW_BUILD/" android/app/build.gradle
           echo "📦 VERSION_BUILD bumped: $CURRENT → $NEW_BUILD"
