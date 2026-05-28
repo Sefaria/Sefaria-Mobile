@@ -19,6 +19,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Verify branch is master/main
         run: |
@@ -137,10 +139,6 @@ jobs:
             VCODE=$(grep '^def VERSION_BUILD=' android/app/build.gradle \
               | cut -d= -f2 | tr -d ' \r')
             git commit -m "ci: release Android $VNAME (versionCode $VCODE) [skip ci]"
-            # actions/checkout injects GITHUB_TOKEN via an extraheader that overrides
-            # any credentials embedded in the remote URL.  Unset it so the App token
-            # (which has branch-protection bypass rights) is used exclusively.
-            git config --global --unset http.https://github.com/.extraheader || true
             git remote set-url origin \
               "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git"
             git push origin HEAD:${GITHUB_REF#refs/heads/}
