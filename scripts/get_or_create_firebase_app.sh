@@ -26,10 +26,15 @@ GOOGLE_SERVICES_OUTPUT="${3:-}"   # optional; if set, write the app's google-ser
 FIREBASE_PROJECT_ID="sefaria-mobile-analytics"
 
 # Authenticate once if a service account key file is provided.
-# On a developer machine with `gcloud auth login` already done, this is a no-op.
+# On a developer machine with `gcloud auth login` already done, skip this block.
 if [ -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" ]; then
-  gcloud auth activate-service-account \
-    --key-file="$GOOGLE_APPLICATION_CREDENTIALS" --quiet 2>/dev/null || true
+  if ! gcloud auth activate-service-account \
+    --key-file="$GOOGLE_APPLICATION_CREDENTIALS" --quiet; then
+    >&2 echo "ERROR: Failed to activate service account."
+    >&2 echo "       Check that GOOGLE_APPLICATION_CREDENTIALS points to a valid key file:"
+    >&2 echo "       ${GOOGLE_APPLICATION_CREDENTIALS}"
+    exit 1
+  fi
 fi
 
 # Helper: fetch a fresh short-lived OAuth2 token.
@@ -74,13 +79,37 @@ for app in data.get('apps', []):
 }
 
 # ------------------------------------------------------------------
-# Check whether a Firebase Android app with this package name exists
+# Check whether a Firebase Android app with this package name exists.
+# The endpoint is paginated; loop through all pages so we don't
+# accidentally create a duplicate once the project has many apps.
 # ------------------------------------------------------------------
-LIST_RESPONSE=$(curl -sf \
-  -H "Authorization: Bearer $(get_token)" \
-  "https://firebase.googleapis.com/v1beta1/projects/${FIREBASE_PROJECT_ID}/androidApps")
+EXISTING_ID=""
+PAGE_TOKEN=""
+while true; do
+  # Request up to 100 apps per page (API maximum).
+  URL="https://firebase.googleapis.com/v1beta1/projects/${FIREBASE_PROJECT_ID}/androidApps?pageSize=100"
+  if [ -n "$PAGE_TOKEN" ]; then
+    ENCODED_TOKEN=$(python3 -c \
+      "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" \
+      "$PAGE_TOKEN")
+    URL="${URL}&pageToken=${ENCODED_TOKEN}"
+  fi
 
-EXISTING_ID=$(echo "$LIST_RESPONSE" | json_find_app_id "$PACKAGE_NAME")
+  PAGE=$(curl -sf \
+    -H "Authorization: Bearer $(get_token)" \
+    "$URL")
+
+  MATCH=$(echo "$PAGE" | json_find_app_id "$PACKAGE_NAME")
+  if [ -n "$MATCH" ]; then
+    EXISTING_ID="$MATCH"
+    break
+  fi
+
+  # Advance to the next page, or stop if this was the last one.
+  PAGE_TOKEN=$(echo "$PAGE" | python3 -c \
+    "import sys, json; print(json.load(sys.stdin).get('nextPageToken', ''))")
+  [ -z "$PAGE_TOKEN" ] && break
+done
 
 get_app_id_and_maybe_config() {
   local app_id="$1"
@@ -93,7 +122,10 @@ get_app_id_and_maybe_config() {
       -H "Authorization: Bearer $(get_token)" \
       "https://firebase.googleapis.com/v1beta1/projects/${FIREBASE_PROJECT_ID}/androidApps/${app_id}/config" \
       | python3 -c "import sys,json; print(json.load(sys.stdin)['configFileContents'])")
-    echo "$CONFIG_B64" | base64 --decode > "$GOOGLE_SERVICES_OUTPUT"
+    # Use python3 for decoding: `base64 --decode` is GNU-only; macOS/BSD uses `base64 -D`.
+    echo "$CONFIG_B64" | python3 -c "
+import sys, base64
+sys.stdout.buffer.write(base64.b64decode(sys.stdin.read().strip()))" > "$GOOGLE_SERVICES_OUTPUT"
     >&2 echo "✅ Written to ${GOOGLE_SERVICES_OUTPUT}"
   fi
 
@@ -110,10 +142,17 @@ fi
 # ------------------------------------------------------------------
 >&2 echo "Firebase app '${PACKAGE_NAME}' not found — creating..."
 
+# Build the JSON payload safely via python3 (sys.argv) so that quotes,
+# backslashes, or other special characters in the values cannot break the JSON.
+CREATE_PAYLOAD=$(python3 -c "
+import json, sys
+print(json.dumps({'packageName': sys.argv[1], 'displayName': sys.argv[2]})
+)" "$PACKAGE_NAME" "$DISPLAY_NAME")
+
 CREATE_RESPONSE=$(curl -sf -X POST \
   -H "Authorization: Bearer $(get_token)" \
   -H "Content-Type: application/json" \
-  -d "{\"packageName\": \"${PACKAGE_NAME}\", \"displayName\": \"${DISPLAY_NAME}\"}" \
+  -d "$CREATE_PAYLOAD" \
   "https://firebase.googleapis.com/v1beta1/projects/${FIREBASE_PROJECT_ID}/androidApps")
 
 # The create call is async — it returns a long-running Operation. Poll until done.

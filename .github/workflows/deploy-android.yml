@@ -10,11 +10,21 @@ on:
       - main
       - master
 
+permissions:
+  contents: write   # required for the bot commit + push after the build
+
 jobs:
   android-deploy:
-    runs-on: ubuntu-latest   # Android builds don't need macOS — faster & cheaper
+    # Skip if the trigger was a bot commit (e.g. the source-file update we push back).
+    # [skip ci] in the commit message is the primary guard, but this job-level check
+    # is a belt-and-suspenders fallback in case [skip ci] is not honoured.
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
 
     steps:
+      # actions/checkout leaves a detached HEAD by default, so `git branch --show-current`
+      # returns an empty string inside the Fastlane lane.  The Fastfile reads GITHUB_REF_NAME
+      # instead (always set by GitHub Actions), so no explicit branch checkout is needed.
       - uses: actions/checkout@v4
 
       - name: Set up Java 17
@@ -22,6 +32,20 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+
+      - name: Set up Android SDK components
+        # ubuntu-latest has the SDK pre-installed at $ANDROID_HOME but sdkmanager
+        # is not on PATH — use the full path to the cmdline-tools binary.
+        # Explicitly install the versions pinned in android/build.gradle so builds
+        # are deterministic regardless of what the runner image happens to include.
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null
+          "$SDKMANAGER" \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;27.1.12297006"
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -48,7 +72,8 @@ jobs:
         # Firebase CLI is used by the testrelease lane to distribute the APK.
         # It handles first-time App Distribution app initialisation, which the
         # Fastlane plugin REST API cannot do for dynamically-created Firebase apps.
-        run: npm install -g firebase-tools
+        # Pinned to avoid surprise breakage from upstream CLI changes.
+        run: npm install -g firebase-tools@15.18.0
 
       - name: Decode Android keystore
         # Gradle resolves ./upload-kstore.keystore relative to the :app subproject

@@ -10,15 +10,19 @@ on:
         required: false
         default: ''
 
+permissions:
+  contents: write
+
 jobs:
   android-release:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Verify branch is master/main
-        # Prevent accidentally releasing a feature branch.
         run: |
           BRANCH=${GITHUB_REF#refs/heads/}
           if [[ "$BRANCH" != "master" && "$BRANCH" != "main" ]]; then
@@ -32,6 +36,10 @@ jobs:
         run: |
           INPUT="${{ github.event.inputs.version_name }}"
           if [[ -n "$INPUT" ]]; then
+            if ! [[ "$INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "❌ version_name must be MAJOR.MINOR.PATCH (e.g. 6.8.0), got: '$INPUT'"
+              exit 1
+            fi
             MAJOR=$(echo "$INPUT" | cut -d. -f1)
             MINOR=$(echo "$INPUT" | cut -d. -f2)
             PATCH=$(echo "$INPUT" | cut -d. -f3)
@@ -40,7 +48,8 @@ jobs:
             sed -i "s/^def VERSION_PATCH=.*/def VERSION_PATCH=$PATCH/" android/app/build.gradle
             echo "📦 Version name set to $MAJOR.$MINOR.$PATCH"
           fi
-          CURRENT=$(grep '^def VERSION_BUILD=' android/app/build.gradle | cut -d= -f2)
+          # tr -d removes Windows-style \r that cut may leave on the value
+          CURRENT=$(grep '^def VERSION_BUILD=' android/app/build.gradle | cut -d= -f2 | tr -d ' \r')
           NEW_BUILD=$((CURRENT + 1))
           sed -i "s/^def VERSION_BUILD=.*/def VERSION_BUILD=$NEW_BUILD/" android/app/build.gradle
           echo "📦 VERSION_BUILD bumped: $CURRENT → $NEW_BUILD"
@@ -50,6 +59,17 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+
+      - name: Set up Android SDK components
+        # sdkmanager is not on PATH on ubuntu-latest — use the full path.
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null
+          "$SDKMANAGER" \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;27.1.12297006"
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -62,25 +82,27 @@ jobs:
         with:
           ruby-version: '3.2'
           bundler-cache: true
-          working-directory: android   # install gems from android/Gemfile, not root
+          working-directory: android
 
       - name: Install npm dependencies
         run: npm install
 
       - name: Decode Android keystore
-        # Gradle resolves ./upload-kstore.keystore relative to the :app subproject
-        # directory (android/app/), not the root project (android/).
-        # Decode to both locations so it works regardless of how the path resolves.
+        # Decode to both android/ and android/app/ — Gradle resolves the path
+        # relative to the :app subproject directory, but this varies by Gradle version.
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/upload-kstore.keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-kstore.keystore
 
       - name: Decode Google Play service account
-        # The Appfile (android/fastlane/Appfile) points Fastlane to this exact path.
-        # Same credential as PLAY_JSON_BASE64 used in the old deploy-android.yml.
         run: |
           echo "${{ secrets.PLAY_JSON_BASE64 }}" \
             | base64 --decode > android/keystores/production-deployment-a34193910650.json
+
+      - name: Decode Google Services JSON
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" \
+            | base64 --decode > android/app/google-services.json
 
       - name: Create envvars.sh
         run: |
@@ -90,6 +112,17 @@ jobs:
       - name: Run Fastlane release
         working-directory: android
         run: bundle exec fastlane android release storepass:${{ secrets.STOREPASS }}
+
+      - name: Generate GitHub App token for protected-branch push
+        # Short-lived token scoped only to the push step below.
+        # The App must be installed on this repo and listed under
+        # "Allow specified actors to bypass required pull requests" in branch protection.
+        if: success()
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Commit version bump and source files
         if: success()
@@ -102,10 +135,12 @@ jobs:
             echo "No changes to commit; skipping"
           else
             VNAME=$(grep -E '^def VERSION_(MAJOR|MINOR|PATCH)=' android/app/build.gradle \
-              | awk -F'=' '{print $2}' | tr '\n' '.' | sed 's/\.$//')
+              | awk -F'=' '{print $2}' | tr -d '\r' | tr '\n' '.' | sed 's/\.$//')
             VCODE=$(grep '^def VERSION_BUILD=' android/app/build.gradle \
-              | cut -d= -f2)
+              | cut -d= -f2 | tr -d ' \r')
             git commit -m "ci: release Android $VNAME (versionCode $VCODE) [skip ci]"
+            git remote set-url origin \
+              "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git"
             git push origin HEAD:${GITHUB_REF#refs/heads/}
           fi
 
