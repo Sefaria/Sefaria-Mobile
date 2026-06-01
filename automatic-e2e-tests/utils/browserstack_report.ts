@@ -116,7 +116,13 @@ export async function setBrowserstackSuiteStatus(
       }
     })}`, []);
 
-    await setBrowserstackStatus(client, finalStatus, `${suiteName} completed: ${passedTests}/${totalTests} tests passed`);
+    let listOfTestResults = "\n";
+    tests.forEach(t => {
+      const status = t.state === 'passed' ? 'PASSED' : 'FAILED';
+      listOfTestResults += `   - ${status}: ${t.title}` + "\n";
+    });
+
+    await setBrowserstackStatus(client, finalStatus, `${suiteName} completed: ${passedTests}/${totalTests} tests passed \n${listOfTestResults}`);
     console.log(`[BROWSERSTACK] Final session status: ${finalStatus} (${passedTests}/${totalTests} tests passed)`);
   } catch (error) {
     console.error('❌ Failed to set final BrowserStack status:', error);

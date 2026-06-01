@@ -6,16 +6,22 @@
   "scripts": {
     "test:android:local": "cross-env PLATFORM=android RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts tests/*.spec.ts --timeout 300000",
     "test:ios:local": "cross-env PLATFORM=ios RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts tests/*.spec.ts --timeout 300000",
+    "regression:android:local": "cross-env PLATFORM=android RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.regression.json",
+    "regression:ios:local": "cross-env PLATFORM=ios RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.regression.json",
     "sanity:android:local": "cross-env PLATFORM=android RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.sanity.json",
     "sanity:ios:local": "cross-env PLATFORM=ios RUN_ENV=local NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.sanity.json",
     
     "test:android:browserstack": "cross-env PLATFORM=android RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts tests/*.spec.ts --timeout 300000",
     "test:ios:browserstack": "cross-env PLATFORM=ios RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --require ts-node/register --extensions ts tests/*.spec.ts --timeout 300000",
+    "regression:android:browserstack": "cross-env PLATFORM=android RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.regression.json",
+    "regression:ios:browserstack": "cross-env PLATFORM=ios RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.regression.json",
     "sanity:android:browserstack": "cross-env PLATFORM=android RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.sanity.json",
     "sanity:ios:browserstack": "cross-env PLATFORM=ios RUN_ENV=browserstack NODE_OPTIONS=\"--no-warnings --no-deprecation\" mocha --config .mocharc.sanity.json",
 
     "test:android:parallel": "cross-env PLATFORM=android node scripts/run-parallel-tests.js",
     "test:ios:parallel": "cross-env PLATFORM=ios node scripts/run-parallel-tests.js",
+    "regression:android:parallel": "cross-env PLATFORM=android MOCHA_CONFIG=.mocharc.regression.json node scripts/run-parallel-tests.js",
+    "regression:ios:parallel": "cross-env PLATFORM=ios MOCHA_CONFIG=.mocharc.regression.json node scripts/run-parallel-tests.js",
     "sanity:android:parallel": "cross-env PLATFORM=android MOCHA_CONFIG=.mocharc.sanity.json node scripts/run-parallel-tests.js",
     "sanity:ios:parallel": "cross-env PLATFORM=ios MOCHA_CONFIG=.mocharc.sanity.json node scripts/run-parallel-tests.js",
     

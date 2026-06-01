@@ -83,14 +83,32 @@ export function colorsAreClose(
  * @returns The formatted Hebrew date string
  */
 export function getHebrewDate(): string {
-  const now = new Date();
-  // Get the Hebrew month number (1-based)
-  const monthNum = Number(now.toLocaleString('en-u-ca-hebrew', { month: 'numeric' }));
+  // Create a formatter for Hebrew calendar
+  const formatter = new Intl.DateTimeFormat("en-u-ca-hebrew", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
 
-  const month = Texts.HEBREW_MONTHS[monthNum] || "";
-  const day = now.toLocaleString('en-u-ca-hebrew', { day: 'numeric' });
-  const year = now.toLocaleString('en-u-ca-hebrew', { year: 'numeric' });
+  // Format today's date
+  const parts = formatter.formatToParts(new Date());
+
+  // Extract components
+  const dayPart = parts.find(p => p.type === "day");
+  const monthPart = parts.find(p => p.type === "month");
+  const yearPart = parts.find(p => p.type === "year");
+
+  if (!dayPart || !monthPart || !yearPart) {
+    throw new Error(logError('Could not extract Hebrew date parts.'));
+  }
+
+  const day = dayPart.value;
+  const month = monthPart.value;
+  const year = yearPart.value;
+
+  // Return in desired format (e.g., "Nisan 15, 5784")
   return `${month} ${day}, ${year}`;
+
 }
 
 

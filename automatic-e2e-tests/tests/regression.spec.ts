@@ -1,7 +1,7 @@
 import { remote } from 'webdriverio';
 import { Navbar, SearchPage, ReaderPage, DisplaySettings,
   TopicsPage } from '../components';
-import { LoadCredentials, Gesture,
+import { LoadCredentials, Gesture, BrowserstackReport,
   UiChecker, TextFinder, SefariaAPI, HelperFunctions, PopUps } from '../utils';
 import { Texts, Errors, TEST_TIMEOUTS,
   Colors, SWIPE_CONFIG, Selectors, SWIPE_ATTEMPTS,
@@ -10,6 +10,8 @@ import '../log_init';
 
 const NO_RESET = false; // Set to true if you want same device session to continue with each test
 const buildName = HelperFunctions.getBuildName('Regression');
+const SuiteName = 'Regression Suite Tests for Sefaria Mobile';
+const isModularization = process.env.MODULARIZATION === 'true';
 
 describe('Sefaria Mobile regression tests', function () {
   // Global test timeout for all tests in this block
@@ -20,27 +22,65 @@ describe('Sefaria Mobile regression tests', function () {
   // Variable to hold the current test title, used for logging and reporting
   let testTitle: string;
 
-  beforeEach(async function () {
-    // Fetch the current test title
-    testTitle = HelperFunctions.getTestTitle(this);
-    console.log(`\n[STARTING] Running test: ${testTitle}`);
+  // beforeEach(async function () {
+  //   // Fetch the current test title
+  //   testTitle = HelperFunctions.getTestTitle(this);
+  //   console.log(`\n[STARTING] Running test: ${testTitle}`);
+  //   try {
+  //     // WebdriverIO browser instance for interacting with the Sefaria app
+  //     client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
+  //     await HelperFunctions.handleSetup(client, true);
+  //   } catch (err) {
+  //     UiChecker.takeScreenshot(client, testTitle, 'FAIL');
+  //     throw new Error(`[SESSION ERROR] Could not create session for test. App might not have been launched. "${testTitle}": ${err}`);
+  //   }
+  // });
+
+  // afterEach(async function () {
+  //   PopUps.stopGlobalPopupMonitor();
+  //   await HelperFunctions.handleTeardown(client, this, testTitle);
+  // });
+
+  before(async function () {
     try {
-      // WebdriverIO browser instance for interacting with the Sefaria app
-      client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
+      client = await remote(LoadCredentials.getOpts(buildName, SuiteName, NO_RESET));
+      console.log(`[REGRESSION START] ${SuiteName}`);
       await HelperFunctions.handleSetup(client, true);
     } catch (err) {
       UiChecker.takeScreenshot(client, testTitle, 'FAIL');
       throw new Error(`[SESSION ERROR] Could not create session for test. App might not have been launched. "${testTitle}": ${err}`);
     }
   });
-
+  
+  beforeEach(async function () {
+    testTitle = HelperFunctions.getTestTitle(this);
+    console.log(`[STARTING] Running test: ${testTitle}`);
+    try {
+      await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
+    } catch (error) {
+      UiChecker.takeScreenshot(client, testTitle, 'FAIL');
+    }
+  });
   afterEach(async function () {
-    PopUps.stopGlobalPopupMonitor();
-    await HelperFunctions.handleTeardown(client, this, testTitle);
+    // Handle teardown eithout deleting sessions including BrowserStack reporting and annotations
+    await HelperFunctions.handleTeardown(client, this, testTitle, false);
+  });
+    
+  after(async function () {
+    if (client) {
+      PopUps.stopGlobalPopupMonitor();
+      // Set final suite status for BrowserStack
+      if (process.env.RUN_ENV === 'browserstack') {
+        await BrowserstackReport.setBrowserstackSuiteStatus(client, this, 'Regression Suite');
+      }
+      // Delete and log results of testing
+      await client.deleteSession();
+      await HelperFunctions.logTestResults(this);
+    }
   });
 
 
-  it('T001: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
+  it('REG-001: Search "Sefat Emet, Genesis" -> opens Genesis 1 reader', async function () {
     // Click on Search Icon
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.search);
     await TextFinder.verifyHeaderOnPage(client, 'Search');
@@ -57,7 +97,7 @@ describe('Sefaria Mobile regression tests', function () {
     await client.keys('Enter');
   });
 
-  it('T003: Navigate to Tanakh, scroll down and click Numbers', async function () {
+  it('REG-002: Browse Tanakh -> open Numbers 1 and verify Hebrew/English text', async function () {
     // Check if we are on the main page and Tanakh is present
     let tanakh = await TextFinder.verifyHeaderOnPage(client, 'Tanakh');
     await tanakh.click();
@@ -80,7 +120,7 @@ describe('Sefaria Mobile regression tests', function () {
     await client.keys('Enter');
   });
 
-  it('T004: Toggle Language to hebrew and see how it affects the page', async function () {
+  it('REG-003: Display language toggle (Hebrew/English) updates UI and content', async function () {
     // Verify toggle language button is present and switches to Hebrew
     await DisplaySettings.toggleLanguageButton(client, true);
     
@@ -108,7 +148,7 @@ describe('Sefaria Mobile regression tests', function () {
     await TextFinder.findTextElement(client, "Genesis");
   });
 
-  it('T005: Veryfying colored lines in between elements', async function () {
+  it('REG-004: Verify colored category indicator lines on Texts page', async function () {
     // Check the colors (Indexes might change with UI update and type of phone)
     await UiChecker.validateViewGroupCenterColor(client, 2, Colors.SEFARIA_COLORS.TANAKH_TEAL); 
     await UiChecker.validateViewGroupCenterColor(client, 4, Colors.SEFARIA_COLORS.MISHNAH_BLUE); 
@@ -127,7 +167,7 @@ describe('Sefaria Mobile regression tests', function () {
     // await UiChecker.validateViewGroupCenterColor(client, 11, '#594176'); // Kabbalah Purple
   });
 
-  it('T006: Learning Schedules - See all button', async function () {
+  it('REG-005: Learning Schedules "See All" validates dates, parasha and Daf-a-Week', async function () {
     // Click See All
     let learning_button = await TextFinder.findTextElement(client, "See All");
     await learning_button.click();
@@ -214,7 +254,7 @@ describe('Sefaria Mobile regression tests', function () {
     // await client.keys('Enter');
   });
 
-  it('TC021: Texts tab book category sub-page', async function () {
+  it('REG-006: Texts > Mishna: verify subcategories, blurbs and divider colors', async function () {
     // Click on Mishna
     let mishna = await TextFinder.verifyHeaderOnPage(client, Texts.MISHNAH.en);
     await mishna.click();
@@ -241,7 +281,7 @@ describe('Sefaria Mobile regression tests', function () {
     }
   });
 
-  it('TC022: Dedication tab and results in hebrew and english', async function () {
+  it('REG-007: Dedication modal: verify English and Hebrew content and close', async function () {
     // Scroll strongly all the way to bottom where dedication is 
     await Gesture.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "Dedicated in honor of", true, SWIPE_ATTEMPTS.MAX_SCROLL_ATTEMPTS, SWIPE_CONFIG.LONG_DISTANCE);
 
@@ -301,7 +341,7 @@ describe('Sefaria Mobile regression tests', function () {
 
   });
 
-  it('TC023: Topics tab comprehensive test, navigating between sources and sheets', async function () {
+  it('REG-008: Topics flow: navigate Sources/Sheets, open source, and related topics', async function () {
     // Click on Topics
     await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.topics);
     // Check if we are on the Topics page

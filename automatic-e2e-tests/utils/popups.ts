@@ -104,53 +104,6 @@ export async function closePopUpIfPresent(client: Browser): Promise<boolean> {
   }
 }
 
-// /**
-//  * Closes the popup by clicking the close button.
-//  * @param client WebdriverIO browser instance
-//  * @returns true if closed successfully, false otherwise
-//  */
-// export async function closePopUp(client: Browser): Promise<boolean> {
-//   const maxRetries = 3; // Retry up to 3 times
-//   let attempt = 0;
-
-//   while (attempt < maxRetries) {
-//     try {
-//       const selector = Selectors.DISPLAY_SETTINGS.closePopUp;
-//       const closeBtn = await client.$(selector);
-      
-//       // Wait briefly for button to be displayed and enabled (short timeout to avoid hangs)
-//       await closeBtn.waitForDisplayed({ timeout: 1000 });
-//       if (!(await closeBtn.isEnabled())) {
-//         throw new Error('Close button not enabled');
-//       }
-      
-//       console.debug(`Attempting to close pop-up (${selector}) ${new Date().toISOString()}`);
-      
-//       // Click with timeout to avoid hangs (use Promise.race for mobile compatibility)
-//       const clickPromise = closeBtn.click();
-//       const timeoutPromise = new Promise((_, reject) => 
-//         setTimeout(() => reject(new Error('Click timed out')), 3000)
-//       );
-//       await Promise.race([clickPromise, timeoutPromise]);
-      
-//       console.debug(`Close pop-up button clicked (${selector}) ${new Date().toISOString()}`);
-      
-//       // Wait for popup to disappear
-//       await closeBtn.waitForDisplayed({ reverse: true, timeout: 2000 });
-//       return true; // Success
-//     } catch (err) {
-//       attempt++;
-//       console.debug(`Close attempt ${attempt} failed: ${(err as Error).message}`);
-//       if (attempt >= maxRetries) {
-//         console.error('Failed to close popup after retries');
-//         return false; // Don't throw—let monitor continue
-//       }
-//       // Wait a bit before retry
-//       await new Promise(resolve => setTimeout(resolve, 500));
-//     }
-//   }
-//   return false;
-// }
 
 /**
  * Global popup monitor that runs in the background
@@ -193,7 +146,7 @@ export async function startGlobalPopupMonitor(client: Browser): Promise<void> {
     } finally {
       isChecking = false; // Unlock after check completes
     }
-  }, 1000); // Check every 1 second (needed to close it fast)
+  }, 500); // Check every 0.5 seconds (needed to close it fast)
 }
 
 /**
