@@ -1,14 +1,20 @@
-# SETUP
+# Setup & Environment Guide
 
-This guide explains how to configure, run, and troubleshoot automated end-to-end tests for the Sefaria mobile app on **Android and iOS**.
+How to install, configure, run, and troubleshoot the Sefaria Mobile E2E tests on **Android**
+and **iOS**, both locally and in the cloud (BrowserStack / GitHub Actions).
+
+New here? Read [README.md](./README.md) first for the high-level picture, then come back.
 
 ---
 
-## Table of Contents
+## Table of contents
 
 - [Prerequisites](#prerequisites)
-- [Local Device/Emulator Setup](#local-deviceemulator-setup)
-- [Cloud & CI Setup (BrowserStack & GitHub Actions)](#cloud--ci-setup-browserstack--github-actions)
+- [The `.env` file](#the-env-file)
+- [Android SDK (command-line-only) setup](#android-sdk-command-line-only-setup)
+- [Local device / emulator setup](#local-device--emulator-setup)
+- [Logs, screenshots & cleanup](#logs-screenshots--cleanup)
+- [Cloud & CI setup (BrowserStack & GitHub Actions)](#cloud--ci-setup-browserstack--github-actions)
 - [Troubleshooting](#troubleshooting)
 - [Appium Inspector](#appium-inspector)
 
@@ -16,233 +22,284 @@ This guide explains how to configure, run, and troubleshoot automated end-to-end
 
 ## Prerequisites
 
-1. **Node.js 18+**
-2. **Appium CLI**
+1. **Node.js ≥ 18** (CI uses Node 22).
+2. **Project dependencies** — from `automatic-e2e-tests/`:
+
+   ```sh
+   npm install
+   ```
+
+3. **Appium + drivers** (needed for local runs; BrowserStack provides its own):
+
    ```sh
    npm install -g appium
-   appium driver install uiautomator2
-   appium driver install xcuitest
+   appium driver install uiautomator2   # Android
+   appium driver install xcuitest        # iOS (Mac only)
    ```
-3. **Android SDK and/or Xcode (for iOS)**
-   - **Android:**  
-     - You can use just the [Command Line Tools](https://developer.android.com/studio#command-line-tools-only) for **Windows, Mac, or Linux** (see below for setup instructions).
-   - **iOS:**  
-     - Install Xcode from the Mac App Store and ensure Xcode Command Line Tools are installed (`xcode-select --install`).
-4. **.env file**
-   - Copy `example.env` to `.env` in the root directory of `automatic-e2e-tests` and fill in your BrowserStack credentials and local device information.
-   - **To test a specific APK or IPA file locally:**  
-     - Set the `IOS_LOCAL_APP_PATH` or/and `ANDROID_LOCAL_APP_PATH` variable in `.env` to the absolute path of your APK or IPA file (for example, `ANDROID_LOCAL_APP_PATH=c:users/user/android/app/my-app.apk` or `IOS_LOCAL_APP_PATH=/Users/user/ios/app/my-app.ipa`).
-    - **To test the app on BrowserStack:**  
-     - Upload your APK/AAB (Android) or IPA (iOS) file to BrowserStack and set the `ANDROID_BROWSERSTACK_APP_ID` or/and `IOS_BROWSERSTACK_APP_ID` in `.env` to the app ID provided by BrowserStack after upload.
+
+4. **Platform toolchain:**
+   - **Android** — the Android SDK `platform-tools` (for `adb`) and `build-tools`. You do
+     **not** need Android Studio; the [command-line tools](https://developer.android.com/studio#command-line-tools-only)
+     are enough (see [below](#android-sdk-command-line-only-setup)).
+   - **iOS (Mac only)** — Xcode from the Mac App Store + command-line tools
+     (`xcode-select --install`).
+5. **Java JDK** — required by Appium/UiAutomator2. [Download from Adoptium](https://adoptium.net/)
+   and set `JAVA_HOME`.
 
 ---
 
-### Android SDK (Command Line Only Setup)
+## The `.env` file
 
-You do **not** need Android Studio. You can install just the SDK using command-line tools:
+Copy the template and fill it in. `.env` lives in the root of `automatic-e2e-tests/` and is
+git-ignored.
 
-- Download the [Command Line Tools for Windows](https://developer.android.com/studio#command-line-tools-only) and follow installation instructions.
-
-**Stuck?**
-If using Windows, see below for detailed steps.
-- Create `Android` directory in `C:\` (e.g., `C:\Android`).
-- Extract the downloaded Tools ZIP file to `C:\Android`.
-- After extracting, navigate to `C:\Android\cmdline-tools\` and create a folder named `latest` if it does not exist.  
-  Move the `lib` and `bin` folders into `C:\Android\cmdline-tools\latest\`.
-- Final structure:  
-  `C:\Android\cmdline-tools\latest\bin` and `C:\Android\cmdline-tools\latest\lib`.
-
-**Set system environment variables:**
-
-1. **ANDROID_SDK_ROOT**  
-   Add a new system environment variable:  
-   `ANDROID_SDK_ROOT = C:\Android`
-
-2. **PATH**  
-   Edit your system `PATH` variable and add:  
-   - `C:\Android\cmdline-tools\latest\bin`
-   - `C:\Android\platform-tools`
-   - `C:\Android\build-tools\<version>` (replace `<version>` with your chosen build tools version, e.g., `34.0.0`)
-
-3. **Install SDK packages:**  
-   Open a new terminal and run:
-   ```sh
-   sdkmanager --sdk_root="C:\Android" "platform-tools" "build-tools;<version>"
-   ```
-   Replace `<version>` with the specific build tools version you need (e.g., `34.0.0`).  
-   To see all available build tools versions, run:
-   ```sh
-   sdkmanager --list
-   ```
-
-**Verify:**
 ```sh
-adb version
+cp example.env .env          # Windows: copy example.env .env
 ```
 
+| Variable | When you need it | Notes |
+| --- | --- | --- |
+| `LOCAL_DEVICE_NAME` | Local runs | Device/emulator id. Android: run `adb devices` (status must read `device`, not `unauthorized`). |
+| `ANDROID_LOCAL_APP_PATH` | Local Android | **Absolute** path to your `.apk`, e.g. `C:\Users\me\app\sefaria.apk`. |
+| `IOS_LOCAL_APP_PATH` | Local iOS | **Absolute** path to your `.ipa`, e.g. `/Users/me/app/sefaria.ipa`. |
+| `BROWSERSTACK_USERNAME` | BrowserStack | From your [BrowserStack account](https://www.browserstack.com/users/sign_in). |
+| `BROWSERSTACK_ACCESS_KEY` | BrowserStack | From your BrowserStack account. |
+| `ANDROID_BROWSERSTACK_APP_ID` | BrowserStack Android | The `bs://...` id returned after uploading the app. |
+| `IOS_BROWSERSTACK_APP_ID` | BrowserStack iOS | The `bs://...` id returned after uploading the app. |
+
+`PLATFORM` (`android`/`ios`) and `RUN_ENV` (`local`/`browserstack`) are set automatically by
+the npm scripts — you don't put them in `.env`. At startup `utils/load_credentials.ts` picks
+the right `*_LOCAL_APP_PATH` / `*_BROWSERSTACK_APP_ID` based on `PLATFORM`.
+
+> **You only need the variables for the mode you're running.** Local runs need
+> `LOCAL_DEVICE_NAME` + the matching `*_LOCAL_APP_PATH`. BrowserStack runs need the username,
+> access key, and the matching `*_BROWSERSTACK_APP_ID`.
+
 ---
 
-## Local Device/Emulator Setup
+## Android SDK (command-line-only) setup
 
-This mode runs tests on a physical device connected via USB, Android emulator, or iOS simulator. Useful for local development and debugging.
+You do **not** need Android Studio — install just the SDK via command-line tools. Download the
+[Command Line Tools](https://developer.android.com/studio#command-line-tools-only) for your OS.
+
+**Windows (detailed):**
+
+1. Create `C:\Android` and extract the tools ZIP into it.
+2. Under `C:\Android\cmdline-tools\`, create a folder named `latest`, then move the extracted
+   `lib` and `bin` folders into it. Final structure:
+   `C:\Android\cmdline-tools\latest\bin` and `C:\Android\cmdline-tools\latest\lib`.
+3. Set system environment variables:
+   - `ANDROID_SDK_ROOT = C:\Android`
+   - Add to `PATH`:
+     - `C:\Android\cmdline-tools\latest\bin`
+     - `C:\Android\platform-tools`
+     - `C:\Android\build-tools\<version>` (e.g. `34.0.0`)
+4. Install SDK packages (open a fresh terminal so the new `PATH` is picked up):
+
+   ```sh
+   sdkmanager --sdk_root="C:\Android" "platform-tools" "build-tools;34.0.0"
+   sdkmanager --list      # to see available build-tools versions
+   ```
+
+5. Verify:
+
+   ```sh
+   adb version
+   ```
+
+---
+
+## Local device / emulator setup
+
+Runs against a physical device, Android emulator, or iOS simulator through a **local Appium
+server**. Fast for development and debugging.
 
 ### Android
 
-1. **Enable USB Debugging** on your device or use an emulator.
-2. **Get Device ID:**
+1. Enable **USB debugging** on the device (or start an emulator).
+2. Find the device id:
+
    ```sh
    adb devices
    ```
-3. **Copy example.env:**  
-   Copy `example.env` to `.env` in the root directory `automatic-e2e-tests` and configure as needed.
-    - **To test a specific APK:** Make sure to add the apk you want to test in `android/app`.
-4. **Start Appium:**
+
+   Put it in `.env` as `LOCAL_DEVICE_NAME`, and set `ANDROID_LOCAL_APP_PATH` to your `.apk`.
+3. Start Appium in a separate terminal:
+
    ```sh
    appium
    ```
-5. **Run tests:**  
+
+4. Run a suite:
+
    ```sh
-   npm run test:android:local
+   npm run sanity:android:local        # fast smoke
+   npm run regression:android:local    # full suite
    ```
 
 ### iOS (Mac only)
 
-1. **Enable developer mode on your device or use a simulator.**
-2. **Copy example.env:**  
-   Copy `example.env` to `.env` in the root directory `automatic-e2e-tests` (if not done already) and configure as needed.
-      - **To test a specific IPA:** Make sure to add the ipa you want to test in `ios/app`.
-3. **Start Appium:**
+1. Enable developer mode on the device (or start a simulator).
+2. In `.env`, set `LOCAL_DEVICE_NAME` and `IOS_LOCAL_APP_PATH` (your `.ipa`).
+3. Start Appium:
+
    ```sh
    appium
    ```
-4. **Run tests:**  
+
+4. Run a suite:
+
    ```sh
-   npm run test:ios:local
+   npm run sanity:ios:local
+   npm run regression:ios:local
    ```
 
 ---
 
-### Logs & Cleanup
-During test execution, logs and screenshots are automatically generated to help you debug issues. When running tests, you can find shorter and more meaningful logs in the `logs/{platform}` directory as `clean-tests*.log`. Also, you can find more verbose logs (the actions that appium does) in the `logs/{platform}/verbose-tests*.log` files.
+## Logs, screenshots & cleanup
 
-Everything is organized by platform (ios/android) in the `logs/` and `screenshots/` directories. These directories should exist in the root of the `automatic-e2e-tests` directory.
+Artifacts are organized by platform under `logs/` and `screenshots/` (both git-ignored; the
+`android/`+`ios/` subfolders are kept):
 
-- Logs: `logs/{platform}` (contains reader friendly test logs)
-- Screenshots: `screenshots/{platform}` (taken for failed visual checks)
-- Clean up:
-  ```sh
-  npm run cleanup:android
-  npm run cleanup:ios
-  ```
+- **Clean logs** — `logs/<platform>/clean-*.log`. Reader-friendly test output (start/finish,
+  pass/fail, debug messages), written by `log_init.ts`.
+- **Verbose logs** — `logs/<platform>/verbose-*.log`. Full Appium/WebdriverIO chatter, written
+  by the parallel runner (`scripts/run-parallel-tests.js`).
+- **Screenshots** — `screenshots/<platform>/FAIL_*.png` on a test failure; failed color checks
+  also save cropped + full debug images.
+
+Clean up between runs:
+
+```sh
+npm run cleanup            # both platforms
+npm run cleanup:android
+npm run cleanup:ios
+```
 
 ---
 
-## Cloud & CI Setup (BrowserStack & GitHub Actions)
+## Cloud & CI setup (BrowserStack & GitHub Actions)
 
-This mode runs tests on real devices in the cloud using BrowserStack and can be automated via GitHub Actions. Useful for cross-device/OS validation and CI integration.
+Runs on real devices in the cloud — best for cross-device/OS coverage.
 
 ### BrowserStack
 
-[BrowserStack](https://www.browserstack.com/) is a cloud-based service for running automated tests on real devices. It allows you to test your app on multiple device models and OS versions without needing physical devices.
+[BrowserStack](https://www.browserstack.com/) runs your tests on real devices without you
+owning them.
 
-**How to use BrowserStack for Sefaria tests:**
+1. **Upload the app** to BrowserStack via the
+   [App Upload page](https://app-automate.browserstack.com/dashboard/v2/app-upload). Copy the
+   returned `bs://<app-id>`.
+2. **Update `.env`** in `automatic-e2e-tests/`:
+   - `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` (from your dashboard).
+   - `ANDROID_BROWSERSTACK_APP_ID` and/or `IOS_BROWSERSTACK_APP_ID` = the `bs://...` id.
 
-1. **Update `.env` in `automatic-e2e-tests/` with your BrowserStack credentials and App ID:**
-   - Get your username and access key from your [BrowserStack dashboard](https://www.browserstack.com/users/sign_in).
-   - Upload your APK/AAB (Android) or IPA (iOS) file to BrowserStack using their [App Upload page](https://app-automate.browserstack.com/dashboard/v2/app-upload).
-   - Copy the App ID (e.g., `bs://<app-id>`) and set it in your `.env` as `ANDROID_BROWSERSTACK_APP_ID` or `IOS_BROWSERSTACK_APP_ID`:
    ```env
-   - **Note:** You must upload your app every time you build a new APK/AAB/IPA. The App ID changes with each upload, so always update `*_BROWSERSTACK_APP_ID` in your `.env`.
-
-2. **Run tests:**
-   ```sh
-   npm run test:android:browserstack
-   npm run test:ios:browserstack
+   BROWSERSTACK_USERNAME=your_username
+   BROWSERSTACK_ACCESS_KEY=your_access_key
+   ANDROID_BROWSERSTACK_APP_ID=bs://abc123...
+   IOS_BROWSERSTACK_APP_ID=bs://def456...
    ```
 
-See [BrowserStack docs](https://www.browserstack.com/docs/app-automate/appium/getting-started) for more.
+   > **You must re-upload the app every time you build a new `.apk`/`.aab`/`.ipa`.** The App ID
+   > changes on every upload, so always refresh `*_BROWSERSTACK_APP_ID`.
+3. **Run:**
+
+   ```sh
+   npm run regression:android:browserstack
+   npm run regression:ios:browserstack
+   # or sanity:*, or *:parallel to fan out across devices.json
+   ```
+
+The device matrix for parallel runs lives in [`devices.json`](./devices.json) — edit the
+`browserstack.device` / `browserstack.os_version` entries to change coverage.
+
+See the [BrowserStack Appium docs](https://www.browserstack.com/docs/app-automate/appium/getting-started)
+for more.
 
 ### GitHub Actions
 
-- Push your branch to GitHub.
-- Go to **Actions** tab > **Run BrowserStack** workflow > **Run workflow**.
-- Monitor progress and download logs/artifacts from the run summary.
-- Ensure required GitHub Secrets for access are set (`BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY`, `BROWSERSTACK_APP_ID`)
-- Also ensure that on GitHub secrets `RUN_ENV` is set to `browserstack` so that the tests run on BrowserStack.
+Two manual workflows live in the repo root at `.github/workflows/`
+(`android-browserstack-testing.yml`, `ios-browserstack-testing.yml`):
+
+1. Push your branch to GitHub.
+2. Go to the **Actions** tab → **Run Android/iOS BrowserStack Tests** → **Run workflow**
+   (they are `workflow_dispatch`, i.e. manual trigger only).
+3. Monitor progress; download logs/screenshots from the run's **Artifacts** section
+   (logs always upload; screenshots upload on failure).
+
+Required **GitHub Secrets**:
+
+- `BROWSERSTACK_USERNAME`
+- `BROWSERSTACK_ACCESS_KEY`
+- `ANDROID_BROWSERSTACK_APP_ID` (Android workflow) and/or `IOS_BROWSERSTACK_APP_ID` (iOS workflow)
+
+The workflows set `PLATFORM`, `RUN_ENV=browserstack`, and `GITHUB_ACTIONS=true` for you
+(the last makes the framework read CI env vars directly instead of a `.env` file).
 
 ---
 
 ## Troubleshooting
 
-- **Device not found:** Check USB debugging and cables; restart `adb`:
-  ```sh
-  adb kill-server && adb start-server
-  ```
-- **Appium not running:** Run `appium` in a terminal.
-- **PATH/ANDROID_SDK_ROOT issues:** Double-check env vars, restart terminal.
-- **Testing a local APK/IPA?**
-  - If `LOCAL_APP_PATH` is set in `.env`, ensure:
-    - You have installed `platform-tools` and `build-tools`
-    - `ANDROID_SDK_ROOT` is correctly set (Android)
-    - `apksigner.bat` is available in `C:\Android\build-tools\34.0.0\` (Android)
-    - Xcode is installed and developer mode is enabled (iOS)
-- **Not using local APK/IPA?**
-  - If `LOCAL_APP_PATH` is commented out, the test expects the app to already be installed on the device.
-- **Java JDK required:** [Download](https://adoptium.net/) and set `JAVA_HOME`
-- **uiautomator2/xcuitest missing:**
-  ```sh
-  appium driver install uiautomator2
-  appium driver install xcuitest
-  ```
-- **BrowserStack errors:**
-  - Check credentials, App ID, and file type (some devices require `.aab` or `.ipa`)
-- **Windows Execution Disabled:**
-  ```powershell
-  Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-  ```
-- **Only one test running?** Remove `.only` from test files.
-- **npm/appium issues:**
-  ```sh
-  npm cache clean --force
-  ```
+| Symptom | Fix |
+| --- | --- |
+| **Device not found** | Check USB debugging/cable; `adb kill-server && adb start-server`. Ensure `adb devices` shows `device`, not `unauthorized`. |
+| **Appium not running** | Start it: `appium` (local runs only). |
+| **`PATH`/`ANDROID_SDK_ROOT` issues** | Recheck env vars and restart the terminal. |
+| **Local APK/IPA won't install** | Confirm `platform-tools` + `build-tools` installed, `ANDROID_SDK_ROOT` set, `apksigner` present (Android); Xcode installed + developer mode on (iOS). |
+| **App not found and no local path set** | If `*_LOCAL_APP_PATH` is unset, the run expects the app already installed on the device, or errors — set the path or pre-install. |
+| **Java errors** | Install a JDK ([Adoptium](https://adoptium.net/)) and set `JAVA_HOME`. |
+| **`uiautomator2` / `xcuitest` missing** | `appium driver install uiautomator2` / `appium driver install xcuitest`. |
+| **BrowserStack errors** | Recheck credentials and App ID; confirm the file type the device needs (`.aab`/`.ipa`); make sure you re-uploaded after rebuilding. |
+| **Windows: script execution disabled** | `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` |
+| **Only one test runs** | Remove a stray `.only` from a spec. |
+| **npm / Appium acting up** | `npm cache clean --force` then reinstall. |
 
 ---
 
 ## Appium Inspector
-Appium Inspector is a GUI tool to inspect app elements, find locators, and understand the app's structure. It is a handy tool to help you write tests and find the right selectors for creating components / utilities.
 
-- [Download Appium Inspector](https://github.com/appium/appium-inspector/releases)
-- Example config for Android:
-  ```json
-  {
-    "platformName": "Android",
-    "appium:automationName": "UiAutomator2",
-    "appium:deviceName": "DEVICE_ID",
-    "appium:app": "APK_PATH",
-    "appium:noReset": false,
-    "appium:autoGrantPermissions": true,
-    "appium:appPackage": "org.sefaria.sefaria",
-    "appium:appWaitActivity": "*",
-    "appium:appActivity": "org.sefaria.sefaria.SplashActivity",
-    "appium:appWaitDuration": 30000,
-    "appium:adbExecTimeout": 60000
-  }
-  ```
-- Example config for iOS:
-  ```json
-  {
-    "platformName": "iOS",
-    "appium:automationName": "XCUITest",
-    "appium:deviceName": "DEVICE_ID",
-    "appium:app": "IPA_PATH",
-    "appium:noReset": false,
-    "appium:autoAcceptAlerts": true,
-    "appium:bundleId": "org.sefaria.sefaria",
-    "appium:wdaStartupRetries": 2,
-    "appium:wdaStartupRetryInterval": 20000
-  }
-  ```
+[Appium Inspector](https://github.com/appium/appium-inspector/releases) is a GUI for inspecting
+app elements and finding locators — invaluable when writing new selectors, components, or
+utilities.
+
+**Android config:**
+
+```json
+{
+  "platformName": "Android",
+  "appium:automationName": "UiAutomator2",
+  "appium:deviceName": "DEVICE_ID",
+  "appium:app": "APK_PATH",
+  "appium:noReset": false,
+  "appium:autoGrantPermissions": true,
+  "appium:appPackage": "org.sefaria.sefaria",
+  "appium:appWaitActivity": "*",
+  "appium:appActivity": "org.sefaria.sefaria.SplashActivity",
+  "appium:appWaitDuration": 30000,
+  "appium:adbExecTimeout": 60000
+}
+```
+
+**iOS config:**
+
+```json
+{
+  "platformName": "iOS",
+  "appium:automationName": "XCUITest",
+  "appium:deviceName": "DEVICE_ID",
+  "appium:app": "IPA_PATH",
+  "appium:noReset": false,
+  "appium:autoAcceptAlerts": true,
+  "appium:bundleId": "org.sefaria.sefaria",
+  "appium:wdaStartupRetries": 2,
+  "appium:wdaStartupRetryInterval": 20000
+}
+```
+
+These mirror the capabilities in [`utils/load_credentials.ts`](./utils/load_credentials.ts) —
+keep them in sync if the real capabilities change.
 
 ---
 
-[⬅ README](./README.md)
+[⬅ Back to README](./README.md)

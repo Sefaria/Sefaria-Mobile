@@ -1,137 +1,135 @@
-# Sefaria Mobile Testing Framework - File Overview
+# File & Folder Overview
 
-This document describes the purpose and main usage of each file and folder in the E2E test directory.  
-Use this as a quick reference for contributors and maintainers.
+A reference for every file and folder in `automatic-e2e-tests/` and its role. Use it to find
+where something lives or where new code should go.
 
----
-
-## Directory Structure
-
-- **Selectors/**  
-  Contains platform-specific selectors for Android and iOS.  
-  - **selectors/android/selectors.ts**  
-    Android-specific UI selectors and XPath patterns.
-  - **selectors/ios/selectors.ts**  
-    iOS-specific UI selectors and XPath patterns.
-
-- **logs/** and **screenshots/**  
-  Centralized logs and screenshots for both platforms.
-
-- **scripts/**  
-  Utility scripts (e.g., cleanup.js). `run-parallel-tests.js` for running tests in parallel on multiple devices.
-
-- **devices.json**  
-  Configuration file for devices used in parallel testing. Set specific devices and version for Android and iOS.
+For the *why* behind the structure, see [CLAUDE.md](./CLAUDE.md) and [TEST_GUIDE.md](./TEST_GUIDE.md).
 
 ---
 
-## components/
+## Top-level files
 
-> **Note:** The files in this directory follow the Page Object Model (POM) pattern, where each file represents a specific page or component of the app.
-
-Reusable page/component objects for high-level UI actions (cross-platform).
-
-- **display_settings.ts**  
-  Helpers for toggling display settings and language.
-
-- **navbar.ts**  
-  Functions to interact with the navigation bar.
-
-- **reader_page.ts**  
-  Utilities for validating titles and text on the reader page.
-
-- **search_page.ts**  
-  Helpers for typing into the search bar and selecting from search results.
-
-- **topics_page.ts**  
-  Functions for navigating and validating the Topics page.
-
-- **index.ts**  
-  Central import point for all components, allowing easy access to all page objects.
-
-- **\*.ts**  
-  Add new component helpers as needed.
+| File | Role |
+| --- | --- |
+| `package.json` | Dependencies and the `<suite>:<platform>:<env>` npm scripts (+ `*:parallel`, `cleanup`). |
+| `tsconfig.json` | TypeScript config. No build step — `ts-node` transpiles + type-checks specs at run time. |
+| `.mocharc.json` | Mocha config for `test:*` — runs all `tests/**/*.spec.ts` **except** `sanity.spec.ts`. |
+| `.mocharc.regression.json` | Mocha config for `regression:*` — runs `tests/regression.spec.ts` only. |
+| `.mocharc.sanity.json` | Mocha config for `sanity:*` — runs `tests/sanity.spec.ts` only. |
+| `log_init.ts` | Imported at the top of each spec; mirrors `console.log/error/debug` into `logs/<platform>/clean-*.log` and captures uncaught errors. |
+| `devices.json` | Device matrix (Android + iOS, with BrowserStack model/OS) for parallel runs. |
+| `example.env` | Template for `.env` — BrowserStack creds, app ids, local device + app paths. |
+| `.gitignore` | Ignores `node_modules/`, `.env*`, build output, `logs/`+`screenshots/` contents, and app binaries (`*.apk/.aab/.ipa`). |
+| `README.md` / `SETUP.md` / `TEST_GUIDE.md` / `CLAUDE.md` | Documentation (see [docs index](#documentation)). |
 
 ---
 
-## constants/
+## `tests/`
 
-Centralized constants for timeouts, gestures, colors, errors, and text.
+The actual Mocha test suites. Each opens **one Appium session per suite** and imports
+`../log_init`.
 
-- **timeouts.ts**  
-  All timeout values organized by operation type.
-
-- **gestures.ts**  
-  Gesture configuration for swipes, scrolls, etc. Used for user interaction simulations.
-
-- **colors.ts**  
-  Sefaria brand colors and color thresholds.
-
-- **errors.ts**  
-  Error message templates and logging helpers.
-
-- **text_constants.ts**  
-  Text snippets, Hebrew months, and other static text.
-
-- **index.ts**  
-  Central import point for all constants, with dynamic platform selector loading.
-  This file **automatically loads the correct selectors** at runtime based on the current platform (Android or iOS), so you can always import `Selectors` from `constants` and it will "just work".
+- **`regression.spec.ts`** — full end-to-end regression suite (`REG-001`…`REG-008`): search,
+  Tanakh browsing, language toggle, category divider colors, Learning Schedules (with live
+  Sefaria API checks), Mishnah sub-categories, the dedication modal, and the Topics flow.
+- **`sanity.spec.ts`** — fast smoke suite (`S001`…`S005`): app launch, navbar cycling, search,
+  language toggle, and opening a canonical text.
+- Add new `*.spec.ts` files here for additional features; they're picked up by `test:*` and
+  `*:parallel`.
 
 ---
 
-## tests/
+## `components/`
 
-Where your actual test suites live.
+Page Object Model (POM) helpers — each file represents one screen/feature and exports the
+actions + verifications for it. Imported via the `index.ts` barrel.
 
-- **regression.spec.ts**  
-  Main end-to-end regression test suite. Used for full app validation.
-
-- **sanity.spec.ts**  
-  Quick sanity checks to verify basic app functionality. Runs faster than full regression. Used for quick validation.
-
-- **\*.spec.ts**  
-  Add new test files for specific features or components.
-
----
-
-## utils/
-
-Helper modules for low-level actions, API calls, and cross-cutting concerns.
-
-- **browserstack_report.ts**  
-  Helpers for interacting with the BrowserStack session API (set session status, report results).
-
-- **gesture.ts**  
-  Gesture and scrolling utilities: swipe, scroll, and element search with screen dimension caching.
-
-- **helper_functions.ts**  
-  General-purpose helpers: text escaping, color conversion, date formatting, and assertion helpers.
-
-- **load_credentials.ts**  
-  Loads environment variables and credentials from `.env` file in the root directory of `automatic-e2e-tests/`.
-
-- **PopUps.ts**  
-  Handles the initial offline popup in the app.
-
-- **sefariaAPI.ts**  
-  Fetches and caches data from the Sefaria API.
-
-- **text_finder.ts**  
-  Locates and interacts with text and elements by text or content-desc, and more. **Important:** Used all across tests and functions.
-
-- **ui_checker.ts**  
-  Checks pixel colors of UI elements and viewgroups.
-
-- **index.ts**  
-  Central import point for all utilities.
-
-- **\*.ts**  
-  Add new utility functions as needed.
+| File | Role |
+| --- | --- |
+| `navbar.ts` | `Navbar` — wait for the navbar, click nav items by content-desc, close pop-ups. |
+| `search_page.ts` | `SearchPage` — type into the search bar, select from results, verify/clear the bar. |
+| `reader_page.ts` | `ReaderPage` — verify reader titles (exact/contains), find text by accessibility id, back button. |
+| `display_settings.ts` | `DisplaySettings` — open display settings, toggle language. |
+| `topics_page.ts` | `TopicsPage` — verify topic title/category/blurb, switch Sources/Sheets, three-dots menu, back. |
+| `index.ts` | Re-exports all components under PascalCase namespaces (`Navbar`, `ReaderPage`, …). |
 
 ---
 
-_Last updated: July 2025_
+## `utils/`
+
+Cross-cutting helpers for low-level actions, API calls, reporting, and session setup. Imported
+via the `index.ts` barrel.
+
+| File | Role |
+| --- | --- |
+| `text_finder.ts` | `TextFinder` — locate/verify elements by exact text, substring, header, or content-desc. **Used everywhere.** |
+| `gesture.ts` | `Gesture` — swipes and scroll-into-view, with screen-dimension caching and platform-aware visibility (Android `UiScrollable` / iOS swipe fallback). |
+| `ui_checker.ts` | `UiChecker` — pixel/color validation of elements and ViewGroups, screenshots, debug-image saving (uses `pngjs`). |
+| `sefaria_api.ts` | `SefariaAPI` — fetch + cache the Sefaria calendar API (Daf Yomi, Haftarah, Parashat Hashavua, Daf a Week). |
+| `browserstack_report.ts` | `BrowserstackReport` — set session/suite status and annotate individual tests on BrowserStack. |
+| `popups.ts` | `PopUps` — handle the offline popup and run the background donation-popup monitor. |
+| `load_credentials.ts` | `LoadCredentials` — build Appium/WebdriverIO capabilities for local vs. BrowserStack, per platform. |
+| `helper_functions.ts` | `HelperFunctions` — setup/teardown, build/test-title helpers, Hebrew date, color/regex helpers, assertions. |
+| `index.ts` | Re-exports all utils under PascalCase namespaces. |
 
 ---
 
-[⬅ README](./README.md)
+## `constants/`
+
+Centralized configuration — no magic numbers in code.
+
+| File | Role |
+| --- | --- |
+| `timeouts.ts` | `ELEMENT_TIMEOUTS`, `TEST_TIMEOUTS`, `OPERATION_TIMEOUTS`. |
+| `gesture_constants.ts` | `SWIPE_CONFIG`, `GESTURE_TIMING`, `SWIPE_ATTEMPTS`, `TOUCH_CONFIG`, `SCREEN_POSITIONS` — distances/timings auto-scale for BrowserStack. |
+| `colors.ts` | `SEFARIA_COLORS` brand palette and `COLOR_THRESHOLDS` for pixel comparison. |
+| `errors.ts` | `logError`, `STATIC_ERRORS`, `DYNAMIC_ERRORS`, `SUCCESS_MESSAGES` — consistent logging + assertion messages. |
+| `text_constants.ts` | `Texts` — reusable content fixtures (`BAMIDBAR_1`, `MISHNAH`, `ALEINU`, `HEBREW_MONTHS`). |
+| `index.ts` | Re-exports the above **and** dynamically loads the platform `Selectors` based on `PLATFORM`, plus exports `PLATFORM`. |
+
+---
+
+## `selectors/`
+
+Platform-specific element locators. `constants/index.ts` loads the right one at runtime.
+
+- **`selectors/android/selectors.ts`** — Android UiSelector / UiScrollable patterns + XPath.
+- **`selectors/ios/selectors.ts`** — iOS XCUITest XPath patterns.
+
+> Both files export the **same keys** (`TEXT_SELECTORS`, `NAVIGATION_SELECTORS`,
+> `READER_SELECTORS`, `TOPICS_SELECTORS`, `VIEWGROUP_SELECTORS`, …). Always add a new selector
+> to both with the identical key — that is what keeps the framework cross-platform.
+
+---
+
+## `scripts/`
+
+| File | Role |
+| --- | --- |
+| `run-parallel-tests.js` | Reads `devices.json`, spawns one Mocha child per device for the current `PLATFORM` (BrowserStack), tagging logs by device and parsing failures into a summary. Honors `MOCHA_CONFIG` / `SPEC`. |
+| `cleanup.js` | Whitelisted cleaner — empties `logs/<platform>/` and `screenshots/<platform>/` (creates them if missing). Refuses paths outside the project. |
+
+---
+
+## Generated artifacts (git-ignored contents)
+
+- **`logs/android/`, `logs/ios/`** — `clean-*.log` (reader-friendly) and `verbose-*.log`
+  (full Appium output, parallel runs).
+- **`screenshots/android/`, `screenshots/ios/`** — `FAIL_*.png` on failures, plus cropped/full
+  debug images for failed color checks.
+
+---
+
+## Documentation
+
+| Doc | Purpose |
+| --- | --- |
+| [README.md](./README.md) | Overview, quick start, full command reference. |
+| [SETUP.md](./SETUP.md) | Install, local + cloud/CI setup, troubleshooting, Appium Inspector. |
+| [TEST_GUIDE.md](./TEST_GUIDE.md) | Authoring tests, components, and utilities. |
+| [CLAUDE.md](./CLAUDE.md) | Condensed architecture/conventions/gotchas (for AI agents and fast onboarding). |
+| [FILE_OVERVIEW.md](./FILE_OVERVIEW.md) | This file. |
+
+---
+
+[⬅ Back to README](./README.md)
