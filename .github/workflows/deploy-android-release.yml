@@ -1,0 +1,151 @@
+name: 🚀 Deploy Android Production Release
+
+# Manual trigger only — production releases should never run automatically.
+# Must be run from master/main (enforced below).
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Version name to release, e.g. 6.8.0  (leave blank to keep current)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  android-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify branch is master/main
+        run: |
+          BRANCH=${GITHUB_REF#refs/heads/}
+          if [[ "$BRANCH" != "master" && "$BRANCH" != "main" ]]; then
+            echo "❌ Production releases must run from master or main (got: $BRANCH)"
+            exit 1
+          fi
+
+      - name: Bump version in build.gradle
+        # Always increments VERSION_BUILD by 1.
+        # If version_name was supplied (e.g. "6.8.0"), also updates MAJOR/MINOR/PATCH.
+        run: |
+          INPUT="${{ github.event.inputs.version_name }}"
+          if [[ -n "$INPUT" ]]; then
+            if ! [[ "$INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "❌ version_name must be MAJOR.MINOR.PATCH (e.g. 6.8.0), got: '$INPUT'"
+              exit 1
+            fi
+            MAJOR=$(echo "$INPUT" | cut -d. -f1)
+            MINOR=$(echo "$INPUT" | cut -d. -f2)
+            PATCH=$(echo "$INPUT" | cut -d. -f3)
+            sed -i "s/^def VERSION_MAJOR=.*/def VERSION_MAJOR=$MAJOR/" android/app/build.gradle
+            sed -i "s/^def VERSION_MINOR=.*/def VERSION_MINOR=$MINOR/" android/app/build.gradle
+            sed -i "s/^def VERSION_PATCH=.*/def VERSION_PATCH=$PATCH/" android/app/build.gradle
+            echo "📦 Version name set to $MAJOR.$MINOR.$PATCH"
+          fi
+          # tr -d removes Windows-style \r that cut may leave on the value
+          CURRENT=$(grep '^def VERSION_BUILD=' android/app/build.gradle | cut -d= -f2 | tr -d ' \r')
+          NEW_BUILD=$((CURRENT + 1))
+          sed -i "s/^def VERSION_BUILD=.*/def VERSION_BUILD=$NEW_BUILD/" android/app/build.gradle
+          echo "📦 VERSION_BUILD bumped: $CURRENT → $NEW_BUILD"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK components
+        # sdkmanager is not on PATH on ubuntu-latest — use the full path.
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null
+          "$SDKMANAGER" \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;27.1.12297006"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Set up Ruby + Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: android
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Decode Android keystore
+        # Decode to both android/ and android/app/ — Gradle resolves the path
+        # relative to the :app subproject directory, but this varies by Gradle version.
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/upload-kstore.keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-kstore.keystore
+
+      - name: Decode Google Play service account
+        run: |
+          echo "${{ secrets.PLAY_JSON_BASE64 }}" \
+            | base64 --decode > android/keystores/production-deployment-a34193910650.json
+
+      - name: Decode Google Services JSON
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" \
+            | base64 --decode > android/app/google-services.json
+
+      - name: Create envvars.sh
+        run: |
+          echo "export SOURCE_SERVER=\"https://readonly.sefaria.org/\""  >> scripts/envvars.sh
+          echo "export SOURCE_UNIX_PATH=\"static/ios-export/\""           >> scripts/envvars.sh
+
+      - name: Run Fastlane release
+        working-directory: android
+        run: bundle exec fastlane android release storepass:${{ secrets.STOREPASS }}
+
+      - name: Generate GitHub App token for protected-branch push
+        # Short-lived token scoped only to the push step below.
+        # The App must be installed on this repo and listed under
+        # "Allow specified actors to bypass required pull requests" in branch protection.
+        if: success()
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Commit version bump and source files
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add android/app/build.gradle
+          git add android/app/src/main/assets/sources/ ios/sources/ || true
+          if git diff --cached --quiet; then
+            echo "No changes to commit; skipping"
+          else
+            VNAME=$(grep -E '^def VERSION_(MAJOR|MINOR|PATCH)=' android/app/build.gradle \
+              | awk -F'=' '{print $2}' | tr -d '\r' | tr '\n' '.' | sed 's/\.$//')
+            VCODE=$(grep '^def VERSION_BUILD=' android/app/build.gradle \
+              | cut -d= -f2 | tr -d ' \r')
+            git commit -m "ci: release Android $VNAME (versionCode $VCODE) [skip ci]"
+            git remote set-url origin \
+              "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git"
+            git push origin HEAD:${GITHUB_REF#refs/heads/}
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f android/keystores/production-deployment-a34193910650.json
+          rm -f android/upload-kstore.keystore android/app/upload-kstore.keystore
