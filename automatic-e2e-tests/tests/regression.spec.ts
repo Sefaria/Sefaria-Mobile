@@ -11,7 +11,6 @@ import '../log_init';
 const NO_RESET = false; // Set to true if you want same device session to continue with each test
 const buildName = HelperFunctions.getBuildName('Regression');
 const SuiteName = 'Regression Suite Tests for Sefaria Mobile';
-const isModularization = process.env.MODULARIZATION === 'true';
 
 describe('Sefaria Mobile regression tests', function () {
   // Global test timeout for all tests in this block
@@ -21,25 +20,6 @@ describe('Sefaria Mobile regression tests', function () {
   let client: WebdriverIO.Browser;
   // Variable to hold the current test title, used for logging and reporting
   let testTitle: string;
-
-  // beforeEach(async function () {
-  //   // Fetch the current test title
-  //   testTitle = HelperFunctions.getTestTitle(this);
-  //   console.log(`\n[STARTING] Running test: ${testTitle}`);
-  //   try {
-  //     // WebdriverIO browser instance for interacting with the Sefaria app
-  //     client = await remote(LoadCredentials.getOpts(buildName, testTitle, NO_RESET));
-  //     await HelperFunctions.handleSetup(client, true);
-  //   } catch (err) {
-  //     UiChecker.takeScreenshot(client, testTitle, 'FAIL');
-  //     throw new Error(`[SESSION ERROR] Could not create session for test. App might not have been launched. "${testTitle}": ${err}`);
-  //   }
-  // });
-
-  // afterEach(async function () {
-  //   PopUps.stopGlobalPopupMonitor();
-  //   await HelperFunctions.handleTeardown(client, this, testTitle);
-  // });
 
   before(async function () {
     try {

@@ -76,7 +76,6 @@ Configuration is entirely env-driven. Locally these come from a `.env` file (cop
 | `DEVICE_NAME` | parallel runner | Tags logs/build name per device; blank for single runs. |
 | `BS_DEVICE`, `BS_OS_VERSION` | parallel runner | BrowserStack device model + OS, from `devices.json`. |
 | `MOCHA_CONFIG` / `SPEC` | parallel runner | Lets the parallel runner target a specific `.mocharc` or spec. |
-| `MODULARIZATION` | optional | Read in `regression.spec.ts` (`isModularization`); currently unused. |
 | `GITHUB_ACTIONS` | CI | When `true`, `load_credentials` skips loading `.env` (uses CI env directly). |
 | `LOCAL_DEVICE_NAME` | `.env` | Local device/emulator id (`adb devices` for Android). |
 | `ANDROID_LOCAL_APP_PATH` / `IOS_LOCAL_APP_PATH` | `.env` | Absolute path to the local `.apk` / `.ipa`. |
