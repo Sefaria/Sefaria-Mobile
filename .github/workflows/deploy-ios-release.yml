@@ -75,7 +75,6 @@ jobs:
         with:
           path: ios/Pods
           key: pods-${{ hashFiles('ios/Podfile.lock') }}
-          restore-keys: pods-
 
       - name: Install CocoaPods
         working-directory: ios
