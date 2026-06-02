@@ -1,0 +1,146 @@
+name: 🚀 Deploy iOS Production Release
+
+# Manual trigger only — production releases should never run automatically.
+# Must be run from master/main (enforced below).
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Version name, e.g. 6.8.0 (leave blank to use Android version)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  ios-release:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify branch is master/main
+        run: |
+          BRANCH=${GITHUB_REF#refs/heads/}
+          if [[ "$BRANCH" != "master" && "$BRANCH" != "main" ]]; then
+            echo "❌ Production releases must run from master or main (got: $BRANCH)"
+            exit 1
+          fi
+
+      - name: Resolve version name
+        # Use supplied version_name, or read from Android build.gradle.
+        # Android prod release typically runs first and bumps the version there.
+        # tr -d removes Windows-style \r that build.gradle may contain.
+        id: version
+        run: |
+          INPUT="${{ github.event.inputs.version_name }}"
+          if [[ -n "$INPUT" ]]; then
+            if ! [[ "$INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "❌ version_name must be MAJOR.MINOR.PATCH, got: '$INPUT'"
+              exit 1
+            fi
+            echo "version_name=$INPUT" >> $GITHUB_OUTPUT
+          else
+            MAJOR=$(grep '^def VERSION_MAJOR=' android/app/build.gradle | cut -d= -f2 | tr -d ' \r')
+            MINOR=$(grep '^def VERSION_MINOR=' android/app/build.gradle | cut -d= -f2 | tr -d ' \r')
+            PATCH=$(grep '^def VERSION_PATCH=' android/app/build.gradle | cut -d= -f2 | tr -d ' \r')
+            echo "version_name=$MAJOR.$MINOR.$PATCH" >> $GITHUB_OUTPUT
+            echo "📦 Using Android version: $MAJOR.$MINOR.$PATCH"
+          fi
+
+      - name: Set up Ruby + Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: ios/Pods
+          key: pods-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: pods-
+
+      - name: Install CocoaPods
+        working-directory: ios
+        run: bundle exec pod install --deployment
+
+      - name: Install distribution certificate
+        run: |
+          echo "${{ secrets.IOS_DISTRIBUTION_CERT_BASE64 }}" | base64 --decode > /tmp/dist.p12
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security set-keychain-settings -t 3600 -l build.keychain
+          security import /tmp/dist.p12 -k build.keychain \
+            -P "${{ secrets.IOS_DISTRIBUTION_CERT_PASSWORD }}" \
+            -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+
+      - name: Install provisioning profile
+        run: |
+          echo "${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > /tmp/profile.mobileprovision
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp /tmp/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      - name: Decode App Store Connect API key
+        run: |
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > /tmp/AuthKey.p8
+
+      - name: Decode GoogleService-Info.plist
+        run: |
+          echo "${{ secrets.IOS_GOOGLE_SERVICES_PLIST_BASE64 }}" | base64 --decode > ios/GoogleService-Info.plist
+
+      - name: Create envvars.sh
+        run: |
+          echo "export SOURCE_SERVER=\"https://readonly.sefaria.org/\"" >> scripts/envvars.sh
+          echo "export SOURCE_UNIX_PATH=\"static/ios-export/\""         >> scripts/envvars.sh
+
+      - name: Run Fastlane
+        run: bundle exec fastlane ios beta version_name:${{ steps.version.outputs.version_name }}
+        env:
+          APP_STORE_CONNECT_API_KEY_ID:    ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+
+      - name: Generate GitHub App token for protected-branch push
+        if: success()
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id:      ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Commit MARKETING_VERSION to master
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ios/ReaderApp.xcodeproj/project.pbxproj
+          if git diff --cached --quiet; then
+            echo "No changes to commit; skipping"
+          else
+            VNAME="${{ steps.version.outputs.version_name }}"
+            git commit -m "ci: release iOS $VNAME [skip ci]"
+            git remote set-url origin \
+              "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git"
+            git push origin HEAD:${GITHUB_REF#refs/heads/}
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f /tmp/dist.p12 /tmp/profile.mobileprovision /tmp/AuthKey.p8
+          rm -f ios/GoogleService-Info.plist
+          security delete-keychain build.keychain 2>/dev/null || true
