@@ -142,6 +142,7 @@ jobs:
           sed -i '' "s/MARKETING_VERSION = .*/MARKETING_VERSION = $VNAME;/" \
             ios/ReaderApp.xcodeproj/project.pbxproj
           git add ios/ReaderApp.xcodeproj/project.pbxproj
+          git add ios/sources/ || true
           if git diff --cached --quiet; then
             echo "No changes to commit; skipping"
           else
