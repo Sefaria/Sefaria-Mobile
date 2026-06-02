@@ -42,9 +42,9 @@ jobs:
         run: |
           echo "${{ secrets.IOS_DISTRIBUTION_CERT_BASE64 }}" | base64 --decode > /tmp/dist.p12
           security create-keychain -p "" build.keychain
-          security default-keychain -s build.keychain
           security unlock-keychain -p "" build.keychain
           security set-keychain-settings -t 3600 -l build.keychain
+          security list-keychains -d user -s build.keychain $(security list-keychains -d user | tr -d '"')
           security import /tmp/dist.p12 -k build.keychain \
             -P "${{ secrets.IOS_DISTRIBUTION_CERT_PASSWORD }}" \
             -T /usr/bin/codesign
@@ -81,3 +81,4 @@ jobs:
           rm -f /tmp/dist.p12 /tmp/profile.mobileprovision /tmp/AuthKey.p8
           rm -f ios/GoogleService-Info.plist
           security delete-keychain build.keychain 2>/dev/null || true
+          security list-keychains -d user -s login.keychain-db 2>/dev/null || true

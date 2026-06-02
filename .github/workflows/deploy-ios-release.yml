@@ -47,6 +47,10 @@ jobs:
             MAJOR=$(grep '^def VERSION_MAJOR=' android/app/build.gradle | cut -d= -f2 | tr -d ' \r')
             MINOR=$(grep '^def VERSION_MINOR=' android/app/build.gradle | cut -d= -f2 | tr -d ' \r')
             PATCH=$(grep '^def VERSION_PATCH=' android/app/build.gradle | cut -d= -f2 | tr -d ' \r')
+            if [[ -z "$MAJOR" || -z "$MINOR" || -z "$PATCH" ]]; then
+              echo "❌ Failed to read version from android/app/build.gradle"
+              exit 1
+            fi
             echo "version_name=$MAJOR.$MINOR.$PATCH" >> $GITHUB_OUTPUT
             echo "📦 Using Android version: $MAJOR.$MINOR.$PATCH"
           fi
@@ -81,9 +85,12 @@ jobs:
         run: |
           echo "${{ secrets.IOS_DISTRIBUTION_CERT_BASE64 }}" | base64 --decode > /tmp/dist.p12
           security create-keychain -p "" build.keychain
-          security default-keychain -s build.keychain
           security unlock-keychain -p "" build.keychain
           security set-keychain-settings -t 3600 -l build.keychain
+          # Prepend build.keychain to the search list so codesign can find the identity.
+          # Do not replace the default keychain — setup_ci is omitted from the Fastfile
+          # to avoid the two-keychain conflict it would otherwise create.
+          security list-keychains -d user -s build.keychain $(security list-keychains -d user | tr -d '"')
           security import /tmp/dist.p12 -k build.keychain \
             -P "${{ secrets.IOS_DISTRIBUTION_CERT_PASSWORD }}" \
             -T /usr/bin/codesign
@@ -127,11 +134,17 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          VNAME="${{ steps.version.outputs.version_name }}"
+          # Fastlane also wrote a timestamp build number into project.pbxproj.
+          # Reset the file first, then apply only the MARKETING_VERSION change
+          # so the ephemeral build number is never committed.
+          git checkout HEAD -- ios/ReaderApp.xcodeproj/project.pbxproj
+          sed -i '' "s/MARKETING_VERSION = .*/MARKETING_VERSION = $VNAME;/" \
+            ios/ReaderApp.xcodeproj/project.pbxproj
           git add ios/ReaderApp.xcodeproj/project.pbxproj
           if git diff --cached --quiet; then
             echo "No changes to commit; skipping"
           else
-            VNAME="${{ steps.version.outputs.version_name }}"
             git commit -m "ci: release iOS $VNAME [skip ci]"
             git remote set-url origin \
               "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git"
@@ -144,3 +157,4 @@ jobs:
           rm -f /tmp/dist.p12 /tmp/profile.mobileprovision /tmp/AuthKey.p8
           rm -f ios/GoogleService-Info.plist
           security delete-keychain build.keychain 2>/dev/null || true
+          security list-keychains -d user -s login.keychain-db 2>/dev/null || true

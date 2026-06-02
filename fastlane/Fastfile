@@ -44,8 +44,6 @@ platform :ios do
       xcodeproj: "./ios/ReaderApp.xcodeproj"
     )
 
-    setup_ci if ENV["CI"]
-
     sh("../scripts/update_sources.sh")
     sh("cd .. && npm install") unless ENV["CI"]
 
