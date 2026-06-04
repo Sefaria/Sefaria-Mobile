@@ -13,7 +13,7 @@ import {
 import {ViewPropTypes} from 'deprecated-react-native-prop-types';
 import {ErrorBoundaryFallbackComponent} from "./ErrorBoundaryFallbackComponent";
 import { WebView } from 'react-native-webview';
-import styles from './Styles.js';
+import styles, { SCROLL_PADDING_BOTTOM_FRACTION } from './Styles.js';
 import TextRange from './TextRange';
 import TextRangeContinuous from './TextRangeContinuous';
 import TextHeightMeasurer from './TextHeightMeasurer';
@@ -97,6 +97,9 @@ class TextColumn extends React.PureComponent {
         viewPosition: 0.1,
         animated: false,
       },
+      // Height of the list's own viewport, measured via onLayout. Used to size the
+      // bottom padding relative to this panel rather than the full window.
+      scrollViewHeight: ViewPort.height,
     };
   }
   componentDidMount() {
@@ -790,12 +793,20 @@ class TextColumn extends React.PureComponent {
     this.props.textUnavailableAlert(this.props.textTitle);
   };
 
+  _onScrollViewLayout = (e) => {
+    const { height } = e.nativeEvent.layout;
+    if (height && height !== this.state.scrollViewHeight) {
+      this.setState({ scrollViewHeight: height });
+    }
+  };
+
   render() {
     return (
         <View style={styles.textColumn}>
           <ErrorBoundary FallbackComponent={ErrorBoundaryFallbackComponent} onError={this._textErrorBoundaryAlert}>
             <SectionList
-              contentContainerStyle={styles.scrollContentPaddingBottom}
+              contentContainerStyle={{ paddingBottom: this.state.scrollViewHeight * SCROLL_PADDING_BOTTOM_FRACTION }}
+              onLayout={this._onScrollViewLayout}
               style={styles.scrollViewPaddingInOrderToScroll}
               ref={this._getSectionListRef}
               sections={this.state.dataSource}

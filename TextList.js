@@ -17,7 +17,7 @@ import {
 import { GlobalStateContext, getTheme } from './StateManager';
 import { RenderHTML } from 'react-native-render-html';
 import strings from './LocalizedStrings';
-import styles from './Styles.js';
+import styles, { SCROLL_PADDING_BOTTOM_FRACTION } from './Styles.js';
 import { useHTMLViewStyles } from './useHTMLViewStyles';
 
 
@@ -47,8 +47,18 @@ class TextList extends React.Component {
     this.state = {
       dataSource,
       updateScrollPosKey: true,
+      // Height of the list's own viewport, measured via onLayout. Used to size the
+      // bottom padding relative to the ConnectionsPanel rather than the full window.
+      scrollViewHeight: 0,
     };
   }
+
+  _onScrollViewLayout = (e) => {
+    const { height } = e.nativeEvent.layout;
+    if (height && height !== this.state.scrollViewHeight) {
+      this.setState({ scrollViewHeight: height });
+    }
+  };
 
 
   componentDidUpdate(prevProps, prevState) {
@@ -177,7 +187,8 @@ class TextList extends React.Component {
         data={this.state.dataSource}
         extraData={`${this.props.fontSize}|${this.props.themeStr}`}
         renderItem={this.renderItem}
-        contentContainerStyle={[{justifyContent: "center"}, styles.scrollContentPaddingBottom]}
+        contentContainerStyle={[{justifyContent: "center"}, { paddingBottom: this.state.scrollViewHeight * SCROLL_PADDING_BOTTOM_FRACTION }]}
+        onLayout={this._onScrollViewLayout}
         onViewableItemsChanged={this.onViewableItemsChanged}
         ListEmptyComponent={
           <View style={styles.noLinks}>

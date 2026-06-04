@@ -7,7 +7,7 @@ import {
   Text,
   Image,
 } from 'react-native';
-import styles from './Styles';
+import styles, { SCROLL_PADDING_BOTTOM_FRACTION } from './Styles';
 import strings from './LocalizedStrings';
 import ConnectionsPanelHeader from './ConnectionsPanelHeader';
 import TextList from './TextList';
@@ -32,8 +32,17 @@ class ConnectionsPanel extends React.PureComponent {
     super(props);
     this.state = {
       showAllRelated: false,
+      // Height of the link-summary scroll view's own viewport, measured via onLayout.
+      // Used to size the bottom padding relative to this panel rather than the window.
+      scrollViewHeight: 0,
     };
   }
+  _onScrollViewLayout = (e) => {
+    const { height } = e.nativeEvent.layout;
+    if (height && height !== this.state.scrollViewHeight) {
+      this.setState({ scrollViewHeight: height });
+    }
+  };
   static whyDidYouRender = true;
   static propTypes = {
     textToc:              PropTypes.object,
@@ -234,7 +243,8 @@ class ConnectionsPanel extends React.PureComponent {
             <ScrollView
               style={styles.scrollViewPaddingInOrderToScroll}
               key={""+this.props.connectionsMode}
-              contentContainerStyle={[styles.textListSummaryScrollView, styles.scrollContentPaddingBottom]}>
+              onLayout={this._onScrollViewLayout}
+              contentContainerStyle={[styles.textListSummaryScrollView, { paddingBottom: this.state.scrollViewHeight * SCROLL_PADDING_BOTTOM_FRACTION }]}>
                 {buttons}
             </ScrollView>
           );
