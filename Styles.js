@@ -19,12 +19,23 @@ export const SCROLL_PADDING_BOTTOM_FRACTION = 0.7;
 // into `component.state.scrollViewHeight`, so bottom padding can be sized relative
 // to the panel rather than the window. Bind once in the constructor:
 //   this._onScrollViewLayout = makeScrollViewLayoutHandler(this);
-export const makeScrollViewLayoutHandler = (component) => (e) => {
-  const { height } = e.nativeEvent.layout;
-  if (height && height !== component.state.scrollViewHeight) {
-    component.setState({ scrollViewHeight: height });
-  }
-};
+//
+// This is a "factory": a function that returns another function. Calling
+// makeScrollViewLayoutHandler(this) does NOT run the layout logic — it hands back
+// the inner `onScrollViewLayout` function, which React calls later each time the
+// view lays out. The inner function "remembers" the `component` you passed in (a
+// closure), which is how it knows whose setState to call. Two separate functions:
+//   - outer makeScrollViewLayoutHandler(component): runs once, at bind time.
+//   - inner onScrollViewLayout(e):                  runs every onLayout, with the
+//                                                   layout event `e`.
+export function makeScrollViewLayoutHandler(component) {
+  return function onScrollViewLayout(e) {
+    const { height } = e.nativeEvent.layout;
+    if (height && height !== component.state.scrollViewHeight) {
+      component.setState({ scrollViewHeight: height });
+    }
+  };
+}
 
 export default StyleSheet.create({
   // Sefaria Design System - Content H2 English
