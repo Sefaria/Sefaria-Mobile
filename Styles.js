@@ -9,6 +9,33 @@ const isIOS = Platform.OS === 'ios';
 const isAndroid = Platform.OS === 'android';
 const readerSideMargin = 42;
 const readerSideMarginIpad = 60;
+// Fraction of a scrolling panel's own height to append as bottom padding. Allows a
+// one-line last segment to scroll up to the top of the panel when pressed, without
+// scrolling it out of view. Applied at runtime against each panel's measured height
+// (not the window height) so it stays correct inside the ConnectionsPanel split view.
+export const SCROLL_PADDING_BOTTOM_FRACTION = 0.7;
+
+// Builds an onLayout handler that records a scrolling panel's own viewport height
+// into `component.state.scrollViewHeight`, so bottom padding can be sized relative
+// to the panel rather than the window. Bind once in the constructor:
+//   this._onScrollViewLayout = makeScrollViewLayoutHandler(this);
+//
+// This is a "factory": a function that returns another function. Calling
+// makeScrollViewLayoutHandler(this) does NOT run the layout logic — it hands back
+// the inner `onScrollViewLayout` function, which React calls later each time the
+// view lays out. The inner function "remembers" the `component` you passed in (a
+// closure), which is how it knows whose setState to call. Two separate functions:
+//   - outer makeScrollViewLayoutHandler(component): runs once, at bind time.
+//   - inner onScrollViewLayout(e):                  runs every onLayout, with the
+//                                                   layout event `e`.
+export function makeScrollViewLayoutHandler(component) {
+  return function onScrollViewLayout(e) {
+    const { height } = e.nativeEvent.layout;
+    if (height && height !== component.state.scrollViewHeight) {
+      component.setState({ scrollViewHeight: height });
+    }
+  };
+}
 
 export default StyleSheet.create({
   // Sefaria Design System - Content H2 English
