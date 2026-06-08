@@ -13,7 +13,7 @@ import {
 import {ViewPropTypes} from 'deprecated-react-native-prop-types';
 import {ErrorBoundaryFallbackComponent} from "./ErrorBoundaryFallbackComponent";
 import { WebView } from 'react-native-webview';
-import styles, { SCROLL_PADDING_BOTTOM_FRACTION } from './Styles.js';
+import styles, { SCROLL_PADDING_BOTTOM_FRACTION, makeScrollViewLayoutHandler } from './Styles.js';
 import TextRange from './TextRange';
 import TextRangeContinuous from './TextRangeContinuous';
 import TextHeightMeasurer from './TextHeightMeasurer';
@@ -101,6 +101,7 @@ class TextColumn extends React.PureComponent {
       // bottom padding relative to this panel rather than the full window.
       scrollViewHeight: ViewPort.height,
     };
+    this._onScrollViewLayout = makeScrollViewLayoutHandler(this);
   }
   componentDidMount() {
     this._isMounted = true;
@@ -791,13 +792,6 @@ class TextColumn extends React.PureComponent {
 
   _textErrorBoundaryAlert = () => {
     this.props.textUnavailableAlert(this.props.textTitle);
-  };
-
-  _onScrollViewLayout = (e) => {
-    const { height } = e.nativeEvent.layout;
-    if (height && height !== this.state.scrollViewHeight) {
-      this.setState({ scrollViewHeight: height });
-    }
   };
 
   render() {

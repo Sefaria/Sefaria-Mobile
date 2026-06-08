@@ -17,7 +17,7 @@ import {
 import { GlobalStateContext, getTheme } from './StateManager';
 import { RenderHTML } from 'react-native-render-html';
 import strings from './LocalizedStrings';
-import styles, { SCROLL_PADDING_BOTTOM_FRACTION } from './Styles.js';
+import styles, { SCROLL_PADDING_BOTTOM_FRACTION, makeScrollViewLayoutHandler } from './Styles.js';
 import { useHTMLViewStyles } from './useHTMLViewStyles';
 
 
@@ -51,14 +51,8 @@ class TextList extends React.Component {
       // bottom padding relative to the ConnectionsPanel rather than the full window.
       scrollViewHeight: 0,
     };
+    this._onScrollViewLayout = makeScrollViewLayoutHandler(this);
   }
-
-  _onScrollViewLayout = (e) => {
-    const { height } = e.nativeEvent.layout;
-    if (height && height !== this.state.scrollViewHeight) {
-      this.setState({ scrollViewHeight: height });
-    }
-  };
 
 
   componentDidUpdate(prevProps, prevState) {

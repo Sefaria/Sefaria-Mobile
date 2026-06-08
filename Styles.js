@@ -15,6 +15,17 @@ const readerSideMarginIpad = 60;
 // (not the window height) so it stays correct inside the ConnectionsPanel split view.
 export const SCROLL_PADDING_BOTTOM_FRACTION = 0.7;
 
+// Builds an onLayout handler that records a scrolling panel's own viewport height
+// into `component.state.scrollViewHeight`, so bottom padding can be sized relative
+// to the panel rather than the window. Bind once in the constructor:
+//   this._onScrollViewLayout = makeScrollViewLayoutHandler(this);
+export const makeScrollViewLayoutHandler = (component) => (e) => {
+  const { height } = e.nativeEvent.layout;
+  if (height && height !== component.state.scrollViewHeight) {
+    component.setState({ scrollViewHeight: height });
+  }
+};
+
 export default StyleSheet.create({
   // Sefaria Design System - Content H2 English
   ContentH2En: {
