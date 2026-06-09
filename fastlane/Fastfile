@@ -48,10 +48,10 @@ platform :ios do
     sh("cd .. && npm install") unless ENV["CI"]
 
     build_app(
-      scheme:        "ReaderApp",
-      workspace:     "./ios/ReaderApp.xcworkspace",
-      export_method: "app-store",
-      xcargs:        "CODE_SIGN_STYLE=Manual",
+      scheme:                "ReaderApp",
+      workspace:             "./ios/ReaderApp.xcworkspace",
+      export_method:         "app-store",
+      suppress_xcode_output: false,
     )
 
     upload_to_testflight(api_key: api_key)
