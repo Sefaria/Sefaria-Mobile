@@ -116,6 +116,10 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ID:    ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
 
+      - name: Print build log on failure
+        if: failure()
+        run: cat ~/Library/Logs/gym/*.log 2>/dev/null || echo "No gym log found"
+
       - name: Generate GitHub App token for protected-branch push
         if: success()
         id: app-token
