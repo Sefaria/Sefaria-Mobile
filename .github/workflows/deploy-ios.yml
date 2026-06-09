@@ -35,7 +35,9 @@ jobs:
 
       - name: Install CocoaPods
         working-directory: ios
-        run: bundle exec pod install --deployment
+        run: |
+          rm -rf Pods/Local\ Podspecs
+          bundle exec pod install --deployment
 
       - name: Install distribution certificate
         run: |
