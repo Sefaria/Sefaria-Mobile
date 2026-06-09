@@ -70,15 +70,15 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
-      - name: Cache CocoaPods
+      - name: Cache CocoaPods downloads
         uses: actions/cache@v4
         with:
-          path: ios/Pods
-          key: pods-${{ hashFiles('ios/Podfile.lock', 'package-lock.json') }}
+          path: ~/Library/Caches/CocoaPods
+          key: pods-${{ hashFiles('ios/Podfile.lock') }}
 
       - name: Install CocoaPods
         working-directory: ios
-        run: bundle exec pod install --repo-update
+        run: bundle exec pod install
 
       - name: Install distribution certificate
         run: |
