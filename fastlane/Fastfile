@@ -57,7 +57,7 @@ platform :ios do
         method:               "app-store",
         signingStyle:         "manual",
         provisioningProfiles: {
-          "org.sefaria.sefariaApp" => "iOS Team Store Provisioning Profile: org.sefaria.sefariaApp"
+          "org.sefaria.sefariaApp" => "org.sefaria.sefariaApp AppStore"
         }
       }
     )
