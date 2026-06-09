@@ -49,8 +49,7 @@ jobs:
         run: |
           echo "${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > /tmp/profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          PROFILE_UUID=$(security cms -D -i /tmp/profile.mobileprovision | /usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin)
-          cp /tmp/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/${PROFILE_UUID}.mobileprovision
+          cp /tmp/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
       - name: Decode App Store Connect API key
         run: |
