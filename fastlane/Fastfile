@@ -48,10 +48,16 @@ platform :ios do
     sh("cd .. && npm install") unless ENV["CI"]
 
     build_app(
-      scheme:               "ReaderApp",
-      workspace:            "./ios/ReaderApp.xcworkspace",
-      export_method:        "app-store",
-      disable_xcpretty:     true,
+      scheme:           "ReaderApp",
+      workspace:        "./ios/ReaderApp.xcworkspace",
+      export_method:    "app-store",
+      disable_xcpretty: true,
+      xcargs:           [
+        "-allowProvisioningUpdates",
+        "-authenticationKeyPath /tmp/AuthKey.p8",
+        "-authenticationKeyID #{ENV['APP_STORE_CONNECT_API_KEY_ID']}",
+        "-authenticationKeyIssuerID #{ENV['APP_STORE_CONNECT_API_ISSUER_ID']}",
+      ].join(" "),
     )
 
     upload_to_testflight(api_key: api_key)
