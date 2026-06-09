@@ -52,12 +52,14 @@ platform :ios do
       workspace:        "./ios/ReaderApp.xcworkspace",
       export_method:    "app-store",
       disable_xcpretty: true,
-      xcargs:           [
-        "-allowProvisioningUpdates",
-        "-authenticationKeyPath /tmp/AuthKey.p8",
-        "-authenticationKeyID #{ENV['APP_STORE_CONNECT_API_KEY_ID']}",
-        "-authenticationKeyIssuerID #{ENV['APP_STORE_CONNECT_API_ISSUER_ID']}",
-      ].join(" "),
+      xcargs:           "CODE_SIGN_STYLE=Manual",
+      export_options:   {
+        method:               "app-store",
+        signingStyle:         "manual",
+        provisioningProfiles: {
+          "org.sefaria.sefariaApp" => "iOS Team Store Provisioning Profile: org.sefaria.sefariaApp"
+        }
+      }
     )
 
     upload_to_testflight(api_key: api_key)
