@@ -27,12 +27,6 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
-      - name: Cache CocoaPods downloads
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/Caches/CocoaPods
-          key: pods-${{ hashFiles('ios/Podfile.lock') }}
-
       - name: Install CocoaPods
         working-directory: ios
         run: |
