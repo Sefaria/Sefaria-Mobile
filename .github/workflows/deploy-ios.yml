@@ -65,7 +65,10 @@ jobs:
           echo "export SOURCE_UNIX_PATH=\"static/ios-export/\""         >> scripts/envvars.sh
 
       - name: Run Fastlane
-        run: bundle exec fastlane ios beta
+        run: |
+          VERSION=$(grep -E '^def VERSION_(MAJOR|MINOR|PATCH)=' android/app/build.gradle \
+            | awk -F'=' '{print $2}' | tr -d '\r' | tr '\n' '.' | sed 's/\.$//')
+          bundle exec fastlane ios beta version_name:$VERSION
         env:
           APP_STORE_CONNECT_API_KEY_ID:    ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
