@@ -129,6 +129,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
           git add android/app/build.gradle
           git add android/app/src/main/assets/sources/ ios/sources/ || true
           if git diff --cached --quiet; then

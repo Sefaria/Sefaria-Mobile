@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   ios-release:
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
       - uses: actions/checkout@v4
@@ -142,14 +142,19 @@ jobs:
             ios/ReaderApp.xcodeproj/project.pbxproj
           git add ios/ReaderApp.xcodeproj/project.pbxproj
           git add ios/sources/ || true
-          if git diff --cached --quiet; then
-            echo "No changes to commit; skipping"
-          else
+          if ! git diff --cached --quiet; then
             git commit -m "ci: release iOS $VNAME [skip ci]"
-            git remote set-url origin \
-              "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git"
-            git push origin HEAD:${GITHUB_REF#refs/heads/}
           fi
+
+          # Bump patch for the next QA cycle — commit only build.gradle
+          PATCH=$(grep '^def VERSION_PATCH=' android/app/build.gradle | cut -d= -f2 | tr -d ' \r')
+          sed -i '' "s/^def VERSION_PATCH=.*/def VERSION_PATCH=$((PATCH + 1))/" android/app/build.gradle
+          git add android/app/build.gradle
+          git commit -m "ci: prepare next patch after $VNAME [skip ci]"
+
+          git remote set-url origin \
+            "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git"
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
 
       - name: Cleanup
         if: always()
