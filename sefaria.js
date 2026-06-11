@@ -1,17 +1,17 @@
 import { Alert, Linking, Platform } from 'react-native';
 import qs from 'qs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import crashlytics from '@react-native-firebase/crashlytics';
+import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';
 import VersionNumber from 'react-native-version-number';
 import { Search } from '@sefaria/search';
-import sanitizeHtml from 'sanitize-html'
+import sanitizeHtml from 'sanitize-html';
+import { decodeHTML } from 'entities';
 import Api from './api';
 import * as OfflineOnline from './offlineOnline';
 import History from './history';
 import { initAsyncStorage } from './StateManager';
 import { VOCALIZATION } from './VocalizationEnum';
 import URL from 'url-parse';
-import analytics from '@react-native-firebase/analytics';
 import {HDate} from "@hebcal/core";
 import {parseDocument, ElementType} from 'htmlparser2';
 import {
@@ -20,13 +20,13 @@ import {
   autoUpdateCheck, simpleDelete,
   checkUpdatesFromServer,
 } from './DownloadControl'
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Topic } from './Topic';
 import {openFileInSources} from "./offline";
 import {trackEvent} from "./analytics/events";
 
 
-Sefaria = {
+global.Sefaria = {
   _auth: {},
   recentQueries: [],
   people: {},
@@ -584,12 +584,12 @@ Sefaria = {
   _topicTocObjectMap: {},  // dictionary from slug to topic object as it appears in topicToc
   _initTopicTocPages: function() {
     Sefaria._topicTocPages = Sefaria.topic_toc.reduce(Sefaria._initTopicTocReducer, {});
-    Sefaria._topicTocPages[Sefaria._topicTocPageKey(null)] = Sefaria.topic_toc.map(({children, ...goodstuff}) => goodstuff);
+    Sefaria._topicTocPages[Sefaria._topicTocPageKey(null)] = Sefaria.topic_toc.map(({children, primaryTitle, ...rootTopic}) => ({...rootTopic, title: primaryTitle}));
   },
   _initTopicTocReducer: function(a,c) {
-    Sefaria._topicTocObjectMap[c.slug] = new Topic({...c, title: {en: c.en, he: c.he}});
+    Sefaria._topicTocObjectMap[c.slug] = new Topic({...c, title: c.primaryTitle});
     if (!c.children) { return a; }
-    a[Sefaria._topicTocPageKey(c.slug)] = c.children;
+    a[Sefaria._topicTocPageKey(c.slug)] = c.children.map(({primaryTitle, ...otherFields}) => ({...otherFields, title: primaryTitle}));
     for (let sub_c of c.children) {
       Sefaria._initTopicTocReducer(a, sub_c);
     }
@@ -605,7 +605,7 @@ Sefaria = {
       return a;
     }
     for (let sub_c of c.children) {
-      sub_c.parent = { en: c.en, he: c.he, slug: c.slug };
+      sub_c.parent = { title: c.primaryTitle, slug: c.slug };
       Sefaria._initTopicTocCategoryReducer(a, sub_c);
     }
     return a;
@@ -813,7 +813,7 @@ Sefaria = {
         try {
           result = data.result;
         } catch (e) {
-          crashlytics().recordError(new Error(`loadLinkData failed to load ${data.requestedRef}`));
+          recordError(getCrashlytics(), new Error(`loadLinkData failed to load ${data.requestedRef}`));
         }
         let prev = Sefaria.links._linkContentLoadingStack.shift();
         //delete Sefaria.links._linkContentLoadingHash[prev.ref];
@@ -1407,6 +1407,34 @@ Sefaria.util = {
   removeHtml: function(str) {
     return str.replace(/<[^>]+>/g, '');
   },
+  /**
+   * Canonical HTML-to-text normalization matching Sefaria-Project `Sefaria.util.htmlToText`.
+   */
+  htmlToTextCanonical: function(html) {
+    if (typeof html !== 'string' || !html.length) {
+      return '';
+    }
+    // Remove literal newlines and tabs
+    let s = html.replace(/\n/g, '').replace(/\t/g, '');
+    // Insert structural separators (case-sensitive, to match canonical behavior)
+    s = s.replace(/<\/td>/g, '\t');
+    s = s.replace(/<\/table>/g, '\n');
+    s = s.replace(/<\/tr>/g, '\n');
+    s = s.replace(/<\/p>/g, '\n');
+    s = s.replace(/<\/div>/g, '\n');
+    s = s.replace(/<br>/g, '\n');
+    s = s.replace(/<br( )*\/>/g, '\n');
+    // Strip all HTML tags via sanitize-html, preserving only text content.
+    s = sanitizeHtml(s, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+    // Decode entities once (canonical behavior should not double-decode)
+    s = decodeHTML(s);
+    // Collapse duplicate blank lines
+    s = s.replace(/\n\s*\n/g, '\n');
+    return s;
+  },
   translateISOLanguageCode(code) {
     //takes two-letter ISO 639.2 code and returns full language name
     const codeMap = {
@@ -1453,7 +1481,23 @@ Sefaria.util = {
     (lineMultiplier || 1) * (Platform.OS === 'ios' ?
     (lang !== "hebrew" ? (fsize * 1.2) : fsize) :
     (lang !== "hebrew" ? (fsize * 1.333) : fsize))
-  )
+  ),
+   shortLangToLong: function(shortLang) {
+    const map = {
+      "en": "english",
+      "he": "hebrew",
+      "bi": "bilingual",
+    };
+    return map[shortLang];
+  },
+    longLangToShort: function(longLang) {
+        const map = {
+        "english": "en",
+        "hebrew": "he",
+        "bilingual": "bi",
+        }
+        return map[longLang];
+    },
 };
 
 Sefaria.api = Api;

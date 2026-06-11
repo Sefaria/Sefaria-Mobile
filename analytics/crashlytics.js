@@ -1,4 +1,4 @@
-import crashlytics from '@react-native-firebase/crashlytics';
+import {getCrashlytics, recordError, setAttribute} from '@react-native-firebase/crashlytics';
 import { enrichAttributes } from './enrichments';
 import { devError } from '../devUtils';
 
@@ -29,7 +29,7 @@ const CrashlyticsService = {
     // Set attributes
     Object.entries(enrichedAttributes).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        crashlytics().setAttribute(key, String(value));
+        setAttribute(getCrashlytics(), key, String(value));
       }
     });
     
@@ -37,7 +37,7 @@ const CrashlyticsService = {
     devError('Crashlytics Error:', error, enrichedAttributes);
 
     // Record the error
-    return crashlytics().recordError(error);
+    return recordError(getCrashlytics(), error);
   }
 };
 

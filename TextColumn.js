@@ -13,7 +13,7 @@ import {
 import {ViewPropTypes} from 'deprecated-react-native-prop-types';
 import {ErrorBoundaryFallbackComponent} from "./ErrorBoundaryFallbackComponent";
 import { WebView } from 'react-native-webview';
-import styles from './Styles.js';
+import styles, { SCROLL_PADDING_BOTTOM_FRACTION, makeScrollViewLayoutHandler } from './Styles.js';
 import TextRange from './TextRange';
 import TextRangeContinuous from './TextRangeContinuous';
 import TextHeightMeasurer from './TextHeightMeasurer';
@@ -97,7 +97,11 @@ class TextColumn extends React.PureComponent {
         viewPosition: 0.1,
         animated: false,
       },
+      // Height of the list's own viewport, measured via onLayout. Used to size the
+      // bottom padding relative to this panel rather than the full window.
+      scrollViewHeight: ViewPort.height,
     };
+    this._onScrollViewLayout = makeScrollViewLayoutHandler(this);
   }
   componentDidMount() {
     this._isMounted = true;
@@ -791,12 +795,12 @@ class TextColumn extends React.PureComponent {
   };
 
   render() {
-    const paddingBottom = Dimensions.get('window').height * 0.7;  //0.7 allows oneline last book segment to show in the top when it's pressed, but not to scroll it out of screen
     return (
         <View style={styles.textColumn}>
           <ErrorBoundary FallbackComponent={ErrorBoundaryFallbackComponent} onError={this._textErrorBoundaryAlert}>
             <SectionList
-              contentContainerStyle={{ paddingBottom: paddingBottom }}
+              contentContainerStyle={{ paddingBottom: this.state.scrollViewHeight * SCROLL_PADDING_BOTTOM_FRACTION }}
+              onLayout={this._onScrollViewLayout}
               style={styles.scrollViewPaddingInOrderToScroll}
               ref={this._getSectionListRef}
               sections={this.state.dataSource}

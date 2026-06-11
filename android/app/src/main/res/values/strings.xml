@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Sefaria</string>
+    <!-- app_name is now injected per-build via resValue in build.gradle
+         (falls back to "Sefaria" for production, branch name for QA builds) -->
 </resources>

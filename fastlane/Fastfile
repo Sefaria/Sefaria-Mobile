@@ -16,13 +16,52 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Push a new beta build to TestFlight"
-  lane :beta do
+  desc "Build and upload to TestFlight.
+        Called by both deploy-ios.yml (QA, version from build.gradle) and
+        deploy-ios-release.yml (prod, version_name provided or from build.gradle).
+        version_name: required MAJOR.MINOR.PATCH"
+  lane :beta do |options|
+    api_key = app_store_connect_api_key(
+      key_id:       ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id:    ENV["APP_STORE_CONNECT_API_ISSUER_ID"],
+      key_filepath: "/tmp/AuthKey.p8",
+    )
+
+    version_name = options[:version_name]
+    if version_name && !version_name.empty?
+      UI.user_error!("version_name must be MAJOR.MINOR.PATCH") \
+        unless version_name.match?(/\A\d+\.\d+\.\d+\z/)
+      increment_version_number(
+        version_number: version_name,
+        xcodeproj: "./ios/ReaderApp.xcodeproj"
+      )
+    end
+
+    # Unix timestamp as build number — same pattern as Android QA builds.
+    # Always unique and increasing; never committed; no branch conflicts.
+    increment_build_number(
+      build_number: Time.now.to_i.to_s,
+      xcodeproj: "./ios/ReaderApp.xcodeproj"
+    )
+
     sh("../scripts/update_sources.sh")
-    increment_build_number(xcodeproj: "./ios/ReaderApp.xcodeproj")
-    build_app(scheme: "ReaderApp",
-            workspace: "./ios/ReaderApp.xcworkspace",
-            include_bitcode: true)
-    upload_to_testflight
+    sh("cd .. && npm install") unless ENV["CI"]
+
+    build_app(
+      scheme:           "ReaderApp",
+      workspace:        "./ios/ReaderApp.xcworkspace",
+      export_method:    "app-store",
+      disable_xcpretty: true,
+      xcargs:           "CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY='Apple Distribution' PROVISIONING_PROFILE_SPECIFIER='org.sefaria.sefariaApp AppStore'",
+      export_options:   {
+        method:               "app-store",
+        signingStyle:         "manual",
+        provisioningProfiles: {
+          "org.sefaria.sefariaApp" => "org.sefaria.sefariaApp AppStore"
+        }
+      }
+    )
+
+    upload_to_testflight(api_key: api_key)
   end
 end

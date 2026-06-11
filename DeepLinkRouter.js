@@ -10,7 +10,6 @@ class DeepLinkRouter extends React.PureComponent {
     openMenu:                PropTypes.func.isRequired,
     openRef:                 PropTypes.func.isRequired,
     openUri:                 PropTypes.func.isRequired,
-    openRefSheet:            PropTypes.func.isRequired,
     openTextTocDirectly:     PropTypes.func.isRequired,
     openSearch:              PropTypes.func.isRequired,
     openTopic:               PropTypes.func.isRequired,
@@ -37,10 +36,6 @@ class DeepLinkRouter extends React.PureComponent {
   openMenu = ({ menu }) => {
     this.props.openMenu(menu);
   };
-  openRefSheet = ({ sheetid }) => {
-    sheetid = sheetid.split(".")[0];  // throw away node number
-    this.props.openRefSheet(sheetid);
-  };
   openTopicFromTag = ({ tag }) => {
     const slug = tag.toLowerCase().replace(/ /g, '-');  // approximation at what the slug should be
     this.openTopic({ slug });
@@ -54,7 +49,7 @@ class DeepLinkRouter extends React.PureComponent {
     const isCategory = !!categoryString;
     this.props.openTopic({slug}, isCategory);
   };
-  openRef = ({ tref, ven, vhe, aliyot, lang, url }) => {
+  openRef = ({ tref, ven, vhe, version, aliyot, lang, url }) => {
     // wrapper for openRef to convert url params to function params
     // TODO handle sheet ref case
     let { ref, title } = Sefaria.urlToRef(tref);
@@ -82,14 +77,12 @@ class DeepLinkRouter extends React.PureComponent {
   };
   openStandardRef = (ref, aliyot, ven, vhe, lang) => {
     const enableAliyot = !!aliyot && aliyot.length > 0 && aliyot !== '0';
+    ven = ven?.replace(/^[a-z]+\|/, '');  // remove version language prefix if it exists
+    vhe = vhe?.replace(/^[a-z]+\|/, '');
     const versions = { en: ven, he: vhe };
-    const langMapper = {
-      'en': 'english',
-      'he': 'hebrew',
-      'bi': 'bilingual',
-    };
-    if (langMapper[lang]) {
-      this.props.setTextLanguage(langMapper[lang], null, true);
+    const longLang = Sefaria.util.shortLangToLong(lang);
+    if (longLang) {
+      this.props.setTextLanguage(longLang, null, true);
     }
     this.props.openRef(ref, 'deep link', versions, true, enableAliyot);
   }

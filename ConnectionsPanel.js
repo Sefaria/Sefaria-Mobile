@@ -7,14 +7,13 @@ import {
   Text,
   Image,
 } from 'react-native';
-import styles from './Styles';
+import styles, { SCROLL_PADDING_BOTTOM_FRACTION, makeScrollViewLayoutHandler } from './Styles';
 import strings from './LocalizedStrings';
 import ConnectionsPanelHeader from './ConnectionsPanelHeader';
 import TextList from './TextList';
 import { LinkFilter } from './Filter';
 import TranslationsBox from './TranslationsBox';
 import AboutBox from './AboutBox';
-import SheetListInConnections from './SheetListInConnections';
 import TopicList from './TopicList';
 import LexiconBox from './LexiconBox';
 import {iconData} from "./IconData";
@@ -33,7 +32,11 @@ class ConnectionsPanel extends React.PureComponent {
     super(props);
     this.state = {
       showAllRelated: false,
+      // Height of the link-summary scroll view's own viewport, measured via onLayout.
+      // Used to size the bottom padding relative to this panel rather than the window.
+      scrollViewHeight: 0,
     };
+    this._onScrollViewLayout = makeScrollViewLayoutHandler(this);
   }
   static whyDidYouRender = true;
   static propTypes = {
@@ -191,17 +194,6 @@ class ConnectionsPanel extends React.PureComponent {
             />
           </View>
         );
-      case 'sheetsByRef':
-        return (
-          <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
-            {connectionsPanelHeader}
-            <SheetListInConnections
-              sheets={this.props.relatedData.sheets}
-              openRefSheet={this.props.openRefSheet}
-              openTopic={this.props.openTopic}
-            />
-          </View>
-        );
       case 'topicsByRef':
         return (
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
@@ -246,7 +238,8 @@ class ConnectionsPanel extends React.PureComponent {
             <ScrollView
               style={styles.scrollViewPaddingInOrderToScroll}
               key={""+this.props.connectionsMode}
-              contentContainerStyle={styles.textListSummaryScrollView}>
+              onLayout={this._onScrollViewLayout}
+              contentContainerStyle={[styles.textListSummaryScrollView, { paddingBottom: this.state.scrollViewHeight * SCROLL_PADDING_BOTTOM_FRACTION }]}>
                 {buttons}
             </ScrollView>
           );
@@ -381,7 +374,6 @@ const MainMenuButtons = ({linkSummary,
     <ResourcesList
       themeStr={themeStr}
       topicsCount={relatedData.topics ? Sefaria.links.topicsCount(relatedData.topics) : 0}
-      sheetsCount={relatedData.sheets ? relatedData.sheets.length : 0}
       setConnectionsMode={setConnectionsMode}
     />
     <ToolsList
@@ -487,15 +479,10 @@ TopButtons.propTypes = {
     sheet:              PropTypes.object,
 };
 
-const ResourcesList = ({themeStr, sheetsCount, setConnectionsMode, topicsCount}) => {
+const ResourcesList = ({themeStr, setConnectionsMode, topicsCount}) => {
   return (
       <ConnectionsPanelSection title={strings.resources}>
-        <ToolsButton
-          text={strings.sheets}
-          icon={iconData.get('sheet', themeStr)}
-          count={sheetsCount}
-          onPress={()=>{ setConnectionsMode("sheetsByRef"); }}
-        />
+        {/*here was sheets button that's removed as part of Modularization - the old con can be found in link - https://github.com/Sefaria/Sefaria-Mobile/pull/186/commits/63252a7d20c469b34ba2d3ea6b02e8f5b8dc4bdf  */}
         {!!topicsCount && <ToolsButton
             text={strings.topics} count={topicsCount}
             icon={iconData.get('hashtag', themeStr)}
@@ -507,7 +494,6 @@ const ResourcesList = ({themeStr, sheetsCount, setConnectionsMode, topicsCount})
 ResourcesList.propTypes = {
   themeStr:           PropTypes.string.isRequired,
   setConnectionsMode: PropTypes.func.isRequired,
-  sheetsCount:        PropTypes.number.isRequired,
   topicsCount:        PropTypes.number.isRequired,
 };
 

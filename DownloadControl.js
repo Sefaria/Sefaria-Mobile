@@ -1,12 +1,12 @@
 'use strict';
 
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import {unzip} from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import strings from './LocalizedStrings'
 import {Alert, Platform} from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
-import crashlytics from '@react-native-firebase/crashlytics';
+import {getCrashlytics, recordError, log} from '@react-native-firebase/crashlytics';
 
 const SCHEMA_VERSION = "7";
 // const DOWNLOAD_SERVER = "http://10.0.2.2:5000"  // this ip will allow the android emulator to access a localhost server
@@ -174,7 +174,7 @@ class DownloadTracker {
       try{
         x(this._downloadSession);
       } catch (e) {
-        crashlytics().log(`notification error: ${e}`);
+        log(getCrashlytics(), `notification error: ${e}`);
       }
     })
   }
@@ -381,7 +381,7 @@ async function loadCoreFile(filename) {
   try {
     return await loadJSONFile(pkgPath);
   } catch (e) {
-    crashlytics().recordError(e);
+    recordError(getCrashlytics(), e);
   }
 }
 
@@ -415,7 +415,7 @@ async function packageSetupProtocol() {
   const [packageData, packagesSelected] = await Promise.all([
     loadCoreFile('packages.json').then(pkgStateData => deriveDownloadState(pkgStateData)),
     AsyncStorage.getItem('packagesSelected').then(x => !!x ? JSON.parse(x) : {})
-  ]).catch(e => crashlytics().log(`failed in packageSetupProtocol: ${e}`));
+  ]).catch(e => log(getCrashlytics(), `failed in packageSetupProtocol: ${e}`));
   PackagesState = packageData;
 
   let falseSelections = [];
@@ -502,7 +502,7 @@ async function getLocalBookList() {
   try {
     books = await FileSystem.readDirectoryAsync(FILE_DIRECTORY);
   } catch (e) {
-    crashlytics().error(e);
+    recordError(getCrashlytics(), e);
     books = [];
   }
   const reg = /([^/]+).zip$/;
@@ -527,7 +527,7 @@ async function deleteBooks(bookList, shouldCleanTmpDirectory=true) {
       await simpleDelete(filepath);
       } catch (e) {
         console.log(`Error deleting file: ${e}`)
-        crashlytics().log(`Error deleting file: ${e}`);
+        log(getCrashlytics(), `Error deleting file: ${e}`);
       }
     }
     return bookTitle
@@ -668,7 +668,7 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
     Tracker.updateSession({downloadActive: true});
   } catch (e) {
     console.warn(e);
-    crashlytics().log(e);
+    log(getCrashlytics(), e);
   }
   let downloadResult;
   Tracker.addEventListener(networkSetting, downloadBuffer);
@@ -701,7 +701,7 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
   Tracker.removeEventListener();
   const status = downloadResult.status;
   if (status >= 300 || status < 200) {
-    crashlytics().log(`Got status ${status} from download server. Full info below`);
+    log(getCrashlytics(), `Got status ${status} from download server. Full info below`);
     // crashlytics().log(downloadResult.info());
 
     // we're going to schedule a recover in the hope that the server will come back up at a later point
@@ -714,7 +714,7 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
   try {
     await postDownload(downloadResult.uri, !recoveryMode);
   } catch (e) {
-    crashlytics().log(e);
+    log(getCrashlytics(), e);
     Alert.alert(
       strings.downloadError,
       strings.downloadErrorMessage,
@@ -755,7 +755,7 @@ async function calculateBooksToDownload(booksState) {
   const remoteBookUpdates = await lastUpdated();
   if (remoteBookUpdates === null)
     {
-      crashlytics().log('no last_updated.json');
+      log(getCrashlytics(), 'no last_updated.json');
       return [];
     }
   const booksToDownload = [];
@@ -809,7 +809,7 @@ async function postDownload(downloadPath, newDownload=true) {
     await unzipBundle(downloadPath);
   } catch (e) {
     // Take to the settings page and check for updates?
-    crashlytics().log(`Error when unzipping bundle: ${e}`)
+    log(getCrashlytics(), `Error when unzipping bundle: ${e}`)
   }
   try {
     await simpleDelete(downloadPath)
@@ -974,7 +974,7 @@ async function addDir(path) {
     try {
       await FileSystem.makeDirectoryAsync(path);
     } catch(e) {
-      crashlytics().log(`Could not create directory at ${path}; ${e}`);
+      log(getCrashlytics(), `Could not create directory at ${path}; ${e}`);
     }
   }
 }
@@ -991,14 +991,14 @@ async function downloadCoreFile(filename) {
   try{
     downloadResp = await FileSystem.downloadAsync(fileUrl, tempPath);
   } catch (e) {
-    crashlytics().log(e);
+    log(getCrashlytics(), e);
     return
   }
   const status = !!downloadResp ? downloadResp.status : 'total failure';
   if ((status >= 300 || status < 200) || (status === 'total failure')) {
     await simpleDelete(tempPath);
     const e = new Error(`bad download status; got : ${status} from ${fileUrl}`);
-    crashlytics().recordError(e);
+    recordError(getCrashlytics(), e);
     throw e  // todo: review. Should we alert the user here?
   }
   else {
@@ -1006,7 +1006,7 @@ async function downloadCoreFile(filename) {
   try {
     await FileSystem.moveAsync({from: tempPath, to: `${FILE_DIRECTORY}/${filename}`});
   } catch(e) {
-    crashlytics().log(`failed to move file at ${tempPath} to app storage: ${e}`);
+    log(getCrashlytics(), `failed to move file at ${tempPath} to app storage: ${e}`);
     await simpleDelete(tempPath, {idempotent: true});
   }
 }
@@ -1088,7 +1088,7 @@ async function schemaCheckAndPurge() {
   lastUpdateSchema = parseInt(JSON.parse(lastUpdateSchema));
   const schemaVersion = parseInt(SCHEMA_VERSION);  // gets rid of annoying bugs due to the types of these values
   if (!!lastUpdateSchema && lastUpdateSchema !== schemaVersion) {
-    crashlytics().log("a user's library has been purged");  // todo: review: should we notify the user that his Library is about to be purged?
+    log(getCrashlytics(), "a user's library has been purged");  // todo: review: should we notify the user that his Library is about to be purged?
     // We want to delete the library but keep the package selections
     const bookList = getFullBookList();
     await deleteBooks(bookList);

@@ -44,7 +44,7 @@ import {
   FILE_DIRECTORY, downloadUpdate
 } from './DownloadControl';
 import Sefaria from "./sefaria";
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { trackEvent } from './analytics/events';
 const DEBUG_MODE = false;
 

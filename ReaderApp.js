@@ -1,7 +1,7 @@
 'use strict';
 
 import PropTypes from 'prop-types';
-import crashlytics from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
+import {getCrashlytics, recordError} from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 
 import React from 'react';
 import {
@@ -48,7 +48,6 @@ import InterruptingMessage from './InterruptingMessage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-root-toast';
 import { TabHistory, TabMetadata } from './PageHistory';
-import ReaderNavigationSheetList from "./ReaderNavigationSheetList";
 import SheetMeta from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
@@ -136,9 +135,6 @@ class ReaderApp extends React.PureComponent {
         textSearchState: new SearchState({
           type: 'text'
         }),
-        sheetSearchState: new SearchState({
-          type: 'sheet'
-        }),
         searchType: 'text',
         searchQuery: '',
         sheet: null,
@@ -193,7 +189,7 @@ class ReaderApp extends React.PureComponent {
             installVersion: installReferrerInfo.installVersion
           });
         } else {
-          crashlytics().recordError(new Error(`Install Referrer Track Failed. Response code: ${error.responseCode}. Message: ${error.message}`));
+          recordError(getCrashlytics(), new Error(`Install Referrer Track Failed. Response code: ${error.responseCode}. Message: ${error.message}`));
         }
       });
     }
@@ -217,7 +213,6 @@ class ReaderApp extends React.PureComponent {
   };
   setSearchTypeState = type => {
     this.setState({searchType: type});
-    console.log(type)
   };
 
   componentWillUnmount() {
@@ -305,7 +300,7 @@ class ReaderApp extends React.PureComponent {
         }
     })
     .catch(error => {
-      crashlytics().recordError(error, "error with app init");
+      recordError(getCrashlytics(), error, "error with app init");
       this.props.showErrorBoundary(error);
     });
   }
@@ -355,7 +350,6 @@ class ReaderApp extends React.PureComponent {
         oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
       }
     } else if (oldState.menuOpen === 'search') {
-      this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
       this.onQueryChange('text', oldState.searchQuery, true, true, true);
     }
     this.setState(oldState, () => {
@@ -562,9 +556,6 @@ class ReaderApp extends React.PureComponent {
 
   };
 
-  sheetSegmentPressed = (textRef, sheetRef, toggle) => {
-    this.textSegmentPressed(sheetRef[0], sheetRef[1], textRef, toggle)
-  }
   getHistoryObject = () => {
     // get ref to send to /api/profile/user_history
     try {
@@ -591,7 +582,7 @@ class ReaderApp extends React.PureComponent {
         he_ref = (textListVisible && segmentRef) ? (heSegmentRef || Sefaria.toHeSegmentRef(sectionHeArray[sectionIndexRef], segmentRef)) : sectionHeArray[sectionIndexRef];
       }
       if (!ref) {
-        crashlytics().recordError(new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${String(segmentRef)}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
+        recordError(getCrashlytics(), new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${String(segmentRef)}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
       }
       const versions = this.removeDefaultVersions(ref, selectedVersions);
       return {
@@ -812,7 +803,7 @@ class ReaderApp extends React.PureComponent {
         this.setState({translations: translations});
       });
     } catch (error) {
-      crashlytics().recordError(new Error(`Translations load error: Message: ${error}`));
+      recordError(getCrashlytics(), new Error(`Translations load error: Message: ${error}`));
     }
   }
   loadRelated = async (ref, isSheet) => {
@@ -823,7 +814,7 @@ class ReaderApp extends React.PureComponent {
         hadSuccess = true;
         // TODO check that online call is necessary even after offline call
       } catch (error) {
-        crashlytics().recordError(new Error(`Related load error: Message: ${error}`));
+        recordError(getCrashlytics(), new Error(`Related load error: Message: ${error}`));
       }
     }
     if (!hadSuccess) {
@@ -1003,105 +994,8 @@ class ReaderApp extends React.PureComponent {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
-  openRefSheet = (sheetID, sheetMeta, addToBackStack=true, calledFrom) => {
-    if (addToBackStack) {
-      this.modifyHistory({ dir: "forward", state: this.state, calledFrom });
-    }
-    this.setState({
-      loaded: false,
-      textListVisible: false,
-      sheet: null,
-      sheetMeta: null,
-      textTitle: "",
-    }, () => {
-      this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
-    });
-  };
-
   openRefConnectionsPanel = (ref, versions, loadNewVersions=false) => {
     this.openRef(ref,"text list", versions, undefined, undefined, loadNewVersions);
-  };
-
-  updateActiveSheetNode = (node) => {
-    this.setState({ activeSheetNode: node });
-  };
-
-  transformSheetData = sheet => {
-    // transforms sheet into standard jagged-array style `data` rendered in TextColumn
-    const sources = sheet.sources.filter(source => "ref" in source || "comment" in source || "outsideText" in source || "outsideBiText" in source || "media" in source);
-    return [sources.map((source, index) => {
-      let segmentData = {he: '', text: '', segmentNumber: index+1};
-      if (source.ref) {
-        segmentData = {
-          ...segmentData,
-          he: source.text.he,
-          text: source.text.en,
-          sourceRef: source.ref,
-          sourceHeRef: source.heRef,
-          type: 'ref',
-        };
-      } else if (source.comment) {
-        const langField = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(source.comment)) ? "he" : "text";
-        segmentData[langField] = Sefaria.util.cleanSheetHTML(source.comment);
-        segmentData.type = 'comment';
-      } else if (source.outsideText) {
-        const langField = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(source.outsideText)) ? "he" : "text";
-        segmentData[langField] =  Sefaria.util.cleanSheetHTML(source.outsideText);
-        segmentData.type = 'outsideText';
-      } else if (source.outsideBiText) {
-        segmentData.text = Sefaria.util.cleanSheetHTML(source.outsideBiText.en);
-        segmentData.he = Sefaria.util.cleanSheetHTML(source.outsideBiText.he);
-        segmentData.type = 'outsideBiText';
-      } else if (source.media) {
-        segmentData = {
-          ...segmentData,
-          he: undefined,
-          text: undefined,
-          url: source.media,
-          type: 'media',
-        };
-      }
-      return segmentData;
-    })];
-  };
-
-  loadSheet = async (sheetID, sheetMeta) => {
-    const more_data = !sheetMeta  // # if sheetMeta is null, need to request more data from api call
-    const sheet = await Sefaria.api.sheets(sheetID, more_data);
-    if (more_data) {
-      // extract sheetMeta from result
-      sheetMeta = {
-        ownerName: sheet.ownerName,
-        ownerImageUrl: sheet.ownerImageUrl,
-        views: sheet.views,
-      };
-    }
-    sheetMeta.title = sheet.title;
-    sheetMeta.sheetID = sheet.id;
-    
-    // First setState
-    this.setState({
-      sheet,
-      sheetMeta,
-      data: [],
-      relatedBySectionRef: {},
-      sectionArray: [],
-      sectionHeArray: [],
-      offsetRef: null,
-      connectionsMode: null,
-    }, () => {
-      this.closeMenu(); // Don't close until these values are in state, so sheet can load
-      
-      // Second setState
-      this.setState({
-        data: this.transformSheetData(sheet),
-        sectionArray: [`Sheet ${sheet.id}`],
-        sectionHeArray: [`דף ${sheet.id}`],
-        loaded: true,
-      }, () => {
-        this.loadRelatedSheet(sheet);
-      });
-    });
   };
 
   textUnavailableAlert = ref => {
@@ -1123,10 +1017,6 @@ class ReaderApp extends React.PureComponent {
   enableAliyot - true when you click on an aliya form ReaderTextTableOfContents
   */
   openRef = (ref, calledFrom, versions, addToBackStack=true, enableAliyot=false, loadNewVersions=false) => {
-    if (ref.startsWith("Sheet")){
-        this.openRefSheet(ref.match(/\d+/)[0], null, addToBackStack, calledFrom) //open ref sheet expects just the sheet ID
-    }
-
     return new Promise((resolve, reject) => {
       if (enableAliyot) {
         this.setAliyot(true);
@@ -1171,8 +1061,6 @@ class ReaderApp extends React.PureComponent {
           // only pass small state variables to forward() (eg avoid passing `results`) because cloning large variables takes too long.
           let { appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.textSearchState;
           this.state.textSearchState = new SearchState({type: 'text', appliedFilters, appliedFilterAggTypes});
-          ({ appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.sheetSearchState);
-          this.state.sheetSearchState = new SearchState({type: 'sheet', appliedFilters, appliedFilterAggTypes, currPage, initScrollPos});
         }
         this.modifyHistory({ dir: "forward", state: this.state, calledFrom });
       }
@@ -1230,13 +1118,11 @@ class ReaderApp extends React.PureComponent {
 
   openNav = () => {
       this.clearAllSearchFilters('text');
-      this.clearAllSearchFilters('sheet');
       this.setState({
         loaded: true,
         searchQuery: "",
         navigationCategories: [],
         textSearchState: new SearchState({type: 'text'}),
-        sheetSearchState: new SearchState({type: 'sheet'}),
         textListVisible: false,
         connectionsMode: null,
         dictLookup: null,
@@ -1338,10 +1224,6 @@ class ReaderApp extends React.PureComponent {
     this.openMenu("autocomplete");
   }
 
-  openMySheets = (via) => {
-    this.openMenu("mySheets", via);
-  };
-
   clearMenuState = () => {
       this.setState({
           navigationCategories: [],
@@ -1430,7 +1312,7 @@ class ReaderApp extends React.PureComponent {
       this.setState({linkSummary, loadingLinks: false});
       this.updateLinkCat(null, linkSummary); // Set up `linkContents` in their initial state as an array of nulls
     } catch (error) {
-      crashlytics().recordError(new Error(`Link summary error: Message: ${error}`));
+      recordError(getCrashlytics(), new Error(`Link summary error: Message: ${error}`));
       this.setState({linkSummary: [], loadingLinks: false});
       this.updateLinkCat(null, []); // Set up `linkContents` in their initial state as an array of nulls
     }
@@ -1870,8 +1752,8 @@ class ReaderApp extends React.PureComponent {
     if (typeof segmentIndex == 'undefined') { segmentIndex = this.state.segmentIndexRef; }
     if (typeof segmentRef == 'undefined')   { segmentRef = this.state.segmentRef; }
     const {text, he} = this.state.data[sectionIndex][segmentIndex];
-    const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
-    const heText = Sefaria.util.applyVocalizationSettings(Sefaria.util.removeHtml(typeof he === "string" ? he : ""), this.props.vocalization) || "";
+    const enText = Sefaria.util.htmlToTextCanonical(typeof text === "string" ? text : "") || "";
+    const heText = Sefaria.util.applyVocalizationSettings(Sefaria.util.htmlToTextCanonical(typeof he === "string" ? he : ""), this.props.vocalization) || "";
     const isHeb = this.props.textLanguage !== "english";
     const isEng = this.props.textLanguage !== "hebrew";
     const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
@@ -2033,7 +1915,6 @@ class ReaderApp extends React.PureComponent {
             query={this.state.searchQuery}
             searchState={this._getSearchState(this.state.searchType)}
             searchType={this.state.searchType}
-            sheetSearchState={this._getSearchState('sheet')}
             textSearchState={this._getSearchState('text')}
             toggleFilter={this.toggleSearchFilter}
             isNewSearch={this.state.isNewSearch}
@@ -2059,7 +1940,6 @@ class ReaderApp extends React.PureComponent {
             openTextTocDirectly={this.openTextTocDirectly}
             openTopic={this.openTopic}
             setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setNavigationCategories(cats);} }
-            searchType={this.state.searchType}
             openUri={this.openUri}
           />);
         break;
@@ -2157,23 +2037,9 @@ class ReaderApp extends React.PureComponent {
             showToast={this.showToast}
             openRef={this.openRef}
             openUri={this.openUri}
-            openRefSheet={this.openRefSheet}
           />
         );
 
-      case ("mySheets"):
-        trackCurrentScreen("my sheets page", "navigation")
-        return(
-          loading ?
-          <LoadingView /> :
-           <ReaderNavigationSheetList
-            menuOpen={this.state.menuOpen}
-            onBack={this.manageBackMain}
-            openRef={this.openRefSheet}
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
-           />
-        );
         case('dedication'):
             return <Dedication
               close={this.manageBackMain}
@@ -2282,7 +2148,6 @@ class ReaderApp extends React.PureComponent {
                 categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
                 textFlow={this.state.textFlow}
                 openRef={this.openRefConnectionsPanel}
-                openRefSheet={this.openRefSheet}
                 setConnectionsMode={this.setConnectionsMode}
                 openFilter={this.openFilter}
                 closeCat={this.closeLinkCat}
@@ -2454,7 +2319,6 @@ class ReaderApp extends React.PureComponent {
             openMenu={this.openMenu}
             openRef={this.openRef}
             openUri={this.openUri}
-            openRefSheet={this.openRefSheet}
             openSearch={this.openSearch}
             openTopic={this.openTopic}
             setSearchOptions={this.setSearchOptions}
