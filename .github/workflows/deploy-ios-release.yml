@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   ios-release:
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
       - uses: actions/checkout@v4
@@ -64,21 +64,17 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.19.4'
           cache: 'npm'
 
       - name: Install npm dependencies
         run: npm install
 
-      - name: Cache CocoaPods
-        uses: actions/cache@v4
-        with:
-          path: ios/Pods
-          key: pods-${{ hashFiles('ios/Podfile.lock') }}
-
       - name: Install CocoaPods
         working-directory: ios
-        run: bundle exec pod install --deployment
+        run: |
+          rm -rf Pods
+          LANG=en_US.UTF-8 bundle exec pod install --deployment
 
       - name: Install distribution certificate
         run: |
@@ -120,6 +116,10 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ID:    ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
 
+      - name: Print build log on failure
+        if: failure()
+        run: cat ~/Library/Logs/gym/*.log 2>/dev/null || echo "No gym log found"
+
       - name: Generate GitHub App token for protected-branch push
         if: success()
         id: app-token
@@ -142,14 +142,19 @@ jobs:
             ios/ReaderApp.xcodeproj/project.pbxproj
           git add ios/ReaderApp.xcodeproj/project.pbxproj
           git add ios/sources/ || true
-          if git diff --cached --quiet; then
-            echo "No changes to commit; skipping"
-          else
+          if ! git diff --cached --quiet; then
             git commit -m "ci: release iOS $VNAME [skip ci]"
-            git remote set-url origin \
-              "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git"
-            git push origin HEAD:${GITHUB_REF#refs/heads/}
           fi
+
+          # Bump patch for the next QA cycle — commit only build.gradle
+          PATCH=$(grep '^def VERSION_PATCH=' android/app/build.gradle | cut -d= -f2 | tr -d ' \r')
+          sed -i '' "s/^def VERSION_PATCH=.*/def VERSION_PATCH=$((PATCH + 1))/" android/app/build.gradle
+          git add android/app/build.gradle
+          git commit -m "ci: prepare next patch after $VNAME [skip ci]"
+
+          git remote set-url origin \
+            "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git"
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
 
       - name: Cleanup
         if: always()

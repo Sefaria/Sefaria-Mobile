@@ -7,7 +7,7 @@ permissions: {}
 
 jobs:
   ios-deploy:
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
       - uses: actions/checkout@v4
@@ -21,21 +21,17 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.19.4'
           cache: 'npm'
 
       - name: Install npm dependencies
         run: npm install
 
-      - name: Cache CocoaPods
-        uses: actions/cache@v4
-        with:
-          path: ios/Pods
-          key: pods-${{ hashFiles('ios/Podfile.lock') }}
-
       - name: Install CocoaPods
         working-directory: ios
-        run: bundle exec pod install --deployment
+        run: |
+          rm -rf Pods
+          LANG=en_US.UTF-8 bundle exec pod install --deployment
 
       - name: Install distribution certificate
         run: |
@@ -69,10 +65,17 @@ jobs:
           echo "export SOURCE_UNIX_PATH=\"static/ios-export/\""         >> scripts/envvars.sh
 
       - name: Run Fastlane
-        run: bundle exec fastlane ios beta
+        run: |
+          VERSION=$(grep -E '^def VERSION_(MAJOR|MINOR|PATCH)=' android/app/build.gradle \
+            | awk -F'=' '{print $2}' | tr -d '\r' | tr '\n' '.' | sed 's/\.$//')
+          bundle exec fastlane ios beta version_name:$VERSION
         env:
           APP_STORE_CONNECT_API_KEY_ID:    ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+
+      - name: Print build log on failure
+        if: failure()
+        run: cat ~/Library/Logs/gym/*.log 2>/dev/null || echo "No gym log found"
 
       - name: Cleanup
         if: always()
