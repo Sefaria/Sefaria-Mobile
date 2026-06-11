@@ -74,7 +74,7 @@ jobs:
         working-directory: ios
         run: |
           rm -rf Pods
-          bundle exec pod install --deployment
+          LANG=en_US.UTF-8 bundle exec pod install --deployment
 
       - name: Install distribution certificate
         run: |
