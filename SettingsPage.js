@@ -289,7 +289,7 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
         <Text style={[langStyle, styles.settingsHeader, theme.text]}>{strings.settings.toUpperCase()}</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.menuContent} automaticallyAdjustKeyboardInsets={true}>
+      <ScrollView contentContainerStyle={styles.menuContent}>
 
         <ButtonToggleSection
           langStyle={langStyle}
