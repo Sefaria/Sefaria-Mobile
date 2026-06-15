@@ -11,7 +11,7 @@ import {
   ScrollView,
   Alert,
   Platform,
-  PermissionsAndroid, Button, TextInput,
+  PermissionsAndroid, Button, TextInput, KeyboardAvoidingView, Keyboard,
 } from 'react-native';
 import VersionNumber from 'react-native-version-number';
 import NetInfo from "@react-native-community/netinfo";
@@ -224,6 +224,14 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
   const [updatesDisabled, setUpdatesDisabled] = useState(false);
   const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled, downloadNetworkSetting);
   const [isProcessing, setIsProcessing] = useState(false);
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    const sub = Keyboard.addListener('keyboardDidShow', () => {
+      scrollRef.current?.scrollToEnd({animated: true});
+    });
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     !!syncProfile && syncProfile();  // this calls syncProfileBound in ReaderApp.js whenver a setting is changed
@@ -289,95 +297,97 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
         <Text style={[langStyle, styles.settingsHeader, theme.text]}>{strings.settings.toUpperCase()}</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.menuContent}>
+      <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'} style={{flex: 1}}>
+        <ScrollView ref={scrollRef} contentContainerStyle={styles.menuContent}>
 
-        <ButtonToggleSection
-          langStyle={langStyle}
-        />
+          <ButtonToggleSection
+            langStyle={langStyle}
+          />
 
-        <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, theme.readerDisplayOptionsMenuDivider]}/>
-        <View>
-          <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.offlineAccess}</Text>
-        </View>
-
-        {wereBooksDownloaded() ?
+          <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, theme.readerDisplayOptionsMenuDivider]}/>
           <View>
-            <SystemButton
-              onPress={checkUpdatesForSettings}
-              text={updatesDisabled ? strings.checking : strings.checkForUpdates}
-              isLoading={updatesDisabled}
-            />
-
-            <SystemButton
-              onPress={() => {
-                Alert.alert(
-                  strings.deleteLibrary,
-                  strings.confirmDeleteLibraryMessage,
-                  [{text: strings.yes, onPress: deleteLibrary}, {text: strings.no}]
-                )
-              }}
-              text={strings.deleteLibrary}
-            />
-
-            {DEBUG_MODE ? <TouchableOpacity style={styles.button} onPress={() => {
-              console.log('pressed Mess up Library');
-              getLocalBookList().then(books => {
-                deleteBooks(books).then(() => console.log('finished messing up library'));
-              })
-            }}>
-              <Text style={[langStyle, styles.buttonText]}>Mess up Library</Text>
-            </TouchableOpacity> : null}
+            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.offlineAccess}</Text>
           </View>
-          : null
-        }
-        {
-          DEBUG_MODE ?
+
+          {wereBooksDownloaded() ?
             <View>
-              <TouchableOpacity style={styles.button} onPress={() => FileSystem.getInfoAsync(FILE_DIRECTORY).then(x => console.log(
-                `${x.filter(f => f.endsWith('zip')).length} files on disk`
-              ))}>
-                <Text style={[langStyle, styles.buttonText]}>Check Disk</Text>
-              </TouchableOpacity>
+              <SystemButton
+                onPress={checkUpdatesForSettings}
+                text={updatesDisabled ? strings.checking : strings.checkForUpdates}
+                isLoading={updatesDisabled}
+              />
+
+              <SystemButton
+                onPress={() => {
+                  Alert.alert(
+                    strings.deleteLibrary,
+                    strings.confirmDeleteLibraryMessage,
+                    [{text: strings.yes, onPress: deleteLibrary}, {text: strings.no}]
+                  )
+                }}
+                text={strings.deleteLibrary}
+              />
+
+              {DEBUG_MODE ? <TouchableOpacity style={styles.button} onPress={() => {
+                console.log('pressed Mess up Library');
+                getLocalBookList().then(books => {
+                  deleteBooks(books).then(() => console.log('finished messing up library'));
+                })
+              }}>
+                <Text style={[langStyle, styles.buttonText]}>Mess up Library</Text>
+              </TouchableOpacity> : null}
             </View>
             : null
-        }
-        <OfflinePackageList isDisabledObj={isDisabledObj} onPackagePress={onPackagePress} />
-        <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, styles.underOfflinePackages, theme.readerDisplayOptionsMenuDivider]}/>
-        <TouchableWithoutFeedback onPress={() => {
-          if (numPressesDebug < 6) { setNumPressesDebug(prev => prev + 1); }
-          else {
-            Sefaria.debugNoLibrary = !Sefaria.debugNoLibrary;
-            setNumPressesDebug(0);
-            Alert.alert(
-              'Debug No Offline Library Mode',
-              `You've just ${Sefaria.debugNoLibrary ? "enabled" : "disabled"} debugging without the offline library. You can change this by tapping 'System' 7 times.`,
-              [
-                {text: 'OK', onPress: ()=>{}},
-              ]
-            );
           }
-        }}>
-          <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.system}</Text>
-        </TouchableWithoutFeedback>
-        { isLoggedIn ?
-          <SystemButton onPress={onLogOut} text={strings.logout} isHeb={interfaceLanguage === "hebrew"} />
-          : null
-        }
-        <SystemButton onPress={()=>{ openUri('https://www.sefaria.org/terms'); }} text={strings.termsAndPrivacy} isHeb={interfaceLanguage === "hebrew"} />
-        <View style={{marginTop: 10}}>
-          <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>
-            {`${strings.appVersion}:`}
-            <VersionNumberChangeHost versionNumber={VersionNumber.appVersion} />
-          </Text>
-        </View>
-        { isLoggedIn ?
-            (isProcessing ? <LoadingView/> :
-            <Text style={[{marginTop:30, marginBottom:30}, langStyle, styles.settingsSectionHeader, theme.tertiaryText]} onPress={deleteAccount}>
-                  { strings.deleteAccount }
-            </Text>)
-          : null
-        }
-      </ScrollView>
+          {
+            DEBUG_MODE ?
+              <View>
+                <TouchableOpacity style={styles.button} onPress={() => FileSystem.getInfoAsync(FILE_DIRECTORY).then(x => console.log(
+                  `${x.filter(f => f.endsWith('zip')).length} files on disk`
+                ))}>
+                  <Text style={[langStyle, styles.buttonText]}>Check Disk</Text>
+                </TouchableOpacity>
+              </View>
+              : null
+          }
+          <OfflinePackageList isDisabledObj={isDisabledObj} onPackagePress={onPackagePress} />
+          <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, styles.underOfflinePackages, theme.readerDisplayOptionsMenuDivider]}/>
+          <TouchableWithoutFeedback onPress={() => {
+            if (numPressesDebug < 6) { setNumPressesDebug(prev => prev + 1); }
+            else {
+              Sefaria.debugNoLibrary = !Sefaria.debugNoLibrary;
+              setNumPressesDebug(0);
+              Alert.alert(
+                'Debug No Offline Library Mode',
+                `You've just ${Sefaria.debugNoLibrary ? "enabled" : "disabled"} debugging without the offline library. You can change this by tapping 'System' 7 times.`,
+                [
+                  {text: 'OK', onPress: ()=>{}},
+                ]
+              );
+            }
+          }}>
+            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.system}</Text>
+          </TouchableWithoutFeedback>
+          { isLoggedIn ?
+            <SystemButton onPress={onLogOut} text={strings.logout} isHeb={interfaceLanguage === "hebrew"} />
+            : null
+          }
+          <SystemButton onPress={()=>{ openUri('https://www.sefaria.org/terms'); }} text={strings.termsAndPrivacy} isHeb={interfaceLanguage === "hebrew"} />
+          <View style={{marginTop: 10}}>
+            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>
+              {`${strings.appVersion}:`}
+              <VersionNumberChangeHost versionNumber={VersionNumber.appVersion} />
+            </Text>
+          </View>
+          { isLoggedIn ?
+              (isProcessing ? <LoadingView/> :
+              <Text style={[{marginTop:30, marginBottom:30}, langStyle, styles.settingsSectionHeader, theme.tertiaryText]} onPress={deleteAccount}>
+                    { strings.deleteAccount }
+              </Text>)
+            : null
+          }
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 };
