@@ -3,17 +3,48 @@ This repo contains the source code and export script to generate the content for
 
 We're using React-Native, so much of the app is written in JavaScript and we deploy almost the same code to both Android and iOS. There are minor differences in native packages that we use and a small amount of native code we've written ourselves.
 
-If you haven't already done so, install React Native for your development environment using the [React Native CLI Quickstart](https://reactnative.dev/docs/environment-setup). Follow the instructions on the "React Native CLI Quickstart" tab (not "Expo CLI Quickstart") for your operating system. You should follow the instructions for both iOS and Android. Skip the "Creating a new application" section since you'll be using this repo as the project. 
+If you haven't already done so, install React Native for your development environment using the [React Native Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) walkthrough. Follow the instructions for your operating system (if you see a tutorial requiring Expo installation, you should skip). You should follow the instructions for both iOS and Android. Skip the "Creating a new application" section since you'll be using this repo as the project. 
 
 ### Getting Started
 
-```sh
+#### Node and Watchman
+To install watchman, you'll need `Node 20`. We recommend setting up your Node using NVM, [these instructions may help](https://sukiphan.medium.com/how-to-install-nvm-node-version-manager-on-macos-d9fe432cc7db). (Make sure to save the export to your shell). 
+
+If you install Node via NVM, you can proceed to `brew install watchman`. 
+
+> Note: Watchman can take a very long time to install. Do not be alarmed if it stays stagnant at a `cmake` build for a while. 
+
+
+``` 
 brew install node
 brew install watchman
-git clone https://github.com/Sefaria/Sefaria-iOS/
+```
+
+#### XCode
+
+Next, you'll need to install [XCode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) on a Mac. The easiest way to do this is via the AppStore. 
+
+You can also download it from Apple Developers [here](https://developer.apple.com/download/all/?q=xcode). Make sure you scroll down to the latest stable version. 
+
+#### Simulators for Apple and Android
+Once you have XCode installed, you can set up a simulator. Make sure you have iOS installed (`settings>components`). You can add a simulator [following these instructions](https://developer.apple.com/documentation/safari-developer-tools/adding-additional-simulators). 
+
+You'll also want to install an emulator for Android. You can use any option you'd like. 
+
+#### Cloning the Repository
+Your next step is to clone the repository, use npm to install and setup dependencies. 
+
+```
+git clone https://github.com/Sefaria/Sefaria-Mobile
 cd Sefaria-Mobile                          
 npm install
 npm run setup
+```
+
+#### Cocoapods
+After that is complete, you'll use brew to install cocoapods, and `pod install`. 
+
+```
 brew install cocoapods
 cd ios
 pod install
@@ -34,6 +65,8 @@ From the root of the repo, run `npx react-native start`.
 From another terminal, run `npx react-native run-ios` or `npx react-native run-android`
 
 Alternatively for iOS, you can open `/ios/ReaderApp.xcworkspace` and hit run.
+
+> Note: To run Android Studio, make sure you have a Java SDK installed (as of 2025, must be between versions 17 and 20)
 
 
 ## Local Development
