@@ -180,7 +180,7 @@ function abstractUpdateChecker(disableUpdateComponent, networkMode) {
   return f
 }
 
-const VersionNumberChangeHost = ({versionNumber}) => {
+const AppVersionSection = ({ versionNumber, langStyle, headerStyle }) => {
   // changing host in 7 clicks
   const clickCount = useRef(0);
   const [showHostChange, setShowHostChange] = useState(false);
@@ -208,17 +208,23 @@ const VersionNumberChangeHost = ({versionNumber}) => {
   }
 
   const behavior = Platform.OS === 'ios' ? 'padding' : undefined;
-  const hostChange = <KeyboardAvoidingView behavior={behavior}>
-    <View style={{ flexDirection: 'row', gap: 8, padding: 10 }}>
-        <TextInput placeholder="Set host url" onChangeText={setHost} value={host}/>
-        <Button title="Save" onPress={handleSubmit} />
-    </View>
-  </KeyboardAvoidingView>;
 
-  return <>
-    <Text onPress={handlePress}> {versionNumber}</Text>
-    {showHostChange && hostChange}
-  </>;
+  return (
+    <View style={{ marginTop: 10 }}>
+      <Text style={[langStyle, ...headerStyle]}>
+        {`${strings.appVersion}:`}
+        <Text onPress={handlePress}> {versionNumber}</Text>
+      </Text>
+      {showHostChange && (
+        <KeyboardAvoidingView behavior={behavior}>
+          <View style={{ flexDirection: 'row', gap: 8, padding: 10 }}>
+            <TextInput placeholder="Set host url" onChangeText={setHost} value={host} />
+            <Button title="Save" onPress={handleSubmit} />
+          </View>
+        </KeyboardAvoidingView>
+      )}
+    </View>
+  );
 }
 
 const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
@@ -379,12 +385,11 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
             : null
           }
           <SystemButton onPress={()=>{ openUri('https://www.sefaria.org/terms'); }} text={strings.termsAndPrivacy} isHeb={interfaceLanguage === "hebrew"} />
-          <View style={{marginTop: 10}}>
-            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>
-              {`${strings.appVersion}:`}
-              <VersionNumberChangeHost versionNumber={VersionNumber.appVersion} />
-            </Text>
-          </View>
+          <AppVersionSection
+            versionNumber={VersionNumber.appVersion}
+            langStyle={langStyle}
+            headerStyle={[styles.settingsSectionHeader, theme.tertiaryText]}
+          />
           { isLoggedIn ?
               (isProcessing ? <LoadingView/> :
               <Text style={[{marginTop:30, marginBottom:30}, langStyle, styles.settingsSectionHeader, theme.tertiaryText]} onPress={deleteAccount}>
