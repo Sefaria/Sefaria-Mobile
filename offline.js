@@ -271,13 +271,11 @@ const loadOfflineSectionCompat = async function(ref, versions, fallbackOnDefault
         return await loadOfflineSection(ref, versions, fallbackOnDefaultVersions);
     } catch(error) {
         if (error === ERRORS.OFFLINE_LIBRARY_NOT_COMPATIBLE_WITH_V7) {
-            console.log('[OFFLINE-DEBUG] loadOfflineSectionCompat falling back to v6 path', JSON.stringify({ ref }));
             return await loadOfflineSectionV6(ref, versions);
         } else if (error === ERRORS.MISSING_OFFLINE_DATA) {
             // rethrow to indicate we should try an API call
             throw error;
         }
-        console.log('[OFFLINE-DEBUG] loadOfflineSectionCompat caught UNHANDLED error (returns undefined!)', JSON.stringify({ ref, error: String(error?.message || error) }));
     }
 };
 
@@ -289,10 +287,7 @@ const loadOfflineSectionV6 = async function(ref, versions) {
     var bookRefStem  = Sefaria.textTitleForRef(ref);
     //if you want to open a specific version, there is no json file. force an api call instead
     const loadFromApi = shouldLoadFromApi(versions) || Sefaria.util.objectHasNonNullValues(versions);
-    if (loadFromApi) {
-        console.log('[OFFLINE-DEBUG] (v6) MISSING_OFFLINE_DATA reason=specificVersionRequested or debugNoLibrary', JSON.stringify({ ref, versions }));
-        throw ERRORS.MISSING_OFFLINE_DATA;
-    }
+    if (loadFromApi) { throw ERRORS.MISSING_OFFLINE_DATA; }
     var jsonPath = _JSONSourcePath(fileNameStem);
     var zipPath  = _zipSourcePath(bookRefStem);
     // Pull data from in memory cache if available
@@ -326,12 +321,10 @@ const loadOfflineSectionV6 = async function(ref, versions) {
                     data = await _loadJSON(depth1JSONPath);
                     return preResolve(data);
                 } catch (e3) {
-                    console.log('[OFFLINE-DEBUG] (v6) MISSING_OFFLINE_DATA: zip existed but no json (depth1 fallback also failed)', JSON.stringify({ ref, jsonPath, depth1JSONPath }));
                     throw ERRORS.MISSING_OFFLINE_DATA;
                 }
             }
         } else {
-            console.log('[OFFLINE-DEBUG] (v6) MISSING_OFFLINE_DATA: no json and no zip on disk', JSON.stringify({ ref, jsonPath, zipPath }));
             throw ERRORS.MISSING_OFFLINE_DATA;
         }
     }
@@ -343,7 +336,6 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
      */
     versions = versions || {};
     if (shouldLoadFromApi()) {
-        console.log('[OFFLINE-DEBUG] MISSING_OFFLINE_DATA reason=debugNoLibrary (shouldLoadFromApi)', JSON.stringify({ ref }));
         throw ERRORS.MISSING_OFFLINE_DATA;
     }
     const offlineSectionKey = getOfflineSectionKey(ref, versions);
@@ -371,7 +363,6 @@ const loadOfflineSectionByVersions = async function(selectedVersions, allVersion
         try {
             [versionText, loadedVTitle] = await loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
         } catch (error) {
-            console.log('[OFFLINE-DEBUG] version load failed for lang', JSON.stringify({ lang, requestedVtitle: vtitle, defaultVtitle: defaultVersions[lang], fileNameStem, fallbackOnDefaultVersions }));
             versionLoadError = error;
             textByLang[lang] = [];
             continue;
@@ -383,7 +374,6 @@ const loadOfflineSectionByVersions = async function(selectedVersions, allVersion
     if (Object.keys(textByLang).length === 0 && versionLoadError) {
         // if no versions were loaded successfully, throw.
         // else, assume some content is better than none.
-        console.log('[OFFLINE-DEBUG] MISSING_OFFLINE_DATA reason=no versions loaded successfully', JSON.stringify({ ref, fileNameStem, selectedVersions }));
         throw versionLoadError;
     }
     Sefaria.cacheCurrVersionsBySection(loadedVersions, ref);
@@ -408,7 +398,6 @@ const createFullSectionObject = (metadata, textByLang, requestedLangs, cacheKey)
     }
     requestedLangs.forEach(lang => {
         if (!textByLang[lang].length) {
-            console.log('[OFFLINE-DEBUG] missingLang detected in createFullSectionObject', JSON.stringify({ lang, requestedLangs, availableLangs: Object.keys(textByLang), sectionRef: metadata?.sectionRef }));
             (fullSection.missingLangs ||= []).push(lang);
         }
     });
@@ -425,14 +414,12 @@ const loadOfflineSectionByVersionWithCacheAndFallback = async function(fileNameS
     try {
         return [await loadOfflineSectionByVersionWithCache(fileNameStem, lang, vtitle), vtitle];
     } catch(error) {
-        console.log('[OFFLINE-DEBUG] requested vtitle file failed to load', JSON.stringify({ fileNameStem, lang, vtitle, hasDefaultFallback: !!defaultVTitle, error: String(error?.message || error) }));
         if (!defaultVTitle) {
             throw ERRORS.MISSING_OFFLINE_DATA;
         }
         try {
             return [await loadOfflineSectionByVersionWithCache(fileNameStem, lang, defaultVTitle), defaultVTitle];
         } catch(error) {
-            console.log('[OFFLINE-DEBUG] default vtitle file ALSO failed to load', JSON.stringify({ fileNameStem, lang, defaultVTitle, error: String(error?.message || error) }));
             throw ERRORS.MISSING_OFFLINE_DATA;
         }
     }
@@ -464,7 +451,6 @@ const loadOfflineSectionMetadataWithCache = async function(ref) {
     try {
         metadata = await loadOfflineSectionMetadata(ref);
     } catch(error) {
-        console.log('[OFFLINE-DEBUG] metadata load failed -> OFFLINE_LIBRARY_NOT_COMPATIBLE_WITH_V7 (will try v6 path)', JSON.stringify({ ref, error: String(error?.message || error) }));
         throw ERRORS.OFFLINE_LIBRARY_NOT_COMPATIBLE_WITH_V7;
     }
     Sefaria._jsonSectionData[key] = metadata;
@@ -497,12 +483,10 @@ const loadOfflineSectionMetadata = async function(ref) {
                 try {
                     return [preResolve(await _loadJSON(depth1JSONPath)), depth1FilenameStem];
                 } catch (e3) {
-                    console.log('[OFFLINE-DEBUG] metadata MISSING_OFFLINE_DATA: zip existed+unzipped but no metadata json (depth1 fallback also failed)', JSON.stringify({ ref, jsonPath, depth1JSONPath }));
                     throw ERRORS.MISSING_OFFLINE_DATA;
                 }
             }
         } else {
-            console.log('[OFFLINE-DEBUG] metadata MISSING_OFFLINE_DATA: no metadata json and no zip on disk', JSON.stringify({ ref, jsonPath, zipPath }));
             throw ERRORS.MISSING_OFFLINE_DATA;
         }
     }

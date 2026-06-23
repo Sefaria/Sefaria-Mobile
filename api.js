@@ -815,10 +815,8 @@ failSilently - if true, dont display a message if api call fails
       .catch((response)=>{
         console.log("API ERROR", response, url);
         if (failSilently) {
-          console.log('[OFFLINE-DEBUG] network request failed but failSilently=true (no alert)', JSON.stringify({ apiType, ref }));
           reject("Return to Nav");
         } else {
-          console.log('[OFFLINE-DEBUG] >>> SHOWING "Internet Connection Unavailable" alert <<<', JSON.stringify({ apiType, ref, url }));
           Alert.alert(
             strings.noInternet,
             strings.noInternetMessage,

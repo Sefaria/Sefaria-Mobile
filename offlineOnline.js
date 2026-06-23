@@ -24,14 +24,11 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
         {result: LinkContent} if context is falsy
      */
     if (typeof context === "undefined") { context = true; }
-    console.log('[OFFLINE-DEBUG] loadText called', JSON.stringify({ ref, context, versions, fallbackOnDefaultVersions, failSilently }));
     return loadTextOffline(ref, versions, fallbackOnDefaultVersions)
         .then(({textContent, links}) => {
             if (textContent?.missingLangs?.length) {
-                console.log('[OFFLINE-DEBUG] FALLTHROUGH reason=missingLangs', JSON.stringify({ ref, missingLangs: textContent.missingLangs, requestedVersions: versions, fallbackOnDefaultVersions }));
                 throw ERRORS.MISSING_OFFLINE_DATA;
             }
-            console.log('[OFFLINE-DEBUG] SUCCESS served from offline library', JSON.stringify({ ref }));
             if (!context) {
                 const result = textFromRefData(textContent);
                 return {result};
@@ -41,14 +38,16 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
         })
         .catch(error => {
             if (error === ERRORS.MISSING_OFFLINE_DATA) {
-                console.log('[OFFLINE-DEBUG] calling API (MISSING_OFFLINE_DATA) -> network request', JSON.stringify({ ref, failSilently }));
+                // Expected case: the text isn't downloaded offline, so fall back to the API.
                 return api.textApi(ref, context, versions, failSilently)
                     .then(data => {
                         api.processTextApiData(ref, context, versions, data);
                         return data;
                     })
             }
-            console.error("[OFFLINE-DEBUG] Error loading offline file (non-MISSING_OFFLINE_DATA, will reject)", error, "ref:", ref);
+            // Unexpected: offline loading failed for a reason other than "not downloaded"
+            // (e.g. a bug while parsing/assembling the offline file, or a corrupt file).
+            console.error("Unexpected error while loading text from offline library (not a MISSING_OFFLINE_DATA miss)", error);
             return Promise.reject(error);
         })
         .catch((error) => {

@@ -683,7 +683,7 @@ class ReaderApp extends React.PureComponent {
           textToc: null,
       },
       () => {
-        console.log('[OFFLINE-DEBUG] initial loadText (alert IS silenced, failSilently=true)', JSON.stringify({ ref, hasInternet: this.state.hasInternet, versions }));
+
         Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(({textContent, links}) => { // Silencing the popup on failed Sefaria.api _requests and creating a new pop up if an error arises
             // if specific versions were requested, but no content exists for those versions, try again with default versions
             if (Sefaria.util.objectHasNonNullValues(textContent.nonExistantVersions) ||
@@ -910,7 +910,6 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateDataPrev = () => {
-    console.log('[OFFLINE-DEBUG] updateDataPrev (alert NOT silenced)', JSON.stringify({ prev: this.state.prev, hasInternet: this.state.hasInternet, selectedVersions: this.state.selectedVersions }));
     this.setState({ loadingTextHead: true });
     Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet)
       .then(({textContent}) => {
@@ -944,7 +943,6 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateDataNext = () => {
-    console.log('[OFFLINE-DEBUG] updateDataNext (alert NOT silenced)', JSON.stringify({ next: this.state.next, hasInternet: this.state.hasInternet, selectedVersions: this.state.selectedVersions }));
     this.setState({ loadingTextTail: true }, () => {
       Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet)
           .then(({textContent}) => {
