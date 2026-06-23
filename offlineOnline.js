@@ -24,11 +24,14 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
         {result: LinkContent} if context is falsy
      */
     if (typeof context === "undefined") { context = true; }
+    console.log('[OFFLINE-DEBUG] loadText called', JSON.stringify({ ref, context, versions, fallbackOnDefaultVersions, failSilently }));
     return loadTextOffline(ref, versions, fallbackOnDefaultVersions)
         .then(({textContent, links}) => {
             if (textContent?.missingLangs?.length) {
+                console.log('[OFFLINE-DEBUG] FALLTHROUGH reason=missingLangs', JSON.stringify({ ref, missingLangs: textContent.missingLangs, requestedVersions: versions, fallbackOnDefaultVersions }));
                 throw ERRORS.MISSING_OFFLINE_DATA;
             }
+            console.log('[OFFLINE-DEBUG] SUCCESS served from offline library', JSON.stringify({ ref }));
             if (!context) {
                 const result = textFromRefData(textContent);
                 return {result};
@@ -38,13 +41,14 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
         })
         .catch(error => {
             if (error === ERRORS.MISSING_OFFLINE_DATA) {
+                console.log('[OFFLINE-DEBUG] calling API (MISSING_OFFLINE_DATA) -> network request', JSON.stringify({ ref, failSilently }));
                 return api.textApi(ref, context, versions, failSilently)
                     .then(data => {
                         api.processTextApiData(ref, context, versions, data);
                         return data;
                     })
             }
-            console.error("Error loading offline file", error);
+            console.error("[OFFLINE-DEBUG] Error loading offline file (non-MISSING_OFFLINE_DATA, will reject)", error, "ref:", ref);
             return Promise.reject(error);
         })
         .catch((error) => {
@@ -60,11 +64,13 @@ export const loadVersions = async (ref) => {
     return versions;
 };
 
-export const loadTranslations = async (ref) => {
+export const loadTranslations = async (ref, online=true) => {
     const offlineTranslations = await getAllTranslationsOffline(ref);
     let translations = offlineTranslations?.translations || [];
-    if (!offlineTranslations || offlineTranslations.missingVersions.length) {
-        translations = await api.translations(ref);
+    // Translations are secondary/optional data. Only hit the API when online, and fail
+    // silently so a missing (un-downloaded) version never pops a blocking no-internet alert.
+    if (online && (!offlineTranslations || offlineTranslations.missingVersions.length)) {
+        translations = await api.translations(ref, true);
     }
     return translations;
 }

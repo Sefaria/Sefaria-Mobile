@@ -268,8 +268,8 @@ var Api = {
     }
     return Sefaria.api._text(ref, { context, versions, stripItags: true }, failSilently);
   },
-  translations: async function(ref) {
-    return Sefaria.api._request(ref,'translations', true);
+  translations: async function(ref, failSilently=false) {
+    return Sefaria.api._request(ref,'translations', true, {}, failSilently);
   },
   processTextApiData: function(ref, context, versions, data) {
     Sefaria.api.textCache(ref, context, versions, data);
@@ -815,8 +815,10 @@ failSilently - if true, dont display a message if api call fails
       .catch((response)=>{
         console.log("API ERROR", response, url);
         if (failSilently) {
+          console.log('[OFFLINE-DEBUG] network request failed but failSilently=true (no alert)', JSON.stringify({ apiType, ref }));
           reject("Return to Nav");
         } else {
+          console.log('[OFFLINE-DEBUG] >>> SHOWING "Internet Connection Unavailable" alert <<<', JSON.stringify({ apiType, ref, url }));
           Alert.alert(
             strings.noInternet,
             strings.noInternetMessage,
