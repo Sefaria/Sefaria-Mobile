@@ -180,6 +180,8 @@ function abstractUpdateChecker(disableUpdateComponent, networkMode) {
   return f
 }
 
+const defaultBaseHost = Sefaria.api._baseHost;
+
 const AppVersionSection = ({ versionNumber, langStyle, headerStyle }) => {
   // changing host in 7 clicks
   const clickCount = useRef(0);
@@ -202,10 +204,12 @@ const AppVersionSection = ({ versionNumber, langStyle, headerStyle }) => {
     }
     return input;
   }
-  const handleSubmit = () => {
-    Sefaria.api._baseHost = normalizeUrl(host);
+  const applyHost = (newHost) => {
+    Sefaria.api._baseHost = newHost;
     setShowHostChange(false);
   }
+  const handleSubmit = () => applyHost(normalizeUrl(host));
+  const handleClear = () => applyHost(defaultBaseHost);
 
   const behavior = Platform.OS === 'ios' ? 'padding' : undefined;
 
@@ -218,8 +222,9 @@ const AppVersionSection = ({ versionNumber, langStyle, headerStyle }) => {
       {showHostChange && (
         <KeyboardAvoidingView behavior={behavior}>
           <View style={{ flexDirection: 'row', gap: 8, padding: 10 }}>
-            <TextInput placeholder="Set host url" onChangeText={setHost} value={host} />
+            <TextInput style={{ flex: 1 }} placeholder="Set host url" onChangeText={setHost} value={host} numberOfLines={1} />
             <Button title="Save" onPress={handleSubmit} />
+            <Button title="Clear" onPress={handleClear} />
           </View>
         </KeyboardAvoidingView>
       )}
