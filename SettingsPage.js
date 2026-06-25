@@ -11,7 +11,7 @@ import {
   ScrollView,
   Alert,
   Platform,
-  PermissionsAndroid, Button, TextInput, KeyboardAvoidingView, Keyboard,
+  PermissionsAndroid, Button, TextInput, KeyboardAvoidingView, Keyboard, Modal,
 } from 'react-native';
 import VersionNumber from 'react-native-version-number';
 import NetInfo from "@react-native-community/netinfo";
@@ -180,7 +180,9 @@ function abstractUpdateChecker(disableUpdateComponent, networkMode) {
   return f
 }
 
-const VersionNumberChangeHost = ({versionNumber}) => {
+const defaultBaseHost = Sefaria.api._baseHost;
+
+const AppVersionSection = ({ versionNumber, langStyle, headerStyle }) => {
   // changing host in 7 clicks
   const clickCount = useRef(0);
   const [showHostChange, setShowHostChange] = useState(false);
@@ -202,17 +204,30 @@ const VersionNumberChangeHost = ({versionNumber}) => {
     }
     return input;
   }
-  const handleSubmit = () => {
-    Sefaria.api._baseHost = normalizeUrl(host);
+  const applyHost = (newHost) => {
+    Sefaria.api._baseHost = newHost;
     setShowHostChange(false);
   }
-  return <>
-    <Text onPress={handlePress}> {versionNumber}</Text>
-    {showHostChange && <View style={{ flexDirection: 'row', gap: 8 }}>
-        <TextInput placeholder="Set host url" onChangeText={setHost} value={host}/>
-        <Button title="Save" onPress={handleSubmit} />
-    </View>}
-  </>;
+  const handleSubmit = () => applyHost(normalizeUrl(host));
+  const handleClear = () => applyHost(defaultBaseHost);
+
+  return (
+    <View style={{ marginTop: 10 }}>
+      <Text style={[langStyle, ...headerStyle]}>
+        {`${strings.appVersion}:`}
+        <Text onPress={handlePress}> {versionNumber}</Text>
+      </Text>
+      <Modal visible={showHostChange} transparent animationType="fade" onRequestClose={() => setShowHostChange(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', paddingHorizontal: 20 }}>
+          <View style={{ backgroundColor: 'white', borderRadius: 8, padding: 12, flexDirection: 'row', gap: 8 }}>
+            <TextInput style={{ flex: 1 }} placeholder="Set host url" onChangeText={setHost} value={host} numberOfLines={1} autoFocus />
+            <Button title="Save" onPress={handleSubmit} />
+            <Button title="Clear" onPress={handleClear} />
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
 }
 
 const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
@@ -373,12 +388,11 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
             : null
           }
           <SystemButton onPress={()=>{ openUri('https://www.sefaria.org/terms'); }} text={strings.termsAndPrivacy} isHeb={interfaceLanguage === "hebrew"} />
-          <View style={{marginTop: 10}}>
-            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>
-              {`${strings.appVersion}:`}
-              <VersionNumberChangeHost versionNumber={VersionNumber.appVersion} />
-            </Text>
-          </View>
+          <AppVersionSection
+            versionNumber={VersionNumber.appVersion}
+            langStyle={langStyle}
+            headerStyle={[styles.settingsSectionHeader, theme.tertiaryText]}
+          />
           { isLoggedIn ?
               (isProcessing ? <LoadingView/> :
               <Text style={[{marginTop:30, marginBottom:30}, langStyle, styles.settingsSectionHeader, theme.tertiaryText]} onPress={deleteAccount}>
