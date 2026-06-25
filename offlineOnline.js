@@ -38,13 +38,16 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
         })
         .catch(error => {
             if (error === ERRORS.MISSING_OFFLINE_DATA) {
+                // Expected case: the text isn't downloaded offline, so fall back to the API.
                 return api.textApi(ref, context, versions, failSilently)
                     .then(data => {
                         api.processTextApiData(ref, context, versions, data);
                         return data;
                     })
             }
-            console.error("Error loading offline file", error);
+            // Unexpected: offline loading failed for a reason other than "not downloaded"
+            // (e.g. a bug while parsing/assembling the offline file, or a corrupt file).
+            console.error("Unexpected error while loading text from offline library (not a MISSING_OFFLINE_DATA miss)", error);
             return Promise.reject(error);
         })
         .catch((error) => {
@@ -60,11 +63,13 @@ export const loadVersions = async (ref) => {
     return versions;
 };
 
-export const loadTranslations = async (ref) => {
+export const loadTranslations = async (ref, online=true) => {
     const offlineTranslations = await getAllTranslationsOffline(ref);
     let translations = offlineTranslations?.translations || [];
-    if (!offlineTranslations || offlineTranslations.missingVersions.length) {
-        translations = await api.translations(ref);
+    // Translations are secondary/optional data. Only hit the API when online, and fail
+    // silently so a missing (un-downloaded) version never pops a blocking no-internet alert.
+    if (online && (!offlineTranslations || offlineTranslations.missingVersions.length)) {
+        translations = await api.translations(ref, true);
     }
     return translations;
 }

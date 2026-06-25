@@ -268,8 +268,8 @@ var Api = {
     }
     return Sefaria.api._text(ref, { context, versions, stripItags: true }, failSilently);
   },
-  translations: async function(ref) {
-    return Sefaria.api._request(ref,'translations', true);
+  translations: async function(ref, failSilently=false) {
+    return Sefaria.api._request(ref,'translations', true, {}, failSilently);
   },
   processTextApiData: function(ref, context, versions, data) {
     Sefaria.api.textCache(ref, context, versions, data);

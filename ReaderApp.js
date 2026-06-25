@@ -796,7 +796,7 @@ class ReaderApp extends React.PureComponent {
   };
   loadTranslations = async (ref) => {
     try {
-      Sefaria.offlineOnline.loadTranslations(ref).then(response => {
+      Sefaria.offlineOnline.loadTranslations(ref, this.state.hasInternet).then(response => {
         const sectionIndex = this._getSectionIndex(ref);
         const translations = [...this.state.translations];
         translations[sectionIndex] = response;
