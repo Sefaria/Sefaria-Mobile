@@ -11,7 +11,7 @@ import {
   ScrollView,
   Alert,
   Platform,
-  PermissionsAndroid, Button, TextInput, KeyboardAvoidingView, Keyboard,
+  PermissionsAndroid, Button, TextInput, KeyboardAvoidingView, Keyboard, Modal,
 } from 'react-native';
 import VersionNumber from 'react-native-version-number';
 import NetInfo from "@react-native-community/netinfo";
@@ -211,23 +211,21 @@ const AppVersionSection = ({ versionNumber, langStyle, headerStyle }) => {
   const handleSubmit = () => applyHost(normalizeUrl(host));
   const handleClear = () => applyHost(defaultBaseHost);
 
-  const behavior = Platform.OS === 'ios' ? 'padding' : undefined;
-
   return (
     <View style={{ marginTop: 10 }}>
       <Text style={[langStyle, ...headerStyle]}>
         {`${strings.appVersion}:`}
         <Text onPress={handlePress}> {versionNumber}</Text>
       </Text>
-      {showHostChange && (
-        <KeyboardAvoidingView behavior={behavior}>
-          <View style={{ flexDirection: 'row', gap: 8, padding: 10 }}>
-            <TextInput style={{ flex: 1 }} placeholder="Set host url" onChangeText={setHost} value={host} numberOfLines={1} />
+      <Modal visible={showHostChange} transparent animationType="fade" onRequestClose={() => setShowHostChange(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', paddingHorizontal: 20 }}>
+          <View style={{ backgroundColor: 'white', borderRadius: 8, padding: 12, flexDirection: 'row', gap: 8 }}>
+            <TextInput style={{ flex: 1 }} placeholder="Set host url" onChangeText={setHost} value={host} numberOfLines={1} autoFocus />
             <Button title="Save" onPress={handleSubmit} />
             <Button title="Clear" onPress={handleClear} />
           </View>
-        </KeyboardAvoidingView>
-      )}
+        </View>
+      </Modal>
     </View>
   );
 }
