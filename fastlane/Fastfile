@@ -46,9 +46,15 @@ platform :ios do
 
     # "What to Test" note, mirroring the Android lane's "Branch: <branch>".
     # GITHUB_REF_NAME is set in CI; git fallback is empty on detached HEAD.
+    # Only useful for QA builds (story branches carry the sc-NNNNN id); skip it
+    # for master/main, where "Branch: master" would just be noise on prod builds.
     branch = (ENV["GITHUB_REF_NAME"] || sh("git branch --show-current").strip).strip
-    branch = "unknown" if branch.empty?
-    testflight_changelog = "Branch: #{branch}"
+    testflight_changelog =
+      if branch.empty? || ["master", "main"].include?(branch)
+        nil
+      else
+        "Branch: #{branch}"
+      end
 
     sh("../scripts/update_sources.sh")
     sh("cd .. && npm install") unless ENV["CI"]
