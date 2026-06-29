@@ -44,11 +44,8 @@ platform :ios do
       xcodeproj: "./ios/ReaderApp.xcodeproj"
     )
 
-    # "What to Test" notes for the TestFlight build, mirroring the Android
-    # testrelease lane which sets Firebase release notes to "Branch: <branch>".
-    # GITHUB_REF_NAME is always set in GitHub Actions; fall back to git for local
-    # runs. git branch --show-current is empty in a detached HEAD (what
-    # actions/checkout produces), so default to "unknown" as a last resort.
+    # "What to Test" note, mirroring the Android lane's "Branch: <branch>".
+    # GITHUB_REF_NAME is set in CI; git fallback is empty on detached HEAD.
     branch = (ENV["GITHUB_REF_NAME"] || sh("git branch --show-current").strip).strip
     branch = "unknown" if branch.empty?
     testflight_changelog = "Branch: #{branch}"
@@ -71,9 +68,8 @@ platform :ios do
       }
     )
 
-    # changelog populates TestFlight's "What to Test" field. It only attaches
-    # once the build finishes processing, which upload_to_testflight waits for
-    # by default (skip_waiting_for_build_processing is left at false).
+    # changelog = TestFlight's "What to Test"; attaches only after build
+    # processing, which upload_to_testflight waits for by default.
     upload_to_testflight(api_key: api_key, changelog: testflight_changelog)
   end
 end
