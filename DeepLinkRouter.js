@@ -95,6 +95,7 @@ class DeepLinkRouter extends React.PureComponent {
   };
   catchAll = ({ url }) => {
     // runs in case no route can handle this url
+    if (url?.startsWith('/')) { url = Sefaria.api._baseHost.replace(/\/$/, '') + url; }
     this.props.openUri(url);
   };
   route = (url, fromOutside=false) => {
