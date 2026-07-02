@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "lib": ["ES2020", "DOM"],
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "types": ["node", "mocha", "@wdio/globals/types"],
+    "outDir": "./dist",
+    "rootDir": "./",
+    "baseUrl": "./",
+    "paths": {
+      "components/*": ["components/*"],
+      "constants/*": ["constants/*"],
+      "selectors/*": ["selectors/*"],
+      "tests/*": ["tests/*"],
+      "utils/*": ["utils/*"],
+    }
+  },
+  "include": [
+    "components/**/*.ts",
+    "constants/**/*.ts",
+    "selectors/**/*.ts",
+    "tests/**/*.ts",
+    "utils/**/*.ts",
+    "scripts/**/*.ts",
+    "log_init.ts",
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+  ],
+  "ts-node": {
+    "esm": false,
+    "transpileOnly": false,
+    "typeCheck": true,
+    "compilerOptions": {
+      "module": "CommonJS",
+      "target": "ES2020",
+      "moduleResolution": "node",
+      "strict": true,
+      "noImplicitAny": true,
+      "skipLibCheck": true
+    }
+  }
+}
