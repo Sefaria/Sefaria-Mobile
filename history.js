@@ -15,7 +15,7 @@ const History = {
   migrateFromAsyncStorageHistory: async function() {
     const hasMigrated = await AsyncStorage.getItem('hasMigratedToHistoryJSONFiles');
     if (hasMigrated) { return; }
-    await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}history`);
+    await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}history`, { intermediates: true });
     try {
       const lastPlace = await AsyncStorage.getItem('lastPlace');
       Sefaria.history.setItem('lastPlace', lastPlace);
