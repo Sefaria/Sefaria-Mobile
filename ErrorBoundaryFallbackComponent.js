@@ -14,16 +14,20 @@ export const ErrorBoundaryFallbackComponent = ({ error }) => {
       let downloadedBooks = [];
       try {
         downloadedBooks = await getLocalBookList();
-      } catch (e) {
+      } catch {
         // best effort only, don't block error reporting on download-state lookup failing
       }
 
-      await CrashlyticsService.recordError(error, {
-        downloadedBookCount: downloadedBooks.length,
-        downloadedBooks: downloadedBooks.slice(0, MAX_LOGGED_BOOKS).join(', '),
-      });
+      try {
+        await CrashlyticsService.recordError(error, {
+          downloadedBookCount: downloadedBooks.length,
+          downloadedBooks: downloadedBooks.slice(0, MAX_LOGGED_BOOKS).join(', '),
+        });
+      } catch (e) {
+        devError('Failed to log ErrorBoundary error to crashlytics:', e);
+      }
     };
-    logErrorToCrashlytics().catch(e => devError('Failed to log ErrorBoundary error to crashlytics:', e));
+    logErrorToCrashlytics();
   }, [error]);
 
   return null;
