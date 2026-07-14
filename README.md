@@ -19,6 +19,16 @@ cd ios
 pod install
 ```
 
+### Environment
+
+Local build-time configuration is read from `.env` via `react-native-config`.
+
+```sh
+cp .env.example .env
+```
+
+Set `GOOGLE_WEB_CLIENT_ID` in `.env` to the Google SSO project's Web OAuth client ID. The matching Android OAuth client must be configured in Google Cloud with this app's package name and signing SHA-1.
+
 ### Google service file from Firebase
 
 Firebase requires that you download the Google service files for Android and iOS to make Firebase work. These aren't included in the repo since they are private. For Sefaria employees, you can access these files from the Firebase [Project Settings](https://console.firebase.google.com/u/0/project/sefaria-mobile-analytics/settings/general/android:org.sefaria.sefaria). If you don't have access to Firebase, please reach out to your friendly coworker :).

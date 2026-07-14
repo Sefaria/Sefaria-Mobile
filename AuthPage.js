@@ -12,6 +12,9 @@ import {
   Platform,
   Image,
 } from 'react-native';
+const AppleButtonComponent = Platform.OS === 'ios'
+  ? require('@invertase/react-native-apple-authentication').AppleButton
+  : null;
 import { iconData } from "./IconData";
 import remoteConfig from '@react-native-firebase/remote-config';
 
@@ -76,6 +79,44 @@ const useAuthForm = (authMode, onLoginSuccess) => {
 const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri, syncProfile }) => {
   const dispatch = useContext(DispatchContext);
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const [ssoErrors, setSsoErrors] = useState({});
+  const [isSSOLoading, setIsSSOLoading] = useState(false);
+
+  const onLoginSuccess = async (email) => {
+    dispatch({ type: STATE_ACTIONS.setIsLoggedIn, value: true });
+    dispatch({ type: STATE_ACTIONS.setUserEmail, value: email });
+    trackEvent("LoginSuccessful", {authMode});
+    syncProfile();
+    close(authMode);
+    showToast(strings.loginSuccessful);
+  };
+
+  const handleSSOResult = (errors) => {
+    if (!errors || Object.keys(errors).length === 0) {
+      if (Sefaria._auth.uid) {
+        onLoginSuccess('');
+      }
+    } else {
+      setSsoErrors(errors);
+    }
+  };
+
+  const handleGoogleSSO = async () => {
+    setIsSSOLoading(true);
+    setSsoErrors({});
+    const errors = await Sefaria.api.googleSSO();
+    setIsSSOLoading(false);
+    handleSSOResult(errors);
+  };
+
+  const handleAppleSSO = async () => {
+    setIsSSOLoading(true);
+    setSsoErrors({});
+    const errors = await Sefaria.api.appleSSO();
+    setIsSSOLoading(false);
+    handleSSOResult(errors);
+  };
+
   const {
     errors,
     setFirstName,
@@ -84,22 +125,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     setPassword,
     isLoading,
     onSubmit,
-  } = useAuthForm(authMode, async (email) => {
-    dispatch({
-      type: STATE_ACTIONS.setIsLoggedIn,
-      value: true,
-    });
-    // Set user email in state
-    dispatch({
-      type: STATE_ACTIONS.setUserEmail,
-      value: email,
-    });
-    trackEvent("LoginSuccessful", {authMode});
-    // try to sync immediately after login
-    syncProfile();
-    close(authMode);
-    showToast(strings.loginSuccessful);
-  });
+  } = useAuthForm(authMode, onLoginSuccess);
   const theme = getTheme(themeStr);
   const isLogin = authMode === 'login';
   const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
@@ -164,6 +190,26 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           isHeb={isHeb}
           isBlue
         />
+        <ErrorText error={ssoErrors.non_field_errors} errorText={ssoErrors.non_field_errors} />
+        <View style={styles.orDivider}>
+          <View style={[styles.orDividerLine, theme.borderedBottom]} />
+          <Text style={[{marginHorizontal: 10}, isHeb ? styles.heInt : styles.enInt, theme.secondaryText]}>{'or'}</Text>
+          <View style={[styles.orDividerLine, theme.borderedBottom]} />
+        </View>
+        <SystemButton
+          isLoading={isSSOLoading}
+          onPress={handleGoogleSSO}
+          text={'Continue with Google'}
+          isHeb={isHeb}
+        />
+        {Platform.OS === 'ios' && AppleButtonComponent && (
+          <AppleButtonComponent
+            buttonStyle={themeStr === 'white' ? AppleButtonComponent.Style.BLACK : AppleButtonComponent.Style.WHITE}
+            buttonType={AppleButtonComponent.Type.SIGN_IN}
+            style={[styles.systemButton, styles.boxShadow, {marginTop: 10, height: 50}]}
+            onPress={handleAppleSSO}
+          />
+        )}
         {
           isLogin ?
             <View style={{ alignItems: 'center', marginTop: 15 }}>
