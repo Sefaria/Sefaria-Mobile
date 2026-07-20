@@ -42,9 +42,13 @@ devices.forEach(device => {
   }
 
   const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  // Single fd shared by stdout and stderr: two independent 'w' fds would keep
+  // separate write offsets and overwrite each other's output in the log.
+  fs.mkdirSync(path.dirname(logFile), { recursive: true });
+  const logFd = fs.openSync(logFile, 'w');
   const proc = spawn(npxCmd, ['mocha', ...mochaArgs], {
     env,
-    stdio: ['ignore', fs.openSync(logFile, 'w'), fs.openSync(logFile, 'w')]
+    stdio: ['ignore', logFd, logFd]
   });
 
   proc.on('close', code => {
@@ -86,6 +90,8 @@ devices.forEach(device => {
       if (failed.length) {
         console.log('\nFAILED DEVICES:');
         failed.forEach(r => console.log(`- ${r.device} (exit code ${r.code})`));
+        // Propagate failure so CI / shell chains do not report a false green
+        process.exitCode = 1;
       } else {
         console.log('\nAll devices passed!');
       }
