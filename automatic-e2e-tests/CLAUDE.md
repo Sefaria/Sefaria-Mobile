@@ -210,7 +210,7 @@ the app navigable and the next `beforeEach` resets to Texts. Keep tests resilien
 | `scripts/cleanup.js` | Whitelisted cleaner for `logs/`+`screenshots/` per platform. |
 | `log_init.ts` | Console → clean-log file mirroring + uncaught-error capture. |
 | `devices.json` | Device matrix for parallel/BrowserStack runs. |
-| `.mocharc.json` / `.mocharc.regression.json` / `.mocharc.sanity.json` | Mocha configs (all-but-sanity / regression-only / sanity-only). |
+| `.mocharc.json` / `.mocharc.regression.json` / `.mocharc.sanity.json` | Mocha configs (all specs / regression-only / sanity-only). |
 | `example.env` | Template for `.env`. |
 | `.github/workflows/*-browserstack-testing.yml` | Manual (`workflow_dispatch`) CI runs (in the repo root, one level up). |
 

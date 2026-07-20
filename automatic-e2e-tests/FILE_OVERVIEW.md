@@ -13,7 +13,7 @@ For the *why* behind the structure, see [CLAUDE.md](./CLAUDE.md) and [TEST_GUIDE
 | --- | --- |
 | `package.json` | Dependencies and the `<suite>:<platform>:<env>` npm scripts (+ `*:parallel`, `cleanup`). |
 | `tsconfig.json` | TypeScript config. No build step — `ts-node` transpiles + type-checks specs at run time. |
-| `.mocharc.json` | Mocha config for `test:*` — runs all `tests/**/*.spec.ts` **except** `sanity.spec.ts`. |
+| `.mocharc.json` | Mocha config for `test:*` — runs all `tests/**/*.spec.ts` (regression + sanity). |
 | `.mocharc.regression.json` | Mocha config for `regression:*` — runs `tests/regression.spec.ts` only. |
 | `.mocharc.sanity.json` | Mocha config for `sanity:*` — runs `tests/sanity.spec.ts` only. |
 | `log_init.ts` | Imported at the top of each spec; mirrors `console.log/error/debug` into `logs/<platform>/clean-*.log` and captures uncaught errors. |

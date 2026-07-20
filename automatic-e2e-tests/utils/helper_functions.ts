@@ -78,11 +78,23 @@ export function colorsAreClose(
 
 
 /**
- * Returns the current Hebrew date as a formatted string (e.g., "Nisan 15, 5784")
- * Uses a fixed month name array for custom spelling.
+ * ICU (Intl) Hebrew month spellings differ from the app's (sefaria.js enMonths);
+ * REG-005 compares against on-screen text, so the app's spelling must win.
+ */
+const ICU_TO_APP_HEBREW_MONTHS: Record<string, string> = {
+  'Tamuz': 'Tammuz',
+  'Tishri': 'Tishrei',
+  'Heshvan': 'Cheshvan',
+  'Adar I': 'Adar',
+};
+
+/**
+ * Returns the Hebrew date as a formatted string (e.g., "Nisan 15, 5784"),
+ * using the app's month spellings (see sefaria.js enMonths).
+ * @param date The date to convert (defaults to now; pass the device's date to avoid timezone skew)
  * @returns The formatted Hebrew date string
  */
-export function getHebrewDate(): string {
+export function getHebrewDate(date: Date = new Date()): string {
   // Create a formatter for Hebrew calendar
   const formatter = new Intl.DateTimeFormat("en-u-ca-hebrew", {
     day: "numeric",
@@ -90,8 +102,8 @@ export function getHebrewDate(): string {
     year: "numeric"
   });
 
-  // Format today's date
-  const parts = formatter.formatToParts(new Date());
+  // Format the given date
+  const parts = formatter.formatToParts(date);
 
   // Extract components
   const dayPart = parts.find(p => p.type === "day");
@@ -103,7 +115,7 @@ export function getHebrewDate(): string {
   }
 
   const day = dayPart.value;
-  const month = monthPart.value;
+  const month = ICU_TO_APP_HEBREW_MONTHS[monthPart.value] || monthPart.value;
   const year = yearPart.value;
 
   // Return in desired format (e.g., "Nisan 15, 5784")
@@ -111,6 +123,20 @@ export function getHebrewDate(): string {
 
 }
 
+
+/**
+ * Returns the device's current calendar date (not the test runner's).
+ * The runner and the device can sit in different timezones (e.g. UTC CI runner
+ * vs. a BrowserStack device), so date assertions must use the device's clock.
+ * The returned Date is pinned to noon UTC of the device's calendar date, so
+ * formatting it in any runner timezone still yields the same calendar date.
+ * @param client - WebdriverIO browser instance
+ * @returns The device's calendar date
+ */
+export async function getDeviceDate(client: WebdriverIO.Browser): Promise<Date> {
+  const deviceTimeIso = await client.getDeviceTime(); // e.g. "2026-07-20T14:33:20+02:00"
+  return new Date(`${deviceTimeIso.slice(0, 10)}T12:00:00Z`);
+}
 
 /**
  * Checks if actual text matches expected text, logs result, and throws error if not matching.

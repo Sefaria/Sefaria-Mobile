@@ -22,7 +22,10 @@ describe('Sefaria Mobile sanity checks', function () {
       console.log(`[SANITY START] ${SuiteName}`);
       await HelperFunctions.handleSetup(client, true);
     } catch (err) {
-      UiChecker.takeScreenshot(client, testTitle, 'FAIL');
+      // client/testTitle may be unset if session creation itself failed
+      if (client) {
+        await UiChecker.takeScreenshot(client, testTitle ?? 'session-setup', 'FAIL').catch(() => {});
+      }
       throw new Error(`[SESSION ERROR] Could not create session for test. App might not have been launched. "${testTitle}": ${err}`);
     }
   });
@@ -33,7 +36,7 @@ describe('Sefaria Mobile sanity checks', function () {
     try {
       await HelperFunctions.resetToHome(client);
     } catch (error) {
-      UiChecker.takeScreenshot(client, testTitle, 'FAIL');
+      await UiChecker.takeScreenshot(client, testTitle, 'FAIL').catch(() => {});
     }
   });
 

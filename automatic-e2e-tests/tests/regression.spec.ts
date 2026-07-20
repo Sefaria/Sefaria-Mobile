@@ -27,7 +27,10 @@ describe('Sefaria Mobile regression tests', function () {
       console.log(`[REGRESSION START] ${SuiteName}`);
       await HelperFunctions.handleSetup(client, true);
     } catch (err) {
-      UiChecker.takeScreenshot(client, testTitle, 'FAIL');
+      // client/testTitle may be unset if session creation itself failed
+      if (client) {
+        await UiChecker.takeScreenshot(client, testTitle ?? 'session-setup', 'FAIL').catch(() => {});
+      }
       throw new Error(`[SESSION ERROR] Could not create session for test. App might not have been launched. "${testTitle}": ${err}`);
     }
   });
@@ -38,7 +41,7 @@ describe('Sefaria Mobile regression tests', function () {
     try {
       await HelperFunctions.resetToHome(client);
     } catch (error) {
-      UiChecker.takeScreenshot(client, testTitle, 'FAIL');
+      await UiChecker.takeScreenshot(client, testTitle, 'FAIL').catch(() => {});
     }
   });
   afterEach(async function () {
@@ -153,12 +156,15 @@ describe('Sefaria Mobile regression tests', function () {
     await learning_button.click();
 
     // Verfiy Learning Schedule and current secular date is present (e.g Jul 9 2025)
+    // Dates are computed from the DEVICE clock: the runner and device can be in
+    // different timezones (UTC CI runner vs BrowserStack device).
     await TextFinder.verifyHeaderOnPage(client, "Learning Schedules");
-    const currentDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).replace(/, /g, ' ');
+    const deviceDate = await HelperFunctions.getDeviceDate(client);
+    const currentDate = deviceDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).replace(/, /g, ' ');
     await TextFinder.findTextElement(client, currentDate);
 
     // Check the current Jewish date (e.g Tammuz 13, 5785)
-    const jewishDate = HelperFunctions.getHebrewDate();
+    const jewishDate = HelperFunctions.getHebrewDate(deviceDate);
     await TextFinder.findTextElement(client, jewishDate);
     
     // Verify the blur under the Learning Schedules is there
@@ -367,7 +373,7 @@ describe('Sefaria Mobile regression tests', function () {
     // await clickElementWithSelector(client, Selectors.TOPICS_SELECTORS.searchButton);
 
     // Click on the first source (Siddur Ashkenaz)
-    (await TextFinder.findTextElement(client, Texts.ALEINU.first_source)).click()
+    await (await TextFinder.findTextElement(client, Texts.ALEINU.first_source)).click()
     // Verify title 
     await ReaderPage.verifyExactTitle(client, Texts.ALEINU.first_source_header);
     await ReaderPage.clickBackButton(client);
@@ -379,7 +385,7 @@ describe('Sefaria Mobile regression tests', function () {
     await Gesture.autoScrollTextIntoView(client, Texts.ALEINU.topics_related(PLATFORM as "ios" | "android"), true);
     await Gesture.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, "Bowing");
 
-    (await TextFinder.findTextElement(client, "Bowing")).click()
+    await (await TextFinder.findTextElement(client, "Bowing")).click()
     // Verify we are on Bowing Topic page
     await TopicsPage.verifyTopicTitle(client, "Bowing");
     // Go back to Aleinu Topic page
