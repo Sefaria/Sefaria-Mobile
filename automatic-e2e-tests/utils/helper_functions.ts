@@ -134,8 +134,24 @@ export function getHebrewDate(date: Date = new Date()): string {
  * @returns The device's calendar date
  */
 export async function getDeviceDate(client: WebdriverIO.Browser): Promise<Date> {
-  const deviceTimeIso = await client.getDeviceTime(); // e.g. "2026-07-20T14:33:20+02:00"
-  return new Date(`${deviceTimeIso.slice(0, 10)}T12:00:00Z`);
+  let deviceTimeIso: string | undefined;
+  try {
+    // Supported on Appium 2 and 3 (the old GET /appium/device/system_time route is not)
+    deviceTimeIso = await client.executeScript('mobile: getDeviceTime', []);
+  } catch {
+    try {
+      deviceTimeIso = await client.getDeviceTime();
+    } catch {
+      deviceTimeIso = undefined;
+    }
+  }
+  const deviceDate = deviceTimeIso ? new Date(`${deviceTimeIso.slice(0, 10)}T12:00:00Z`) : new Date();
+  if (isNaN(deviceDate.getTime())) {
+    // Unparseable device time — fall back to the runner clock rather than failing
+    console.log(`[WARNING] Could not parse device time "${deviceTimeIso}"; falling back to runner clock`);
+    return new Date();
+  }
+  return deviceDate;
 }
 
 /**
