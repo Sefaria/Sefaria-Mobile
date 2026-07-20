@@ -134,11 +134,12 @@ export function assertMatch(label: string, actual: string, expected: string): bo
  * Used to not repeat the same code in multiple places.
  * @param element - WebdriverIO element
  * @param elementName - Name for error messages
+ * @param timeout - Optional wait timeout in ms (defaults to the session-wide waitforTimeout)
  * @throws Will throw an error if the element is not displayed
  */
-export async function ensureElementDisplayed(element: any, elementName: string): Promise<void> {
+export async function ensureElementDisplayed(element: any, elementName: string, timeout?: number): Promise<void> {
   try {
-    await element.waitForDisplayed();
+    await element.waitForDisplayed(timeout ? { timeout } : undefined);
     const isDisplayed = await element.isDisplayed();
     if (!isDisplayed) {
       throw new Error(logError(`${elementName} is not displayed`));
@@ -220,6 +221,30 @@ export async function handleSetup(client: WebdriverIO.Browser, enablePopupHandli
   // Start continuous popup handling if enabled
   if (enablePopupHandling) {
     PopUps.startGlobalPopupMonitor(client);
+  }
+}
+
+/**
+ * Returns the app to the Texts home screen before a test.
+ * If the navbar is not reachable (e.g. a previous test failed inside the reader,
+ * which has no navbar), presses the system back button to escape and retries,
+ * so one failed test cannot cascade into the rest of the suite.
+ * @param client - WebdriverIO browser instance
+ * @throws Will throw an error if the Texts tab is still unreachable after retries
+ */
+export async function resetToHome(client: WebdriverIO.Browser): Promise<void> {
+  const maxBackPresses = 3;
+  for (let attempt = 0; attempt <= maxBackPresses; attempt++) {
+    try {
+      await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
+      return;
+    } catch (error) {
+      if (attempt === maxBackPresses) {
+        throw new Error(logError(`Could not return to Texts home after ${maxBackPresses} back presses: ${error}`));
+      }
+      console.log('[RESET] Navbar not reachable, pressing system back to escape current screen...');
+      await client.back();
+    }
   }
 }
 

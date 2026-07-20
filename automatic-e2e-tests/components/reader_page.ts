@@ -13,7 +13,7 @@
  */
 
 import type { Browser } from 'webdriverio';
-import { Errors, Selectors } from '../constants';
+import { ELEMENT_TIMEOUTS, Errors, Selectors } from '../constants';
 import { HelperFunctions } from '../utils';
 
 /**
@@ -24,14 +24,15 @@ import { HelperFunctions } from '../utils';
  */
 export async function verifyExactTitle(client: Browser, expectedText: string): Promise<void> {
   try {
+    // Reader content downloads before rendering, so allow extra time for the ScrollView
     const scrollView = await client.$(Selectors.READER_SELECTORS.scrollView);
-    await HelperFunctions.ensureElementDisplayed(scrollView, 'ScrollView');
-    
+    await HelperFunctions.ensureElementDisplayed(scrollView, 'ScrollView', ELEMENT_TIMEOUTS.READER_CONTENT_DOWNLOAD);
+
     const textView = await scrollView.$(Selectors.READER_SELECTORS.titleTextView);
     await HelperFunctions.ensureElementDisplayed(textView, 'Title TextView');
-    
+
     const actualText = await textView.getText();
-    
+
     if (actualText !== expectedText) {
       throw new Error(Errors.DYNAMIC_ERRORS.titleMismatch(expectedText, actualText));
     }
@@ -50,9 +51,10 @@ export async function verifyExactTitle(client: Browser, expectedText: string): P
  * @returns boolean indicating success
  */
 export async function verifyTitleContains(client: Browser, expectedText: string): Promise<boolean> {
+  // Reader content downloads before rendering, so allow extra time for the ScrollView
   const scrollView = await client.$(Selectors.READER_SELECTORS.scrollView);
-  await HelperFunctions.ensureElementDisplayed(scrollView, 'ScrollView');
-  
+  await HelperFunctions.ensureElementDisplayed(scrollView, 'ScrollView', ELEMENT_TIMEOUTS.READER_CONTENT_DOWNLOAD);
+
   const textView = await scrollView.$(Selectors.READER_SELECTORS.titleTextView);
   await HelperFunctions.ensureElementDisplayed(textView, 'Title TextView');
   

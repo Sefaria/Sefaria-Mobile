@@ -27,6 +27,9 @@ export const ELEMENT_TIMEOUTS = {
   POPUP_WAIT: 5000,
   POPUP_EXTENDED: 15000,
   POPUP_SLOW: 25000,
+
+  // Reader content must be downloaded before it renders; slow on BrowserStack networks
+  READER_CONTENT_DOWNLOAD: 30000,
 } as const;
 
 // Test execution timeouts
