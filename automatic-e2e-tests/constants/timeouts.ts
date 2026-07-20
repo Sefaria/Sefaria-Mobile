@@ -36,6 +36,9 @@ export const ELEMENT_TIMEOUTS = {
 export const TEST_TIMEOUTS = {
   // Individual test timeout
   SINGLE_TEST: 200000, // 200 seconds
+
+  // For tests with slow fallback paths (e.g. UiScrollable rescue scans)
+  LONG_TEST: 400000, // 400 seconds
   
   // App startup and initialization
   APP_STARTUP: 60000, // 60 seconds

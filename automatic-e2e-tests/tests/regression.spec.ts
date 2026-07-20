@@ -241,6 +241,8 @@ describe('Sefaria Mobile regression tests', function () {
   });
 
   it('REG-006: Texts > Mishna: verify subcategories, blurbs and divider colors', async function () {
+    // Longer budget: the seder scroll below has a slow UiScrollable rescue path
+    this.timeout(TEST_TIMEOUTS.LONG_TEST);
     // Click on Mishna
     let mishna = await TextFinder.verifyHeaderOnPage(client, Texts.MISHNAH.en);
     await mishna.click();
@@ -264,8 +266,14 @@ describe('Sefaria Mobile regression tests', function () {
     // SHORT_DISTANCE: small enough that fling momentum cannot skip a header past
     // the viewport between visibility checks, with enough attempts to cross each
     // seder's full tractate list (sections grew much taller in app 6.7.x).
+    // Swipes occasionally do not register on cloud devices, so fall back to the
+    // slow-but-deterministic native UiScrollable scan when the fast path misses.
     for (const seder of Texts.MISHNAH.sedarim) {
-      await Gesture.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, seder, false, SWIPE_ATTEMPTS.EXHAUSTIVE_ATTEMPTS, SWIPE_CONFIG.SHORT_DISTANCE);
+      try {
+        await Gesture.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, seder, false, SWIPE_ATTEMPTS.EXHAUSTIVE_ATTEMPTS, SWIPE_CONFIG.SHORT_DISTANCE);
+      } catch {
+        await Gesture.autoScrollTextIntoView(client, seder);
+      }
       await TextFinder.findTextElement(client, seder);
     }
   });
