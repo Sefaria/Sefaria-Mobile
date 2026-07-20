@@ -8,7 +8,7 @@ import 'abortcontroller-polyfill';
 import strings from './LocalizedStrings';
 import LinkContent from './LinkContent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import crashlytics from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
+import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 import jwt_decode from 'jwt-decode';
 
 var Api = {
@@ -213,10 +213,6 @@ var Api = {
         case "parashaNextRead":
           url += "api/calendars/next-read/";
           break;
-        case "userSheets":
-          const { uid } = extra_args;
-          url += `api/sheets/user/${uid}/`;
-          break;
         case "tagCategory":
           url += "api/tag-category/";
           //urlSuffix = '?ref_only=0';
@@ -227,9 +223,9 @@ var Api = {
           ref = ref ? `&lookup_ref=${ref}`:""
           break;
         case "topic":
-          const { slug, with_refs, annotate_links, group_related, with_links } = extra_args;
+          const { slug, with_refs, annotate_links, group_related, with_links, with_indexes } = extra_args;
           url += `api/topics/${slug}`;
-          urlSuffix = `?with_links=${0+with_links}&annotate_links=${0+annotate_links}&with_refs=${0+with_refs}&group_related=${0+group_related}`;
+          urlSuffix = `?with_links=${0+with_links}&annotate_links=${0+annotate_links}&with_refs=${0+with_refs}&group_related=${0+group_related}&with_indexes=${0+with_indexes}`;
           break;
         case "portal":
           const { portalSlug } = extra_args;
@@ -470,7 +466,7 @@ var Api = {
     });
   },
 
-  topic: async function(slug, with_links=true, annotate_links=true, with_refs=true, group_related=true) {
+  topic: async function(slug, with_links=true, annotate_links=true, with_refs=true, group_related=true, with_indexes=true) {
     await Sefaria.api._abortRequestType('topic');
     const cached = Sefaria.api._topic[slug];
     if (!!cached) { return cached; }
@@ -479,6 +475,7 @@ var Api = {
       annotate_links,
       with_refs,
       group_related,
+      with_indexes,
       slug,
     }, false);
     response = Sefaria.api.processTopicsData(response);
@@ -501,12 +498,6 @@ var Api = {
       }
     }
     data.textRefs = Object.values(refMap);
-    let sheetMap = {};
-    for (let refObj of data.refs.filter(s => s.is_sheet)) {
-      const sid = refObj.ref.replace('Sheet ', '');
-      sheetMap[sid] = {sid, order: refObj.order};
-    }
-    data.sheetRefs = Object.values(sheetMap);
     return data;
   },
 
@@ -597,18 +588,6 @@ var Api = {
           reject();
         });
     });
-  },
-
-  mySheets: async function() {
-    await Sefaria.api.getAuthToken();
-    if (!Sefaria._auth.uid) { console.log("Not signed in"); return []; }
-    const response = await Sefaria.api.userSheets(Sefaria._auth.uid);
-    return response.sheets;
-  },
-
-  userSheets: async function(uid) {
-    const response = await Sefaria.api._request('', 'userSheets', false, { uid }, false, true);
-    return response;
   },
 
   isACaseVariant: function(query, data) {
@@ -738,7 +717,7 @@ var Api = {
         await Sefaria.api.storeAuthToken(parsedRes);
       }
     } catch (error) {
-      crashlytics().recordError(error);
+      recordError(getCrashlytics(), error);
       return {
         non_field_errors: "Unknown authentication error"
       };

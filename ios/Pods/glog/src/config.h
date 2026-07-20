@@ -185,6 +185,15 @@
 #include <Availability.h>
 #endif
 
+/* Special configuration for AppleTVOS */
+#if TARGET_OS_TV
+#undef HAVE_SYSCALL_H
+#undef HAVE_SYS_SYSCALL_H
+#undef OS_MACOSX
+/* NO_THREADS needed right now for Xcode 16 */
+#define NO_THREADS
+#endif
+
 /* Special configuration for ucontext */
 #undef HAVE_UCONTEXT_H
 #undef PC_FROM_UCONTEXT

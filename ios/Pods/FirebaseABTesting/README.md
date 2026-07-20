@@ -86,7 +86,7 @@ For details on using Firebase from a Framework or a library, refer to [firebase_
 To develop Firebase software in this repository, ensure that you have at least
 the following software:
 
-* Xcode 15.2 (or later)
+* Xcode 16.2 (or later)
 
 CocoaPods is still the canonical way to develop, but much of the repo now supports
 development with Swift Package Manager.
@@ -153,7 +153,7 @@ GitHub Actions will verify that any code changes are done in a style-compliant
 way. Install `clang-format` and `mint`:
 
 ```console
-brew install clang-format@20
+brew install clang-format@21
 brew install mint
 ```
 
@@ -180,6 +180,11 @@ For coverage report generation instructions, see [scripts/code_coverage_report/R
 
 ## Specific Component Instructions
 See the sections below for any special instructions for those components.
+
+### Firebase AI Logic
+
+See the [Firebase AI Logic README](FirebaseAI#development) for instructions
+about building and testing the SDK.
 
 ### Firebase Auth
 
@@ -234,11 +239,6 @@ at **Project Settings > Cloud Messaging > [Your Firebase App]**.
 
 The iOS Simulator cannot register for remote notifications and will not receive push notifications.
 To receive push notifications, follow the steps above and run the app on a physical device.
-
-### Vertex AI for Firebase
-
-See the [Vertex AI for Firebase README](FirebaseVertexAI#development) for
-instructions about building and testing the SDK.
 
 ## Building with Firebase on Apple platforms
 

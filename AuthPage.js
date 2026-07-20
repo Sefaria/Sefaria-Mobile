@@ -118,7 +118,6 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
             [
               {iconName: 'bookmark-unfilled', text: strings.saveTexts},
               {iconName: 'sync', text: strings.syncYourReading},
-              {iconName: 'sheet', text: strings.readYourSheets},
               {iconName: 'mail', text: strings.getUpdates},
             ].map(x => (<LogInMotivator key={x.iconName} { ...x } />))
           }

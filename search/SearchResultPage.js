@@ -15,10 +15,9 @@ const getStatusFromState = (searchState) => (
     searchState.isLoading ? "-" : numberWithCommas(searchState.numResults)
 );
 
-const useSearchTabData = ({ textSearchState, sheetSearchState }) => {
+const useSearchTabData = ({ textSearchState }) => {
     return [
         {text: strings.sources, id: 'text', count: getStatusFromState(textSearchState)},
-        {text: strings.sheets, id: 'sheet', count: getStatusFromState(sheetSearchState)}
     ];
 }
 

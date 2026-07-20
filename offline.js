@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import md5 from 'md5';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { unzip } from 'react-native-zip-archive';
 import LinkContent from './LinkContent';
 import {ERRORS} from "./errors";

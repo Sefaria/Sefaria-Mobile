@@ -1,6 +1,6 @@
 'use strict';
-import crashlytics from '@react-native-firebase/crashlytics';
-import * as FileSystem from 'expo-file-system';
+import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';
+import * as FileSystem from 'expo-file-system/legacy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STATE_ACTIONS } from './StateManager';
 
@@ -15,13 +15,13 @@ const History = {
   migrateFromAsyncStorageHistory: async function() {
     const hasMigrated = await AsyncStorage.getItem('hasMigratedToHistoryJSONFiles');
     if (hasMigrated) { return; }
-    await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}history`);
+    await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}history`, { intermediates: true });
     try {
       const lastPlace = await AsyncStorage.getItem('lastPlace');
       Sefaria.history.setItem('lastPlace', lastPlace);
       await AsyncStorage.removeItem('lastPlace');
     } catch (e) {
-      crashlytics().recordError(new Error("Failed to migrate lastPlace"));
+      recordError(getCrashlytics(), new Error("Failed to migrate lastPlace"));
     }
 
     try {
@@ -29,7 +29,7 @@ const History = {
       Sefaria.history.setItem('savedItems', savedItems);
       await AsyncStorage.removeItem('savedItems');
     } catch (e) {
-      crashlytics().recordError(new Error("Failed to migrate savedItems"));
+      recordError(getCrashlytics(), new Error("Failed to migrate savedItems"));
     }
 
     try {
@@ -37,7 +37,7 @@ const History = {
       Sefaria.history.setItem('lastSyncItems', lastSyncItems);
       await AsyncStorage.removeItem('lastSyncItems');
     } catch (e) {
-      crashlytics().recordError(new Error("Failed to migrate lastSyncItems"));
+      recordError(getCrashlytics(), new Error("Failed to migrate lastSyncItems"));
     }
 
     try {
@@ -45,7 +45,7 @@ const History = {
       Sefaria.history.setItem('history', history)
       await AsyncStorage.removeItem('history');
     } catch (e) {
-      crashlytics().recordError(new Error("Failed to migrate history"));
+      recordError(getCrashlytics(), new Error("Failed to migrate history"));
     }
 
     await AsyncStorage.setItem('hasMigratedToHistoryJSONFiles', 'true');

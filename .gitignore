@@ -33,6 +33,7 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
+.kotlin/
 
 # node.js
 #
@@ -89,3 +90,7 @@ scripts/envvars.sh
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+# Expo
+.expo
+dist/
+web-build/
