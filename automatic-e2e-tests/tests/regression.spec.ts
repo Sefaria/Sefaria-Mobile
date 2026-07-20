@@ -254,9 +254,12 @@ describe('Sefaria Mobile regression tests', function () {
     await TextFinder.verifyHeaderOnPage(client, Texts.MISHNAH.content_desc.peah.title);
     await TextFinder.findTextElement(client, Texts.MISHNAH.content_desc.peah.blurb);
 
-    // Scroll down the screen to see all the Sederim are present
+    // Scroll down the screen to see all the Sederim are present.
+    // SHORT_DISTANCE: small enough that fling momentum cannot skip a header past
+    // the viewport between visibility checks, with enough attempts to cross each
+    // seder's full tractate list (sections grew much taller in app 6.7.x).
     for (const seder of Texts.MISHNAH.sedarim) {
-      await Gesture.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, seder, false, SWIPE_ATTEMPTS.MAX_SCROLL_ATTEMPTS, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE);
+      await Gesture.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, seder, false, SWIPE_ATTEMPTS.THOROUGH_ATTEMPTS, SWIPE_CONFIG.SHORT_DISTANCE);
       await TextFinder.findTextElement(client, seder);
     }
   });
@@ -346,21 +349,11 @@ describe('Sefaria Mobile regression tests', function () {
     await TopicsPage.verifyTopicBlurb(client, Texts.ALEINU.blurb);
 
     // Assert we are sources page by seeing if SOURCES is underlines bold
+    // (The Sheets tab was removed from topic pages in app 6.7.x, so only Sources is checked)
     await TextFinder.findTextElement(client, "Sources");
     // Screenshot Sources element to check underline
-    await UiChecker.validateElementColorByDesc(client, 'Sources', Colors.SEFARIA_COLORS.PALE_GRAY, "bottom"); 
-    // Check if Sheets is white
-    await UiChecker.validateElementColorByDesc(client, 'Sheets', Colors.SEFARIA_COLORS.OFF_WHITE, "bottom"); 
-    
-    // Move to sheets section and click it
-    await TopicsPage.clickSheets(client);
-    // Check if it is now underlined and sources is white
-    await UiChecker.validateElementColorByDesc(client, 'Sources', Colors.SEFARIA_COLORS.OFF_WHITE, "bottom"); 
-    await UiChecker.validateElementColorByDesc(client, 'Sheets', Colors.SEFARIA_COLORS.PALE_GRAY, "bottom"); 
-    
-    // Move back to sources page
-    await TopicsPage.clickSources(client);
-    
+    await UiChecker.validateElementColorByDesc(client, 'Sources', Colors.SEFARIA_COLORS.PALE_GRAY, "bottom");
+
     // Click three dots and verify source connection appears
     await TopicsPage.clickThreeDotsMenu(client);
     await TextFinder.findTextContaining(client, Texts.ALEINU.connection);
@@ -394,9 +387,8 @@ describe('Sefaria Mobile regression tests', function () {
     // Verify we are back on Aleinu Topic page
     await TopicsPage.verifyTopicTitle(client, Texts.ALEINU.en);
 
-    // Click Sheets
-    await TopicsPage.clickSheets(client);
-    // Assert Search bar is present and empty
+    // Assert the Sources search bar is present and empty
+    // (Sheets tab removed in app 6.7.x — the clear-search flow now runs on Sources)
     await SearchPage.verifyEmptySearchBar(client);
     // Type into search bar
     await SearchPage.typeIntoSearchBar(client, Texts.ALEINU.sheets_search);
