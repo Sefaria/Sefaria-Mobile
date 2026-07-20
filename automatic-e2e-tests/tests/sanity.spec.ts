@@ -31,7 +31,7 @@ describe('Sefaria Mobile sanity checks', function () {
     testTitle = HelperFunctions.getTestTitle(this);
     console.log(`[STARTING] Running test: ${testTitle}`);
     try {
-      await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
+      await HelperFunctions.resetToHome(client);
     } catch (error) {
       UiChecker.takeScreenshot(client, testTitle, 'FAIL');
     }
