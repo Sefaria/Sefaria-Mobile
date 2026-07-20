@@ -259,7 +259,7 @@ describe('Sefaria Mobile regression tests', function () {
     // the viewport between visibility checks, with enough attempts to cross each
     // seder's full tractate list (sections grew much taller in app 6.7.x).
     for (const seder of Texts.MISHNAH.sedarim) {
-      await Gesture.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, seder, false, SWIPE_ATTEMPTS.THOROUGH_ATTEMPTS, SWIPE_CONFIG.SHORT_DISTANCE);
+      await Gesture.swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, seder, false, SWIPE_ATTEMPTS.EXHAUSTIVE_ATTEMPTS, SWIPE_CONFIG.SHORT_DISTANCE);
       await TextFinder.findTextElement(client, seder);
     }
   });

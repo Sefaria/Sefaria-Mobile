@@ -74,6 +74,7 @@ export const SWIPE_ATTEMPTS = {
   DEFAULT_MAX_ATTEMPTS: 5,     // Standard number of swipe attempts
   QUICK_ATTEMPTS: 3,           // For quick searches
   THOROUGH_ATTEMPTS: 10,       // For thorough searching
+  EXHAUSTIVE_ATTEMPTS: 15,     // For crossing very tall sections (e.g. full seder tractate lists)
   
   // Element finding configuration
   MAX_SCROLL_ATTEMPTS: 7,      // Maximum attempts to scroll to find element
