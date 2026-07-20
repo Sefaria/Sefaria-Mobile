@@ -75,6 +75,8 @@ function getAndroidOpts(buildName?: string, sessionName?: string, noReset?: bool
       hostname: 'localhost',
       port: 4723,
       path: '/',
+      // First session install of a large APK can exceed wdio's default 120s connection timeout
+      connectionRetryTimeout: TEST_TIMEOUTS.SESSION_CREATE,
       capabilities: {
         platformName: 'Android',
         'appium:automationName': 'UiAutomator2',
@@ -147,6 +149,8 @@ function getIOSOpts(buildName?: string, sessionName?: string, noReset?: boolean,
       hostname: 'localhost',
       port: 4723,
       path: '/',
+      // First session install of a large app can exceed wdio's default 120s connection timeout
+      connectionRetryTimeout: TEST_TIMEOUTS.SESSION_CREATE,
       capabilities: {
         platformName: 'iOS',
         'appium:automationName': 'XCUITest',

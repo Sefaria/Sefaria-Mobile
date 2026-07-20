@@ -39,6 +39,9 @@ export const TEST_TIMEOUTS = {
   
   // App startup and initialization
   APP_STARTUP: 60000, // 60 seconds
+
+  // Session creation incl. app install on device (large APKs install slowly)
+  SESSION_CREATE: 300000, // 5 minutes
   
   // ADB execution timeout
   ADB_EXEC: 60000, // 60 seconds
