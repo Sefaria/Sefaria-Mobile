@@ -9,7 +9,7 @@ If you haven't already done so, install React Native for your development enviro
 
 | Tool | Version | Notes |
 |------|---------|-------|
-| Node | ≥ 18 (20 recommended) | via [nvm](https://github.com/nvm-sh/nvm) or `brew install node` |
+| Node | ≥ 20.19.4 | via [nvm](https://github.com/nvm-sh/nvm) or `brew install node` |
 | Watchman | latest | `brew install watchman` (the `cmake` step can be slow — this is normal) |
 | Ruby | ~3.2 | **Not** macOS system Ruby (2.6). Use [rbenv](https://github.com/rbenv/rbenv). Required by the `Gemfile` (CocoaPods + Fastlane) |
 | JDK | 17–20 | Android/Gradle. `brew install openjdk@17` |
@@ -36,7 +36,7 @@ npm install              # runs patch-package automatically
 The `Gemfile` pins Ruby `~> 3.2`; macOS system Ruby (2.6) will fail `bundle install`.
 ```sh
 brew install rbenv ruby-build
-echo 'eval "$(rbenv init - zsh)"' >> ~/.zshrc && exec zsh
+grep -q 'rbenv init' ~/.zshrc || echo 'eval "$(rbenv init - zsh)"' >> ~/.zshrc && exec zsh
 rbenv install 3.2.2 && rbenv local 3.2.2
 gem install bundler && bundle install
 ```
@@ -61,7 +61,7 @@ Install the Android SDK + an AVD via Android Studio's setup wizard, **or** headl
 brew install --cask android-commandlinetools
 export ANDROID_HOME=$HOME/Library/Android/sdk       # add to ~/.zshrc, plus:
 export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
-sdkmanager --sdk_root="$ANDROID_HOME" --licenses
+yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses
 sdkmanager --sdk_root="$ANDROID_HOME" "platform-tools" "platforms;android-36" \
   "build-tools;36.0.0" "emulator" "ndk;27.1.12297006" \
   "system-images;android-36;google_apis;arm64-v8a"
@@ -86,7 +86,7 @@ npx react-native run-android
 ```
 Alternatively for iOS, open `ios/ReaderApp.xcworkspace` in Xcode and hit Run.
 
-> **Apple Silicon note:** `ios/Podfile` sets `EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64` (a legacy workaround; fine on Intel CI). If a local Simulator build fails on an M-series Mac (e.g. GoogleUtilities header errors under an x86_64/Rosetta build), build native arm64:
+> **Apple Silicon note:** `ios/Podfile` sets `EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64` (a legacy workaround; harmless in CI since CI only builds signed device archives, which don't use the `iphonesimulator*` SDK). If a local Simulator build fails on an M-series Mac (e.g. GoogleUtilities header errors under an x86_64/Rosetta build), build native arm64:
 > ```sh
 > xcodebuild -workspace ios/ReaderApp.xcworkspace -scheme ReaderApp -configuration Debug \
 >   -destination 'platform=iOS Simulator,name=iPhone 16' ARCHS=arm64 'EXCLUDED_ARCHS=' ONLY_ACTIVE_ARCH=YES

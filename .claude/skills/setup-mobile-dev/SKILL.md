@@ -7,7 +7,7 @@ description: Set up (or verify/repair) a local development environment for the S
 
 Goal: take a macOS machine from clean → able to run the app on iOS Simulator and/or Android emulator. React Native **0.81.6**, React 19, Expo modules ~54, Node ≥18.
 
-Full reference: Sefaria wiki `runbooks/sefaria-mobile-local-setup.md` and `repos/sefaria-mobile/_index.md`.
+Full reference: Sefaria wiki (internal) `runbooks/sefaria-mobile-local-setup.md` and `repos/sefaria-mobile/_index.md`.
 
 ## Method
 
@@ -82,10 +82,10 @@ To point at a local Sefaria-Project backend, set `Api._baseHost`: Android emulat
 - The old README's `git clone .../Sefaria-iOS` and `npm run setup` (global `react-native-cli`) are **stale** — ignore them. RN 0.81 uses `npx react-native`.
 - Nothing iOS-related works until the **full Xcode** is installed (`pod install` and `run-ios` both fail on Command Line Tools alone). After installing Xcode, run `sudo xcodebuild -license accept` or **all git/clang on the machine break** with a license error.
 - The app will not run without the Firebase files even if it compiles.
-- **Disk**: the full toolchain + a cold build needs ~20 GB free (Android SDK 8.3 GB, iOS platform 7 GB, DerivedData/gradle caches several GB). Reclaim safely with `npm cache clean --force`, `brew cleanup -s`, `pnpm store prune` before asking the user to free personal data.
+- **Disk**: the full toolchain + a cold build needs ~20 GB free (Android SDK 8.3 GB, iOS platform 7 GB, DerivedData/gradle caches several GB). Reclaim safely with `npm cache clean --force`, `brew cleanup -s` before asking the user to free personal data.
 
 ### iOS build troubleshooting (Apple Silicon + Xcode 26 — both hit and fixed here)
 
 - **`GoogleUtilities/.../Public/GoogleUtilities/GULxxx.h file not found`** → the Pods install was incomplete. `cd ios && bundle exec pod deintegrate && bundle exec pod install` (rbenv Ruby active) → should end at ~121 pods. Then rebuild.
-- **Build compiles x86_64 on an M-series Mac** → `ios/Podfile` sets `EXCLUDED_ARCHS[sdk=iphonesimulator*]=arm64` (fine for Sefaria's Intel CI, wrong locally). Build native arm64: `xcodebuild -workspace ios/ReaderApp.xcworkspace -scheme ReaderApp -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 16' ARCHS=arm64 'EXCLUDED_ARCHS=' ONLY_ACTIVE_ARCH=YES`. Then `xcrun simctl install booted <ReaderApp.app>` + `xcrun simctl launch booted org.sefaria.sefariaApp` (Metro must be running for the Debug JS bundle).
+- **Build compiles x86_64 on an M-series Mac** → `ios/Podfile` sets `EXCLUDED_ARCHS[sdk=iphonesimulator*]=arm64` (harmless in CI since CI only builds signed device archives, which don't use the `iphonesimulator*` SDK; wrong locally). Build native arm64: `xcodebuild -workspace ios/ReaderApp.xcworkspace -scheme ReaderApp -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 16' ARCHS=arm64 'EXCLUDED_ARCHS=' ONLY_ACTIVE_ARCH=YES`. Then `xcrun simctl install booted <ReaderApp.app>` + `xcrun simctl launch booted org.sefaria.sefariaApp` (Metro must be running for the Debug JS bundle).
 - **iOS platform runtime missing** → `xcodebuild -downloadPlatform iOS` (no sudo, ~7 GB).
