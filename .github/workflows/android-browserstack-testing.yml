@@ -25,21 +25,13 @@ jobs:
       with:
         node-version: '22'
 
-    - name: Navigate to test directory
-      run: cd automatic-e2e-tests
-
-    - name: Clean npm cache
+    - name: Install Dependencies
       working-directory: automatic-e2e-tests
-      run: npm cache clean --force
+      run: npm ci
 
     - name: Clean up logs and screenshots
       working-directory: automatic-e2e-tests
-      run: |
-        npm run cleanup:android
-
-    - name: Install Dependencies
-      working-directory: automatic-e2e-tests
-      run: npm install
+      run: npm run cleanup:android
 
     - name: Run Android Tests on BrowserStack
       working-directory: automatic-e2e-tests
