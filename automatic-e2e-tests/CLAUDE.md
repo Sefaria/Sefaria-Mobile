@@ -22,20 +22,34 @@ App identifier (both platforms): `org.sefaria.sefaria`.
 
 ---
 
-## iOS status: E2E testing is SHELVED (as of 2026-07-21)
+## iOS status: E2E testing is SHELVED (as of 2026-07-21) — this PR/story is Android-only
 
-**Read this before spending time trying to get iOS E2E tests green.** Android is fully working
-(local + BrowserStack) and is what sc-45687's acceptance criteria actually required; iOS was
-always bonus scope.
+**Read this before spending time trying to get iOS E2E tests green.** sc-45687's acceptance
+criteria only ever required Android (local + BrowserStack), which is fully working. iOS was
+explored as bonus scope, hit a real blocker, and — **per Daniel's explicit decision — is out of
+scope for this PR.** Do not resume iOS work without a new, separate ask.
 
 - **iOS local**: the test framework itself is correctly configured — right bundle id
   (`org.sefaria.sefariaApp`), required `IOS_LOCAL_PLATFORM_VERSION` env var (see below), and a
   real Metro-bundling bug in `domutils`'s `package.json` patched via
-  `patches/domutils+3.2.2.patch` (repo root). But every run now hits a **real JS crash in the app
-  itself**, caught by the top-level `<ErrorBoundary>` in `Sefaria-Mobile/index.js` about ~20s
-  after cold launch (Release-config Simulator build). That's an app bug, not a test-framework bug,
-  and out of scope for this test suite to fix — confirm via Firebase Crashlytics (the error
-  reports there) or a Debug-config repro before touching this again.
+  `patches/domutils+3.2.2.patch` (repo root). But every local run hits a JS exception on cold
+  launch (Release-config Simulator build), caught by the top-level `<ErrorBoundary>` in
+  `Sefaria-Mobile/index.js` about ~20s after launch, which shows the app's generic
+  "encountered an error" alert instead of the home screen.
+  - **This is very unlikely to be a real product bug**: checked Firebase Crashlytics for the iOS
+    app (`org.sefaria.sefariaApp`) and production is sitting at **99.94% crash-free users** over
+    the trailing 7 days, with no open issue matching an every-cold-launch startup crash. The
+    specific crash from this local build never even reached Crashlytics (most likely because
+    Crashlytics flushes a pending crash report on the *next* app launch, and every local test run
+    tore the app/session down before that could happen). Best-guess explanation: something the
+    official CI/Fastlane release pipeline provides at build time (a config value, an injected env
+    var) that a raw local `xcodebuild -configuration Release` doesn't — i.e. a local-build
+    artifact, not a shipping defect. Unconfirmed beyond that; nobody dug further, by design (see
+    below).
+  - If iOS local work resumes: don't re-diagnose from scratch — either compare the local build
+    inputs against `deploy-ios.yml`'s Fastlane config for what might differ, or reproduce against
+    a Debug configuration (Metro is usually already running locally) to get a real redbox/stack
+    trace instead of the swallowed Release-mode error.
 - **iOS BrowserStack** (real-device cloud): separately blocked — there's no working path to
   produce a signed `.ipa` for BrowserStack's device cloud (the existing iOS CI pipeline only signs
   for TestFlight distribution). Known, unresolved gap since ~March 2026.
