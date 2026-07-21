@@ -78,7 +78,8 @@ Configuration is entirely env-driven. Locally these come from a `.env` file (cop
 | `MOCHA_CONFIG` / `SPEC` | parallel runner | Lets the parallel runner target a specific `.mocharc` or spec. |
 | `GITHUB_ACTIONS` | CI | When `true`, `load_credentials` skips loading `.env` (uses CI env directly). |
 | `LOCAL_DEVICE_NAME` | `.env` | Local device/emulator id (`adb devices` for Android). |
-| `ANDROID_LOCAL_APP_PATH` / `IOS_LOCAL_APP_PATH` | `.env` | Absolute path to the local `.apk` / `.ipa`. |
+| `ANDROID_LOCAL_APP_PATH` / `IOS_LOCAL_APP_PATH` | `.env` | Absolute path to the local `.apk` / `.ipa`/`.app`. |
+| `IOS_LOCAL_PLATFORM_VERSION` | `.env` | **Required for local iOS.** iOS version of an already-created Simulator (e.g. `18.6`). Without it, Appium defaults to the latest Xcode-supported version and creates+deletes a brand-new Simulator every run — slow, and prone to timing out on first boot. |
 | `BROWSERSTACK_USERNAME` / `BROWSERSTACK_ACCESS_KEY` | `.env` / Secrets | BrowserStack auth. |
 | `ANDROID_BROWSERSTACK_APP_ID` / `IOS_BROWSERSTACK_APP_ID` | `.env` / Secrets | `bs://...` id returned after uploading the app. |
 

@@ -11,7 +11,7 @@
  */
 
 // App constants
-export const APP_PACKAGE = 'org.sefaria.sefaria'; // iOS bundle ID
+export const APP_PACKAGE = 'org.sefaria.sefariaApp'; // iOS bundle ID
 
 // iOS Base selectors using XCUITest
 export const BASE_SELECTORS = {

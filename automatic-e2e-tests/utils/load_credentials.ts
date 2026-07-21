@@ -139,11 +139,20 @@ function getIOSOpts(buildName?: string, sessionName?: string, noReset?: boolean,
   if (runEnv === 'local') {
     const LOCAL_DEVICE_NAME = process.env.LOCAL_DEVICE_NAME || 'iPhone 14 Pro Simulator';
     const LOCAL_APP_PATH = process.env.LOCAL_APP_PATH;
-    
+    const LOCAL_PLATFORM_VERSION = process.env.IOS_LOCAL_PLATFORM_VERSION;
+
     if (!LOCAL_APP_PATH) {
       throw new Error('LOCAL_APP_PATH must be set in ios/.env for local iOS testing');
     }
-    
+    if (!LOCAL_PLATFORM_VERSION) {
+      throw new Error(
+        'IOS_LOCAL_PLATFORM_VERSION must be set in .env for local iOS testing (the iOS ' +
+        'version of an already-created Simulator, e.g. "18.6"). Without it, Appium defaults ' +
+        'to the latest Xcode-supported version and creates (then deletes) a brand-new ' +
+        'Simulator on every run, which is slow and can time out on first boot.'
+      );
+    }
+
     return {
       protocol: 'http',
       hostname: 'localhost',
@@ -155,9 +164,10 @@ function getIOSOpts(buildName?: string, sessionName?: string, noReset?: boolean,
         platformName: 'iOS',
         'appium:automationName': 'XCUITest',
         'appium:deviceName': LOCAL_DEVICE_NAME,
+        'appium:platformVersion': LOCAL_PLATFORM_VERSION,
         'appium:noReset': noReset || false,
         'appium:app': LOCAL_APP_PATH,
-        'appium:bundleId': 'org.sefaria.sefaria', // Update with actual iOS bundle ID
+        'appium:bundleId': 'org.sefaria.sefariaApp',
         'appium:appWaitDuration': 30000,
         // iOS-specific capabilities
         'appium:autoAcceptAlerts': false,
