@@ -710,11 +710,13 @@ var Api = {
         body: JSON.stringify(body),
       });
       const data = await response.json();
+      if (!response.ok) {
+        return { success: false, error: data };
+      }
       if (data.access && data.refresh) {
         await Sefaria.api.storeAuthToken(data);
-        return { success: true, email: userData?.email };
       }
-      return { success: false, error: data };
+      return { success: true, email: userData?.email };
     } catch (error) {
       return { success: false, error: { non_field_errors: 'Network error during sign-in' } };
     }

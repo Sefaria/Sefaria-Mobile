@@ -834,8 +834,9 @@ export default StyleSheet.create({
   },
   ssoButtonText: {
     fontSize: 16,
-    color: '#18345D',
+    color: '#121212',
     fontFamily: 'OpenSans',
+    fontWeight: '600',
   },
   ssoIcon: {
     width: 24,
@@ -849,12 +850,12 @@ export default StyleSheet.create({
   orDividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#CCCCCC',
+    backgroundColor: '#E6E6E6',
   },
   orDividerText: {
     marginHorizontal: 16,
     fontSize: 14,
-    color: '#999999',
+    color: '#707070',
   },
   category: {
     marginBottom: 10

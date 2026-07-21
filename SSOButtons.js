@@ -9,10 +9,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import appleAuth from '@invertase/react-native-apple-authentication';
 import strings from './LocalizedStrings';
 import styles from './Styles';
-import { GlobalStateContext, getTheme } from './StateManager';
+import { GlobalStateContext } from './StateManager';
 
 const GoogleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError }) => {
   const handleGoogleSignIn = async () => {
@@ -44,7 +43,9 @@ const GoogleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadi
       {isLoading && loadingProvider === 'google' ? (
         <ActivityIndicator />
       ) : (
-        <Text style={{ color: '#4285F4', fontWeight: 'bold' }}>G</Text>
+        <View style={{width: 24, height: 24, alignItems: 'center', justifyContent: 'center'}}>
+          <Text style={{fontSize: 18, fontWeight: 'bold', color: '#4285F4'}}>G</Text>
+        </View>
       )}
       <Text style={styles.ssoButtonText}>{strings.continueWithGoogle}</Text>
     </TouchableOpacity>
@@ -54,6 +55,7 @@ const GoogleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadi
 const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError }) => {
   const handleAppleSignIn = async () => {
     if (Platform.OS === 'ios') {
+      const appleAuth = require('@invertase/react-native-apple-authentication').default;
       try {
         setLoadingProvider('apple');
         setIsLoading(true);
@@ -88,7 +90,9 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
       {isLoading && loadingProvider === 'apple' ? (
         <ActivityIndicator />
       ) : (
-        <Text>{''}</Text>
+        <View style={{width: 24, height: 24, alignItems: 'center', justifyContent: 'center'}}>
+          <Text style={{fontSize: 20, color: '#000000', lineHeight: 24}}>{Platform.OS === 'ios' ? '' : '\u{F8FF}'}</Text>
+        </View>
       )}
       <Text style={styles.ssoButtonText}>{strings.continueWithApple}</Text>
     </TouchableOpacity>
@@ -100,6 +104,13 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError }) => {
   const [loadingProvider, setLoadingProvider] = useState(null); // 'google' | 'apple' | null
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const showApple = Platform.OS === 'ios' || authMode === 'login';
+
+  React.useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '', // TODO: Add Google OAuth web client ID
+      offlineAccess: true,
+    });
+  }, []);
 
   return (
     <View style={styles.ssoSection}>
