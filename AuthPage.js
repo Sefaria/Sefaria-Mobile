@@ -10,9 +10,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Image,
 } from 'react-native';
-import { iconData } from "./IconData";
 import remoteConfig from '@react-native-firebase/remote-config';
 
 import {
@@ -25,6 +23,7 @@ import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 import { trackEvent } from './analytics/events';
+import { SSOButtons, OrDivider } from './SSOButtons';
 
 const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoading) => {
   setIsLoading(true);
@@ -105,6 +104,33 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
   const isHeb = interfaceLanguage === 'hebrew';
 
+  const [ssoError, setSsoError] = useState(null);
+
+  const handleSSOSuccess = async (provider, idToken, userData) => {
+    const result = await Sefaria.api.socialLogin(provider, idToken, userData);
+    if (result.success) {
+      dispatch({
+        type: STATE_ACTIONS.setIsLoggedIn,
+        value: true,
+      });
+      dispatch({
+        type: STATE_ACTIONS.setUserEmail,
+        value: userData?.email || result.email,
+      });
+      trackEvent("LoginSuccessful", { authMode, provider });
+      syncProfile();
+      close(authMode);
+      showToast(strings.loginSuccessful);
+    } else {
+      setSsoError(strings.ssoError);
+    }
+  };
+
+  const handleSSOError = (error) => {
+    console.log('SSO Error:', error);
+    setSsoError(strings.ssoError);
+  };
+
   const mainContent = (
     <ScrollView style={{flex:1, alignSelf: "stretch"}} contentContainerStyle={{alignItems: "center", paddingBottom: 50}} keyboardShouldPersistTaps='handled'>
       <RainbowBar />
@@ -113,15 +139,13 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       </View>
       <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.login : strings.signup}</Text>
       <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
-        <View style={styles.logInMotivator}>
-          {
-            [
-              {iconName: 'bookmark-unfilled', text: strings.saveTexts},
-              {iconName: 'sync', text: strings.syncYourReading},
-              {iconName: 'mail', text: strings.getUpdates},
-            ].map(x => (<LogInMotivator key={x.iconName} { ...x } />))
-          }
-        </View>
+        <SSOButtons
+          authMode={authMode}
+          onSSOSuccess={handleSSOSuccess}
+          onSSOError={handleSSOError}
+        />
+        <OrDivider />
+        {ssoError ? <Text style={{color: 'red', textAlign: 'center', marginBottom: 10}}>{ssoError}</Text> : null}
         { isLogin ? null :
           <AuthTextInput
             placeholder={strings.first_name}
@@ -265,26 +289,6 @@ const AuthTextInput = ({
     }
   </GlobalStateContext.Consumer>
 );
-
-const LogInMotivator = ({
-  iconName,
-  text
-}) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
-  const isHeb = interfaceLanguage === 'hebrew';
-  let icon = iconData.get(iconName, themeStr);
-  return (
-    <View style={{
-        flexDirection: isHeb ? 'row-reverse' : 'row',
-        marginBottom: 20,
-      }}
-    >
-      <Image style={{height: 20, width: 20}} source={icon} resizeMode={'contain'} />
-      <Text style={[{marginHorizontal: 20, fontSize: 16}, isHeb ? styles.heInt : styles.enInt, theme.text]}>{ text }</Text>
-    </View>
-  );
-}
 
 export {
   AuthPage,

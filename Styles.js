@@ -814,6 +814,48 @@ export default StyleSheet.create({
   logInMotivator: {
     marginVertical: 15,
   },
+  ssoSection: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  ssoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 51,
+    borderWidth: 1.5,
+    borderColor: '#18345D',
+    borderRadius: 4,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    gap: 8,
+    marginVertical: 8,
+  },
+  ssoButtonText: {
+    fontSize: 16,
+    color: '#18345D',
+    fontFamily: 'OpenSans',
+  },
+  ssoIcon: {
+    width: 24,
+    height: 24,
+  },
+  orDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  orDividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#CCCCCC',
+  },
+  orDividerText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    color: '#999999',
+  },
   category: {
     marginBottom: 10
   },

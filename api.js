@@ -695,6 +695,30 @@ var Api = {
       body: Sefaria.api.urlFormEncode(authBody)
     });
   },
+  socialLogin: async function(provider, idToken, userData) {
+    const endpoint = provider === 'google'
+      ? 'api/auth/google/redirect'
+      : 'api/auth/apple/callback';
+    const body = provider === 'google'
+      ? { credential: idToken }
+      : { id_token: idToken, first_name: userData?.firstName, last_name: userData?.lastName };
+    const url = `${Sefaria.api._baseHost}${endpoint}`;
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (data.access && data.refresh) {
+        await Sefaria.api.storeAuthToken(data);
+        return { success: true, email: userData?.email };
+      }
+      return { success: false, error: data };
+    } catch (error) {
+      return { success: false, error: { non_field_errors: 'Network error during sign-in' } };
+    }
+  },
   refreshToken: function(refreshToken) {
     const url = `${Sefaria.api._baseHost}api/login/refresh/`;
     const authBody = {
