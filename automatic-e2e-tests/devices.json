@@ -1,7 +1,7 @@
 {
   "devices": [
     {
-      "name": "Pixel_6_Pro",
+      "name": "Pixel_7_Pro",
       "platform": "android",
       "browserstack": {
         "device": "Google Pixel 7 Pro",
@@ -41,7 +41,7 @@
       }
     },
     {
-      "name": "iPhone_13_Pro",
+      "name": "iPhone_13_Pro_Max",
       "platform": "ios",
       "browserstack": {
         "device": "iPhone 13 Pro Max",

@@ -23,8 +23,7 @@ export function logError(message: string): string {
   return message;
 }
 
-// STATIC ERROR MESSAGES
-// TODO: Figure out why not in use
+// STATIC ERROR MESSAGES (currently unreferenced — kept as the canonical fixed-message set)
 
 export const STATIC_ERRORS = {
   NAV_BAR_NOT_DISPLAYED: '❌ Navigation bar is not displayed!',
