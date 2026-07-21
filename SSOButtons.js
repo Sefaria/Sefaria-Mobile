@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   Platform,
+  Image,
   ActivityIndicator,
 } from 'react-native';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
@@ -43,9 +44,10 @@ const GoogleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadi
       {isLoading && loadingProvider === 'google' ? (
         <ActivityIndicator />
       ) : (
-        <View style={{width: 24, height: 24, alignItems: 'center', justifyContent: 'center'}}>
-          <Text style={{fontSize: 18, fontWeight: 'bold', color: '#4285F4'}}>G</Text>
-        </View>
+        <Image
+          style={styles.ssoIcon}
+          source={{uri: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjIuNTYgMTIuMjVjMC0uNzgtLjA3LTEuNTMtLjItMi4yNUgxMnY0LjI2aDUuOTJjLS4yNiAxLjM3LTEuMDQgMi41My0yLjIxIDMuMzF2Mi43N2gzLjU3YzIuMDgtMS45MiAzLjI4LTQuNzQgMy4yOC04LjA5eiIgZmlsbD0iIzQyODVGNCIvPjxwYXRoIGQ9Ik0xMiAyM2MzIDAgNS41MS0uOTkgNy4zNC0yLjY4bC0zLjU3LTIuNzdjLS45OS42Ny0yLjI1IDEuMDYtMy43NyAxLjA2LTIuOTEgMC01LjM3LTEuOTYtNi4yNS00LjZIMi4xOHYyLjg0QzMuOTkgMjAuNTMgNy43IDIzIDEyIDIzeiIgZmlsbD0iIzM0QTg1MyIvPjxwYXRoIGQ9Ik01Ljc1IDE0LjAxYy0uMjMtLjY3LS4zNi0xLjM5LS4zNi0yLjEzcy4xMy0xLjQ2LjM2LTIuMTNWNi45MUgyLjE4QTEwLjk5IDEwLjk5IDAgMDAxIDExLjg4YzAgMS43OC40MyAzLjQ2IDEuMTggNC45N2wzLjU3LTIuODR6IiBmaWxsPSIjRkJCQzA1Ii8+PHBhdGggZD0iTTEyIDUuMzhjMS42MiAwIDMuMDYuNTYgNC4yMSAxLjY0bDMuMTUtMy4xNUMxNy40NSAyLjA5IDE0Ljk3IDEgMTIgMSA3LjcgMSAzLjk5IDMuNDcgMi4xOCA2LjkxbDMuNTcgMi44NGMuODgtMi42NCAzLjM0LTQuNiA2LjI1LTQuNnoiIGZpbGw9IiNFQTQzMzUiLz48L3N2Zz4="}}
+        />
       )}
       <Text style={styles.ssoButtonText}>{strings.continueWithGoogle}</Text>
     </TouchableOpacity>
@@ -90,9 +92,10 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
       {isLoading && loadingProvider === 'apple' ? (
         <ActivityIndicator />
       ) : (
-        <View style={{width: 24, height: 24, alignItems: 'center', justifyContent: 'center'}}>
-          <Text style={{fontSize: 20, color: '#000000', lineHeight: 24}}>{Platform.OS === 'ios' ? '' : '\u{F8FF}'}</Text>
-        </View>
+        <Image
+          style={styles.ssoIcon}
+          source={{uri: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTcuMDUgMjAuMjhjLS45OC44OS0yLjA1Ljg0LTMuMTguNDItMS4xMy0uNDMtMS45Mi0uNDUtMy4xOCAwLTEuMzEuNDctMi4xNS40Ny0zLjE4LS40Mi0xLjA3LS45MS0xLjktMi4wMi0yLjkzLTMuMzYtMS4yMS0xLjU0LTIuMTktMy40NC0yLjE5LTUuNTcgMC0zLjIgMi4xMS01LjM4IDQuNjktNS4zOCAxLjI0IDAgMi4yOC41NCAzLjEuNTQuOCAwIDIuMy0uNjMgMy4zNS0uNTQuMzguMDEgMi43Ni4xNSA0LjA3IDEuMTEtLjEuMDctMi40MyAxLjQyLTIuNCA0LjI0LjAzIDMuMzcgMi45NiA0LjQ5IDMgNC41MS0uMDIuMDctLjQ3IDEuNi0xLjU1IDMuMTd6TTEyLjAyIDQuMDFjLjEzLTEuNTguNzktMi44OCAxLjc4LTMuOTdDMTQuOC4wMyAxNS44OS0uMSAxNi44OC4wNGMuMTQgMS43My0uNDQgMy4wMS0xLjQgNC4xLS45NiAxLjA4LTIuMTIgMS45MS0zLjQ2IDEuODd6IiBmaWxsPSIjMDAwMDAwIi8+PC9zdmc+"}}
+        />
       )}
       <Text style={styles.ssoButtonText}>{strings.continueWithApple}</Text>
     </TouchableOpacity>

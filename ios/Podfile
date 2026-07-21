@@ -34,6 +34,8 @@ target 'ReaderApp' do
   pod 'FirebaseABTesting', :modular_headers => true
   pod 'FirebaseSessions', :modular_headers => true
   pod 'FirebaseCoreExtension', :modular_headers => true
+  pod 'RecaptchaInterop', :modular_headers => true
+  pod 'AppCheckCore', :modular_headers => true
   use_expo_modules!
 	post_integrate do |installer|
 	  begin
