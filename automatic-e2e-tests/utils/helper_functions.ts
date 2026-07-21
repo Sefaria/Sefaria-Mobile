@@ -10,7 +10,7 @@
  * ──────────────────────────────────────────────────────────────
  */
 
-import { logError, Texts, COLOR_THRESHOLDS, Selectors} from '../constants';
+import { logError, Texts, COLOR_THRESHOLDS, Selectors, TEST_TIMEOUTS } from '../constants';
 import { Navbar } from '../components';
 import { PopUps, BrowserstackReport, UiChecker } from '.';
 
@@ -259,7 +259,10 @@ export function getBuildName(type: String): string {
 export async function handleSetup(client: WebdriverIO.Browser, enablePopupHandling: boolean = false) {
   await PopUps.handleOfflinePopUp(client);
   await Navbar.waitForNavBar(client);
-  await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
+  // Longer timeout here specifically: right after a cold app launch, the splash/dedication
+  // screen can still be clearing, so the individual nav items (unlike the navbar container
+  // itself) may not be findable yet under the default wait.
+  await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts, TEST_TIMEOUTS.APP_STARTUP);
   // Start continuous popup handling if enabled
   if (enablePopupHandling) {
     PopUps.startGlobalPopupMonitor(client);
