@@ -22,6 +22,30 @@ App identifier (both platforms): `org.sefaria.sefaria`.
 
 ---
 
+## iOS status: E2E testing is SHELVED (as of 2026-07-21)
+
+**Read this before spending time trying to get iOS E2E tests green.** Android is fully working
+(local + BrowserStack) and is what sc-45687's acceptance criteria actually required; iOS was
+always bonus scope.
+
+- **iOS local**: the test framework itself is correctly configured — right bundle id
+  (`org.sefaria.sefariaApp`), required `IOS_LOCAL_PLATFORM_VERSION` env var (see below), and a
+  real Metro-bundling bug in `domutils`'s `package.json` patched via
+  `patches/domutils+3.2.2.patch` (repo root). But every run now hits a **real JS crash in the app
+  itself**, caught by the top-level `<ErrorBoundary>` in `Sefaria-Mobile/index.js` about ~20s
+  after cold launch (Release-config Simulator build). That's an app bug, not a test-framework bug,
+  and out of scope for this test suite to fix — confirm via Firebase Crashlytics (the error
+  reports there) or a Debug-config repro before touching this again.
+- **iOS BrowserStack** (real-device cloud): separately blocked — there's no working path to
+  produce a signed `.ipa` for BrowserStack's device cloud (the existing iOS CI pipeline only signs
+  for TestFlight distribution). Known, unresolved gap since ~March 2026.
+
+None of the framework fixes above have been reverted — they're small, correct, and low-risk, and
+stay valid whenever iOS testing resumes. What's shelved is *the effort to get iOS E2E green*, not
+the underlying framework work itself.
+
+---
+
 ## Commands
 
 All commands run from `automatic-e2e-tests/`. There is no build step — `ts-node` transpiles on

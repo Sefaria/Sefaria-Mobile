@@ -134,6 +134,10 @@ function getAndroidOpts(buildName?: string, sessionName?: string, noReset?: bool
 
 /**
  * Get iOS-specific Appium options
+ *
+ * NOTE: iOS E2E testing is currently shelved — this config is correct, but every local run
+ * hits a real app-level JS crash unrelated to this framework. See "iOS status" in CLAUDE.md
+ * before investing more time here.
  */
 function getIOSOpts(buildName?: string, sessionName?: string, noReset?: boolean, runEnv?: string) {
   if (runEnv === 'local') {
