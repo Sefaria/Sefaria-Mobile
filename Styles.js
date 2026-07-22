@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 
 import iPad from './isIPad';
+import { SSOColors, SSOSpacing, SSODimensions, SSOTypography } from './SSODesignTokens';
 const isIOS = Platform.OS === 'ios';
 const isAndroid = Platform.OS === 'android';
 const readerSideMargin = 42;
@@ -816,46 +817,47 @@ export default StyleSheet.create({
   },
   ssoSection: {
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 0,
+    width: SSODimensions.buttonContainerWidth,
+    gap: SSOSpacing.buttonGap,
   },
   ssoButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 51,
-    borderWidth: 1.5,
-    borderColor: '#18345D',
-    borderRadius: 4,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    gap: 8,
-    marginVertical: 8,
+    width: '100%',
+    height: SSODimensions.buttonHeight,
+    borderWidth: SSODimensions.buttonBorderWidth,
+    borderColor: SSOColors.sefariaBlue,
+    borderRadius: SSODimensions.buttonRadius,
+    backgroundColor: SSOColors.white,
+    paddingHorizontal: SSOSpacing.buttonPaddingH,
+    gap: SSOSpacing.iconTextGap,
   },
   ssoButtonText: {
-    fontSize: 16,
-    color: '#18345D',
+    fontSize: SSOTypography.buttonTextSize,
+    color: SSOColors.sefariaBlue,
     fontFamily: 'OpenSans',
-    fontWeight: '600',
+    fontWeight: SSOTypography.buttonFontWeight,
   },
   ssoIcon: {
-    width: 24,
-    height: 24,
+    width: SSODimensions.iconSize,
+    height: SSODimensions.iconSize,
   },
   orDivider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: SSOSpacing.sectionGap,
   },
   orDividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#CCCCCC',
+    backgroundColor: SSOColors.dividerLine,
   },
   orDividerText: {
-    marginHorizontal: 16,
-    fontSize: 14,
-    color: '#999999',
+    marginHorizontal: SSOSpacing.dividerLabelGap,
+    fontSize: SSOTypography.dividerTextSize,
+    color: SSOColors.dividerText,
   },
   category: {
     marginBottom: 10

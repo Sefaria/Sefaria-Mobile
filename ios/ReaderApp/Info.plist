@@ -22,6 +22,16 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<!-- Google Sign-In: this MUST be the reversed form of the iOS OAuth client id (GOOGLE_SSO_IOS_CLIENT_ID). The value below is a placeholder from the web client and must be replaced once an iOS-type OAuth client exists for org.sefaria.sefariaApp. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.203667201820-heq2amul80dtshpdbf0jd54j482edn9a</string>
+			</array>
+		</dict>
+	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>

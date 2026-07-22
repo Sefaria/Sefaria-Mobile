@@ -4,21 +4,40 @@ import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
+  Image,
   TouchableOpacity,
   Platform,
-  Image,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import Config from 'react-native-config';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 import { GlobalStateContext } from './StateManager';
 
-const GoogleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError }) => {
+// Apple has no native Android SDK; per the Figma spec Android falls back to a
+// mobile-web redirect. This opens allauth's Apple login entry on the SSO
+// backend. NOTE: completing the round-trip back into the app requires the
+// backend to deep-link back (see DeepLinkRouter.js) — otherwise the user can
+// get stuck in the browser (a known limitation called out in the Figma spec).
+const APPLE_ANDROID_REDIRECT_URL = 'https://www.sefaria.org/accounts/apple/login/';
+
+const GoogleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, isHeb }) => {
   const handleGoogleSignIn = async () => {
+    let GoogleSignin, statusCodes;
+    try {
+      ({ GoogleSignin, statusCodes } = require('@react-native-google-signin/google-signin'));
+    } catch (e) {
+      onSSOError(new Error('Google Sign-In native module not available. Rebuild the app with: npx react-native run-ios'));
+      return;
+    }
     try {
       setLoadingProvider('google');
       setIsLoading(true);
+      GoogleSignin.configure({
+        iosClientId: Config.GOOGLE_SSO_IOS_CLIENT_ID,
+        webClientId: Config.GOOGLE_SSO_CLIENT_ID,
+      });
       await GoogleSignin.hasPlayServices();
       const response = await GoogleSignin.signIn();
       const idToken = response.data?.idToken;
@@ -40,24 +59,31 @@ const GoogleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadi
   };
 
   return (
-    <TouchableOpacity style={[styles.ssoButton]} onPress={handleGoogleSignIn} disabled={isLoading}>
+    <TouchableOpacity style={[styles.ssoButton, isHeb && { flexDirection: 'row-reverse' }]} onPress={handleGoogleSignIn} disabled={isLoading}>
       {isLoading && loadingProvider === 'google' ? (
         <ActivityIndicator />
       ) : (
-        <Image
-          style={styles.ssoIcon}
-          source={{uri: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjIuNTYgMTIuMjVjMC0uNzgtLjA3LTEuNTMtLjItMi4yNUgxMnY0LjI2aDUuOTJjLS4yNiAxLjM3LTEuMDQgMi41My0yLjIxIDMuMzF2Mi43N2gzLjU3YzIuMDgtMS45MiAzLjI4LTQuNzQgMy4yOC04LjA5eiIgZmlsbD0iIzQyODVGNCIvPjxwYXRoIGQ9Ik0xMiAyM2MzIDAgNS41MS0uOTkgNy4zNC0yLjY4bC0zLjU3LTIuNzdjLS45OS42Ny0yLjI1IDEuMDYtMy43NyAxLjA2LTIuOTEgMC01LjM3LTEuOTYtNi4yNS00LjZIMi4xOHYyLjg0QzMuOTkgMjAuNTMgNy43IDIzIDEyIDIzeiIgZmlsbD0iIzM0QTg1MyIvPjxwYXRoIGQ9Ik01Ljc1IDE0LjAxYy0uMjMtLjY3LS4zNi0xLjM5LS4zNi0yLjEzcy4xMy0xLjQ2LjM2LTIuMTNWNi45MUgyLjE4QTEwLjk5IDEwLjk5IDAgMDAxIDExLjg4YzAgMS43OC40MyAzLjQ2IDEuMTggNC45N2wzLjU3LTIuODR6IiBmaWxsPSIjRkJCQzA1Ii8+PHBhdGggZD0iTTEyIDUuMzhjMS42MiAwIDMuMDYuNTYgNC4yMSAxLjY0bDMuMTUtMy4xNUMxNy40NSAyLjA5IDE0Ljk3IDEgMTIgMSA3LjcgMSAzLjk5IDMuNDcgMi4xOCA2LjkxbDMuNTcgMi44NGMuODgtMi42NCAzLjM0LTQuNiA2LjI1LTQuNnoiIGZpbGw9IiNFQTQzMzUiLz48L3N2Zz4="}}
-        />
+        <Image source={require('./img/sso-google.png')} style={styles.ssoIcon} resizeMode="contain" />
       )}
-      <Text style={styles.ssoButtonText}>{strings.continueWithGoogle}</Text>
+      <Text style={[styles.ssoButtonText, isHeb ? styles.heInt : styles.enInt]}>{strings.continueWithGoogle}</Text>
     </TouchableOpacity>
   );
 };
 
-const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError }) => {
+const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, isHeb }) => {
   const handleAppleSignIn = async () => {
     if (Platform.OS === 'ios') {
-      const appleAuth = require('@invertase/react-native-apple-authentication').default;
+      let appleAuth;
+      try {
+        appleAuth = require('@invertase/react-native-apple-authentication').default;
+      } catch (e) {
+        onSSOError(new Error('Apple Sign-In native module not available. Rebuild the app with: npx react-native run-ios'));
+        return;
+      }
+      if (!appleAuth.isSupported) {
+        onSSOError(new Error('Apple Sign-In is not supported on this device (requires a real iOS device, not a simulator)'));
+        return;
+      }
       try {
         setLoadingProvider('apple');
         setIsLoading(true);
@@ -82,38 +108,32 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
         setLoadingProvider(null);
       }
     } else {
-      // Android: web redirect — will be implemented with WebView
-      onSSOError(new Error('Apple Sign-In on Android requires web redirect (not yet implemented)'));
+      try {
+        await Linking.openURL(APPLE_ANDROID_REDIRECT_URL);
+      } catch (error) {
+        onSSOError(new Error('Could not open Apple sign-in. Please try again.'));
+      }
     }
   };
 
   return (
-    <TouchableOpacity style={[styles.ssoButton]} onPress={handleAppleSignIn} disabled={isLoading}>
+    <TouchableOpacity style={[styles.ssoButton, isHeb && { flexDirection: 'row-reverse' }]} onPress={handleAppleSignIn} disabled={isLoading}>
       {isLoading && loadingProvider === 'apple' ? (
         <ActivityIndicator />
       ) : (
-        <Image
-          style={styles.ssoIcon}
-          source={{uri: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTcuMDUgMjAuMjhjLS45OC44OS0yLjA1Ljg0LTMuMTguNDItMS4xMy0uNDMtMS45Mi0uNDUtMy4xOCAwLTEuMzEuNDctMi4xNS40Ny0zLjE4LS40Mi0xLjA3LS45MS0xLjktMi4wMi0yLjkzLTMuMzYtMS4yMS0xLjU0LTIuMTktMy40NC0yLjE5LTUuNTcgMC0zLjIgMi4xMS01LjM4IDQuNjktNS4zOCAxLjI0IDAgMi4yOC41NCAzLjEuNTQuOCAwIDIuMy0uNjMgMy4zNS0uNTQuMzguMDEgMi43Ni4xNSA0LjA3IDEuMTEtLjEuMDctMi40MyAxLjQyLTIuNCA0LjI0LjAzIDMuMzcgMi45NiA0LjQ5IDMgNC41MS0uMDIuMDctLjQ3IDEuNi0xLjU1IDMuMTd6TTEyLjAyIDQuMDFjLjEzLTEuNTguNzktMi44OCAxLjc4LTMuOTdDMTQuOC4wMyAxNS44OS0uMSAxNi44OC4wNGMuMTQgMS43My0uNDQgMy4wMS0xLjQgNC4xLS45NiAxLjA4LTIuMTIgMS45MS0zLjQ2IDEuODd6IiBmaWxsPSIjMDAwMDAwIi8+PC9zdmc+"}}
-        />
+        <Image source={require('./img/sso-apple.png')} style={styles.ssoIcon} resizeMode="contain" />
       )}
-      <Text style={styles.ssoButtonText}>{strings.continueWithApple}</Text>
+      <Text style={[styles.ssoButtonText, isHeb ? styles.heInt : styles.enInt]}>{strings.continueWithApple}</Text>
     </TouchableOpacity>
   );
 };
 
 const SSOButtons = ({ authMode, onSSOSuccess, onSSOError }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingProvider, setLoadingProvider] = useState(null); // 'google' | 'apple' | null
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const [loadingProvider, setLoadingProvider] = useState(null);
+  const { interfaceLanguage } = useContext(GlobalStateContext);
+  const isHeb = interfaceLanguage === 'hebrew';
   const showApple = Platform.OS === 'ios' || authMode === 'login';
-
-  React.useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: '', // TODO: Add Google OAuth web client ID
-      offlineAccess: true,
-    });
-  }, []);
 
   return (
     <View style={styles.ssoSection}>
@@ -124,6 +144,7 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError }) => {
         setLoadingProvider={setLoadingProvider}
         onSSOSuccess={onSSOSuccess}
         onSSOError={onSSOError}
+        isHeb={isHeb}
       />
       {showApple ? (
         <AppleSignInButton
@@ -133,6 +154,7 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError }) => {
           setLoadingProvider={setLoadingProvider}
           onSSOSuccess={onSSOSuccess}
           onSSOError={onSSOError}
+          isHeb={isHeb}
         />
       ) : null}
     </View>

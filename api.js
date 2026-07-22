@@ -697,10 +697,10 @@ var Api = {
   },
   socialLogin: async function(provider, idToken, userData) {
     const endpoint = provider === 'google'
-      ? 'api/auth/google/redirect'
-      : 'api/auth/apple/callback';
+      ? 'api/auth/google/mobile'
+      : 'api/auth/apple/mobile';
     const body = provider === 'google'
-      ? { credential: idToken }
+      ? { id_token: idToken }
       : { id_token: idToken, first_name: userData?.firstName, last_name: userData?.lastName };
     const url = `${Sefaria.api._baseHost}${endpoint}`;
     try {
