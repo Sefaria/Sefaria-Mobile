@@ -1,0 +1,327 @@
+/**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Helper Functions for  Testing Framework
+ * 
+ * DESCRIPTION:
+ *  - Helper functions for various utilities in the Sefaria testing framework
+ *  - Includes text escaping, color conversion, date formatting, and more.
+ * USAGE:
+ *  - These functions are used across different components and tests.
+ * ──────────────────────────────────────────────────────────────
+ */
+
+import { logError, Texts, COLOR_THRESHOLDS, Selectors, TEST_TIMEOUTS } from '../constants';
+import { Navbar } from '../components';
+import { PopUps, BrowserstackReport, UiChecker } from '.';
+
+/**
+ * Allows double qoutes (and other potentially breaking characters) to be inside .text()
+ * @param text - The text to escape
+ * @return - The escaped text
+ */
+export function escapeForRegex(text: string): string {
+  // if (process.env.PLATFORM === 'ios') {
+  //   return text;
+  // }
+  return text.replace(/[*+?^${}|[\]\\]/g, '\\$&').replace(/"/g, '\\"');
+}
+
+
+/**
+ * Converts a hex color string (e.g., "#ff00ff" or "#f0f") to an {r, g, b} object.
+ * Supports 3, 4, 6, or 8 digit hex codes.
+ * @param hex - The hex color string
+ * @return - An object with r, g, b properties, each in the range 0-255
+ * @throws - If the hex string is invalid
+ */
+export function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  let c = hex.replace(/^#/, '');
+  if (c.length === 3) {
+    c = c.split('').map(x => x + x).join('');
+  } else if (c.length === 4) {
+    c = c.split('').map(x => x + x).join('');
+    // Ignore alpha
+    c = c.slice(0, 6);
+  } else if (c.length === 8) {
+    // Ignore alpha
+    c = c.slice(0, 6);
+  }
+  if (c.length !== 6) throw new Error(logError(`Invalid hex color: ${hex}`));
+  return {
+    r: parseInt(c.slice(0, 2), 16),
+    g: parseInt(c.slice(2, 4), 16),
+    b: parseInt(c.slice(4, 6), 16),
+  };
+}
+
+/**
+ * Helper function to compare colors with a specific tolerance for each channel
+ * @param a - First color object with r, g, b properties
+ * @param b - Second color object with r, g, b properties
+ * @param tolerance - The maximum allowed difference for each color channel (can be a number or { r, g, b })
+ * @returns true if the colors are close enough, otherwise false
+ */
+export function colorsAreClose(
+  a: { r: number; g: number; b: number },
+  b: { r: number; g: number; b: number },
+  tolerance: number | { r: number; g: number; b: number } = COLOR_THRESHOLDS.STANDARD_NUMERIC
+): boolean {
+  const t = typeof tolerance === 'number'
+    ? { r: tolerance, g: tolerance, b: tolerance }
+    : tolerance;
+  return (
+    Math.abs(a.r - b.r) <= t.r &&
+    Math.abs(a.g - b.g) <= t.g &&
+    Math.abs(a.b - b.b) <= t.b
+  );
+}
+
+
+/**
+ * ICU (Intl) Hebrew month spellings differ from the app's (sefaria.js enMonths);
+ * REG-005 compares against on-screen text, so the app's spelling must win.
+ */
+const ICU_TO_APP_HEBREW_MONTHS: Record<string, string> = {
+  'Tamuz': 'Tammuz',
+  'Tishri': 'Tishrei',
+  'Heshvan': 'Cheshvan',
+  'Adar I': 'Adar',
+};
+
+/**
+ * Returns the Hebrew date as a formatted string (e.g., "Nisan 15, 5784"),
+ * using the app's month spellings (see sefaria.js enMonths).
+ * @param date The date to convert (defaults to now; pass the device's date to avoid timezone skew)
+ * @returns The formatted Hebrew date string
+ */
+export function getHebrewDate(date: Date = new Date()): string {
+  // Create a formatter for Hebrew calendar
+  const formatter = new Intl.DateTimeFormat("en-u-ca-hebrew", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  // Format the given date
+  const parts = formatter.formatToParts(date);
+
+  // Extract components
+  const dayPart = parts.find(p => p.type === "day");
+  const monthPart = parts.find(p => p.type === "month");
+  const yearPart = parts.find(p => p.type === "year");
+
+  if (!dayPart || !monthPart || !yearPart) {
+    throw new Error(logError('Could not extract Hebrew date parts.'));
+  }
+
+  const day = dayPart.value;
+  const month = ICU_TO_APP_HEBREW_MONTHS[monthPart.value] || monthPart.value;
+  const year = yearPart.value;
+
+  // Return in desired format (e.g., "Nisan 15, 5784")
+  return `${month} ${day}, ${year}`;
+
+}
+
+
+/**
+ * Returns the device's current calendar date (not the test runner's).
+ * The runner and the device can sit in different timezones (e.g. UTC CI runner
+ * vs. a BrowserStack device), so date assertions must use the device's clock.
+ * The returned Date is pinned to noon UTC of the device's calendar date, so
+ * formatting it in any runner timezone still yields the same calendar date.
+ * @param client - WebdriverIO browser instance
+ * @returns The device's calendar date
+ */
+export async function getDeviceDate(client: WebdriverIO.Browser): Promise<Date> {
+  let deviceTimeIso: string | undefined;
+  try {
+    // Supported on Appium 2 and 3 (the old GET /appium/device/system_time route is not)
+    deviceTimeIso = await client.executeScript('mobile: getDeviceTime', []);
+  } catch {
+    try {
+      deviceTimeIso = await client.getDeviceTime();
+    } catch {
+      deviceTimeIso = undefined;
+    }
+  }
+  const deviceDate = deviceTimeIso ? new Date(`${deviceTimeIso.slice(0, 10)}T12:00:00Z`) : new Date();
+  if (isNaN(deviceDate.getTime())) {
+    // Unparseable device time — fall back to the runner clock rather than failing
+    console.log(`[WARNING] Could not parse device time "${deviceTimeIso}"; falling back to runner clock`);
+    return new Date();
+  }
+  return deviceDate;
+}
+
+/**
+ * Checks if actual text matches expected text, logs result, and throws error if not matching.
+ * @param label Label for the value being checked (e.g., 'Category', 'Topic title')
+ * @param actual The actual text found
+ * @param expected The expected text to compare
+ * @returns true if the texts match, otherwise throws an error
+ * @throws Error if the texts do not match
+ */
+export function assertMatch(label: string, actual: string, expected: string): boolean {
+  const isMatch = actual === expected;
+  if (!isMatch) {
+    throw new Error(logError(`❌ ${label} does not match. Found: '${actual}', Expected: '${expected}'`));
+  }
+  console.debug(`${label} matches: '${actual}'`);
+  return isMatch;
+}
+
+/**
+ * Waits for and validates that an element is displayed. Used for allowing a longer check for elements that may take time to appear.
+ * Used to not repeat the same code in multiple places.
+ * @param element - WebdriverIO element
+ * @param elementName - Name for error messages
+ * @param timeout - Optional wait timeout in ms (defaults to the session-wide waitforTimeout)
+ * @throws Will throw an error if the element is not displayed
+ */
+export async function ensureElementDisplayed(element: any, elementName: string, timeout?: number): Promise<void> {
+  try {
+    await element.waitForDisplayed(timeout ? { timeout } : undefined);
+    const isDisplayed = await element.isDisplayed();
+    if (!isDisplayed) {
+      throw new Error(logError(`${elementName} is not displayed`));
+    }
+  } catch (error) {
+    throw new Error(logError(`Failed to find ${elementName}: ${error}`));
+  }
+}
+
+/**
+ * Extracts and cleans the test title from Mocha's test context.
+ * @param testContext Mocha test context (this)
+ * @returns Cleaned test title string
+ */
+export function getTestTitle(testContext: Mocha.Context): string {
+  if (!testContext.test) {
+    throw new Error(logError('Test context does not contain a test object.'));
+  }
+  let testTitle = testContext.test.title;
+  if (testTitle.includes('before each')) {
+    testTitle = testTitle.replace(/.*before each.*hook for /, '');
+  }
+  if (testTitle.includes('after each')) {
+    testTitle = testTitle.replace(/.*after each.*hook for /, '');
+  }
+  if (testTitle.includes('before all')) {
+    testTitle = testTitle.replace(/.*before all.*hook for /, '');
+  }
+  if (testTitle.includes('after all')) {
+    testTitle = testTitle.replace(/.*after all.*hook for /, '');
+  }
+  testTitle = testTitle.replace(/["\\]/g, '');
+  return testTitle;
+}
+
+/**
+ * Prints the results of tests to the console.
+ * @param tests Array of test results
+ */
+export async function logTestResults(testContext: Mocha.Context): Promise<void> {
+  const tests = testContext.test?.parent?.tests || [];
+  tests.forEach(t => {
+    const status = t.state === 'passed' ? 'PASSED' : 'FAILED';
+    console.log(`   - ${status}: ${t.title}`);
+  });
+  const passedTests = tests.filter(t => t.state === 'passed').length;
+  const failedTests = tests.filter(t => t.state === 'failed').length;
+  console.log(`Test Summary: ${passedTests} passed, ${failedTests} failed, out of ${tests.length} tests.\n`);
+  // Add a short delay to ensure logs are printed and added to log file
+  await new Promise(resolve => setTimeout(resolve, 1000));
+}
+
+/**
+ * Generates the build name seen on browserstack.
+ * This is used to identify the test run in reports.
+ * @param type - Type of build (e.g., "Regression", "Sanity")
+ * @returns A cleaned version of the test title, suitable for use in logs or reports.
+ */
+export function getBuildName(type: String): string {
+  const platform = process.env.PLATFORM?.toUpperCase() || 'UNKNOWN';
+  const date = new Date().toISOString().slice(0, 10);
+  return `Sefaria ${type} ${platform}: ${date}`;
+}
+
+
+/**
+ * Performs initial setup steps for the test client:
+ * - Handles offline popup
+ * - Waits for navbar to be visible
+ * - Starts global popup monitor if enabled
+ * @param client - WebdriverIO browser instance
+ * @param testName - Name of the test or suite (for logging)
+ * @param enablePopupHandling - Whether to start continuous popup handling (default: false)
+ */
+export async function handleSetup(client: WebdriverIO.Browser, enablePopupHandling: boolean = false) {
+  await PopUps.handleOfflinePopUp(client);
+  await Navbar.waitForNavBar(client);
+  // Longer timeout here specifically: right after a cold app launch, the splash/dedication
+  // screen can still be clearing, so the individual nav items (unlike the navbar container
+  // itself) may not be findable yet under the default wait.
+  await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts, TEST_TIMEOUTS.APP_STARTUP);
+  // Start continuous popup handling if enabled
+  if (enablePopupHandling) {
+    PopUps.startGlobalPopupMonitor(client);
+  }
+}
+
+/**
+ * Returns the app to the Texts home screen before a test.
+ * If the navbar is not reachable (e.g. a previous test failed inside the reader,
+ * which has no navbar), presses the system back button to escape and retries,
+ * so one failed test cannot cascade into the rest of the suite.
+ * @param client - WebdriverIO browser instance
+ * @throws Will throw an error if the Texts tab is still unreachable after retries
+ */
+export async function resetToHome(client: WebdriverIO.Browser): Promise<void> {
+  const maxBackPresses = 3;
+  for (let attempt = 0; attempt <= maxBackPresses; attempt++) {
+    try {
+      await Navbar.clickNavBarItem(client, Selectors.NAVBAR_SELECTORS.navItems.texts);
+      return;
+    } catch (error) {
+      if (attempt === maxBackPresses) {
+        throw new Error(logError(`Could not return to Texts home after ${maxBackPresses} back presses: ${error}`));
+      }
+      console.log('[RESET] Navbar not reachable, pressing system back to escape current screen...');
+      await client.back();
+    }
+  }
+}
+
+/**
+ * Handles teardown after each test:
+ * - Reports status to BrowserStack
+ * - Logs result
+ * - Deletes client session if deleteSession is true (default)
+ * - Annotates BrowserStack with test result
+ * @param client - WebdriverIO browser instance
+ * @param testContext - Mocha test context (this)
+ * @param testTitle - Name of the test (for logging)
+ * @param deleteSession - Whether to delete the client session (default: true)
+ */
+export async function handleTeardown(client: WebdriverIO.Browser, testContext: Mocha.Context, testTitle: string, deleteSession: boolean=true) {
+  if (client) {
+    if (process.env.RUN_ENV === 'browserstack') {
+      await BrowserstackReport.reportToBrowserstack(client, testContext);
+      // Add BrowserStack annotations for individual test tracking
+      await BrowserstackReport.annotateBrowserstackTest(client, testTitle, testContext);
+    }
+    if (testContext.currentTest?.state === 'passed') {
+      console.log(`✅ (PASSED); Finished test: ${testTitle}\n`);
+    } else {
+      await UiChecker.takeScreenshot(client, testTitle, 'FAIL');
+      console.log(`❌ (FAILED); Finished test: ${testTitle}\n`);
+    }
+    if (deleteSession) {
+      await client.deleteSession();
+    }
+  }
+  else {
+    console.warn('No client session to delete.');
+  }
+}
