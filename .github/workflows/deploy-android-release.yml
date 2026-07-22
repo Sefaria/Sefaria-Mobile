@@ -145,6 +145,38 @@ jobs:
             git push origin HEAD:${GITHUB_REF#refs/heads/}
           fi
 
+      - name: Archive AAB to a GitHub Release
+        # Attach the exact signed AAB that was uploaded to Play to a GitHub Release,
+        # one per production build (tagged by versionName + versionCode), so a past
+        # build can always be re-downloaded and inspected when debugging a regression.
+        # Runs after the commit step so the release tag points at the release commit.
+        #
+        # continue-on-error: by this point the AAB is already built, already uploaded
+        # to Play, and the version bump is already committed+pushed — the release is
+        # DONE. This step is a convenience archive only, so never let it fail the run.
+        if: success()
+        continue-on-error: true
+        env:
+          # The workflow's contents:write permission lets the built-in token create
+          # releases and tags. Releases made with GITHUB_TOKEN don't retrigger CI.
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          VNAME=$(grep -E '^def VERSION_(MAJOR|MINOR|PATCH)=' android/app/build.gradle \
+            | awk -F'=' '{print $2}' | tr -d '\r' | tr '\n' '.' | sed 's/\.$//')
+          VCODE=$(grep '^def VERSION_BUILD=' android/app/build.gradle \
+            | cut -d= -f2 | tr -d ' \r')
+          AAB=android/app/build/outputs/bundle/release/app-release.aab
+          if [[ ! -f "$AAB" ]]; then
+            echo "❌ Expected AAB not found at $AAB"; exit 1
+          fi
+          # Name the asset by version so it is self-describing once downloaded.
+          OUT="sefaria-android-${VNAME}-${VCODE}.aab"
+          cp "$AAB" "$OUT"
+          gh release create "android-v${VNAME}-${VCODE}" "$OUT" \
+            --title  "Android ${VNAME} (versionCode ${VCODE})" \
+            --notes  "Signed production AAB uploaded to the Play Store internal track by CI. versionCode ${VCODE}." \
+            --target "$(git rev-parse HEAD)"
+
       - name: Cleanup
         if: always()
         run: |
