@@ -44,6 +44,9 @@ platform :ios do
       xcodeproj: "./ios/ReaderApp.xcodeproj"
     )
 
+    # GITHUB_REF_NAME is set in CI; git fallback is empty on detached HEAD.
+    branch = (ENV["GITHUB_REF_NAME"] || sh("git branch --show-current").strip).strip
+
     sh("../scripts/update_sources.sh")
     sh("cd .. && npm install") unless ENV["CI"]
 
@@ -62,6 +65,15 @@ platform :ios do
       }
     )
 
-    upload_to_testflight(api_key: api_key)
+    # changelog populates TestFlight's "What to Test", mirroring the Android
+    # lane's "Branch: <branch>" note. Only set it for QA builds (story branches
+    # carry the sc-NNNNN id); skip on master, where "Branch: master" is just
+    # noise on prod builds. Attaches only after build processing, which
+    # upload_to_testflight waits for by default.
+    testflight_options = { api_key: api_key }
+    unless branch.empty? || branch == "master"
+      testflight_options[:changelog] = "Branch: #{branch}"
+    end
+    upload_to_testflight(testflight_options)
   end
 end

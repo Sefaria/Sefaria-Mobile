@@ -1,4 +1,5 @@
-import { getAnalytics, logEvent, setAnalyticsCollectionEnabled } from "@react-native-firebase/analytics";
+import { getAnalytics, logEvent, setAnalyticsCollectionEnabled, setDefaultEventParameters } from "@react-native-firebase/analytics";
+import VersionNumber from 'react-native-version-number';
 import { devLog } from '../devUtils';
 import { enrichAttributes } from './enrichments';
 
@@ -7,6 +8,7 @@ import { enrichAttributes } from './enrichments';
  */
 const initAnalytics = () => {
   setAnalyticsCollectionEnabled(getAnalytics(), true);
+  setDefaultEventParameters(getAnalytics(), { app_version: VersionNumber.appVersion });
   devLog(`Analytics initialized`);
 };
 

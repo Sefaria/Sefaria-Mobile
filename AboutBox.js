@@ -10,6 +10,7 @@ import { GlobalStateContext, getTheme } from './StateManager';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 import VersionBlock from './VersionBlock';
+import {SimpleMarkdown} from "./Misc";
 var moment = require("moment");
 
 
@@ -109,8 +110,8 @@ const AboutBox = ({ textToc, currVersionObjects, openFilter, sheet, openUri, seg
             { hei ? `נוצר/נערך: ${!!placeTextHe ? placeTextHe : ""} ${!!dateTextHe ? dateTextHe : ""}` : `Composed: ${!!placeTextEn ? placeTextEn : ""} ${!!dateTextEn ? dateTextEn : ""}`}
           </Text> : null
         }
-        { hei ? (!!d.heDesc ? <Text style={[styles.aboutDescription, styles.heInt, theme.text]}>{d.heDesc}</Text> : null) :
-                (!!d.enDesc ? <Text style={[styles.aboutDescription, styles.enInt, theme.text]}>{d.enDesc}</Text> : null)
+        { hei ? (!!d.heDesc ? <SimpleMarkdown style={[styles.aboutDescription, styles.heInt, theme.text]}>{d.heDesc}</SimpleMarkdown> : null) :
+                (!!d.enDesc ? <SimpleMarkdown style={[styles.aboutDescription, styles.enInt, theme.text]}>{d.enDesc}</SimpleMarkdown> : null)
         }
       </View>
     );
