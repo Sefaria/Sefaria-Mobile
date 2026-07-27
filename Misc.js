@@ -1263,7 +1263,8 @@ SimpleHTMLView.propTypes = {
 const SimpleMarkdown = ({children, lang, style, markdownProps}) => {
   const {handleOpenURL} = useContext(ReaderAppContext);
   const onLinkPress = (url) => {
-    handleOpenURL(url);
+    // markdown-display gives us the raw href with no resolution, unlike RenderHTML
+    handleOpenURL(new URL(url, Sefaria.api._baseHost, true).href);
     return false;
   }
   const flexDirection = `row${lang==='hebrew' ? '-reverse' : ''}`
