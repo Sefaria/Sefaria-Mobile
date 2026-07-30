@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "start": "react-native start",
-    "setup": "sudo npm install -g react-native-cli",
     "postinstall": "patch-package",
     "test": "jest --watchAll --notify",
     "test-ci": "jest"

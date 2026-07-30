@@ -1,0 +1,36 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.*
+.secrets
+# Credential file as distributed for setup (rename to .env) — must never be committed
+dot-env
+
+
+# Build output
+.dist/
+dist/
+build/
+out/
+
+
+# logs and screenshots (keep the folders, ignore their contents)
+screenshots/ios/*
+screenshots/android/*
+logs/android/*
+logs/ios/*
+logs/diag/
+!screenshots/ios/.gitkeep
+!screenshots/android/.gitkeep
+!logs/android/.gitkeep
+!logs/ios/.gitkeep
+
+# IDE files
+.vscode/
+
+# APK, AAB, and IPA
+*.apk
+*.aab
+*.ipa
