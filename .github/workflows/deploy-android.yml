@@ -59,6 +59,19 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      # react-native-config bakes .env into the built binary at build time.
+      # These are public OAuth client identifiers (they are extractable from any
+      # shipped APK/IPA by design), so they live in GitHub *variables*, not
+      # secrets. BASE_HOST is deliberately NOT set here: api.js falls back to
+      # https://www.sefaria.org/ so a release can never point at a cauldron.
+      - name: Create .env for react-native-config
+        env:
+          GOOGLE_SSO_CLIENT_ID: ${{ vars.GOOGLE_SSO_CLIENT_ID }}
+          GOOGLE_SSO_IOS_CLIENT_ID: ${{ vars.GOOGLE_SSO_IOS_CLIENT_ID }}
+        run: |
+          printf 'GOOGLE_SSO_CLIENT_ID=%s\n'     "$GOOGLE_SSO_CLIENT_ID"     >  .env
+          printf 'GOOGLE_SSO_IOS_CLIENT_ID=%s\n' "$GOOGLE_SSO_IOS_CLIENT_ID" >> .env
+
       - name: Install Firebase CLI
         # Firebase CLI is used by the testrelease lane to distribute the APK.
         # It handles first-time App Distribution app initialisation, which the
