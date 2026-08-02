@@ -4,18 +4,30 @@ import {
   Alert
 } from 'react-native';
 import 'abortcontroller-polyfill';
+import Config from 'react-native-config';
 
 import strings from './LocalizedStrings';
 import LinkContent from './LinkContent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Keychain from 'react-native-keychain';
 import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 import jwt_decode from 'jwt-decode';
+
+// Auth tokens (JWT access/refresh) are security-sensitive and are stored in
+// OS-backed secure storage (iOS Keychain / Android Keystore) via
+// react-native-keychain, rather than in plaintext AsyncStorage like the rest
+// of the app's local data.
+const AUTH_KEYCHAIN_SERVICE = 'org.sefaria.auth';
+const AUTH_KEYCHAIN_USERNAME = 'sefaria_auth';
+// Legacy AsyncStorage key auth tokens used to live under, before the move to
+// the keychain. Kept only to support the one-time migration below.
+const LEGACY_AUTH_ASYNC_STORAGE_KEY = 'auth';
 
 var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _baseHost: 'https://www.sefaria.org/',
+  _baseHost: Config.BASE_HOST || 'https://www.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _bulkText: {},
   _bulkSheets: {},
@@ -711,14 +723,28 @@ var Api = {
       });
       const data = await response.json();
       if (!response.ok) {
-        return { success: false, error: data };
+        return { success: false, code: data.error, error: data };
       }
-      if (data.access && data.refresh) {
-        await Sefaria.api.storeAuthToken(data);
+      if (!data.access || !data.refresh) {
+        // A 2xx response with no tokens is not a successful sign-in -- don't
+        // let the caller flip isLoggedIn on with nothing stored.
+        return { success: false, code: 'missing_tokens', error: data };
       }
-      return { success: true, email: userData?.email };
+      await Sefaria.api.storeAuthToken(data);
+      // Prefer the email claim from the signed ID token over the value from the
+      // provider SDK's client-side user object: the ID token is verified
+      // server-side, whereas Apple in particular only returns an email/fullName
+      // on the user's very first authorization -- on every later sign-in
+      // userData?.email is null, so trusting it would store an undefined email.
+      let tokenEmail;
+      try {
+        tokenEmail = jwt_decode(idToken)?.email;
+      } catch (error) {
+        tokenEmail = undefined;
+      }
+      return { success: true, email: tokenEmail || userData?.email };
     } catch (error) {
-      return { success: false, error: { non_field_errors: 'Network error during sign-in' } };
+      return { success: false, code: 'network_error', error: { non_field_errors: 'Network error during sign-in' } };
     }
   },
   refreshToken: function(refreshToken) {
@@ -739,6 +765,10 @@ var Api = {
       const parsedRes = await (authMode === 'login' ? Sefaria.api.login(authData) : Sefaria.api.register(authData)).then(res => res.json());
       if (!parsedRes.access) {
         return parsedRes;  // return errors
+      } else if (!parsedRes.refresh) {
+        // A 2xx response with an access token but no refresh token must not be
+        // treated as a successful login -- surface it as a field error instead.
+        return { non_field_errors: "Missing authentication tokens" };
       } else {
         await Sefaria.api.storeAuthToken(parsedRes);
       }
@@ -759,15 +789,42 @@ var Api = {
       uid: decodedToken.user_id,
       refreshToken: refresh,
     };
-    await AsyncStorage.setItem("auth", JSON.stringify(Sefaria._auth));
+    await Keychain.setGenericPassword(AUTH_KEYCHAIN_USERNAME, JSON.stringify(Sefaria._auth), { service: AUTH_KEYCHAIN_SERVICE });
+  },
+
+  // One-time migration of auth tokens from the legacy, unencrypted AsyncStorage
+  // location into the keychain, so users who were already logged in before
+  // this change shipped aren't signed out on upgrade. Safe to call repeatedly.
+  _migrateLegacyAuthToken: async function() {
+    const legacyAuth = await AsyncStorage.getItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
+    if (!legacyAuth) { return; }
+    let parsedLegacyAuth;
+    try {
+      parsedLegacyAuth = JSON.parse(legacyAuth);
+    } catch (error) {
+      // Malformed legacy value -- nothing recoverable, drop it.
+      await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
+      return;
+    }
+    if (!parsedLegacyAuth || !parsedLegacyAuth.token) {
+      await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
+      return;
+    }
+    // Only drop the legacy copy once the keychain write has actually
+    // succeeded. If the keychain is unavailable (e.g. device locked), keep the
+    // old value so the user isn't logged out with no way to recover -- the
+    // migration will simply be retried on the next read.
+    await Keychain.setGenericPassword(AUTH_KEYCHAIN_USERNAME, JSON.stringify(parsedLegacyAuth), { service: AUTH_KEYCHAIN_SERVICE });
+    await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
   },
 
   getAuthToken: async function() {
     if (!Object.keys(Sefaria._auth).length) { return; /* logged out */ }
     const currTime = Sefaria.util.epoch_time();
     if (!Sefaria._auth.token || Sefaria._auth.expires <= currTime) {
-      const tempAuth = await AsyncStorage.getItem("auth");
-      Sefaria._auth = JSON.parse(tempAuth) || {};
+      await Sefaria.api._migrateLegacyAuthToken();
+      const credentials = await Keychain.getGenericPassword({ service: AUTH_KEYCHAIN_SERVICE });
+      Sefaria._auth = (credentials && JSON.parse(credentials.password)) || {};
       try {
         if (!Sefaria._auth.token) { throw new Error("no token!"); }
         if (Sefaria._auth.expires <= currTime) { throw new Error("expired token"); }
@@ -784,6 +841,7 @@ var Api = {
     }
   },
   clearAuthStorage: async function() {
+    await Keychain.resetGenericPassword({ service: AUTH_KEYCHAIN_SERVICE });
     await AsyncStorage.removeItem('auth');
     await AsyncStorage.removeItem('lastSyncTime');
     await AsyncStorage.removeItem('lastSettingsUpdateTime');

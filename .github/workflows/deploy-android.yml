@@ -92,18 +92,22 @@ jobs:
 
       - name: List keystore (debug info)
         working-directory: android
+        env:
+          STOREPASS: ${{ secrets.STOREPASS }}
         run: |
           echo "PWD = $(pwd)"
           file upload-kstore.keystore || true
           keytool -list -v \
             -keystore upload-kstore.keystore \
-            -storepass "${{ secrets.STOREPASS }}" \
+            -storepass:env STOREPASS \
           || true
 
       - name: Run Fastlane
         working-directory: android
+        env:
+          STOREPASS: ${{ secrets.STOREPASS }}
         run: |
-          bundle exec fastlane android testrelease storepass:${{ secrets.STOREPASS }}
+          bundle exec fastlane android testrelease
 
       - name: Commit updated source files
         if: success()

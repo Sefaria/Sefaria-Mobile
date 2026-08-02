@@ -24,6 +24,30 @@ import strings from './LocalizedStrings';
 import styles from './Styles';
 import { trackEvent } from './analytics/events';
 import { SSOButtons, OrDivider } from './SSOButtons';
+import SSOErrorBanner from './SSOErrorBanner';
+
+// Maps a backend SSO error code/string to a localized, user-facing message.
+// NOTE: the backend does not currently emit a distinct machine-readable code
+// for "this email already exists via a different provider" -- these branches
+// are wired up so they activate automatically once the backend adds such a
+// code, but today they are unreachable dead code. Every code we actually see
+// today ('Invalid token', 'Authentication failed', 'Invalid JSON',
+// 'id_token required', 'auth.generic_error', 'network_error', undefined)
+// falls through to the generic message.
+const ssoErrorMessage = (code) => {
+  const normalized = (code || '').toString().toLowerCase();
+  const mentionsExistingEmail = normalized.includes('email') && normalized.includes('exist');
+  if (mentionsExistingEmail && normalized.includes('google')) {
+    return strings.ssoEmailExistsGoogle;
+  }
+  if (mentionsExistingEmail && normalized.includes('apple')) {
+    return strings.ssoEmailExistsApple;
+  }
+  if (mentionsExistingEmail) {
+    return strings.ssoEmailExistsGeneric;
+  }
+  return strings.ssoErrorGeneric;
+};
 
 const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoading) => {
   setIsLoading(true);
@@ -115,20 +139,31 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       });
       dispatch({
         type: STATE_ACTIONS.setUserEmail,
-        value: userData?.email || result.email,
+        // result.email comes from the signed ID token (verified server-side) and
+        // wins over userData?.email, which is only populated by Apple on the
+        // user's first authorization and is null on every subsequent sign-in.
+        value: result.email || userData?.email,
       });
       trackEvent("LoginSuccessful", { authMode, provider });
       syncProfile();
       close(authMode);
       showToast(strings.loginSuccessful);
     } else {
-      setSsoError(strings.ssoError);
+      if (__DEV__) {
+        setSsoError(`SSO backend error [${result.code}]: ${JSON.stringify(result.error).slice(0, 200)}`);
+      } else {
+        setSsoError(ssoErrorMessage(result.code));
+      }
     }
   };
 
   const handleSSOError = (error) => {
     console.log('SSO Error:', error);
-    setSsoError(strings.ssoError);
+    if (__DEV__) {
+      setSsoError(`SSO [${error?.code}] ${error?.message}`);
+    } else {
+      setSsoError(ssoErrorMessage(error?.code));
+    }
   };
 
   const mainContent = (
@@ -145,7 +180,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           onSSOError={handleSSOError}
         />
         <OrDivider />
-        {ssoError ? <Text style={{color: 'red', textAlign: 'center', marginBottom: 10}}>{ssoError}</Text> : null}
+        <SSOErrorBanner error={ssoError ? { message: ssoError } : null} />
         { isLogin ? null :
           <AuthTextInput
             placeholder={strings.first_name}

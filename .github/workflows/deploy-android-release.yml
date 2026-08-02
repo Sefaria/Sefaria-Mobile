@@ -111,7 +111,9 @@ jobs:
 
       - name: Run Fastlane release
         working-directory: android
-        run: bundle exec fastlane android release storepass:${{ secrets.STOREPASS }}
+        env:
+          STOREPASS: ${{ secrets.STOREPASS }}
+        run: bundle exec fastlane android release
 
       - name: Generate GitHub App token for protected-branch push
         # Short-lived token scoped only to the push step below.

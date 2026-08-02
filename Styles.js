@@ -834,6 +834,14 @@ export default StyleSheet.create({
     paddingHorizontal: SSOSpacing.buttonPaddingH,
     gap: SSOSpacing.iconTextGap,
   },
+  // Pressed/in-flight visual for SSO buttons. The Figma spec (a wireframe) does
+  // not define a distinct pressed treatment, so this reuses TouchableOpacity's
+  // own default activeOpacity (0.2) as the "pressed" opacity, applied as a
+  // persistent style so finger-down and in-flight look identical. Confirm with
+  // design if a dedicated pressed token should replace this.
+  ssoButtonPressed: {
+    opacity: 0.2,
+  },
   ssoButtonText: {
     fontSize: SSOTypography.buttonTextSize,
     color: SSOColors.sefariaBlue,
@@ -858,6 +866,28 @@ export default StyleSheet.create({
     marginHorizontal: SSOSpacing.dividerLabelGap,
     fontSize: SSOTypography.dividerTextSize,
     color: SSOColors.dividerText,
+  },
+  ssoErrorBanner: {
+    // NOTE: SSODesignTokens.js (SSOColors) has no error palette yet — these
+    // are local literals mirroring the web ErrorBanner's error-red treatment
+    // (static/js/auth/ErrorBanner.jsx / sass). If SSODesignTokens.js later
+    // grows error tokens (e.g. SSOColors.errorBackground/errorBorder/errorText),
+    // swap these literals for those constants.
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: SSODimensions.buttonContainerWidth,
+    borderWidth: 1,
+    borderColor: '#D91E18',
+    borderRadius: SSODimensions.buttonRadius,
+    backgroundColor: '#FBECEC',
+    paddingVertical: SSOSpacing.iconTextGap,
+    paddingHorizontal: SSOSpacing.buttonPaddingH,
+    marginBottom: SSOSpacing.buttonGap,
+  },
+  ssoErrorBannerText: {
+    flex: 1,
+    fontSize: SSOTypography.dividerTextSize,
+    color: '#B71C1C',
   },
   category: {
     marginBottom: 10
