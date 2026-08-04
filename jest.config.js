@@ -3,6 +3,13 @@ module.exports = {
         "setupFiles": [
         "<rootDir>/jest.setup.js"
     ],
+        // automatic-e2e-tests/ is a WebdriverIO/BrowserStack E2E suite with its
+        // own package.json and mocha-based runner (see automatic-e2e-tests/package.json).
+        // It is not a jest suite and must not be collected by the root unit-test run.
+        "testPathIgnorePatterns": [
+        "/node_modules/",
+        "<rootDir>/automatic-e2e-tests/"
+    ],
         // Expo and React Native packages ship untranspiled ESM/TS, so they must
         // not be excluded from Babel transformation or importing them throws
         // (e.g. expo-modules-core's EventEmitter reads as undefined).

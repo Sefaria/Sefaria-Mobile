@@ -109,7 +109,18 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   // correctly start a fresh flow each time -- no manual reset needed.
   const family = AUTH_EVENT_FAMILY[authMode];
   const flowIdRef = useRef(generateUUID());
-  const attemptIdRef = useRef(null);
+  // Attempt tracking is per-method (email/google/apple) so that starting a
+  // new SSO attempt can never clobber an in-flight email attempt's id (or
+  // vice versa). attemptIdsRef holds the current attempt_id for each method
+  // independently; currentMethodRef records the most recently chosen method,
+  // used as the default target for fireProcessStarted/fireProcessEnded when
+  // they're invoked generically (as onProcessStarted/onProcessEnded props
+  // handed to SSOButtons, which calls them without an explicit method).
+  // Call sites within this component that already know which method they're
+  // acting on (handleEmailSubmitResult, handleSSOSuccess) pass it explicitly
+  // instead of relying on this fallback.
+  const attemptIdsRef = useRef({});
+  const currentMethodRef = useRef(null);
   const emailAttemptActiveRef = useRef(false);
   const flowOutcomeRef = useRef({ succeeded: false, isNewAccount: undefined });
 
@@ -135,24 +146,39 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   // flag, so retries correctly re-fire.
   const fireMethodChosen = (method) => {
     const attemptId = generateUUID();
-    attemptIdRef.current = attemptId;
+    attemptIdsRef.current[method] = attemptId;
+    currentMethodRef.current = method;
     trackEvent(`${family}_method_chosen`, { flow_id: flowIdRef.current, attempt_id: attemptId, method });
   };
 
-  const fireProcessStarted = () => {
-    trackEvent(`${family}_process_started`, { flow_id: flowIdRef.current, attempt_id: attemptIdRef.current });
+  // `method` defaults to whichever method was most recently chosen -- correct
+  // for the SSOButtons onProcessStarted/onProcessEnded props, which are
+  // called from inside GoogleSignInButton/AppleSignInButton right after (or
+  // shortly after) that same button's own onMethodChosen('google'|'apple')
+  // call, so currentMethodRef still points at the right method at call time.
+  // Call sites within AuthPage.js that already know the method (email
+  // submission, SSO success/failure) pass it explicitly so a method switch
+  // that happens to race with their own async work can't misattribute them.
+  const fireProcessStarted = (method = currentMethodRef.current) => {
+    trackEvent(`${family}_process_started`, { flow_id: flowIdRef.current, attempt_id: attemptIdsRef.current[method] });
   };
 
-  const fireProcessEnded = ({ status, error, reason }) => {
-    if (!attemptIdRef.current) { return; }
-    const params = { flow_id: flowIdRef.current, attempt_id: attemptIdRef.current, status };
+  const fireProcessEnded = ({ status, error, reason }, method = currentMethodRef.current) => {
+    const attemptId = attemptIdsRef.current[method];
+    if (!attemptId) { return; }
+    const params = { flow_id: flowIdRef.current, attempt_id: attemptId, status };
     const truncatedError = truncateForAnalytics(error);
     if (truncatedError !== undefined) { params.error = truncatedError; }
     if (reason) { params.reason = reason; }
     trackEvent(`${family}_process_ended`, params);
     // Allow a subsequent email attempt (new focus after this one ends) to mint
-    // a fresh attempt_id. No-op for SSO attempts, which don't use this ref.
-    emailAttemptActiveRef.current = false;
+    // a fresh attempt_id. Only the email attempt uses this flag -- an SSO
+    // attempt ending must not touch it, which is exactly the bug this
+    // per-method design fixes (a Google/Apple process_ended used to clobber
+    // this shared/global flag even though it had nothing to do with email).
+    if (method === 'email') {
+      emailAttemptActiveRef.current = false;
+    }
   };
 
   // Opens an email attempt if one isn't already open. Bookends the email
@@ -170,11 +196,11 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     if (emailAttemptActiveRef.current) { return; }
     emailAttemptActiveRef.current = true;
     fireMethodChosen('email');
-    fireProcessStarted();
+    fireProcessStarted('email');
   };
 
   const handleEmailSubmitResult = (success) => {
-    fireProcessEnded(success ? { status: 'success' } : { status: 'failure', reason: 'validation_failed' });
+    fireProcessEnded(success ? { status: 'success' } : { status: 'failure', reason: 'validation_failed' }, 'email');
     if (success) { flowOutcomeRef.current.succeeded = true; }
   };
 
@@ -213,7 +239,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   const handleSSOSuccess = async (provider, idToken, userData) => {
     const result = await Sefaria.api.socialLogin(provider, idToken, userData);
     if (result.success) {
-      fireProcessEnded({ status: 'success' });
+      fireProcessEnded({ status: 'success' }, provider);
       flowOutcomeRef.current.succeeded = true;
       if (result.is_new_account !== undefined) { flowOutcomeRef.current.isNewAccount = result.is_new_account; }
       dispatch({
@@ -237,7 +263,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       // failure to reach the server from a failure to store the credentials it
       // returned; reporting either as 'server_rejected' would blame the server
       // for a client-side problem.
-      fireProcessEnded({ status: 'failure', reason: result.analyticsReason || 'server_rejected', error: result.code });
+      fireProcessEnded({ status: 'failure', reason: result.analyticsReason || 'server_rejected', error: result.code }, provider);
       if (__DEV__) {
         setSsoError(`SSO backend error [${result.code}]: ${JSON.stringify(result.error).slice(0, 200)}`);
       } else {

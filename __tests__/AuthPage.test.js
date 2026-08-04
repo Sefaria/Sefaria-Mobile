@@ -17,17 +17,37 @@ const AuthPageWrapper = ({ authMode }) => (
   }} />
 )
 
+// AuthPage's flow_started useEffect fires an unawaited trackEvent(...) call,
+// which chains through analytics/enrichments.js's real NetInfo/AsyncStorage
+// reads. Under React 19 + react-test-renderer, renderer.create() must be
+// wrapped in act() so those passive effects (and any state updates they
+// eventually trigger) are flushed and settled before the test's synchronous
+// body continues -- otherwise they resolve on a later tick that can land
+// after Jest has torn down the module registry, crashing with "Can't access
+// .root on unmounted test renderer" / "trying to `import` a file after the
+// Jest environment has been torn down". Each instance is also unmounted in
+// afterEach so no test's tree (and its effects) leaks into the next test or
+// past the end of the file.
+let currentInstance;
+
+afterEach(() => {
+  if (currentInstance) {
+    act(() => { currentInstance.unmount(); });
+    currentInstance = null;
+  }
+});
+
 describe('login', () => {
 
   test('num fields', () => {
-    const inst = renderer.create(<AuthPageWrapper authMode={'login'} />);
-    const inputs = inst.root.findAllByType(AuthTextInput);
+    act(() => { currentInstance = renderer.create(<AuthPageWrapper authMode={'login'} />); });
+    const inputs = currentInstance.root.findAllByType(AuthTextInput);
     expect(inputs.length).toBe(2);
   });
   test('fields sent onSubmit', async () => {
     Sefaria.api.authenticate = jest.fn();
-    const inst = renderer.create(<AuthPageWrapper authMode={'login'} />);
-    const inputs = inst.root.findAllByType(AuthTextInput);
+    act(() => { currentInstance = renderer.create(<AuthPageWrapper authMode={'login'} />); });
+    const inputs = currentInstance.root.findAllByType(AuthTextInput);
     const fields = {
       [strings.email]: 'bob@bobandco.co',
       [strings.password]: 'bobI$daB3st',
@@ -37,7 +57,7 @@ describe('login', () => {
         i.props.onChangeText(fields[i.props.placeholder]);
       });
     }
-    const button = inst.root.findByType(SystemButton);
+    const button = currentInstance.root.findByType(SystemButton);
     await act(async () => { await button.props.onPress() });
     // NOTE: this test won't pass until act can run async
     expect(Sefaria.api.authenticate.mock.calls.length).toBe(1);
@@ -54,8 +74,8 @@ describe('login', () => {
 
 describe('register', () => {
   test('num fields', () => {
-    const inst = renderer.create(<AuthPageWrapper authMode={'register'} />);
-    const inputs = inst.root.findAllByType(AuthTextInput);
+    act(() => { currentInstance = renderer.create(<AuthPageWrapper authMode={'register'} />); });
+    const inputs = currentInstance.root.findAllByType(AuthTextInput);
     expect(inputs.length).toBe(4);
   });
 });
