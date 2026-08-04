@@ -715,43 +715,85 @@ var Api = {
       ? { id_token: idToken }
       : { id_token: idToken, first_name: userData?.firstName, last_name: userData?.lastName };
     const url = `${Sefaria.api._baseHost}${endpoint}`;
+
+    // Each stage below is caught on its own. A single try/catch around the
+    // whole function reported every failure as 'network_error' and threw the
+    // underlying error away, so a client-side credential-storage failure was
+    // indistinguishable from the server being unreachable -- and neither was
+    // reported to Crashlytics, unlike authenticate() below. That made SSO
+    // failures effectively undiagnosable from a device.
+    let response;
     try {
-      const response = await fetch(url, {
+      response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
         body: JSON.stringify(body),
       });
-      const data = await response.json();
-      if (!response.ok) {
-        return { success: false, code: data.error, error: data };
-      }
-      if (!data.access || !data.refresh) {
-        // A 2xx response with no tokens is not a successful sign-in -- don't
-        // let the caller flip isLoggedIn on with nothing stored.
-        return { success: false, code: 'missing_tokens', error: data };
-      }
-      await Sefaria.api.storeAuthToken(data);
-      // Prefer the email claim from the signed ID token over the value from the
-      // provider SDK's client-side user object: the ID token is verified
-      // server-side, whereas Apple in particular only returns an email/fullName
-      // on the user's very first authorization -- on every later sign-in
-      // userData?.email is null, so trusting it would store an undefined email.
-      let tokenEmail;
-      try {
-        tokenEmail = jwt_decode(idToken)?.email;
-      } catch (error) {
-        tokenEmail = undefined;
-      }
-      return {
-        success: true,
-        email: tokenEmail || userData?.email,
-        // The mobile SSO endpoints don't return this today; forward it only if
-        // a future backend response includes it rather than fabricating a value.
-        ...(data.is_new_account !== undefined ? { is_new_account: data.is_new_account } : {}),
-      };
     } catch (error) {
-      return { success: false, code: 'network_error', error: { non_field_errors: 'Network error during sign-in' } };
+      recordError(getCrashlytics(), error);
+      return {
+        success: false,
+        code: 'network_error',
+        error: { non_field_errors: `Network error during sign-in: ${error?.message}` },
+      };
     }
+
+    let data;
+    try {
+      data = await response.json();
+    } catch (error) {
+      // A non-JSON body means the server failed before it could produce its
+      // usual JSON error shape (e.g. an HTML 500 page). That is a server
+      // problem, not a network one, and the status code is the useful part.
+      recordError(getCrashlytics(), error);
+      return {
+        success: false,
+        code: 'invalid_response',
+        error: { non_field_errors: `Server returned a non-JSON response (HTTP ${response.status})` },
+      };
+    }
+
+    if (!response.ok) {
+      return { success: false, code: data.error, error: data };
+    }
+    if (!data.access || !data.refresh) {
+      // A 2xx response with no tokens is not a successful sign-in -- don't
+      // let the caller flip isLoggedIn on with nothing stored.
+      return { success: false, code: 'missing_tokens', error: data };
+    }
+
+    try {
+      await Sefaria.api.storeAuthToken(data);
+    } catch (error) {
+      // Keychain/Keystore write failed. The sign-in itself succeeded, but we
+      // have nowhere to keep the credentials, so this is still a failure --
+      // just not the server's fault.
+      recordError(getCrashlytics(), error);
+      return {
+        success: false,
+        code: 'storage_error',
+        error: { non_field_errors: `Could not store credentials: ${error?.message}` },
+      };
+    }
+
+    // Prefer the email claim from the signed ID token over the value from the
+    // provider SDK's client-side user object: the ID token is verified
+    // server-side, whereas Apple in particular only returns an email/fullName
+    // on the user's very first authorization -- on every later sign-in
+    // userData?.email is null, so trusting it would store an undefined email.
+    let tokenEmail;
+    try {
+      tokenEmail = jwt_decode(idToken)?.email;
+    } catch (error) {
+      tokenEmail = undefined;
+    }
+    return {
+      success: true,
+      email: tokenEmail || userData?.email,
+      // The mobile SSO endpoints don't return this today; forward it only if
+      // a future backend response includes it rather than fabricating a value.
+      ...(data.is_new_account !== undefined ? { is_new_account: data.is_new_account } : {}),
+    };
   },
   refreshToken: function(refreshToken) {
     const url = `${Sefaria.api._baseHost}api/login/refresh/`;
