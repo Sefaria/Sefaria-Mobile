@@ -32,7 +32,7 @@ import ActionSheet from "react-native-action-sheet";
 import Markdown from "react-native-markdown-display";
 import ReaderAppContext from "./context";
 
-const SYSTEM_FONTS = ["Taamey Frank Taamim Fix", "Amiri", "Heebo", "OpenSans", "SertoBatnan"];  // list of system fonts. needed for RenderHTML
+const SYSTEM_FONTS = ["Taamey Frank Taamim Fix", "Amiri", "Heebo", "OpenSans", "SertoBatnan", "MiriamLibre-Regular"];  // list of system fonts. needed for RenderHTML
 const CSS_CLASS_STYLES = {
   hebrew: {
     fontFamily: "Taamey Frank Taamim Fix",
@@ -46,6 +46,9 @@ const CSS_CLASS_STYLES = {
     textAlign: 'justify',
     paddingTop: 0,
   },
+  infoText: {
+    fontFamily: "MiriamLibre-Regular",
+  }
 };
 
 
@@ -1263,7 +1266,8 @@ SimpleHTMLView.propTypes = {
 const SimpleMarkdown = ({children, lang, style, markdownProps}) => {
   const {handleOpenURL} = useContext(ReaderAppContext);
   const onLinkPress = (url) => {
-    handleOpenURL(url);
+    // markdown-display gives us the raw href with no resolution, unlike RenderHTML
+    handleOpenURL(new URL(url, Sefaria.api._baseHost, true).href);
     return false;
   }
   const flexDirection = `row${lang==='hebrew' ? '-reverse' : ''}`
