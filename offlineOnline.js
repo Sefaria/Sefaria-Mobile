@@ -66,10 +66,10 @@ export const loadVersions = async (ref) => {
 export const loadTranslations = async (ref, online=true) => {
     const offlineTranslations = await getAllTranslationsOffline(ref);
     let translations = offlineTranslations?.translations || [];
-    // Translations are secondary/optional data. Only hit the API when online, and fail
-    // silently so a missing (un-downloaded) version never pops a blocking no-internet alert.
+    // Translations are secondary/optional data. Only hit the API when online, so a device
+    // that's known to be offline never pops a blocking no-internet alert.
     if (online && (!offlineTranslations || offlineTranslations.missingVersions.length)) {
-        translations = await api.translations(ref, true);
+        translations = await api.translations(ref);
     }
     return translations;
 }
