@@ -69,6 +69,9 @@ export function useHTMLViewStyles(bilingual, textType) {
         english: {
           ...CSS_CLASS_STYLES.english,
           fontSize: fontSizeScaled,
+        },
+        'info-text': {
+          ...CSS_CLASS_STYLES.infoText,
         }
       }
     
