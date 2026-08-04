@@ -818,6 +818,7 @@ export default StyleSheet.create({
   ssoSection: {
     alignItems: 'center',
     marginBottom: 0,
+    marginTop: SSOSpacing.titleGap,
     width: SSODimensions.buttonContainerWidth,
     gap: SSOSpacing.buttonGap,
   },

@@ -2,7 +2,7 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { SystemButton } from '../Misc';
 import TestContextWrapper from '../TestContextWrapper';
-import { AuthPage, AuthTextInput } from '../AuthPage';
+import { AuthPage, AuthTextInput, ssoCollisionMessage } from '../AuthPage';
 import strings from '../LocalizedStrings';
 
 
@@ -57,5 +57,31 @@ describe('register', () => {
     const inst = renderer.create(<AuthPageWrapper authMode={'register'} />);
     const inputs = inst.root.findAllByType(AuthTextInput);
     expect(inputs.length).toBe(4);
+  });
+});
+
+describe('ssoCollisionMessage', () => {
+  test('matches the Google collision sentence', () => {
+    expect(ssoCollisionMessage('This email address is already registered via Google Sign-In.'))
+      .toBe(strings.ssoEmailExistsGoogle);
+  });
+  test('matches the Apple collision sentence', () => {
+    expect(ssoCollisionMessage('This email address is already registered via Apple Sign-In.'))
+      .toBe(strings.ssoEmailExistsApple);
+  });
+  test('matches the generic existing-account sentence', () => {
+    expect(ssoCollisionMessage('An account with this email address already exists.'))
+      .toBe(strings.ssoEmailExistsGeneric);
+  });
+  test('matches when the backend wraps the sentence in an array', () => {
+    expect(ssoCollisionMessage(['This email address is already registered via Google Sign-In.']))
+      .toBe(strings.ssoEmailExistsGoogle);
+  });
+  test('returns null for an unrelated field error', () => {
+    expect(ssoCollisionMessage('This password is too short.')).toBeNull();
+  });
+  test('returns null for undefined/empty input', () => {
+    expect(ssoCollisionMessage(undefined)).toBeNull();
+    expect(ssoCollisionMessage(null)).toBeNull();
   });
 });

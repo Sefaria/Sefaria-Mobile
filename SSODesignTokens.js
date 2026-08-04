@@ -21,6 +21,7 @@ export const SSOSpacing = {
   buttonPaddingH: 24, // horizontal padding inside a button (--sds-size-space-600)
   iconTextGap: 8,     // gap between icon and label (--sds-size-space-200)
   dividerLabelGap: 16,// horizontal margin around the "or" label
+  titleGap: 24,       // gap between the page title (Log in / Sign up) and the first SSO button
 };
 
 export const SSODimensions = {

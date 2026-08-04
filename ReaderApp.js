@@ -2004,6 +2004,10 @@ class ReaderApp extends React.PureComponent {
       case("register"):
         return(
           <AuthPage
+            // Login and register share this switch-case slot with no key, so without one
+            // React reconciles them as the same instance and carries stale internal state
+            // (errors, ssoError, typed fields) across a login <-> register mode switch.
+            key={this.state.menuOpen}
             authMode={this.state.menuOpen}
             close={this.closeAuthPage}
             showToast={this.showToast}

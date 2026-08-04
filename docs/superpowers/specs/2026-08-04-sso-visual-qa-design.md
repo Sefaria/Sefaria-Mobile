@@ -150,9 +150,19 @@ Recorded under "Follow-ups".
 
 ## Follow-ups (not this change)
 
-1. **Backend — login-side provider collision.** `api/login/` must surface which
-   provider an email is linked to so login can show the same two messages.
-   Belongs to the server team; mobile's map is ready to consume it.
+1. **Backend — login-side provider collision.** `api/login/` (stock SimpleJWT)
+   returns a generic credential error, so mobile cannot tell a provider-linked
+   account from a wrong password on login.
+
+   This is smaller than it first appears: the SSO branch already implements the
+   behavior on the web auth endpoint. `sso/views.py:email_login` returns
+   `401 {error, _auth: {code: 'sso_only_account', providers: [...]}}` when an
+   account has no usable password but does have linked social accounts. The ask
+   is therefore to mirror `sso_only_account` onto `api/login/`, not to build the
+   detection from scratch.
+
+   Mobile's map is ready to consume it — a provider code maps to the same two
+   strings the register path already uses.
 2. **iOS Google OAuth client.** Create an iOS-type OAuth client for
    `org.sefaria.sefariaApp` in Google Cloud, then replace the placeholder scheme
    in `Info.plist` and set `GOOGLE_SSO_IOS_CLIENT_ID`. Blocks Google sign-in

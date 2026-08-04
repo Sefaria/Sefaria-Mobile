@@ -26,27 +26,28 @@ import { trackEvent } from './analytics/events';
 import { SSOButtons, OrDivider } from './SSOButtons';
 import SSOErrorBanner from './SSOErrorBanner';
 
-// Maps a backend SSO error code/string to a localized, user-facing message.
-// NOTE: the backend does not currently emit a distinct machine-readable code
-// for "this email already exists via a different provider" -- these branches
-// are wired up so they activate automatically once the backend adds such a
-// code, but today they are unreachable dead code. Every code we actually see
-// today ('Invalid token', 'Authentication failed', 'Invalid JSON',
-// 'id_token required', 'auth.generic_error', 'network_error', undefined)
-// falls through to the generic message.
-const ssoErrorMessage = (code) => {
-  const normalized = (code || '').toString().toLowerCase();
-  const mentionsExistingEmail = normalized.includes('email') && normalized.includes('exist');
-  if (mentionsExistingEmail && normalized.includes('google')) {
-    return strings.ssoEmailExistsGoogle;
+// Exact-match map from the backend's English collision sentences (raised by
+// SefariaNewUserForm.clean_email on the register path) to the localized string
+// *key* that should be shown for each. Values are key names rather than
+// `strings.x` snapshots because `strings` is re-localized at runtime when the
+// interface language changes -- capturing `strings.x` here at module load
+// would freeze these messages in whatever language was active on first import.
+// Same three sentences web's RegisterView.jsx maps.
+const SSO_COLLISION_MESSAGE_KEYS = {
+  "This email address is already registered via Google Sign-In.": 'ssoEmailExistsGoogle',
+  "This email address is already registered via Apple Sign-In.": 'ssoEmailExistsApple',
+  "An account with this email address already exists.": 'ssoEmailExistsGeneric',
+};
+
+// Returns the localized collision message for an exact backend match, or null.
+// Django form errors may arrive as a bare string or an array of strings.
+const ssoCollisionMessage = (backendMessage) => {
+  const messages = Array.isArray(backendMessage) ? backendMessage : [backendMessage];
+  for (const message of messages) {
+    const key = SSO_COLLISION_MESSAGE_KEYS[(message || '').toString().trim()];
+    if (key) { return strings[key]; }
   }
-  if (mentionsExistingEmail && normalized.includes('apple')) {
-    return strings.ssoEmailExistsApple;
-  }
-  if (mentionsExistingEmail) {
-    return strings.ssoEmailExistsGeneric;
-  }
-  return strings.ssoErrorGeneric;
+  return null;
 };
 
 const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoading) => {
@@ -129,6 +130,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   const isHeb = interfaceLanguage === 'hebrew';
 
   const [ssoError, setSsoError] = useState(null);
+  const emailCollisionMessage = ssoCollisionMessage(errors.email);
 
   const handleSSOSuccess = async (provider, idToken, userData) => {
     const result = await Sefaria.api.socialLogin(provider, idToken, userData);
@@ -152,7 +154,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       if (__DEV__) {
         setSsoError(`SSO backend error [${result.code}]: ${JSON.stringify(result.error).slice(0, 200)}`);
       } else {
-        setSsoError(ssoErrorMessage(result.code));
+        setSsoError(strings.ssoErrorGeneric);
       }
     }
   };
@@ -162,7 +164,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     if (__DEV__) {
       setSsoError(`SSO [${error?.code}] ${error?.message}`);
     } else {
-      setSsoError(ssoErrorMessage(error?.code));
+      setSsoError(strings.ssoErrorGeneric);
     }
   };
 
@@ -180,7 +182,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           onSSOError={handleSSOError}
         />
         <OrDivider />
-        <SSOErrorBanner error={ssoError ? { message: ssoError } : null} />
+        <SSOErrorBanner error={(ssoError || emailCollisionMessage) ? { message: ssoError || emailCollisionMessage } : null} />
         { isLogin ? null :
           <AuthTextInput
             placeholder={strings.first_name}
@@ -203,8 +205,8 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           placeholder={strings.email}
           autoCapitalize={'none'}
           placeholderTextColor={placeholderTextColor}
-          error={errors.username || errors.email}
-          errorText={errors.username || errors.email}
+          error={!emailCollisionMessage && (errors.username || errors.email)}
+          errorText={!emailCollisionMessage && (errors.username || errors.email)}
           onChangeText={setEmail}
         />
         <AuthTextInput
@@ -218,7 +220,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
         <ErrorText error={errors.non_field_errors} errorText={errors.non_field_errors} />
         <SystemButton
           isLoading={isLoading}
-          onPress={onSubmit}
+          onPress={() => { setSsoError(null); onSubmit(); }}
           text={isLogin ? strings.login : strings.signup}
           isHeb={isHeb}
           isBlue
@@ -328,4 +330,5 @@ const AuthTextInput = ({
 export {
   AuthPage,
   AuthTextInput,
+  ssoCollisionMessage,
 };
