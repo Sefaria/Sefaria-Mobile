@@ -734,6 +734,7 @@ var Api = {
       return {
         success: false,
         code: 'network_error',
+        analyticsReason: 'network_error',
         error: { non_field_errors: `Network error during sign-in: ${error?.message}` },
       };
     }
@@ -749,7 +750,21 @@ var Api = {
       return {
         success: false,
         code: 'invalid_response',
+        analyticsReason: 'invalid_response',
         error: { non_field_errors: `Server returned a non-JSON response (HTTP ${response.status})` },
+      };
+    }
+
+    // response.json() guarantees valid JSON, not an object -- a body of literal
+    // `null`, a number, or a string all parse successfully. Reading data.error
+    // off those would throw past every catch here and out of socialLogin
+    // entirely, breaking its contract of always resolving to a result object.
+    if (data === null || typeof data !== 'object') {
+      return {
+        success: false,
+        code: 'invalid_response',
+        analyticsReason: 'invalid_response',
+        error: { non_field_errors: `Server returned an unexpected response body (HTTP ${response.status})` },
       };
     }
 
@@ -772,6 +787,7 @@ var Api = {
       return {
         success: false,
         code: 'storage_error',
+        analyticsReason: 'storage_error',
         error: { non_field_errors: `Could not store credentials: ${error?.message}` },
       };
     }

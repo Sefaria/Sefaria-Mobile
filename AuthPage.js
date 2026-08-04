@@ -40,14 +40,6 @@ const SSO_COLLISION_MESSAGE_KEYS = {
   "An account with this email address already exists.": 'ssoEmailExistsGeneric',
 };
 
-// Maps the failure codes socialLogin can return to the analytics `reason`
-// enum. Anything not listed is a genuine rejection by the server.
-const SSO_FAILURE_REASONS = {
-  network_error: 'network_error',
-  invalid_response: 'invalid_response',
-  storage_error: 'storage_error',
-};
-
 // Returns the localized collision message for an exact backend match, or null.
 // Django form errors may arrive as a bare string or an array of strings.
 const ssoCollisionMessage = (backendMessage) => {
@@ -245,7 +237,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       // failure to reach the server from a failure to store the credentials it
       // returned; reporting either as 'server_rejected' would blame the server
       // for a client-side problem.
-      fireProcessEnded({ status: 'failure', reason: SSO_FAILURE_REASONS[result.code] || 'server_rejected', error: result.code });
+      fireProcessEnded({ status: 'failure', reason: result.analyticsReason || 'server_rejected', error: result.code });
       if (__DEV__) {
         setSsoError(`SSO backend error [${result.code}]: ${JSON.stringify(result.error).slice(0, 200)}`);
       } else {
