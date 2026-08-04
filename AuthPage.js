@@ -160,7 +160,12 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   // submission, SSO success/failure) pass it explicitly so a method switch
   // that happens to race with their own async work can't misattribute them.
   const fireProcessStarted = (method = currentMethodRef.current) => {
-    trackEvent(`${family}_process_started`, { flow_id: flowIdRef.current, attempt_id: attemptIdsRef.current[method] });
+    const attemptId = attemptIdsRef.current[method];
+    // Guarded the same way fireProcessEnded is: an event carrying
+    // attempt_id: undefined would silently corrupt the funnel, which is worse
+    // than the missing bookend that dropping it leaves behind.
+    if (!attemptId) { return; }
+    trackEvent(`${family}_process_started`, { flow_id: flowIdRef.current, attempt_id: attemptId });
   };
 
   const fireProcessEnded = ({ status, error, reason }, method = currentMethodRef.current) => {
