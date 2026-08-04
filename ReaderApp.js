@@ -103,6 +103,10 @@ class ReaderApp extends React.PureComponent {
         textTitle: "",
         loaded: false,
         menuOpen: "navigation",
+        // Tracks the `via` passed to the most recent openMenu() call, purely so
+        // AuthPage can read the original `source` when it's mounted into the
+        // login/register slot below. Not meaningful for any other menu.
+        menuOpenSource: null,
         textFlow: "segmented",
         subMenuOpen: null, // currently only used to define subpages in search
         navigationCategories: [],
@@ -1089,8 +1093,9 @@ class ReaderApp extends React.PureComponent {
       }
       this.modifyHistory({ dir: "forward", state: this.state });
     }
-    this.setState({menuOpen: menu});
-    if (via && typeof via === 'string') {
+    const source = (via && typeof via === 'string') ? via : null;
+    this.setState({menuOpen: menu, menuOpenSource: source});
+    if (source) {
       trackEvent("OpenMenu", {menu, via});
     }
   };
@@ -2009,6 +2014,7 @@ class ReaderApp extends React.PureComponent {
             // (errors, ssoError, typed fields) across a login <-> register mode switch.
             key={this.state.menuOpen}
             authMode={this.state.menuOpen}
+            source={this.state.menuOpenSource}
             close={this.closeAuthPage}
             showToast={this.showToast}
             openLogin={this.openLogin}

@@ -742,7 +742,13 @@ var Api = {
       } catch (error) {
         tokenEmail = undefined;
       }
-      return { success: true, email: tokenEmail || userData?.email };
+      return {
+        success: true,
+        email: tokenEmail || userData?.email,
+        // The mobile SSO endpoints don't return this today; forward it only if
+        // a future backend response includes it rather than fabricating a value.
+        ...(data.is_new_account !== undefined ? { is_new_account: data.is_new_account } : {}),
+      };
     } catch (error) {
       return { success: false, code: 'network_error', error: { non_field_errors: 'Network error during sign-in' } };
     }

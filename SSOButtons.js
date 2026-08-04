@@ -27,12 +27,16 @@ const appleAndroidRedirectUrl = () => {
   return `${baseHost.replace(/\/$/, '')}/accounts/apple/login/`;
 };
 
-const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, isHeb }) => {
+const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded, isHeb }) => {
   const handleGoogleSignIn = async () => {
+    // Fired at the very top of the handler, before any async work, so it
+    // captures the tap itself rather than however long setup/network takes.
+    onMethodChosen('google');
     let GoogleSignin, statusCodes;
     try {
       ({ GoogleSignin, statusCodes } = require('@react-native-google-signin/google-signin'));
     } catch (e) {
+      onProcessEnded({ status: 'failure', reason: 'module_unavailable' });
       const rebuildCmd = Platform.OS === 'ios' ? 'npx react-native run-ios' : 'npx react-native run-android';
       onSSOError(new Error(`Google Sign-In native module not available. Rebuild the app with: ${rebuildCmd}`));
       return;
@@ -45,6 +49,9 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
         webClientId: Config.GOOGLE_SSO_CLIENT_ID,
       });
       await GoogleSignin.hasPlayServices();
+      // Pre-flight check succeeded -- this is the "clicked -> provider sheet
+      // shown" gap the spec wants measured, so process_started fires here.
+      onProcessStarted();
       if (authMode === 'register') {
         // The native SDK remembers the last authorized account and would sign
         // the user straight back in with it. On sign-up that's wrong: someone
@@ -67,11 +74,17 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
         // Play Services can return a response with no idToken (e.g. the sign-in
         // was dismissed, or no Android OAuth client is registered for this
         // package + signing certificate). Surface it instead of failing silently.
+        onProcessEnded({ status: 'failure', reason: 'provider_error', error: 'No identity token returned' });
         onSSOError(new Error('Google sign-in did not return an identity token.'));
       }
     } catch (error) {
       if (error.code !== statusCodes.SIGN_IN_CANCELLED) {
+        onProcessEnded({ status: 'failure', reason: 'provider_error', error: error?.code || error?.message });
         onSSOError(error);
+      } else {
+        // Cancel is intentionally swallowed from the user-facing error banner
+        // (unchanged behavior) but still needs to be tracked as a failure.
+        onProcessEnded({ status: 'failure', reason: 'cancelled' });
       }
     } finally {
       setIsLoading(false);
@@ -94,20 +107,28 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
   );
 };
 
-const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, isHeb }) => {
+const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded, isHeb }) => {
   const handleAppleSignIn = async () => {
+    // Fired at the very top of the handler, before any async work or the
+    // iOS/Android branch, so it captures the tap itself.
+    onMethodChosen('apple');
     if (Platform.OS === 'ios') {
       let appleAuth;
       try {
         appleAuth = require('@invertase/react-native-apple-authentication').default;
       } catch (e) {
+        onProcessEnded({ status: 'failure', reason: 'module_unavailable' });
         onSSOError(new Error('Apple Sign-In native module not available. Rebuild the app with: npx react-native run-ios'));
         return;
       }
       if (!appleAuth.isSupported) {
+        onProcessEnded({ status: 'failure', reason: 'unsupported_device' });
         onSSOError(new Error('Apple Sign-In is not supported on this device (requires a real iOS device, not a simulator)'));
         return;
       }
+      // Pre-flight check (isSupported) succeeded -- this is the
+      // "clicked -> provider sheet shown" gap the spec wants measured.
+      onProcessStarted();
       try {
         setLoadingProvider('apple');
         setIsLoading(true);
@@ -122,16 +143,33 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
             firstName: fullName?.givenName,
             lastName: fullName?.familyName,
           });
+        } else {
+          onProcessEnded({ status: 'failure', reason: 'provider_error', error: 'No identity token returned' });
         }
       } catch (error) {
         if (error.code !== appleAuth.Error.CANCELED) {
+          onProcessEnded({ status: 'failure', reason: 'provider_error', error: error?.code || error?.message });
           onSSOError(error);
+        } else {
+          // Cancel is intentionally swallowed from the user-facing error banner
+          // (unchanged behavior) but still needs to be tracked as a failure.
+          onProcessEnded({ status: 'failure', reason: 'cancelled' });
         }
       } finally {
         setIsLoading(false);
         setLoadingProvider(null);
       }
     } else {
+      // Apple has no native Android SDK: this is a Linking.openURL redirect out
+      // of the app (see appleAndroidRedirectUrl above). Once the user leaves,
+      // there is no signal back into the app tied to the actual sign-in
+      // outcome, so we deliberately fire method_chosen + process_started only
+      // and nothing further here. Analytics infers abandonment from a
+      // flow_started with no matching flow_ended. An AppState-based heuristic
+      // was considered and rejected: backgrounding for Apple sign-in looks
+      // identical to backgrounding for any other reason, so it can't
+      // distinguish success/failure/abandonment reliably.
+      onProcessStarted();
       try {
         await Linking.openURL(appleAndroidRedirectUrl());
       } catch (error) {
@@ -155,7 +193,7 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
   );
 };
 
-const SSOButtons = ({ authMode, onSSOSuccess, onSSOError }) => {
+const SSOButtons = ({ authMode, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState(null);
   const { interfaceLanguage } = useContext(GlobalStateContext);
@@ -172,6 +210,9 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError }) => {
         setLoadingProvider={setLoadingProvider}
         onSSOSuccess={onSSOSuccess}
         onSSOError={onSSOError}
+        onMethodChosen={onMethodChosen}
+        onProcessStarted={onProcessStarted}
+        onProcessEnded={onProcessEnded}
         isHeb={isHeb}
       />
       {showApple ? (
@@ -182,6 +223,9 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError }) => {
           setLoadingProvider={setLoadingProvider}
           onSSOSuccess={onSSOSuccess}
           onSSOError={onSSOError}
+          onMethodChosen={onMethodChosen}
+          onProcessStarted={onProcessStarted}
+          onProcessEnded={onProcessEnded}
           isHeb={isHeb}
         />
       ) : null}
