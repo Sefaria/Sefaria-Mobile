@@ -582,7 +582,7 @@ const TextPassage = ({text, topicTitle, showToast, openRef }) => {
     <StoryFrame extraStyles={styles.topicItemMargins}>
       <View style={{marginBottom: 10}}>
         <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixTextKey={'topics.this_source_is_connected_to'} imageStyles={[{marginTop: -12}]}>
-          <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
+          <SaveLine dref={text.ref} heDref={text.heRef} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
             <StoryTitleBlock en={text.ref} he={Sefaria.normHebrewRef(text.heRef)} onClick={() => openRef(text.ref)} />
           </SaveLine>
         </DataSourceLine>
