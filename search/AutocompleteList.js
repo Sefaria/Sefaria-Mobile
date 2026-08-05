@@ -130,7 +130,7 @@ class AutocompleteList extends React.Component {
       recentType = item.type;
       ActionSheet.showActionSheetWithOptions(
         {
-          options: [`View '${item.title}' on Sefaria site`,strings.cancel],
+          options: [`View '${item.title}' on Sefaria site`,strings.common.cancel],
           cancelButtonIndex: 1,
         },
         (buttonIndex) => {
@@ -184,7 +184,7 @@ class AutocompleteList extends React.Component {
         recentType = d.type.toLowerCase;
         ActionSheet.showActionSheetWithOptions(
           {
-            options: [`View '${d.key}' on Sefaria site`,strings.cancel],
+            options: [`View '${d.key}' on Sefaria site`,strings.common.cancel],
             cancelButtonIndex: 1,
           },
           (buttonIndex) => {
@@ -273,7 +273,7 @@ class AutocompleteList extends React.Component {
           { (item.type === 'toc' || item.type === 'toccategory') ? item.title.toUpperCase() : item.title }
         </SText>
         {item.loading ? (<Text style={[{paddingHorizontal: 10}, this.props.theme.secondaryText, !isHeb ? styles.enInt : styles.heInt]}>
-          { strings.loading }
+          { strings.common.loading }
         </Text>) : null}
       </TouchableOpacity>
     )
@@ -302,7 +302,7 @@ class AutocompleteList extends React.Component {
                 :
                 <View style={styles.flex1}>
                   <View style={[{paddingVertical: 15, borderBottomWidth: 1}, this.props.theme.lighterGreyBorder]}>
-                    <InterfaceText stringKey={"recentSearches"} extraStyles={[this.props.theme.tertiaryText, styles.fontBold, styles.fontSize16]} />
+                    <InterfaceText stringKey={"search.recent_searches"} extraStyles={[this.props.theme.tertiaryText, styles.fontBold, styles.fontSize16]} />
                   </View>
                   <FlatList
                     keyExtractor={this._keyExtractor}
@@ -326,7 +326,7 @@ class AutocompleteList extends React.Component {
                 :
                 <View style={styles.flex1}>
                   <View style={[{paddingVertical: 15, paddingHorizontal: 15, borderBottomWidth: 1}, this.props.theme.lighterGreyBorder]}>
-                    <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.theme.secondaryText]}>{strings.recentSearches}</Text>
+                    <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.theme.secondaryText]}>{strings.search.recent_searches}</Text>
                   </View>
                   <FlatList
                     keyExtractor={this._keyExtractor}

@@ -58,8 +58,8 @@ const BasicLearningScheduleBox = ({ openRef, desiredCalendarTitles, titleKey }) 
     );
 };
 
-const WeeklyTorahPortion = ({ openRef }) => <BasicLearningScheduleBox openRef={openRef} desiredCalendarTitles={['Parashat Hashavua', 'Haftarah']} titleKey={"weeklyTorahPortion"} />;
-const DafYomi = ({ openRef }) => <BasicLearningScheduleBox openRef={openRef} desiredCalendarTitles={['Daf Yomi']} titleKey={"dafYomi"} />;
+const WeeklyTorahPortion = ({ openRef }) => <BasicLearningScheduleBox openRef={openRef} desiredCalendarTitles={['Parashat Hashavua', 'Haftarah']} titleKey={"learning_schedules.weekly_torah_portion"} />;
+const DafYomi = ({ openRef }) => <BasicLearningScheduleBox openRef={openRef} desiredCalendarTitles={['Daf Yomi']} titleKey={"learning_schedules.daf_yomi"} />;
 
 const getLearningSchedulesBoxComponent = categories => {
     const path = categories.join("|");

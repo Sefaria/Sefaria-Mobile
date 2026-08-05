@@ -21,9 +21,9 @@ import styles, { SCROLL_PADDING_BOTTOM_FRACTION, makeScrollViewLayoutHandler } f
 import { useHTMLViewStyles } from './useHTMLViewStyles';
 
 
-const DEFAULT_LINK_CONTENT = {en: strings.loading, he: "", sectionRef: ""};
-const NO_CONTENT_LINK_CONTENT = {en: strings.noContent, he: "", sectionRef: ""}
-const ERROR_LINK_CONTENT = {en: strings.failedToLoadText, he: "", sectionRef: ""}
+const DEFAULT_LINK_CONTENT = {en: strings.common.loading, he: "", sectionRef: ""};
+const NO_CONTENT_LINK_CONTENT = {en: strings.errors.no_content, he: "", sectionRef: ""}
+const ERROR_LINK_CONTENT = {en: strings.errors.failed_to_load_text, he: "", sectionRef: ""}
 
 class TextList extends React.Component {
   static whyDidYouRender = true;
@@ -200,7 +200,7 @@ const EmptyListMessage = () => (
       <Text
         style={[styles.emptyLinksMessage, getTheme(themeStr).secondaryText]}
       >
-        {strings.noConnectionsMessage}
+        {strings.connections.no_connections_message}
       </Text>
     )}
   </GlobalStateContext.Consumer>

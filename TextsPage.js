@@ -40,9 +40,9 @@ const TextsPageLearningSchedulesBox = ({ openRef, openLearningSchedules }) => {
         <View style={{marginBottom: 20}}>
             <LearningSchedulesBox openRef={openRef} desiredCalendarTitles={['Parashat Hashavua', 'Haftarah', 'Daf Yomi']}>
                 <FlexFrame dir={"row"} justifyContent={"space-between"}>
-                    <InterfaceText stringKey={"learningSchedules"} extraStyles={[styles.fontSize16, styles.fontBold, theme.tertiaryText]}/>
+                    <InterfaceText stringKey={"learning_schedules.learning_schedules"} extraStyles={[styles.fontSize16, styles.fontBold, theme.tertiaryText]}/>
                     <SefariaPressable onPress={openLearningSchedules}>
-                        <InterfaceText stringKey={"seeAll"} extraStyles={[styles.fontSize16, theme.secondaryText]}/>
+                        <InterfaceText stringKey={"common.see_all"} extraStyles={[styles.fontSize16, theme.secondaryText]}/>
                     </SefariaPressable>
                 </FlexFrame>
             </LearningSchedulesBox>
@@ -69,7 +69,7 @@ const TopLevelCategory = ({item: tocItem, setCategories}) => {
 const TextsPageHeader = () => {
     return (
         <FlexFrame dir={"row"} justifyContent={"space-between"} alignItems={"center"}>
-            <PageHeader><Header titleKey={"browseTheLibrary"}/></PageHeader>
+            <PageHeader><Header titleKey={"nav.browse_the_library"}/></PageHeader>
             <LanguageToggleButton />
         </FlexFrame>
     );

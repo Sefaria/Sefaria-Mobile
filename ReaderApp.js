@@ -236,19 +236,19 @@ class ReaderApp extends React.PureComponent {
         };
         const onCancel = () => {
           Alert.alert(
-            strings.usingOnlineLibrary,
-            strings.howToDownloadLibraryMessage,
+            strings.download.using_online_library,
+            strings.download.how_to_download_library_message,
             [
-              {text: strings.ok}
+              {text: strings.common.ok}
             ]);
         };
         const showWelcomeAlert = () => {
           Alert.alert(
-            strings.welcome,
-            strings.downloadLibraryRecommendedMessage,
+            strings.common.welcome,
+            strings.download.download_library_recommended_message,
             [
-              {text: strings.openSettings, onPress: onDownload},
-              {text: strings.notNow, onPress: onCancel}
+              {text: strings.download.open_settings, onPress: onDownload},
+              {text: strings.common.not_now, onPress: onCancel}
             ]
           );
         };
@@ -1000,11 +1000,11 @@ class ReaderApp extends React.PureComponent {
 
   textUnavailableAlert = ref => {
     Alert.alert(
-      strings.textUnavailable,
-      strings.promptOpenOnWebMessage,
+      strings.errors.text_unavailable,
+      strings.errors.prompt_open_on_web_message,
       [
-        {text: strings.cancel, style: 'cancel'},
-        {text: strings.open, onPress: () => {
+        {text: strings.common.cancel, style: 'cancel'},
+        {text: strings.common.open, onPress: () => {
           this.openUri(Sefaria.refToFullUrl(ref));
         }}
       ]
@@ -1151,7 +1151,7 @@ class ReaderApp extends React.PureComponent {
         "Failed to open URL",
         `Failed to open ${uri}. If your browser is updating, wait for it to finish and try again. Otherwise, your phone might not have a browser installed. For help, email hello@sefaria.org.`,
         [
-          {text: strings.ok}
+          {text: strings.common.ok}
         ]
       );
     });
@@ -1965,7 +1965,7 @@ class ReaderApp extends React.PureComponent {
             textLanguage={this.props.textLanguage}
             interfaceLanguage={this.props.interfaceLanguage}
             onRemove={null}
-            title={strings.history}
+            title={strings.history.history}
             menuOpen={this.state.menuOpen}
             icon={iconData.get('clock', this.props.themeStr)}
             loadData={this.syncProfileBound}
@@ -1988,7 +1988,7 @@ class ReaderApp extends React.PureComponent {
             textLanguage={this.props.textLanguage}
             interfaceLanguage={this.props.interfaceLanguage}
             onRemove={this.removeSavedItem}
-            title={strings.saved}
+            title={strings.history.saved}
             menuOpen={this.state.menuOpen}
             icon={iconData.get('bookmark-unfilled', this.props.themeStr)}
             loadData={async () => Sefaria.history.syncProfileGetSaved(this.props.dispatch, await this.getSettingsObject())}

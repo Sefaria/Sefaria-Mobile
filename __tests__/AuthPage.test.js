@@ -29,8 +29,8 @@ describe('login', () => {
     const inst = renderer.create(<AuthPageWrapper authMode={'login'} />);
     const inputs = inst.root.findAllByType(AuthTextInput);
     const fields = {
-      [strings.email]: 'bob@bobandco.co',
-      [strings.password]: 'bobI$daB3st',
+      [strings.account.email]: 'bob@bobandco.co',
+      [strings.account.password]: 'bobI$daB3st',
     };
     for (let i of inputs) {
       act(() => {
@@ -44,8 +44,8 @@ describe('login', () => {
     expect(Sefaria.api.authenticate.mock.calls[0][0]).toEqual({
       first_name: null,
       last_name: null,
-      email: fields[strings.email],
-      password: fields[strings.password],
+      email: fields[strings.account.email],
+      password: fields[strings.account.password],
       mobile_app_key: '',
     });
     expect(Sefaria.api.authenticate.mock.calls[0][1]).toBe('login');

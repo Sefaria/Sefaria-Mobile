@@ -98,7 +98,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     // try to sync immediately after login
     syncProfile();
     close(authMode);
-    showToast(strings.loginSuccessful);
+    showToast(strings.account.login_successful);
   });
   const theme = getTheme(themeStr);
   const isLogin = authMode === 'login';
@@ -111,20 +111,20 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
         <CircleCloseButton onPress={close} />
       </View>
-      <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.login : strings.signup}</Text>
+      <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.account.login : strings.account.signup}</Text>
       <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
         <View style={styles.logInMotivator}>
           {
             [
-              {iconName: 'bookmark-unfilled', text: strings.saveTexts},
-              {iconName: 'sync', text: strings.syncYourReading},
-              {iconName: 'mail', text: strings.getUpdates},
+              {iconName: 'bookmark-unfilled', text: strings.account.save_texts},
+              {iconName: 'sync', text: strings.account.sync_your_reading},
+              {iconName: 'mail', text: strings.account.get_updates},
             ].map(x => (<LogInMotivator key={x.iconName} { ...x } />))
           }
         </View>
         { isLogin ? null :
           <AuthTextInput
-            placeholder={strings.first_name}
+            placeholder={strings.account.first_name}
             placeholderTextColor={placeholderTextColor}
             error={errors.first_name}
             errorText={errors.first_name}
@@ -133,7 +133,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
         }
         { isLogin ? null :
           <AuthTextInput
-            placeholder={strings.last_name}
+            placeholder={strings.account.last_name}
             placeholderTextColor={placeholderTextColor}
             error={errors.last_name}
             errorText={errors.last_name}
@@ -141,7 +141,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           />
         }
         <AuthTextInput
-          placeholder={strings.email}
+          placeholder={strings.account.email}
           autoCapitalize={'none'}
           placeholderTextColor={placeholderTextColor}
           error={errors.username || errors.email}
@@ -149,7 +149,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           onChangeText={setEmail}
         />
         <AuthTextInput
-          placeholder={strings.password}
+          placeholder={strings.account.password}
           placeholderTextColor={placeholderTextColor}
           isPW={true}
           error={errors.password || errors.password1}
@@ -160,7 +160,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
         <SystemButton
           isLoading={isLoading}
           onPress={onSubmit}
-          text={isLogin ? strings.login : strings.signup}
+          text={isLogin ? strings.account.login : strings.account.signup}
           isHeb={isHeb}
           isBlue
         />
@@ -168,29 +168,29 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           isLogin ?
             <View style={{ alignItems: 'center', marginTop: 15 }}>
               <View style={{flexDirection: isHeb ? 'row-reverse' : 'row', alignItems: 'center'}}>
-                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.dontHaveAnAccount}</Text>
+                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.account.dont_have_an_account}</Text>
                 <TouchableOpacity onPress={openRegister}>
-                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.createAnAccount}`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.account.create_an_account}`}</Text>
                 </TouchableOpacity>
               </View>
 
               <TouchableOpacity onPress={() => { openUri('https://www.sefaria.org/password/reset')}}>
-                <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{strings.forgotPassword}</Text>
+                <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{strings.account.forgot_password}</Text>
               </TouchableOpacity>
             </View>
           :
             <View style={{alignItems: 'center', marginTop: 15}}>
               <View style={{flexDirection: isHeb ? 'row-reverse' : 'row', alignItems: 'center'}}>
-                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.alreadyHaveAnAccount}</Text>
+                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.account.already_have_an_account}</Text>
                 <TouchableOpacity onPress={openLogin}>
-                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.login}.`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.account.login}.`}</Text>
                 </TouchableOpacity>
               </View>
 
               <View style={{alignItems: 'center'}}>
-                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.byClickingSignUp}</Text>
+                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.account.by_clicking_sign_up}</Text>
                 <TouchableOpacity onPress={() => { openUri('https://www.sefaria.org/terms')}}>
-                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.termsOfUseAndPrivacyPolicy}.`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.account.terms_of_use_and_privacy_policy}.`}</Text>
                 </TouchableOpacity>
               </View>
             </View>

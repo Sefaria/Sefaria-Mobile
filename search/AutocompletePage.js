@@ -84,7 +84,7 @@ class AutocompletePage extends React.Component {
   render() {
     return (
       <View style={[styles.menu, {paddingHorizontal: 15}, this.props.theme.mainTextPanel]}>
-        <PageHeader><Header titleKey={"search"}/></PageHeader>
+        <PageHeader><Header titleKey={"common.search"}/></PageHeader>
         <SearchBar
           autoFocus
           onBack={this.props.onBack}

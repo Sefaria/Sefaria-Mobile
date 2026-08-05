@@ -91,8 +91,8 @@ const HistorySavedPageHeader = ({mode, changeMode, openMenu}) => {
             <View style={[styles.navRePage, styles.navReHistoryItem, theme.lighterGreyBorder]}>
                 <PageHeader>
                     <FlexFrame justifyContent={'flex-start'}>
-                        <StatefulHeader titleKey={'saved'} icon={'bookmark2'} active={mode === 'saved'} callbackFunc={changeToSaved}/>
-                        <StatefulHeader titleKey={'history'} icon={'clock'} active={mode === 'history'} callbackFunc={changeToHistory}/>
+                        <StatefulHeader titleKey={'history.saved'} icon={'bookmark2'} active={mode === 'saved'} callbackFunc={changeToSaved}/>
+                        <StatefulHeader titleKey={'history.history'} icon={'clock'} active={mode === 'history'} callbackFunc={changeToHistory}/>
                     </FlexFrame>
                 </PageHeader>
             </View>
@@ -270,7 +270,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
         const isHeb = interfaceLanguage === 'hebrew';
         return(
             <View style={{ paddingVertical: 20 }}>
-                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt, styles.textCenter]}>{strings.noHistory}</Text>
+                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt, styles.textCenter]}>{strings.history.no_history}</Text>
             </View>
         );
     };
@@ -369,8 +369,8 @@ const SyncPrompt = ({ openLogin }) => {
       onPress={openLogin}
     >
       <Text style={[ styles.systemButtonText, styles.systemButtonTextBlue, styles.enInt]}>
-        { `${strings.wantToSync} ` }
-        <Text style={styles.underline}>{ strings.login }</Text>
+        { `${strings.history.want_to_sync} ` }
+        <Text style={styles.underline}>{ strings.account.login }</Text>
       </Text>
 
       <TouchableOpacity onPress={() => {
@@ -395,9 +395,9 @@ const ReadingHistoryPrompt = ({ openSettings }) => {
   return (
     <View>
       <Text style={[langStyle, styles.navReUpToEdge, styles.readingHistoryPrompt, theme.secondaryText]}>
-        {strings.readingHistoryIsCurrentlyDisabled + ' '}
+        {strings.history.reading_history_is_currently_disabled + ' '}
         <Text style={[langStyle, theme.text]} onPress={openSettings}>
-          {strings.settings.toLowerCase()}
+          {strings.common.settings.toLowerCase()}
         </Text>
         {'.'}
       </Text>

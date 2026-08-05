@@ -82,7 +82,7 @@ const ReaderTextTableOfContents = ({
       <CategoryColorLine category={Sefaria.primaryCategoryForTitle(title)} />
       <View style={[styles.header, theme.header]}>
         <CloseButton onPress={close} />
-        <Text style={[langStyle, styles.textTocHeaderTitle, styles.textCenter, theme.text]}>{strings.tableOfContents}</Text>
+        <Text style={[langStyle, styles.textTocHeaderTitle, styles.textCenter, theme.text]}>{strings.reader.table_of_contents}</Text>
         <View style={{marginRight: 10}}>
           <LanguageToggleButton />
         </View>
