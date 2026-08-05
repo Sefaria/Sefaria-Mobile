@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
 import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 import jwt_decode from 'jwt-decode';
+import { devLog } from './devUtils';
 
 // Auth tokens (JWT access/refresh) are security-sensitive and are stored in
 // OS-backed secure storage (iOS Keychain / Android Keystore) via
@@ -739,19 +740,40 @@ var Api = {
       };
     }
 
+    // A redirect silently turns this POST into a GET (standard 301/302
+    // behaviour), which then hits a POST-only view and comes back 405 with a
+    // body that isn't JSON -- a failure that looks nothing like its cause. The
+    // usual trigger is a base host that isn't the canonical one, e.g. a
+    // missing `www.` from the host override in Settings. Name it explicitly
+    // rather than letting it surface as a mystery 405.
+    if (response.url && response.url !== url) {
+      devLog(`socialLogin followed a redirect: ${url} -> ${response.url} (HTTP ${response.status})`);
+      return {
+        success: false,
+        code: 'redirected',
+        analyticsReason: 'invalid_response',
+        error: { non_field_errors: `Request was redirected (${url} -> ${response.url}). A redirect downgrades POST to GET, so it cannot reach the sign-in endpoint. Check the base host in Settings.` },
+      };
+    }
+
+    // Read as text first, then parse. response.json() throws away the body on
+    // failure, which leaves a non-JSON response (an HTML 404/405/500 page from
+    // a proxy, say) reported only as a status code -- true but not actionable.
+    // Keeping the first line of the body is what turns "it returned 405" into
+    // "it returned 405 from nginx, so the request never reached Django".
+    const rawBody = await response.text();
     let data;
     try {
-      data = await response.json();
+      data = JSON.parse(rawBody);
     } catch (error) {
-      // A non-JSON body means the server failed before it could produce its
-      // usual JSON error shape (e.g. an HTML 500 page). That is a server
-      // problem, not a network one, and the status code is the useful part.
+      const snippet = rawBody.replace(/\s+/g, ' ').trim().slice(0, 120);
+      devLog(`socialLogin non-JSON response: ${response.status} from ${url} :: ${snippet}`);
       recordError(getCrashlytics(), error);
       return {
         success: false,
         code: 'invalid_response',
         analyticsReason: 'invalid_response',
-        error: { non_field_errors: `Server returned a non-JSON response (HTTP ${response.status})` },
+        error: { non_field_errors: `Server returned a non-JSON response (HTTP ${response.status} from ${url}): ${snippet}` },
       };
     }
 
