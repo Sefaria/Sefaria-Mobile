@@ -106,6 +106,14 @@ class DeepLinkRouter extends React.PureComponent {
       this.catchAll({ url });
       return;
     }
+    if ('set-language-cookie' in query) {
+      // The site switches interface language by redirecting across domains
+      // (sefaria.org <-> sefaria.org.il) with this param. Android app links grab that
+      // redirect, which strands the user in the app instead of on the site they asked for.
+      // Hand it back to the browser so the language switch completes there.
+      this.catchAll({ url });
+      return;
+    }
     pathname = pathname.replace(/[\/\?]$/, '');  // remove trailing ? or /
     pathname = pathname.replace(/^[\/]/, '');  // remove initial /
     pathname = decodeURIComponent(pathname);
