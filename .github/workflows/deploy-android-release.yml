@@ -87,6 +87,15 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      # react-native-config bakes .env into the build at compile time, and .env
+      # is gitignored, so CI has none unless it writes one. Without this the app
+      # ships with GOOGLE_SSO_CLIENT_ID undefined, which makes Google Sign-In
+      # fail on every CI-produced build.
+      # BASE_HOST is deliberately omitted: it is a local development override,
+      # and its absence correctly falls back to production in api.js.
+      - name: Write .env for react-native-config
+        run: echo "GOOGLE_SSO_CLIENT_ID=${{ secrets.GOOGLE_SSO_CLIENT_ID }}" > .env
+
       - name: Decode Android keystore
         # Decode to both android/ and android/app/ — Gradle resolves the path
         # relative to the :app subproject directory, but this varies by Gradle version.
