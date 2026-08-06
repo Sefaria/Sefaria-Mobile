@@ -51,6 +51,23 @@ const ssoCollisionMessage = (backendMessage) => {
   return null;
 };
 
+// Release builds used to show the bare generic message, which made every SSO
+// failure look identical: a QA build pointed at a host without the SSO routes
+// and a genuine server rejection were indistinguishable from a screenshot, and
+// each one cost a round trip to a developer with __DEV__ on. Appending the code
+// keeps the message human while making the failure identifiable.
+//
+// The code is not a closed set -- api.js returns its own values
+// (network_error, redirected, invalid_response, missing_tokens, storage_error)
+// but falls back to the backend's `data.error` on a non-ok response, which is
+// server-controlled. Clamp it to an identifier shape and length rather than
+// rendering whatever arrives; none of the real values leak anything, but the
+// UI should not be a passthrough for arbitrary server text.
+const ssoErrorWithCode = (code) => {
+  const safe = String(code ?? '').replace(/[^a-zA-Z0-9._-]/g, '').slice(0, 40);
+  return safe ? `${strings.ssoErrorGeneric} (${safe})` : strings.ssoErrorGeneric;
+};
+
 const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoading, onEmailSubmitResult) => {
   setIsLoading(true);
   const mobileAppKey = await getMobileAppKey();
@@ -272,7 +289,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       if (__DEV__) {
         setSsoError(`SSO backend error [${result.code}]: ${JSON.stringify(result.error).slice(0, 200)}`);
       } else {
-        setSsoError(strings.ssoErrorGeneric);
+        setSsoError(ssoErrorWithCode(result.code));
       }
     }
   };
@@ -282,7 +299,10 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     if (__DEV__) {
       setSsoError(`SSO [${error?.code}] ${error?.message}`);
     } else {
-      setSsoError(strings.ssoErrorGeneric);
+      // The SDK's error message can be long and device-specific, so only the
+      // code is surfaced here -- enough to tell DEVELOPER_ERROR from a network
+      // failure without putting a stack-shaped string in front of a user.
+      setSsoError(ssoErrorWithCode(error?.code));
     }
   };
 
@@ -462,4 +482,5 @@ export {
   AuthPage,
   AuthTextInput,
   ssoCollisionMessage,
+  ssoErrorWithCode,
 };
