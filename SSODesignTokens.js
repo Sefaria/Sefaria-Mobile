@@ -26,7 +26,9 @@ export const SSODimensions = {
   buttonBorderWidth: 1.5, // --sds-size-stroke-border
   buttonRadius: 4,        // --space-1
   iconSize: 24,
-  buttonContainerWidth: 337, // SSO buttons container width, Figma node 239-16934
+  // No fixed container width: the SSO block stretches to its parent's gutter,
+  // matching the email inputs. A Figma frame width copied verbatim (337) only
+  // fits screens >= 411dp and clipped on ordinary phones.
 };
 
 export const SSOTypography = {

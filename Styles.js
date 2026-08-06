@@ -819,7 +819,11 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginBottom: 0,
     marginTop: SSOSpacing.titleGap,
-    width: SSODimensions.buttonContainerWidth,
+    // Stretch to the parent's gutter rather than a fixed width. The Figma frame
+    // is 337pt wide, but that only fits screens >= 411dp; on a 360dp phone it
+    // overhangs the right edge by ~51dp. The email inputs below use the same
+    // implicit stretch, which is why they line up correctly everywhere.
+    alignSelf: 'stretch',
     gap: SSOSpacing.buttonGap,
   },
   ssoButton: {
@@ -876,7 +880,7 @@ export default StyleSheet.create({
     // swap these literals for those constants.
     flexDirection: 'row',
     alignItems: 'center',
-    width: SSODimensions.buttonContainerWidth,
+    alignSelf: 'stretch',
     borderWidth: 1,
     borderColor: '#D91E18',
     borderRadius: SSODimensions.buttonRadius,
