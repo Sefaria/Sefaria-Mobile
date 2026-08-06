@@ -64,8 +64,15 @@ post_install do |installer|
     :mac_catalyst_enabled => false,
     # :ccache_enabled => true
   )
-  installer.pods_project.build_configurations.each do |curr_config|
-    curr_config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+  # Excluding arm64 for the simulator is a 2021 Intel-Mac workaround. On Apple
+  # Silicon it forces the simulator build to x86_64, so the app runs under
+  # Rosetta: ASWebAuthenticationSession renders blank (breaking Google sign-in),
+  # and arm64-only runtimes (iOS 26+) cannot be targeted at all. Keep the
+  # exclusion only where it was actually needed.
+  unless RUBY_PLATFORM.include?('arm64') || RUBY_PLATFORM.include?('aarch64')
+    installer.pods_project.build_configurations.each do |curr_config|
+      curr_config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+    end
   end
 end
 

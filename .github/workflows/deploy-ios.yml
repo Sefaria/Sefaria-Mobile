@@ -33,8 +33,16 @@ jobs:
       # fail on every CI-produced build.
       # BASE_HOST is deliberately omitted: it is a local development override,
       # and its absence correctly falls back to production in api.js.
+      # GOOGLE_SSO_IOS_CLIENT_ID is the iOS-type OAuth client. It is what the
+      # native SDK uses to open the consent screen, and Google rejects the
+      # custom-scheme redirect for any other client type -- so an iOS build
+      # without it cannot start the sign-in flow at all.
       - name: Write .env for react-native-config
-        run: echo "GOOGLE_SSO_CLIENT_ID=${{ secrets.GOOGLE_SSO_CLIENT_ID }}" > .env
+        run: |
+          {
+            echo "GOOGLE_SSO_CLIENT_ID=${{ secrets.GOOGLE_SSO_CLIENT_ID }}"
+            echo "GOOGLE_SSO_IOS_CLIENT_ID=${{ secrets.GOOGLE_SSO_IOS_CLIENT_ID }}"
+          } > .env
 
       - name: Install CocoaPods
         working-directory: ios
