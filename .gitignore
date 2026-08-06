@@ -101,3 +101,5 @@ web-build/
 # Local agent/tooling scratch state (session logs, per-machine config)
 .claude/
 .instance/
+.cursor/
+.eslintcache
