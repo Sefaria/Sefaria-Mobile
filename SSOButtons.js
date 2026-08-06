@@ -63,6 +63,16 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
         } catch (e) {}
       }
       const response = await GoogleSignin.signIn();
+      // Since v13 a cancellation RESOLVES as { type: 'cancelled', data: null }
+      // rather than rejecting with SIGN_IN_CANCELLED, so it never reaches the
+      // catch below. It has to be recognised here or `data?.idToken` is
+      // undefined and a dismissed picker -- the normal outcome on a device with
+      // no Google account, e.g. every BrowserStack device -- reaches the user as
+      // a provider error and lands in the funnel as one.
+      if (response?.type === 'cancelled') {
+        onProcessEnded({ status: 'failure', reason: 'cancelled' });
+        return;
+      }
       const idToken = response.data?.idToken;
       if (idToken) {
         await onSSOSuccess('google', idToken, {
@@ -71,9 +81,10 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
           lastName: response.data?.user?.familyName,
         });
       } else {
-        // Play Services can return a response with no idToken (e.g. the sign-in
-        // was dismissed, or no Android OAuth client is registered for this
-        // package + signing certificate). Surface it instead of failing silently.
+        // Reached when the SDK signs in but returns no token, which on Android
+        // means webClientId was empty at configure() time: Utils.java only calls
+        // requestIdToken(webClientId) when it is non-empty, so the flow succeeds
+        // and getIdToken() is null. Surface it instead of failing silently.
         onProcessEnded({ status: 'failure', reason: 'provider_error', error: 'No identity token returned' });
         onSSOError(new Error('Google sign-in did not return an identity token.'));
       }
