@@ -175,11 +175,8 @@ const ASYNC_STORAGE_DEFAULTS = {
   },
 };
 
-// The signed-in session is intentionally NOT part of ASYNC_STORAGE_DEFAULTS:
-// nothing writes an 'auth' key to AsyncStorage anymore (auth tokens live in
-// the Keychain, see api.js). isLoggedIn is instead hydrated at init time from
-// the Keychain via initAsyncStorage() below, using this same action/default
-// shape so it still fits the reducer/DEFAULT_STATE conventions.
+// Not part of ASYNC_STORAGE_DEFAULTS: auth lives in the Keychain (api.js),
+// hydrated at init via initAsyncStorage() below.
 const AUTH_DEFAULT = {
   default: false,
   action: ACTION_CREATORS.setIsLoggedIn,

@@ -34,6 +34,7 @@ import styles from './Styles';
 import strings from './LocalizedStrings';
 import Sefaria from './sefaria';
 import { LinkFilter } from './Filter';
+import { AUTH_MODE } from './AuthConstants';
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
 import {TextsPage} from "./TextsPage";
 import {LearningSchedulesPage} from "./learningSchedules/LearningSchedules";
@@ -1218,11 +1219,11 @@ class ReaderApp extends React.PureComponent {
   };
 
   openLogin = (via) => {
-    this.openMenu("login", via);
+    this.openMenu(AUTH_MODE.LOGIN, via);
   };
 
   openRegister = (via) => {
-    this.openMenu("register", via);
+    this.openMenu(AUTH_MODE.REGISTER, via);
   };
 
   openAutocomplete = () => {
@@ -2005,8 +2006,8 @@ class ReaderApp extends React.PureComponent {
           />
         );*/
         break;
-      case("login"):
-      case("register"):
+      case(AUTH_MODE.LOGIN):
+      case(AUTH_MODE.REGISTER):
         return(
           <AuthPage
             // Login and register share this switch-case slot with no key, so without one

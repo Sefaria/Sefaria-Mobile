@@ -4,7 +4,6 @@ import {
   Alert
 } from 'react-native';
 import 'abortcontroller-polyfill';
-import Config from 'react-native-config';
 
 import strings from './LocalizedStrings';
 import LinkContent from './LinkContent';
@@ -13,22 +12,39 @@ import * as Keychain from 'react-native-keychain';
 import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 import jwt_decode from 'jwt-decode';
 import { devLog } from './devUtils';
+import { SSO_PROVIDER, AUTH_MODE, ANALYTICS_REASON, SSO_ERROR_CODE } from './AuthConstants';
 
-// Auth tokens (JWT access/refresh) are security-sensitive and are stored in
-// OS-backed secure storage (iOS Keychain / Android Keystore) via
-// react-native-keychain, rather than in plaintext AsyncStorage like the rest
-// of the app's local data.
+// Tokens live in OS-backed secure storage (Keychain/Keystore), not plaintext
+// AsyncStorage. Changing AUTH_KEYCHAIN_SERVICE orphans every stored credential
+// with no migration path.
 const AUTH_KEYCHAIN_SERVICE = 'org.sefaria.auth';
 const AUTH_KEYCHAIN_USERNAME = 'sefaria_auth';
-// Legacy AsyncStorage key auth tokens used to live under, before the move to
-// the keychain. Kept only to support the one-time migration below.
+// Legacy AsyncStorage key auth tokens lived under before the move to the keychain.
 const LEGACY_AUTH_ASYNC_STORAGE_KEY = 'auth';
+
+// Maps each SSO provider to its endpoint and request body shape. Looked up
+// explicitly so an unrecognized provider fails loudly instead of silently
+// falling through to another provider's endpoint.
+const SSO_PROVIDER_CONFIG = {
+  [SSO_PROVIDER.GOOGLE]: {
+    endpoint: 'api/auth/google/mobile',
+    buildBody: (idToken) => ({ id_token: idToken }),
+  },
+  [SSO_PROVIDER.APPLE]: {
+    endpoint: 'api/auth/apple/mobile',
+    buildBody: (idToken, userData) => ({
+      id_token: idToken,
+      first_name: userData?.firstName,
+      last_name: userData?.lastName,
+    }),
+  },
+};
 
 var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _baseHost: Config.BASE_HOST || 'https://www.sefaria.org/',
+  _baseHost: 'https://www.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _bulkText: {},
   _bulkSheets: {},
@@ -708,59 +724,57 @@ var Api = {
       body: Sefaria.api.urlFormEncode(authBody)
     });
   },
+  socialLoginRequest: function(provider, idToken, userData) {
+    const config = SSO_PROVIDER_CONFIG[provider];
+    const url = `${Sefaria.api._baseHost}${config.endpoint}`;
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+      body: JSON.stringify(config.buildBody(idToken, userData)),
+    });
+  },
+  _socialLoginFailure: function(code, analyticsReason, error) {
+    return { success: false, code, analyticsReason, error };
+  },
   socialLogin: async function(provider, idToken, userData) {
-    const endpoint = provider === 'google'
-      ? 'api/auth/google/mobile'
-      : 'api/auth/apple/mobile';
-    const body = provider === 'google'
-      ? { id_token: idToken }
-      : { id_token: idToken, first_name: userData?.firstName, last_name: userData?.lastName };
-    const url = `${Sefaria.api._baseHost}${endpoint}`;
+    const config = SSO_PROVIDER_CONFIG[provider];
+    if (!config) {
+      return Sefaria.api._socialLoginFailure(
+        SSO_ERROR_CODE.INVALID_RESPONSE,
+        ANALYTICS_REASON.INVALID_RESPONSE,
+        { non_field_errors: `Unsupported SSO provider: ${provider}` },
+      );
+    }
+    const url = `${Sefaria.api._baseHost}${config.endpoint}`;
 
-    // Each stage below is caught on its own. A single try/catch around the
-    // whole function reported every failure as 'network_error' and threw the
-    // underlying error away, so a client-side credential-storage failure was
-    // indistinguishable from the server being unreachable -- and neither was
-    // reported to Crashlytics, unlike authenticate() below. That made SSO
-    // failures effectively undiagnosable from a device.
+    // Each stage is caught on its own so a client-side failure (storage,
+    // parsing) isn't reported as an indistinguishable 'network_error'.
     let response;
     try {
-      response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-        body: JSON.stringify(body),
-      });
+      response = await Sefaria.api.socialLoginRequest(provider, idToken, userData);
     } catch (error) {
       recordError(getCrashlytics(), error);
-      return {
-        success: false,
-        code: 'network_error',
-        analyticsReason: 'network_error',
-        error: { non_field_errors: `Network error during sign-in: ${error?.message}` },
-      };
+      return Sefaria.api._socialLoginFailure(
+        SSO_ERROR_CODE.NETWORK_ERROR,
+        ANALYTICS_REASON.NETWORK_ERROR,
+        { non_field_errors: `Network error during sign-in: ${error?.message}` },
+      );
     }
 
-    // A redirect silently turns this POST into a GET (standard 301/302
-    // behaviour), which then hits a POST-only view and comes back 405 with a
-    // body that isn't JSON -- a failure that looks nothing like its cause. The
-    // usual trigger is a base host that isn't the canonical one, e.g. a
-    // missing `www.` from the host override in Settings. Name it explicitly
-    // rather than letting it surface as a mystery 405.
+    // A redirect silently downgrades this POST to a GET, which hits a
+    // POST-only view and comes back with a non-JSON error body. Name it
+    // explicitly rather than letting it surface as a mystery 405.
     if (response.url && response.url !== url) {
       devLog(`socialLogin followed a redirect: ${url} -> ${response.url} (HTTP ${response.status})`);
-      return {
-        success: false,
-        code: 'redirected',
-        analyticsReason: 'invalid_response',
-        error: { non_field_errors: `Request was redirected (${url} -> ${response.url}). A redirect downgrades POST to GET, so it cannot reach the sign-in endpoint. Check the base host in Settings.` },
-      };
+      return Sefaria.api._socialLoginFailure(
+        SSO_ERROR_CODE.REDIRECTED,
+        ANALYTICS_REASON.INVALID_RESPONSE,
+        { non_field_errors: `Request was redirected (${url} -> ${response.url}). A redirect downgrades POST to GET, so it cannot reach the sign-in endpoint.` },
+      );
     }
 
-    // Read as text first, then parse. response.json() throws away the body on
-    // failure, which leaves a non-JSON response (an HTML 404/405/500 page from
-    // a proxy, say) reported only as a status code -- true but not actionable.
-    // Keeping the first line of the body is what turns "it returned 405" into
-    // "it returned 405 from nginx, so the request never reached Django".
+    // Read as text first, then parse, so a non-JSON error body (HTML from a
+    // proxy, say) can still be reported with its content, not just a status code.
     const rawBody = await response.text();
     let data;
     try {
@@ -769,56 +783,46 @@ var Api = {
       const snippet = rawBody.replace(/\s+/g, ' ').trim().slice(0, 120);
       devLog(`socialLogin non-JSON response: ${response.status} from ${url} :: ${snippet}`);
       recordError(getCrashlytics(), error);
-      return {
-        success: false,
-        code: 'invalid_response',
-        analyticsReason: 'invalid_response',
-        error: { non_field_errors: `Server returned a non-JSON response (HTTP ${response.status} from ${url}): ${snippet}` },
-      };
+      return Sefaria.api._socialLoginFailure(
+        SSO_ERROR_CODE.INVALID_RESPONSE,
+        ANALYTICS_REASON.INVALID_RESPONSE,
+        { non_field_errors: `Server returned a non-JSON response (HTTP ${response.status} from ${url}): ${snippet}` },
+      );
     }
 
-    // response.json() guarantees valid JSON, not an object -- a body of literal
-    // `null`, a number, or a string all parse successfully. Reading data.error
-    // off those would throw past every catch here and out of socialLogin
-    // entirely, breaking its contract of always resolving to a result object.
+    // Valid JSON doesn't guarantee an object -- `null`, a number, or a string
+    // all parse successfully, and reading data.error off those would throw.
     if (data === null || typeof data !== 'object') {
-      return {
-        success: false,
-        code: 'invalid_response',
-        analyticsReason: 'invalid_response',
-        error: { non_field_errors: `Server returned an unexpected response body (HTTP ${response.status})` },
-      };
+      return Sefaria.api._socialLoginFailure(
+        SSO_ERROR_CODE.INVALID_RESPONSE,
+        ANALYTICS_REASON.INVALID_RESPONSE,
+        { non_field_errors: `Server returned an unexpected response body (HTTP ${response.status})` },
+      );
     }
 
     if (!response.ok) {
-      return { success: false, code: data.error, error: data };
+      return Sefaria.api._socialLoginFailure(data.error, ANALYTICS_REASON.SERVER_REJECTED, data);
     }
     if (!data.access || !data.refresh) {
-      // A 2xx response with no tokens is not a successful sign-in -- don't
-      // let the caller flip isLoggedIn on with nothing stored.
-      return { success: false, code: 'missing_tokens', error: data };
+      // A 2xx with no tokens is not a successful sign-in.
+      return Sefaria.api._socialLoginFailure(SSO_ERROR_CODE.MISSING_TOKENS, ANALYTICS_REASON.INVALID_RESPONSE, data);
     }
 
     try {
       await Sefaria.api.storeAuthToken(data);
     } catch (error) {
-      // Keychain/Keystore write failed. The sign-in itself succeeded, but we
-      // have nowhere to keep the credentials, so this is still a failure --
-      // just not the server's fault.
+      // Sign-in succeeded but there's nowhere to keep the credentials.
       recordError(getCrashlytics(), error);
-      return {
-        success: false,
-        code: 'storage_error',
-        analyticsReason: 'storage_error',
-        error: { non_field_errors: `Could not store credentials: ${error?.message}` },
-      };
+      return Sefaria.api._socialLoginFailure(
+        SSO_ERROR_CODE.STORAGE_ERROR,
+        ANALYTICS_REASON.STORAGE_ERROR,
+        { non_field_errors: `Could not store credentials: ${error?.message}` },
+      );
     }
 
-    // Prefer the email claim from the signed ID token over the value from the
-    // provider SDK's client-side user object: the ID token is verified
-    // server-side, whereas Apple in particular only returns an email/fullName
-    // on the user's very first authorization -- on every later sign-in
-    // userData?.email is null, so trusting it would store an undefined email.
+    // Prefer the ID token's (server-verified) email over userData.email: Apple
+    // only returns an email on the user's very first authorization, so later
+    // sign-ins would otherwise store an undefined email.
     let tokenEmail;
     try {
       tokenEmail = jwt_decode(idToken)?.email;
@@ -828,8 +832,6 @@ var Api = {
     return {
       success: true,
       email: tokenEmail || userData?.email,
-      // The mobile SSO endpoints don't return this today; forward it only if
-      // a future backend response includes it rather than fabricating a value.
       ...(data.is_new_account !== undefined ? { is_new_account: data.is_new_account } : {}),
     };
   },
@@ -846,9 +848,9 @@ var Api = {
       }
     });
   },
-  authenticate: async function(authData, authMode = "login") {
+  authenticate: async function(authData, authMode = AUTH_MODE.LOGIN) {
     try {
-      const parsedRes = await (authMode === 'login' ? Sefaria.api.login(authData) : Sefaria.api.register(authData)).then(res => res.json());
+      const parsedRes = await (authMode === AUTH_MODE.LOGIN ? Sefaria.api.login(authData) : Sefaria.api.register(authData)).then(res => res.json());
       if (!parsedRes.access) {
         return parsedRes;  // return errors
       } else if (!parsedRes.refresh) {
@@ -881,9 +883,8 @@ var Api = {
     await Keychain.setGenericPassword(AUTH_KEYCHAIN_USERNAME, JSON.stringify(Sefaria._auth), { service: AUTH_KEYCHAIN_SERVICE, accessible: Keychain.ACCESSIBLE.AFTER_FIRST_UNLOCK });
   },
 
-  // One-time migration of auth tokens from the legacy, unencrypted AsyncStorage
-  // location into the keychain, so users who were already logged in before
-  // this change shipped aren't signed out on upgrade. Safe to call repeatedly.
+  // One-time migration of auth tokens from legacy AsyncStorage into the
+  // keychain, so already-logged-in users aren't signed out on upgrade.
   _migrateLegacyAuthToken: async function() {
     const legacyAuth = await AsyncStorage.getItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
     if (!legacyAuth) { return; }
@@ -899,27 +900,18 @@ var Api = {
       await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
       return;
     }
-    // Only drop the legacy copy once the keychain write has actually
-    // succeeded. If the keychain is unavailable (e.g. device locked), keep the
-    // old value so the user isn't logged out with no way to recover -- the
-    // migration will simply be retried on the next read.
+    // Only drop the legacy copy once the keychain write succeeds, so a failed
+    // write (e.g. locked device) can retry on the next read.
     try {
       await Keychain.setGenericPassword(AUTH_KEYCHAIN_USERNAME, JSON.stringify(parsedLegacyAuth), { service: AUTH_KEYCHAIN_SERVICE, accessible: Keychain.ACCESSIBLE.AFTER_FIRST_UNLOCK });
     } catch (error) {
-      // Keychain write failed (e.g. device locked) -- leave the legacy copy
-      // in place and retry migration on the next read.
       return;
     }
     await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
   },
 
-  // Rehydrates Sefaria._auth from the Keychain, which is the sole source of
-  // truth for the signed-in session -- nothing writes an 'auth' AsyncStorage
-  // key anymore. Must be called once during app init (before any caller
-  // relies on Sefaria._auth / isLoggedIn) so a cold start restores the
-  // session instead of silently signing the user out. Never throws: a locked
-  // device, Keychain error, or corrupt stored value degrades to a logged-out
-  // Sefaria._auth = {} rather than crashing app init.
+  // Rehydrates Sefaria._auth from the Keychain (sole source of truth for the
+  // session). Call once during app init; never throws, degrades to logged-out.
   hydrateAuthFromKeychain: async function() {
     await Sefaria.api._migrateLegacyAuthToken();
     try {
@@ -963,7 +955,7 @@ var Api = {
   },
   clearAuthStorage: async function() {
     await Keychain.resetGenericPassword({ service: AUTH_KEYCHAIN_SERVICE });
-    await AsyncStorage.removeItem('auth');
+    await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
     await AsyncStorage.removeItem('lastSyncTime');
     await AsyncStorage.removeItem('lastSettingsUpdateTime');
     await AsyncStorage.removeItem('hasDismissedSyncModal');

@@ -12,37 +12,34 @@ import {
 import Config from 'react-native-config';
 import strings from './LocalizedStrings';
 import styles from './Styles';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
+import Sefaria from './sefaria';
+import { SSO_PROVIDER, AUTH_MODE, ANALYTICS_STATUS, ANALYTICS_REASON } from './AuthConstants';
 
 // Apple has no native Android SDK; per the Figma spec Android falls back to a
-// mobile-web redirect. This opens allauth's Apple login entry on the SSO
-// backend. It must follow the same host as the rest of the API (api.js's
-// _baseHost) — hardcoding production sends the user to a 404 on any
-// environment where the SSO backend hasn't shipped yet.
+// mobile-web redirect. This reads the same host api.js uses (Sefaria.api._baseHost)
+// so the two can never diverge.
 // NOTE: completing the round-trip back into the app requires the backend to
 // deep-link back (see DeepLinkRouter.js) — otherwise the user can get stuck in
 // the browser (a known limitation called out in the Figma spec).
-const appleAndroidRedirectUrl = () => {
-  const baseHost = Config.BASE_HOST || 'https://www.sefaria.org/';
-  return `${baseHost.replace(/\/$/, '')}/accounts/apple/login/`;
-};
+const appleAndroidRedirectUrl = () => `${Sefaria.api._baseHost}accounts/apple/login/`;
 
-const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded, isHeb }) => {
+const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded, isHeb, theme }) => {
   const handleGoogleSignIn = async () => {
     // Fired at the very top of the handler, before any async work, so it
     // captures the tap itself rather than however long setup/network takes.
-    onMethodChosen('google');
+    onMethodChosen(SSO_PROVIDER.GOOGLE);
     let GoogleSignin, statusCodes;
     try {
       ({ GoogleSignin, statusCodes } = require('@react-native-google-signin/google-signin'));
     } catch (e) {
-      onProcessEnded({ status: 'failure', reason: 'module_unavailable' });
+      onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.MODULE_UNAVAILABLE });
       const rebuildCmd = Platform.OS === 'ios' ? 'npx react-native run-ios' : 'npx react-native run-android';
       onSSOError(new Error(`Google Sign-In native module not available. Rebuild the app with: ${rebuildCmd}`));
       return;
     }
     try {
-      setLoadingProvider('google');
+      setLoadingProvider(SSO_PROVIDER.GOOGLE);
       setIsLoading(true);
       GoogleSignin.configure({
         iosClientId: Config.GOOGLE_SSO_IOS_CLIENT_ID,
@@ -52,7 +49,7 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
       // Pre-flight check succeeded -- this is the "clicked -> provider sheet
       // shown" gap the spec wants measured, so process_started fires here.
       onProcessStarted();
-      if (authMode === 'register') {
+      if (authMode === AUTH_MODE.REGISTER) {
         // The native SDK remembers the last authorized account and would sign
         // the user straight back in with it. On sign-up that's wrong: someone
         // creating an account needs to choose which Google account it belongs
@@ -70,12 +67,12 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
       // no Google account, e.g. every BrowserStack device -- reaches the user as
       // a provider error and lands in the funnel as one.
       if (response?.type === 'cancelled') {
-        onProcessEnded({ status: 'failure', reason: 'cancelled' });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.CANCELLED });
         return;
       }
       const idToken = response.data?.idToken;
       if (idToken) {
-        await onSSOSuccess('google', idToken, {
+        await onSSOSuccess(SSO_PROVIDER.GOOGLE, idToken, {
           email: response.data?.user?.email,
           firstName: response.data?.user?.givenName,
           lastName: response.data?.user?.familyName,
@@ -85,17 +82,17 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
         // means webClientId was empty at configure() time: Utils.java only calls
         // requestIdToken(webClientId) when it is non-empty, so the flow succeeds
         // and getIdToken() is null. Surface it instead of failing silently.
-        onProcessEnded({ status: 'failure', reason: 'provider_error', error: 'No identity token returned' });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.PROVIDER_ERROR, error: 'No identity token returned' });
         onSSOError(new Error('Google sign-in did not return an identity token.'));
       }
     } catch (error) {
       if (error.code !== statusCodes.SIGN_IN_CANCELLED) {
-        onProcessEnded({ status: 'failure', reason: 'provider_error', error: error?.code || error?.message });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.PROVIDER_ERROR, error: error?.code || error?.message });
         onSSOError(error);
       } else {
         // Cancel is intentionally swallowed from the user-facing error banner
         // (unchanged behavior) but still needs to be tracked as a failure.
-        onProcessEnded({ status: 'failure', reason: 'cancelled' });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.CANCELLED });
       }
     } finally {
       setIsLoading(false);
@@ -103,37 +100,37 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
     }
   };
 
-  const isPressed = isLoading && loadingProvider === 'google';
+  const isPressed = isLoading && loadingProvider === SSO_PROVIDER.GOOGLE;
 
   return (
     <TouchableOpacity
-      style={[styles.ssoButton, isHeb && { flexDirection: 'row-reverse' }, isPressed && styles.ssoButtonPressed]}
+      style={[styles.ssoButton, theme.ssoButtonBackground, theme.ssoButtonBorder, isHeb && { flexDirection: 'row-reverse' }, isPressed && styles.ssoButtonPressed]}
       onPress={handleGoogleSignIn}
       disabled={isLoading}
       activeOpacity={0.2}
     >
       <Image source={require('./img/sso-google.png')} style={styles.ssoIcon} resizeMode="contain" />
-      <Text style={[styles.ssoButtonText, isHeb ? styles.heInt : styles.enInt]}>{strings.continueWithGoogle}</Text>
+      <Text style={[styles.ssoButtonText, theme.ssoButtonText, isHeb ? styles.heInt : styles.enInt]}>{strings.continueWithGoogle}</Text>
     </TouchableOpacity>
   );
 };
 
-const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded, isHeb }) => {
+const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded, isHeb, theme }) => {
   const handleAppleSignIn = async () => {
     // Fired at the very top of the handler, before any async work or the
     // iOS/Android branch, so it captures the tap itself.
-    onMethodChosen('apple');
+    onMethodChosen(SSO_PROVIDER.APPLE);
     if (Platform.OS === 'ios') {
       let appleAuth;
       try {
         appleAuth = require('@invertase/react-native-apple-authentication').default;
       } catch (e) {
-        onProcessEnded({ status: 'failure', reason: 'module_unavailable' });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.MODULE_UNAVAILABLE });
         onSSOError(new Error('Apple Sign-In native module not available. Rebuild the app with: npx react-native run-ios'));
         return;
       }
       if (!appleAuth.isSupported) {
-        onProcessEnded({ status: 'failure', reason: 'unsupported_device' });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.UNSUPPORTED_DEVICE });
         onSSOError(new Error('Apple Sign-In is not supported on this device (requires a real iOS device, not a simulator)'));
         return;
       }
@@ -141,7 +138,7 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
       // "clicked -> provider sheet shown" gap the spec wants measured.
       onProcessStarted();
       try {
-        setLoadingProvider('apple');
+        setLoadingProvider(SSO_PROVIDER.APPLE);
         setIsLoading(true);
         const appleAuthRequestResponse = await appleAuth.performRequest({
           requestedOperation: appleAuth.Operation.LOGIN,
@@ -149,22 +146,21 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
         });
         const { identityToken, fullName, email } = appleAuthRequestResponse;
         if (identityToken) {
-          await onSSOSuccess('apple', identityToken, {
+          await onSSOSuccess(SSO_PROVIDER.APPLE, identityToken, {
             email,
             firstName: fullName?.givenName,
             lastName: fullName?.familyName,
           });
         } else {
-          onProcessEnded({ status: 'failure', reason: 'provider_error', error: 'No identity token returned' });
+          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.PROVIDER_ERROR, error: 'No identity token returned' });
         }
       } catch (error) {
         if (error.code !== appleAuth.Error.CANCELED) {
-          onProcessEnded({ status: 'failure', reason: 'provider_error', error: error?.code || error?.message });
+          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.PROVIDER_ERROR, error: error?.code || error?.message });
           onSSOError(error);
         } else {
-          // Cancel is intentionally swallowed from the user-facing error banner
-          // (unchanged behavior) but still needs to be tracked as a failure.
-          onProcessEnded({ status: 'failure', reason: 'cancelled' });
+          // Cancel path: see the same comment on the Google button above.
+          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.CANCELLED });
         }
       } finally {
         setIsLoading(false);
@@ -176,10 +172,7 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
       // there is no signal back into the app tied to the actual sign-in
       // outcome, so we deliberately fire method_chosen + process_started only
       // and nothing further here. Analytics infers abandonment from a
-      // flow_started with no matching flow_ended. An AppState-based heuristic
-      // was considered and rejected: backgrounding for Apple sign-in looks
-      // identical to backgrounding for any other reason, so it can't
-      // distinguish success/failure/abandonment reliably.
+      // flow_started with no matching flow_ended.
       onProcessStarted();
       try {
         await Linking.openURL(appleAndroidRedirectUrl());
@@ -189,17 +182,17 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
     }
   };
 
-  const isPressed = isLoading && loadingProvider === 'apple';
+  const isPressed = isLoading && loadingProvider === SSO_PROVIDER.APPLE;
 
   return (
     <TouchableOpacity
-      style={[styles.ssoButton, isHeb && { flexDirection: 'row-reverse' }, isPressed && styles.ssoButtonPressed]}
+      style={[styles.ssoButton, theme.ssoButtonBackground, theme.ssoButtonBorder, isHeb && { flexDirection: 'row-reverse' }, isPressed && styles.ssoButtonPressed]}
       onPress={handleAppleSignIn}
       disabled={isLoading}
       activeOpacity={0.2}
     >
       <Image source={require('./img/sso-apple.png')} style={styles.ssoIcon} resizeMode="contain" />
-      <Text style={[styles.ssoButtonText, isHeb ? styles.heInt : styles.enInt]}>{strings.continueWithApple}</Text>
+      <Text style={[styles.ssoButtonText, theme.ssoButtonText, isHeb ? styles.heInt : styles.enInt]}>{strings.continueWithApple}</Text>
     </TouchableOpacity>
   );
 };
@@ -207,9 +200,10 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
 const SSOButtons = ({ authMode, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState(null);
-  const { interfaceLanguage } = useContext(GlobalStateContext);
+  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const isHeb = interfaceLanguage === 'hebrew';
-  const showApple = Platform.OS === 'ios' || authMode === 'login';
+  const theme = getTheme(themeStr);
+  const showApple = Platform.OS === 'ios' || authMode === AUTH_MODE.LOGIN;
 
   return (
     <View style={styles.ssoSection}>
@@ -225,6 +219,7 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError, onMethodChosen, onProc
         onProcessStarted={onProcessStarted}
         onProcessEnded={onProcessEnded}
         isHeb={isHeb}
+        theme={theme}
       />
       {showApple ? (
         <AppleSignInButton
@@ -238,6 +233,7 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError, onMethodChosen, onProc
           onProcessStarted={onProcessStarted}
           onProcessEnded={onProcessEnded}
           isHeb={isHeb}
+          theme={theme}
         />
       ) : null}
     </View>
@@ -245,14 +241,15 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError, onMethodChosen, onProc
 };
 
 const OrDivider = () => {
-  const { interfaceLanguage } = useContext(GlobalStateContext);
+  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const isHeb = interfaceLanguage === 'hebrew';
+  const theme = getTheme(themeStr);
 
   return (
     <View style={styles.orDivider}>
-      <View style={styles.orDividerLine} />
-      <Text style={[styles.orDividerText, isHeb ? styles.heInt : styles.enInt]}>{strings.or}</Text>
-      <View style={styles.orDividerLine} />
+      <View style={[styles.orDividerLine, theme.ssoDividerLine]} />
+      <Text style={[styles.orDividerText, theme.ssoDividerText, isHeb ? styles.heInt : styles.enInt]}>{strings.or}</Text>
+      <View style={[styles.orDividerLine, theme.ssoDividerLine]} />
     </View>
   );
 };

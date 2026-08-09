@@ -3,6 +3,7 @@
 
 import { ssoErrorWithCode } from '../AuthPage';
 import strings from '../LocalizedStrings';
+import { SSO_ERROR_CODE } from '../AuthConstants';
 
 // Release builds show only strings.ssoErrorGeneric, which made every SSO
 // failure look the same from a screenshot. These pin the code being appended,
@@ -11,11 +12,7 @@ import strings from '../LocalizedStrings';
 // verbatim.
 describe('ssoErrorWithCode', () => {
   test.each([
-    'network_error',
-    'redirected',
-    'invalid_response',
-    'missing_tokens',
-    'storage_error',
+    ...Object.values(SSO_ERROR_CODE),
     'auth.social_signin_failed',
   ])('appends the %s code to the generic message', (code) => {
     expect(ssoErrorWithCode(code)).toBe(`${strings.ssoErrorGeneric} (${code})`);

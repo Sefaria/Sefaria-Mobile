@@ -4,6 +4,7 @@ import { SystemButton } from '../Misc';
 import TestContextWrapper from '../TestContextWrapper';
 import { AuthPage, AuthTextInput, ssoCollisionMessage } from '../AuthPage';
 import strings from '../LocalizedStrings';
+import { AUTH_MODE } from '../AuthConstants';
 
 
 const AuthPageWrapper = ({ authMode }) => (
@@ -17,17 +18,12 @@ const AuthPageWrapper = ({ authMode }) => (
   }} />
 )
 
-// AuthPage's flow_started useEffect fires an unawaited trackEvent(...) call,
-// which chains through analytics/enrichments.js's real NetInfo/AsyncStorage
-// reads. Under React 19 + react-test-renderer, renderer.create() must be
-// wrapped in act() so those passive effects (and any state updates they
-// eventually trigger) are flushed and settled before the test's synchronous
-// body continues -- otherwise they resolve on a later tick that can land
-// after Jest has torn down the module registry, crashing with "Can't access
-// .root on unmounted test renderer" / "trying to `import` a file after the
-// Jest environment has been torn down". Each instance is also unmounted in
-// afterEach so no test's tree (and its effects) leaks into the next test or
-// past the end of the file.
+// AuthPage's flow_started useEffect fires an unawaited trackEvent(...) call
+// that chains through real NetInfo/AsyncStorage reads. Under React 19 +
+// react-test-renderer, renderer.create() must be wrapped in act() so those
+// passive effects settle before the test body continues -- otherwise they
+// resolve on a later tick and can crash after Jest tears down the module
+// registry. Each instance is unmounted in afterEach for the same reason.
 let currentInstance;
 
 afterEach(() => {
@@ -40,13 +36,13 @@ afterEach(() => {
 describe('login', () => {
 
   test('num fields', () => {
-    act(() => { currentInstance = renderer.create(<AuthPageWrapper authMode={'login'} />); });
+    act(() => { currentInstance = renderer.create(<AuthPageWrapper authMode={AUTH_MODE.LOGIN} />); });
     const inputs = currentInstance.root.findAllByType(AuthTextInput);
     expect(inputs.length).toBe(2);
   });
   test('fields sent onSubmit', async () => {
     Sefaria.api.authenticate = jest.fn();
-    act(() => { currentInstance = renderer.create(<AuthPageWrapper authMode={'login'} />); });
+    act(() => { currentInstance = renderer.create(<AuthPageWrapper authMode={AUTH_MODE.LOGIN} />); });
     const inputs = currentInstance.root.findAllByType(AuthTextInput);
     const fields = {
       [strings.email]: 'bob@bobandco.co',
@@ -68,13 +64,13 @@ describe('login', () => {
       password: fields[strings.password],
       mobile_app_key: '',
     });
-    expect(Sefaria.api.authenticate.mock.calls[0][1]).toBe('login');
+    expect(Sefaria.api.authenticate.mock.calls[0][1]).toBe(AUTH_MODE.LOGIN);
   });
 });
 
 describe('register', () => {
   test('num fields', () => {
-    act(() => { currentInstance = renderer.create(<AuthPageWrapper authMode={'register'} />); });
+    act(() => { currentInstance = renderer.create(<AuthPageWrapper authMode={AUTH_MODE.REGISTER} />); });
     const inputs = currentInstance.root.findAllByType(AuthTextInput);
     expect(inputs.length).toBe(4);
   });

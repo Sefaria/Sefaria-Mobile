@@ -6,6 +6,7 @@ import renderer, { act } from 'react-test-renderer';
 import { TouchableOpacity } from 'react-native';
 import TestContextWrapper from '../TestContextWrapper';
 import { SSOButtons } from '../SSOButtons';
+import { AUTH_MODE, ANALYTICS_STATUS, ANALYTICS_REASON } from '../AuthConstants';
 
 // @react-native-google-signin/google-signin v13 changed signIn()'s contract:
 // cancelling now RESOLVES with { type: 'cancelled', data: null } instead of
@@ -37,7 +38,7 @@ const pressGoogle = async (handlers) => {
   let instance;
   await act(async () => {
     instance = renderer.create(
-      <TestContextWrapper child={SSOButtons} childProps={{ authMode: 'login', ...handlers }} />
+      <TestContextWrapper child={SSOButtons} childProps={{ authMode: AUTH_MODE.LOGIN, ...handlers }} />
     );
   });
   const googleButton = instance.root.findAllByType(TouchableOpacity)[0];
@@ -66,7 +67,7 @@ describe('Google sign-in cancellation', () => {
     const handlers = makeHandlers();
     await pressGoogle(handlers);
     expect(handlers.onProcessEnded).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 'failure', reason: 'cancelled' })
+      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.CANCELLED })
     );
   });
 
