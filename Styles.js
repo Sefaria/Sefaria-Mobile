@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 
 import iPad from './isIPad';
-import { SSOColors, SSOSpacing, SSODimensions, SSOTypography } from './SSODesignTokens';
+import { SSOSpacing, SSODimensions, SSOTypography } from './SSODesignTokens';
 const isIOS = Platform.OS === 'ios';
 const isAndroid = Platform.OS === 'android';
 const readerSideMargin = 42;
@@ -819,13 +819,14 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginBottom: 0,
     marginTop: SSOSpacing.titleGap,
-    // Stretch to the parent's gutter rather than a fixed width. The Figma frame
-    // is 337pt wide, but that only fits screens >= 411dp; on a 360dp phone it
-    // overhangs the right edge by ~51dp. The email inputs below use the same
-    // implicit stretch, which is why they line up correctly everywhere.
+    // Stretch to the parent's gutter rather than a fixed width -- see
+    // __tests__/ssoLayout.test.js for why. The email inputs below use the
+    // same implicit stretch, which is why they line up correctly everywhere.
     alignSelf: 'stretch',
     gap: SSOSpacing.buttonGap,
   },
+  // Colors (background/border/text) come from theme.ssoButton* -- see
+  // ThemeWhite.js/ThemeBlack.js -- applied by the caller as [styles.ssoButton, theme.ssoButtonBackground, ...].
   ssoButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -833,9 +834,7 @@ export default StyleSheet.create({
     width: '100%',
     height: SSODimensions.buttonHeight,
     borderWidth: SSODimensions.buttonBorderWidth,
-    borderColor: SSOColors.sefariaBlue,
     borderRadius: SSODimensions.buttonRadius,
-    backgroundColor: SSOColors.white,
     paddingHorizontal: SSOSpacing.buttonPaddingH,
     gap: SSOSpacing.iconTextGap,
   },
@@ -849,7 +848,6 @@ export default StyleSheet.create({
   },
   ssoButtonText: {
     fontSize: SSOTypography.buttonTextSize,
-    color: SSOColors.sefariaBlue,
     fontFamily: 'OpenSans',
     fontWeight: SSOTypography.buttonFontWeight,
   },
@@ -865,26 +863,17 @@ export default StyleSheet.create({
   orDividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: SSOColors.dividerLine,
   },
   orDividerText: {
     marginHorizontal: SSOSpacing.dividerLabelGap,
     fontSize: SSOTypography.dividerTextSize,
-    color: SSOColors.dividerText,
   },
   ssoErrorBanner: {
-    // NOTE: SSODesignTokens.js (SSOColors) has no error palette yet — these
-    // are local literals mirroring the web ErrorBanner's error-red treatment
-    // (static/js/auth/ErrorBanner.jsx / sass). If SSODesignTokens.js later
-    // grows error tokens (e.g. SSOColors.errorBackground/errorBorder/errorText),
-    // swap these literals for those constants.
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'stretch',
     borderWidth: 1,
-    borderColor: '#D91E18',
     borderRadius: SSODimensions.buttonRadius,
-    backgroundColor: '#FBECEC',
     paddingVertical: SSOSpacing.iconTextGap,
     paddingHorizontal: SSOSpacing.buttonPaddingH,
     marginBottom: SSOSpacing.buttonGap,
@@ -892,7 +881,6 @@ export default StyleSheet.create({
   ssoErrorBannerText: {
     flex: 1,
     fontSize: SSOTypography.dividerTextSize,
-    color: '#B71C1C',
   },
   category: {
     marginBottom: 10

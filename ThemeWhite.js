@@ -237,4 +237,31 @@ export default StyleSheet.create({
     color: Colors.tertiaryText,
     borderColor: Colors.lightGrey,
   },
+  // SSO (Google/Apple) button colors. Background is pinned to white in both
+  // themes -- see ThemeBlack.js for why -- so it only "themes" here for a
+  // single source of truth, not because it varies.
+  ssoButtonBackground: {
+    backgroundColor: '#FFFFFF',
+  },
+  ssoButtonBorder: {
+    borderColor: Colors.sefariaBlue,
+  },
+  ssoButtonText: {
+    color: Colors.sefariaBlue,
+  },
+  ssoDividerLine: {
+    backgroundColor: '#CCCCCC',
+  },
+  ssoDividerText: {
+    color: '#999999',
+  },
+  ssoErrorBannerBackground: {
+    backgroundColor: '#FBECEC',
+  },
+  ssoErrorBannerBorder: {
+    borderColor: '#D91E18',
+  },
+  ssoErrorBannerText: {
+    color: '#B71C1C',
+  },
 });

@@ -5,12 +5,9 @@
 // Every SSO color, spacing, font size, and dimension should reference a named
 // constant here rather than a hardcoded literal in Styles.js / SSOButtons.js.
 
-export const SSOColors = {
-  sefariaBlue: '#18345D',   // SSO button border + text (Figma --semantic/action/primary)
-  white: '#FFFFFF',         // SSO button background
-  dividerLine: '#CCCCCC',   // "or" divider line
-  dividerText: '#999999',   // "or" text
-};
+// SSO colors (button background/border/text, divider line/text, error banner)
+// now live as theme tokens in ThemeWhite.js/ThemeBlack.js — SSOColors held
+// them all, so there is nothing color-related left to export here.
 
 export const SSOSpacing = {
   buttonGap: 16,      // vertical gap between Google and Apple buttons (Figma --global/dimension-200)
@@ -26,9 +23,7 @@ export const SSODimensions = {
   buttonBorderWidth: 1.5, // --sds-size-stroke-border
   buttonRadius: 4,        // --space-1
   iconSize: 24,
-  // No fixed container width: the SSO block stretches to its parent's gutter,
-  // matching the email inputs. A Figma frame width copied verbatim (337) only
-  // fits screens >= 411dp and clipped on ordinary phones.
+  // No fixed container width: see __tests__/ssoLayout.test.js for why.
 };
 
 export const SSOTypography = {

@@ -3,7 +3,7 @@
 import React, { useContext } from 'react';
 import { View, Text } from 'react-native';
 import styles from './Styles';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 
 // Presentational SSO error banner. Mirrors the intent of the web
 // ErrorBanner (static/js/auth/ErrorBanner.jsx) — render nothing when there's
@@ -11,14 +11,15 @@ import { GlobalStateContext } from './StateManager';
 // callers are expected to build `error` via the same shape web uses
 // ({ message }), e.g. { message: strings.ssoEmailExistsGoogle }.
 const SSOErrorBanner = ({ error }) => {
-  const { interfaceLanguage } = useContext(GlobalStateContext);
+  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const isHeb = interfaceLanguage === 'hebrew';
+  const theme = getTheme(themeStr);
 
   if (!error) return null;
 
   return (
-    <View style={[styles.ssoErrorBanner, isHeb && { flexDirection: 'row-reverse' }]}>
-      <Text style={[styles.ssoErrorBannerText, isHeb ? styles.heInt : styles.enInt]}>
+    <View style={[styles.ssoErrorBanner, theme.ssoErrorBannerBackground, theme.ssoErrorBannerBorder, isHeb && { flexDirection: 'row-reverse' }]}>
+      <Text style={[styles.ssoErrorBannerText, theme.ssoErrorBannerText, isHeb ? styles.heInt : styles.enInt]}>
         {error.message}
       </Text>
     </View>

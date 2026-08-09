@@ -1,4 +1,6 @@
 import styles from '../Styles';
+import themeWhite from '../ThemeWhite';
+import themeBlack from '../ThemeBlack';
 
 // The SSO block originally carried the Figma frame width (337) as a literal
 // `width`. A fixed width does not negotiate with the parent, so on any screen
@@ -29,5 +31,37 @@ describe('SSO layout is screen-width independent', () => {
   // would not be.
   it('ssoButton width is relative, not absolute', () => {
     expect(typeof styles.ssoButton.width).toBe('string');
+  });
+});
+
+// styles.ssoButton/orDividerLine/orDividerText/ssoErrorBanner* no longer carry
+// color literals -- SSOButtons.js/SSOErrorBanner.js resolve those from
+// theme.sso* (ThemeWhite.js/ThemeBlack.js) so dark mode isn't stuck with the
+// light theme's white buttons and near-invisible divider.
+describe('SSO colors are theme-driven', () => {
+  it('divider and error banner colors differ between themes', () => {
+    expect(themeBlack.ssoDividerLine.backgroundColor).not.toBe(themeWhite.ssoDividerLine.backgroundColor);
+    expect(themeBlack.ssoDividerText.color).not.toBe(themeWhite.ssoDividerText.color);
+    expect(themeBlack.ssoErrorBannerBackground.backgroundColor).not.toBe(themeWhite.ssoErrorBannerBackground.backgroundColor);
+  });
+
+  // Google's full-color "G" mark and the solid-black Apple mark both need a
+  // light surface (see ThemeBlack.js), so the button itself intentionally
+  // does NOT flip with the theme -- only its color now lives in one place.
+  it('button background/border/text are pinned the same in both themes', () => {
+    expect(themeBlack.ssoButtonBackground).toEqual(themeWhite.ssoButtonBackground);
+    expect(themeBlack.ssoButtonBorder).toEqual(themeWhite.ssoButtonBorder);
+    expect(themeBlack.ssoButtonText).toEqual(themeWhite.ssoButtonText);
+  });
+
+  it('Styles.js no longer hardcodes sso colors', () => {
+    expect(styles.ssoButton.backgroundColor).toBeUndefined();
+    expect(styles.ssoButton.borderColor).toBeUndefined();
+    expect(styles.ssoButtonText.color).toBeUndefined();
+    expect(styles.orDividerLine.backgroundColor).toBeUndefined();
+    expect(styles.orDividerText.color).toBeUndefined();
+    expect(styles.ssoErrorBanner.backgroundColor).toBeUndefined();
+    expect(styles.ssoErrorBanner.borderColor).toBeUndefined();
+    expect(styles.ssoErrorBannerText.color).toBeUndefined();
   });
 });

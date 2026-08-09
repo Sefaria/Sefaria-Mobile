@@ -240,4 +240,34 @@ export default StyleSheet.create({
     color: Colors.tertiaryText,
     borderColor: Colors.border,
   },
+  // SSO (Google/Apple) button colors. Background stays white even in dark
+  // mode: img/sso-google.png is Google's full-color "G" mark, which its brand
+  // guidelines require on a white/near-white background, and img/sso-apple.png
+  // is solid black with no light-on-dark variant shipped, so it would vanish
+  // on a dark button. Border/text stay sefariaBlue for the same reason -- they
+  // sit on that same white surface regardless of app theme.
+  ssoButtonBackground: {
+    backgroundColor: '#FFFFFF',
+  },
+  ssoButtonBorder: {
+    borderColor: Colors.sefariaBlue,
+  },
+  ssoButtonText: {
+    color: Colors.sefariaBlue,
+  },
+  ssoDividerLine: {
+    backgroundColor: Colors.secondaryBorder,
+  },
+  ssoDividerText: {
+    color: Colors.tertiaryText,
+  },
+  ssoErrorBannerBackground: {
+    backgroundColor: '#4A1F1F',
+  },
+  ssoErrorBannerBorder: {
+    borderColor: '#D9534F',
+  },
+  ssoErrorBannerText: {
+    color: '#F5A9A9',
+  },
 });
