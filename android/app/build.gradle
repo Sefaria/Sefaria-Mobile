@@ -105,6 +105,12 @@ android {
         // Falls back to "Sefaria" for production builds.
         resValue "string", "app_name", project.findProperty("qaAppName") ?: "Sefaria"
 
+        // react-native-config finds BuildConfig by reflection, guessing its package
+        // from getPackageName() -- the applicationId, which QA builds override
+        // (above) while BuildConfig stays at the namespace. Without pinning this,
+        // every Config.* value is silently undefined in QA builds.
+        resValue "string", "build_config_package", "org.sefaria.sefaria"
+
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // qaVersionCode is passed by Fastlane for QA/test builds (Unix timestamp).

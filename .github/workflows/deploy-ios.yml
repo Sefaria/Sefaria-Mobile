@@ -27,16 +27,9 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
-      # react-native-config bakes .env into the build at compile time, and .env
-      # is gitignored, so CI has none unless it writes one. Without this the app
-      # ships with GOOGLE_SSO_CLIENT_ID undefined, which makes Google Sign-In
-      # fail on every CI-produced build.
-      # BASE_HOST is deliberately omitted: it is a local development override,
-      # and its absence correctly falls back to production in api.js.
-      # GOOGLE_SSO_IOS_CLIENT_ID is the iOS-type OAuth client. It is what the
-      # native SDK uses to open the consent screen, and Google rejects the
-      # custom-scheme redirect for any other client type -- so an iOS build
-      # without it cannot start the sign-in flow at all.
+      # react-native-config bakes .env at build time; .env is gitignored, so CI must write one.
+      # GOOGLE_SSO_IOS_CLIENT_ID is required separately: Google rejects the custom-scheme
+      # redirect for any client type other than iOS.
       - name: Write .env for react-native-config
         run: |
           {

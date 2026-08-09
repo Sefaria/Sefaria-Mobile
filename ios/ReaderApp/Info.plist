@@ -22,7 +22,9 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<!-- Google Sign-In: this MUST be the reversed form of the iOS OAuth client id (GOOGLE_SSO_IOS_CLIENT_ID). The value below is a placeholder from the web client and must be replaced once an iOS-type OAuth client exists for org.sefaria.sefariaApp. -->
+	<!-- Google Sign-In: reversed form of the iOS OAuth client id (GOOGLE_SSO_IOS_CLIENT_ID). Hardcoded
+	     because the URL scheme is needed at build time and this project does not enable Info.plist
+	     preprocessing. Not a secret -- it ships in every build. -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
