@@ -34,7 +34,11 @@ import { AUTH_MODE, ANALYTICS_STATUS, ANALYTICS_REASON } from './AuthConstants';
 // `strings.x` snapshots because `strings` is re-localized at runtime when the
 // interface language changes -- capturing `strings.x` here at module load
 // would freeze these messages in whatever language was active on first import.
-// Same three sentences web's RegisterView.jsx maps.
+// Same three sentences web's RegisterView.jsx maps -- but web now matches stable error
+// codes (sso_google_exists/sso_apple_exists/email_exists) via register_api's sibling
+// endpoint (_web_register_errors), not this text. This app talks to register_api instead,
+// which has no such code-based indirection, so this still depends on clean_email's messages
+// staying un-translated (see the comment there) until this map gets the same code-based fix.
 // TEMPORARY: the auth screen opts out of the app's dark theme and always
 // renders light, because the Figma design defines only a light treatment and
 // the SSO provider marks (Google's full-color G, Apple's black logo) need a
