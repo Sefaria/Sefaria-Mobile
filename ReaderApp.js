@@ -71,6 +71,9 @@ import {getSafeViewStyleAndStatusBarBackground} from "./getSafeViewStyles";
 
 const ViewPort = Dimensions.get('window');
 
+//set of `menuOpen` states which you shouldn't be able to go back to
+const SKIP_MENUS = [AUTH_MODE.REGISTER, AUTH_MODE.LOGIN];
+
 class ReaderApp extends React.PureComponent {
   static whyDidYouRender = true;
   static propTypes = {
@@ -1085,8 +1088,6 @@ class ReaderApp extends React.PureComponent {
   };
 
   openMenu = (menu, via, pushHistory=true) => {
-    //set of `menuOpen` states which you shouldn't be able to go back to
-    const SKIP_MENUS = ["register", "login"]
     if (!!menu && pushHistory && !SKIP_MENUS.includes(this.state.menuOpen)) {
       if (!this.state.menuOpen && !!this.state.data) {
         // text column. remove related data
@@ -1094,7 +1095,10 @@ class ReaderApp extends React.PureComponent {
       }
       this.modifyHistory({ dir: "forward", state: this.state });
     }
-    const source = (via && typeof via === 'string') ? via : null;
+    // openLogin/openRegister are handed straight to onPress in places, so `via`
+    // can arrive as a press event rather than a source name. Only a non-empty
+    // string counts as a source.
+    const source = (typeof via === 'string' && via) ? via : null;
     this.setState({menuOpen: menu, menuOpenSource: source});
     if (source) {
       trackEvent("OpenMenu", {menu, via});

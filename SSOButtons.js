@@ -233,7 +233,7 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError, onMethodChosen, onProc
         isHeb={isHeb}
         theme={theme}
       />
-      {showApple ? (
+      {showApple && (
         <AppleSignInButton
           isLoading={isLoading}
           loadingProvider={loadingProvider}
@@ -247,7 +247,7 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError, onMethodChosen, onProc
           isHeb={isHeb}
           theme={theme}
         />
-      ) : null}
+      )}
     </View>
   );
 };

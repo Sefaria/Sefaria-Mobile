@@ -86,7 +86,7 @@ const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoa
   setErrors(errors);
   setIsLoading(false);
   const success = Object.keys(errors).length === 0 && !!Sefaria._auth.uid;
-  onEmailSubmitResult?.(success);
+  onEmailSubmitResult(success);
   if (success) {
     // Set the user email in state - pass dispatch function to onLoginSuccess
     onLoginSuccess(formState.email);
@@ -243,7 +243,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   const [ssoError, setSsoError] = useState(null);
   const emailCollisionMessage = ssoCollisionMessage(errors.email);
 
-  const handleSSOSuccess = async (provider, idToken, userData) => {
+  const handleSSOTokenReceived = async (provider, idToken, userData) => {
     const result = await Sefaria.api.socialLogin(provider, idToken, userData);
     if (result.success) {
       fireProcessEnded({ status: ANALYTICS_STATUS.SUCCESS }, provider);
@@ -274,6 +274,11 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       if (__DEV__) {
         setSsoError(`SSO backend error [${result.code}]: ${JSON.stringify(result.error).slice(0, 200)}`);
       } else {
+        // Outside dev only the failure code reaches the user, never the raw
+        // message: server and SDK messages are long, device-specific and not
+        // written to be read by users. The code is still enough to tell
+        // DEVELOPER_ERROR from a network failure in a bug report. Same applies
+        // to the error path in handleSSOError below.
         setSsoError(ssoErrorWithCode(result.code));
       }
     }
@@ -284,9 +289,6 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     if (__DEV__) {
       setSsoError(`SSO [${error?.code}] ${error?.message}`);
     } else {
-      // The SDK's error message can be long and device-specific, so only the
-      // code is surfaced here -- enough to tell DEVELOPER_ERROR from a network
-      // failure without putting a stack-shaped string in front of a user.
       setSsoError(ssoErrorWithCode(error?.code));
     }
   };
@@ -301,7 +303,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
         <SSOButtons
           authMode={authMode}
-          onSSOSuccess={handleSSOSuccess}
+          onSSOSuccess={handleSSOTokenReceived}
           onSSOError={handleSSOError}
           onMethodChosen={fireMethodChosen}
           onProcessStarted={fireProcessStarted}
