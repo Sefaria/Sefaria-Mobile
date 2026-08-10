@@ -16,12 +16,12 @@ export const AUTH_EVENT_FAMILY = {
 // Firebase Analytics caps event param VALUES at 100 chars.
 const FIREBASE_PARAM_VALUE_MAX_LENGTH = 100;
 
-// Truncates a value to Firebase's 100-char param value limit. Returns
-// undefined for nullish input so callers can omit the field.
+// Truncates a value to Firebase's 100-char param value limit (slice returns the
+// whole string when it's already shorter). Returns undefined for nullish input
+// so callers can omit the field.
 export const truncateForAnalytics = (value) => {
   if (value === undefined || value === null) { return undefined; }
-  const str = String(value);
-  return str.length > FIREBASE_PARAM_VALUE_MAX_LENGTH ? str.slice(0, FIREBASE_PARAM_VALUE_MAX_LENGTH) : str;
+  return String(value).slice(0, FIREBASE_PARAM_VALUE_MAX_LENGTH);
 };
 
 // Minimal RFC 4122 v4 UUID generator, used for analytics flow_id/attempt_id.
