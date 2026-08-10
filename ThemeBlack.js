@@ -23,6 +23,13 @@ let Colors = {
   buttonBackground: "#333331",
   sefariaBlue: "#18345D",
   buttonBlue: '#0B71E7',
+  // Surface the SSO (Google/Apple) buttons sit on. Intentionally white even in
+  // the dark theme -- see the ssoButtonBackground comment below -- which is why
+  // it is its own constant instead of mainForeground/buttonBackground.
+  ssoButtonSurface: "#FFFFFF",
+  errorBannerBackground: "#4A1F1F",
+  errorBannerBorder: "#D9534F",
+  errorBannerText: "#F5A9A9",
 }
 
 export default StyleSheet.create({
@@ -247,7 +254,7 @@ export default StyleSheet.create({
   // on a dark button. Border/text stay sefariaBlue for the same reason -- they
   // sit on that same white surface regardless of app theme.
   ssoButtonBackground: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.ssoButtonSurface,
   },
   ssoButtonBorder: {
     borderColor: Colors.sefariaBlue,
@@ -262,12 +269,12 @@ export default StyleSheet.create({
     color: Colors.tertiaryText,
   },
   ssoErrorBannerBackground: {
-    backgroundColor: '#4A1F1F',
+    backgroundColor: Colors.errorBannerBackground,
   },
   ssoErrorBannerBorder: {
-    borderColor: '#D9534F',
+    borderColor: Colors.errorBannerBorder,
   },
   ssoErrorBannerText: {
-    color: '#F5A9A9',
+    color: Colors.errorBannerText,
   },
 });

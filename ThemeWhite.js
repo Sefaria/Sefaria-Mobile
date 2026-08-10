@@ -23,6 +23,13 @@ let Colors = {
   buttonBackground: "#fff",
   sefariaBlue: "#18345D",
   buttonBlue: '#0B71E7',
+  // Surface the SSO (Google/Apple) buttons sit on. Deliberately its own
+  // constant rather than mainForeground/buttonBackground because it must stay
+  // white in the dark theme too -- see ThemeBlack.js for why.
+  ssoButtonSurface: "#FFFFFF",
+  errorBannerBackground: "#FBECEC",
+  errorBannerBorder: "#D91E18",
+  errorBannerText: "#B71C1C",
 }
 
 export default StyleSheet.create({
@@ -241,7 +248,7 @@ export default StyleSheet.create({
   // themes -- see ThemeBlack.js for why -- so it only "themes" here for a
   // single source of truth, not because it varies.
   ssoButtonBackground: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.ssoButtonSurface,
   },
   ssoButtonBorder: {
     borderColor: Colors.sefariaBlue,
@@ -250,18 +257,18 @@ export default StyleSheet.create({
     color: Colors.sefariaBlue,
   },
   ssoDividerLine: {
-    backgroundColor: '#CCCCCC',
+    backgroundColor: Colors.lightGrey,
   },
   ssoDividerText: {
-    color: '#999999',
+    color: Colors.secondaryText,
   },
   ssoErrorBannerBackground: {
-    backgroundColor: '#FBECEC',
+    backgroundColor: Colors.errorBannerBackground,
   },
   ssoErrorBannerBorder: {
-    borderColor: '#D91E18',
+    borderColor: Colors.errorBannerBorder,
   },
   ssoErrorBannerText: {
-    color: '#B71C1C',
+    color: Colors.errorBannerText,
   },
 });
