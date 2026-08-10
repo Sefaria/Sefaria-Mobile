@@ -203,7 +203,19 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError, onMethodChosen, onProc
   const [loadingProvider, setLoadingProvider] = useState(null);
   const { interfaceLanguage } = useContext(GlobalStateContext);
   const isHeb = interfaceLanguage === 'hebrew';
-  const showApple = Platform.OS === 'ios' || authMode === AUTH_MODE.LOGIN;
+  // TEMPORARY: Apple sign-in is hidden on Android, iOS is unaffected.
+  //
+  // On Android there is no native Apple SDK, so the button hands off to mobile
+  // web (see AppleSignInButton's else branch). That round trip signs the user in
+  // on the web session only -- there is currently no way to bring them back into
+  // the app authenticated, so an Android user who originally registered with
+  // Apple has no working way in and lands in a dead end. Hiding the entry point
+  // is better than offering a path that cannot complete.
+  //
+  // Deliberately hidden, not deleted: the Android redirect path below stays in
+  // place so this becomes a one-line revert once the deep-link-back is built.
+  // Sizing that work is queued behind the web SSO release.
+  const showApple = Platform.OS === 'ios';
 
   return (
     <View style={styles.ssoSection}>
