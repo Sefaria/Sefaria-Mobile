@@ -1,6 +1,7 @@
 'use strict';
 
 import React, { useState, useContext } from 'react';
+import PropTypes from 'prop-types';
 import {
   View,
   Text,
@@ -12,7 +13,7 @@ import {
 import Config from 'react-native-config';
 import strings from './LocalizedStrings';
 import styles from './Styles';
-import { GlobalStateContext, getTheme } from './StateManager';
+import { GlobalStateContext } from './StateManager';
 import Sefaria from './sefaria';
 import { SSO_PROVIDER, AUTH_MODE, ANALYTICS_STATUS, ANALYTICS_REASON } from './AuthConstants';
 
@@ -197,12 +198,11 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
   );
 };
 
-const SSOButtons = ({ authMode, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded }) => {
+const SSOButtons = ({ authMode, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded, theme }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState(null);
-  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
+  const { interfaceLanguage } = useContext(GlobalStateContext);
   const isHeb = interfaceLanguage === 'hebrew';
-  const theme = getTheme(themeStr);
   const showApple = Platform.OS === 'ios' || authMode === AUTH_MODE.LOGIN;
 
   return (
@@ -240,10 +240,9 @@ const SSOButtons = ({ authMode, onSSOSuccess, onSSOError, onMethodChosen, onProc
   );
 };
 
-const OrDivider = () => {
-  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
+const OrDivider = ({ theme }) => {
+  const { interfaceLanguage } = useContext(GlobalStateContext);
   const isHeb = interfaceLanguage === 'hebrew';
-  const theme = getTheme(themeStr);
 
   return (
     <View style={styles.orDivider}>
@@ -252,6 +251,23 @@ const OrDivider = () => {
       <View style={[styles.orDividerLine, theme.ssoDividerLine]} />
     </View>
   );
+};
+
+// `theme` is always the caller's resolved theme object (see AuthPage, which
+// pins it to the light theme regardless of the app's theme setting) rather
+// than something this component resolves for itself from context.
+SSOButtons.propTypes = {
+  authMode: PropTypes.string.isRequired,
+  onSSOSuccess: PropTypes.func.isRequired,
+  onSSOError: PropTypes.func.isRequired,
+  onMethodChosen: PropTypes.func.isRequired,
+  onProcessStarted: PropTypes.func.isRequired,
+  onProcessEnded: PropTypes.func.isRequired,
+  theme: PropTypes.object.isRequired,
+};
+
+OrDivider.propTypes = {
+  theme: PropTypes.object.isRequired,
 };
 
 export { SSOButtons, OrDivider };

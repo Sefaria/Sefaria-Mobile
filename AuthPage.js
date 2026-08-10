@@ -35,6 +35,20 @@ import { AUTH_MODE, ANALYTICS_STATUS, ANALYTICS_REASON } from './AuthConstants';
 // interface language changes -- capturing `strings.x` here at module load
 // would freeze these messages in whatever language was active on first import.
 // Same three sentences web's RegisterView.jsx maps.
+// TEMPORARY: the auth screen opts out of the app's dark theme and always
+// renders light, because the Figma design defines only a light treatment and
+// the SSO provider marks (Google's full-color G, Apple's black logo) need a
+// light surface. This is a stopgap, not the intended end state -- the real fix
+// is a dark variant from design, at which point this constant goes away and the
+// page reads themeStr like every other screen.
+//
+// Scope is deliberately limited to this page: the forced theme is resolved here
+// once and passed DOWN as a prop to every child. Shared components (Misc.js's
+// SystemButton / CircleCloseButton) take it as an OPTIONAL override that falls
+// back to global state, so no other screen's dark mode is affected. If you add
+// a child here, pass it `theme` rather than letting it read global state.
+const AUTH_PAGE_THEME = 'white';
+
 const SSO_COLLISION_MESSAGE_KEYS = {
   "This email address is already registered via Google Sign-In.": 'ssoEmailExistsGoogle',
   "This email address is already registered via Apple Sign-In.": 'ssoEmailExistsApple',
@@ -114,7 +128,7 @@ const useAuthForm = (authMode, onLoginSuccess, onEmailSubmitResult) => {
 
 const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri, syncProfile, source }) => {
   const dispatch = useContext(DispatchContext);
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const { interfaceLanguage } = useContext(GlobalStateContext);
 
   // Analytics flow/attempt bookkeeping. AuthPage remounts (via the `key` on it
   // in ReaderApp.js) on every login <-> register switch, so refs created here
@@ -221,9 +235,9 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     close(authMode);
     showToast(strings.loginSuccessful);
   }, handleEmailSubmitResult);
-  const theme = getTheme(themeStr);
+  const theme = getTheme(AUTH_PAGE_THEME);
   const isLogin = authMode === AUTH_MODE.LOGIN;
-  const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
+  const placeholderTextColor = AUTH_PAGE_THEME === "black" ? "#BBB" : "#777";
   const isHeb = interfaceLanguage === 'hebrew';
 
   const [ssoError, setSsoError] = useState(null);
@@ -278,10 +292,10 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   };
 
   const mainContent = (
-    <ScrollView style={{flex:1, alignSelf: "stretch"}} contentContainerStyle={{alignItems: "center", paddingBottom: 50}} keyboardShouldPersistTaps='handled'>
+    <ScrollView style={[{flex:1, alignSelf: "stretch"}, theme.mainTextPanel]} contentContainerStyle={{alignItems: "center", paddingBottom: 50}} keyboardShouldPersistTaps='handled'>
       <RainbowBar />
       <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
-        <CircleCloseButton onPress={close} />
+        <CircleCloseButton onPress={close} themeStr={AUTH_PAGE_THEME} />
       </View>
       <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.login : strings.signup}</Text>
       <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
@@ -292,9 +306,10 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           onMethodChosen={fireMethodChosen}
           onProcessStarted={fireProcessStarted}
           onProcessEnded={fireProcessEnded}
+          theme={theme}
         />
-        <OrDivider />
-        <SSOErrorBanner error={(ssoError || emailCollisionMessage) ? { message: ssoError || emailCollisionMessage } : null} />
+        <OrDivider theme={theme} />
+        <SSOErrorBanner error={(ssoError || emailCollisionMessage) ? { message: ssoError || emailCollisionMessage } : null} theme={theme} />
         { isLogin ? null :
           <AuthTextInput
             placeholder={strings.first_name}
@@ -303,6 +318,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
             errorText={errors.first_name}
             onChangeText={setFirstName}
             onFocus={beginEmailAttempt}
+            theme={theme}
           />
         }
         { isLogin ? null :
@@ -313,6 +329,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
             errorText={errors.last_name}
             onChangeText={setLastName}
             onFocus={beginEmailAttempt}
+            theme={theme}
           />
         }
         <AuthTextInput
@@ -323,6 +340,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           errorText={!emailCollisionMessage && (errors.username || errors.email)}
           onChangeText={setEmail}
           onFocus={beginEmailAttempt}
+          theme={theme}
         />
         <AuthTextInput
           placeholder={strings.password}
@@ -332,6 +350,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           errorText={errors.password || errors.password1}
           onChangeText={setPassword}
           onFocus={beginEmailAttempt}
+          theme={theme}
         />
         <ErrorText error={errors.non_field_errors} errorText={errors.non_field_errors} />
         <SystemButton
@@ -340,6 +359,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           text={isLogin ? strings.login : strings.signup}
           isHeb={isHeb}
           isBlue
+          theme={theme}
         />
         {
           isLogin ?
@@ -380,11 +400,17 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
 
   return(
     Platform.OS == "ios" ?
-    <KeyboardAvoidingView style={{flex:1, alignSelf: "stretch"}} contentContainerStyle={{alignItems: "center", paddingBottom: 50}} behavior="padding">
+    // TEMPORARY, paired with AUTH_PAGE_THEME above. The page must paint its own
+    // background: it sits inside ReaderApp's themed container, so without this
+    // it inherits the dark background while its contents render light -- dark
+    // text on a dark panel. Note the status bar and bottom tab bar are
+    // ReaderApp's chrome, outside this component, and still follow the app
+    // theme; a proper dark variant would remove the need for all of this.
+    <KeyboardAvoidingView style={[{flex:1, alignSelf: "stretch"}, theme.mainTextPanel]} contentContainerStyle={{alignItems: "center", paddingBottom: 50}} behavior="padding">
       {mainContent}
     </KeyboardAvoidingView>
     :
-    <View style={{flex:1, alignSelf: "stretch"}} contentContainerStyle={{alignItems: "center", paddingBottom: 50}}>
+    <View style={[{flex:1, alignSelf: "stretch"}, theme.mainTextPanel]} contentContainerStyle={{alignItems: "center", paddingBottom: 50}}>
       {mainContent}
     </View>
   )
@@ -420,10 +446,11 @@ const AuthTextInput = ({
   errorText,
   onChangeText,
   onFocus,
+  theme,
 }) => (
   <GlobalStateContext.Consumer>
     {
-      ({ themeStr, interfaceLanguage }) => (
+      ({ interfaceLanguage }) => (
         <View>
           <TextInput
             style={[
@@ -432,8 +459,8 @@ const AuthTextInput = ({
               styles.boxShadow,
               styles.authTextInput,
               interfaceLanguage === 'hebrew' ? styles.heInt : styles.enInt,
-              getTheme(themeStr).text,
-              getTheme(themeStr).mainTextPanel
+              theme.text,
+              theme.mainTextPanel
             ]}
             placeholder={placeholder}
             placeholderTextColor={placeholderTextColor}

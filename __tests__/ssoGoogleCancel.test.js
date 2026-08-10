@@ -6,6 +6,7 @@ import renderer, { act } from 'react-test-renderer';
 import { TouchableOpacity } from 'react-native';
 import TestContextWrapper from '../TestContextWrapper';
 import { SSOButtons } from '../SSOButtons';
+import themeWhite from '../ThemeWhite';
 import { AUTH_MODE, ANALYTICS_STATUS, ANALYTICS_REASON } from '../AuthConstants';
 
 // @react-native-google-signin/google-signin v13 changed signIn()'s contract:
@@ -38,7 +39,7 @@ const pressGoogle = async (handlers) => {
   let instance;
   await act(async () => {
     instance = renderer.create(
-      <TestContextWrapper child={SSOButtons} childProps={{ authMode: AUTH_MODE.LOGIN, ...handlers }} />
+      <TestContextWrapper child={SSOButtons} childProps={{ authMode: AUTH_MODE.LOGIN, theme: themeWhite, ...handlers }} />
     );
   });
   const googleButton = instance.root.findAllByType(TouchableOpacity)[0];
