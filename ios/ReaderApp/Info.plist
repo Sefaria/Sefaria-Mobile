@@ -24,7 +24,7 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<!-- Google Sign-In: reversed form of the iOS OAuth client id (GOOGLE_SSO_IOS_CLIENT_ID). Hardcoded
 	     because the URL scheme is needed at build time and this project does not enable Info.plist
-	     preprocessing. Not a secret -- it ships in every build. -->
+	     preprocessing. Not a secret; it ships in every build. -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
