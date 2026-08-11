@@ -1,16 +1,19 @@
 /**
- * Shared constants/helpers for the SSO auth analytics events (sign-up + login
- * families). These event names are snake_case per the cross-platform analytics
- * spec (must match web), unlike the rest of mobile's PascalCase events.
+ * Shared constants/helpers for the SSO auth analytics events. Event names are
+ * snake_case and flat -- one funnel, not a login/sign-up pair -- per the
+ * cross-platform analytics spec (must match web), unlike the rest of
+ * mobile's PascalCase events. What used to be two families distinguished by
+ * event-name prefix is now a single family distinguished by the
+ * `flow_intent` field (see AUTH_FLOW_INTENT in AuthConstants.js).
  */
 
-import { AUTH_MODE } from '../AuthConstants';
-
-// Single lookup for the event-name family prefix, keyed by AuthPage's `authMode`.
-// A future rename of either family is a one-line edit here.
-export const AUTH_EVENT_FAMILY = {
-  [AUTH_MODE.REGISTER]: 'sign_up',
-  [AUTH_MODE.LOGIN]: 'login',
+// The five events of the auth funnel, named identically across platforms.
+export const AUTH_EVENT = {
+  FLOW_STARTED: 'auth_flow_started',
+  METHOD_CHOSEN: 'auth_method_chosen',
+  PROCESS_STARTED: 'auth_process_started',
+  PROCESS_ENDED: 'auth_process_ended',
+  FLOW_ENDED: 'auth_flow_ended',
 };
 
 // Firebase Analytics caps event param VALUES at 100 chars.

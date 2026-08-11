@@ -34,7 +34,7 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
     try {
       ({ GoogleSignin, statusCodes } = require('@react-native-google-signin/google-signin'));
     } catch (e) {
-      onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.MODULE_UNAVAILABLE });
+      onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.MODULE_UNAVAILABLE });
       const rebuildCmd = Platform.OS === 'ios' ? 'npx react-native run-ios' : 'npx react-native run-android';
       onSSOError(new Error(`Google Sign-In native module not available. Rebuild the app with: ${rebuildCmd}`));
       return;
@@ -68,7 +68,7 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
       // no Google account, e.g. every BrowserStack device -- reaches the user as
       // a provider error and lands in the funnel as one.
       if (response?.type === 'cancelled') {
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.CANCELLED });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED });
         return;
       }
       const idToken = response.data?.idToken;
@@ -83,17 +83,26 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
         // means webClientId was empty at configure() time: Utils.java only calls
         // requestIdToken(webClientId) when it is non-empty, so the flow succeeds
         // and getIdToken() is null. Surface it instead of failing silently.
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.PROVIDER_ERROR, error: 'No identity token returned' });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.INVALID_RESPONSE });
         onSSOError(new Error('Google sign-in did not return an identity token.'));
       }
     } catch (error) {
       if (error.code !== statusCodes.SIGN_IN_CANCELLED) {
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.PROVIDER_ERROR, error: error?.code || error?.message });
+        // `error` must stay a low-cardinality, groupable value: prefer the raw
+        // SDK *code*, falling back to ANALYTICS_REASON.PROVIDER_ERROR when
+        // there isn't one. `error.message` is deliberately excluded -- Apple/
+        // Google SDK rejections frequently have no `.code`, and their `.message`
+        // is a locale- and OS-dependent NSError sentence, so every phrasing
+        // becomes a distinct Firebase param value and provider errors become
+        // uncountable. The message text itself still reaches the developer via
+        // onSSOError below (console.log + the __DEV__ banner in AuthPage), it
+        // just doesn't leak into analytics.
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: error?.code || ANALYTICS_REASON.PROVIDER_ERROR });
         onSSOError(error);
       } else {
         // Cancel is intentionally swallowed from the user-facing error banner
         // (unchanged behavior) but still needs to be tracked as a failure.
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.CANCELLED });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED });
       }
     } finally {
       setIsLoading(false);
@@ -126,12 +135,12 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
       try {
         appleAuth = require('@invertase/react-native-apple-authentication').default;
       } catch (e) {
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.MODULE_UNAVAILABLE });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.MODULE_UNAVAILABLE });
         onSSOError(new Error('Apple Sign-In native module not available. Rebuild the app with: npx react-native run-ios'));
         return;
       }
       if (!appleAuth.isSupported) {
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.UNSUPPORTED_DEVICE });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.UNSUPPORTED_DEVICE });
         onSSOError(new Error('Apple Sign-In is not supported on this device (requires a real iOS device, not a simulator)'));
         return;
       }
@@ -153,15 +162,25 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
             lastName: fullName?.familyName,
           });
         } else {
-          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.PROVIDER_ERROR, error: 'No identity token returned' });
+          // Unlike the equivalent Google branch above, nothing here calls
+          // onSSOError, so this console.log is the only place a developer sees
+          // this failure -- the analytics `error` field only carries the
+          // low-cardinality reason enum (see the comment on the catch block
+          // below), not this message.
+          console.log('Apple Sign-In: performRequest resolved with no identityToken.');
+          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.INVALID_RESPONSE });
         }
       } catch (error) {
         if (error.code !== appleAuth.Error.CANCELED) {
-          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.PROVIDER_ERROR, error: error?.code || error?.message });
+          // `error` must stay a low-cardinality, groupable value: prefer the raw
+          // SDK *code*, falling back to ANALYTICS_REASON.PROVIDER_ERROR when
+          // there isn't one. `error.message` is deliberately excluded -- see the
+          // matching comment on the Google button's catch block above.
+          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: error?.code || ANALYTICS_REASON.PROVIDER_ERROR });
           onSSOError(error);
         } else {
           // Cancel path: see the same comment on the Google button above.
-          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.CANCELLED });
+          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED });
         }
       } finally {
         setIsLoading(false);

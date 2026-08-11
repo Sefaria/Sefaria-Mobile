@@ -22,12 +22,14 @@ const SUCCESS = { type: 'success', data: { idToken: 'tok', user: {} } };
 
 let mockSignInResult;
 
+let mockSignInRejection;
+
 jest.mock('@react-native-google-signin/google-signin', () => ({
   GoogleSignin: {
     configure: jest.fn(),
     hasPlayServices: jest.fn(() => Promise.resolve(true)),
     signOut: jest.fn(() => Promise.resolve()),
-    signIn: jest.fn(() => Promise.resolve(mockSignInResult)),
+    signIn: jest.fn(() => (mockSignInRejection ? Promise.reject(mockSignInRejection) : Promise.resolve(mockSignInResult))),
   },
   statusCodes: { SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED' },
 }));
@@ -65,7 +67,7 @@ describe('Google sign-in cancellation', () => {
     const handlers = makeHandlers();
     await pressGoogle(handlers);
     expect(handlers.onProcessEnded).toHaveBeenCalledWith(
-      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.CANCELLED })
+      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED })
     );
   });
 
@@ -75,5 +77,25 @@ describe('Google sign-in cancellation', () => {
     await pressGoogle(handlers);
     expect(handlers.onSSOSuccess).toHaveBeenCalledWith('google', 'tok', expect.any(Object));
     expect(handlers.onSSOError).not.toHaveBeenCalled();
+  });
+});
+
+// A provider rejection with no `.code` used to fall through to `.message`,
+// putting a locale- and OS-dependent NSError-style sentence into analytics --
+// every phrasing becomes a distinct Firebase param value, making provider
+// errors uncountable. It must fall to the ANALYTICS_REASON enum instead.
+describe('Google sign-in provider error with no error code', () => {
+  afterEach(() => { mockSignInRejection = undefined; });
+
+  test('reports the PROVIDER_ERROR enum, not the raw message sentence', async () => {
+    mockSignInRejection = new Error('com.google.android.gms.common.api.ApiException: 7: ');
+    const handlers = makeHandlers();
+    await pressGoogle(handlers);
+
+    expect(handlers.onProcessEnded).toHaveBeenCalledWith(
+      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.PROVIDER_ERROR })
+    );
+    // Still surfaced to the developer, just not through analytics.
+    expect(handlers.onSSOError).toHaveBeenCalledWith(mockSignInRejection);
   });
 });

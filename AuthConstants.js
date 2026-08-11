@@ -25,6 +25,39 @@ export const ANALYTICS_STATUS = {
     FAILURE: 'failure',
 };
 
+// auth_flow_started's `flow_intent` field. Distinguishes what used to be
+// separate sign_up_/login_ event families, now that both flows emit the same
+// flat event names (see analytics/authEvents.js). Mobile has no one-tap flow
+// today -- ONE_TAP_LOGIN is defined only so this enum matches the
+// cross-platform spec that mobile, web, and their analytics consumers share.
+export const AUTH_FLOW_INTENT = {
+    REGISTRATION: 'registration',
+    LOGIN: 'login',
+    ONE_TAP_LOGIN: 'one_tap_login',
+};
+
+// Explicit AUTH_MODE -> AUTH_FLOW_INTENT lookup, rather than an inline ternary
+// at the call site (AuthPage.js). A ternary silently maps any future AUTH_MODE
+// member to LOGIN; an unmapped key here reads as `undefined` on flow_started
+// instead, and the exhaustiveness test in analytics/__tests__/authEvents.test.js
+// fails loudly the moment AUTH_MODE grows a member this map doesn't cover.
+export const AUTH_FLOW_INTENT_BY_MODE = {
+    [AUTH_MODE.REGISTER]: AUTH_FLOW_INTENT.REGISTRATION,
+    [AUTH_MODE.LOGIN]: AUTH_FLOW_INTENT.LOGIN,
+};
+
+// auth_process_ended / auth_flow_ended's `outcome` field on success: whether
+// the attempt created an account or signed an existing user in. Omitted
+// entirely on failure -- there's nothing to report.
+export const ANALYTICS_OUTCOME = {
+    CREATED_NEW_ACCOUNT: 'created_new_account',
+    EXISTING_USER_LOGIN: 'existing_user_login',
+};
+
+// Fallback value for the analytics `error` field. The field prefers a raw
+// provider/server error code when one exists (see AuthPage's fireProcessEnded
+// call sites); these values are what it falls back to when there is no raw
+// code to report, e.g. a cancelled sheet or an abandoned flow.
 export const ANALYTICS_REASON = {
     ABANDONED: 'abandoned',
     VALIDATION_FAILED: 'validation_failed',

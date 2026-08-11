@@ -6,7 +6,16 @@ import { AuthPage, AuthTextInput, ssoCollisionMessage, ssoErrorWithCode } from '
 import { SSOButtons } from '../SSOButtons';
 import SSOErrorBanner from '../SSOErrorBanner';
 import strings from '../LocalizedStrings';
-import { AUTH_MODE, ANALYTICS_REASON, SSO_ERROR_CODE } from '../AuthConstants';
+import { AUTH_MODE, AUTH_FLOW_INTENT, ANALYTICS_STATUS, ANALYTICS_OUTCOME, ANALYTICS_REASON, SSO_ERROR_CODE } from '../AuthConstants';
+import { AUTH_EVENT } from '../analytics/authEvents';
+import { trackEvent } from '../analytics/events';
+
+// AuthPage's analytics calls go through the real trackEvent(...), which
+// chains into Firebase's mocked logEvent via a NetInfo/AsyncStorage-reading
+// enrichment step (see analytics/enrichments.js) that isn't relevant here.
+// Mocking the module directly lets the analytics-event tests below assert on
+// exactly what AuthPage passed in, with no enrichment noise to filter out.
+jest.mock('../analytics/events', () => ({ trackEvent: jest.fn() }));
 
 
 const AuthPageWrapper = ({ authMode }) => (
@@ -170,7 +179,7 @@ describe('SSO handlers', () => {
       Sefaria.api.socialLogin.mockResolvedValue({
         success: false,
         code: SSO_ERROR_CODE.NETWORK_ERROR,
-        analyticsReason: ANALYTICS_REASON.NETWORK_ERROR,
+        analyticsError: ANALYTICS_REASON.NETWORK_ERROR,
         error: { non_field_errors: RAW_SERVER_MESSAGE },
       });
       const instance = renderAuthPage();
@@ -244,5 +253,179 @@ describe('SSO handlers', () => {
       await submit(instance);
       expect(bannerMessage(instance)).toBeNull();
     });
+  });
+});
+
+// Covers the auth_* analytics event contract directly: event names, the
+// flow_intent/outcome/error field shapes, and the outcome key being truly
+// absent (not just falsy) on failure.
+describe('auth analytics events', () => {
+  let originalAuth;
+
+  beforeEach(() => {
+    trackEvent.mockClear();
+    Sefaria.api.socialLogin = jest.fn();
+    originalAuth = Sefaria._auth;
+  });
+
+  afterEach(() => { Sefaria._auth = originalAuth; });
+
+  const renderAuthPage = (authMode, props = {}) => {
+    act(() => {
+      currentInstance = renderer.create(
+        <TestContextWrapper child={AuthPage} childProps={{
+          authMode,
+          close: jest.fn(),
+          showToast: jest.fn(),
+          syncProfile: jest.fn(),
+          openLogin: () => {},
+          openRegister: () => {},
+          openUri: () => {},
+          ...props,
+        }} />
+      );
+    });
+    return currentInstance;
+  };
+
+  // Every trackEvent(name, params) call as [name, params]; filtering by name
+  // gets the params object AuthPage actually built for that event.
+  const paramsFor = (eventName) => trackEvent.mock.calls
+    .filter(([name]) => name === eventName)
+    .map(([, params]) => params);
+  const lastParamsFor = (eventName) => paramsFor(eventName).at(-1);
+
+  test.each([
+    [AUTH_MODE.REGISTER, AUTH_FLOW_INTENT.REGISTRATION],
+    [AUTH_MODE.LOGIN, AUTH_FLOW_INTENT.LOGIN],
+  ])('flow_started carries flow_intent for authMode %s', (authMode, expectedIntent) => {
+    renderAuthPage(authMode);
+    expect(lastParamsFor(AUTH_EVENT.FLOW_STARTED)).toEqual(expect.objectContaining({ flow_intent: expectedIntent }));
+  });
+
+  test('a successful email submit reports outcome on process_ended, no error key', async () => {
+    // onSubmit's success check is `no field errors AND Sefaria._auth.uid`
+    // (see AuthPage.js's onSubmit) -- the real authenticate() sets uid as a
+    // side effect of storing the token, which this mock skips.
+    Sefaria.api.authenticate = jest.fn(async () => { Sefaria._auth = { uid: 'test-uid' }; return {}; });
+    renderAuthPage(AUTH_MODE.REGISTER);
+    const button = currentInstance.root.findByType(SystemButton);
+    await act(async () => { await button.props.onPress(); });
+
+    const params = lastParamsFor(AUTH_EVENT.PROCESS_ENDED);
+    expect(params).toEqual(expect.objectContaining({ status: ANALYTICS_STATUS.SUCCESS, outcome: ANALYTICS_OUTCOME.CREATED_NEW_ACCOUNT }));
+    expect(params).not.toHaveProperty('error');
+  });
+
+  test('a failed email submit omits outcome on process_ended and reports an error', async () => {
+    Sefaria.api.authenticate = jest.fn(async () => ({ email: ['bad'] }));
+    renderAuthPage(AUTH_MODE.LOGIN);
+    const button = currentInstance.root.findByType(SystemButton);
+    await act(async () => { await button.props.onPress(); });
+
+    const params = lastParamsFor(AUTH_EVENT.PROCESS_ENDED);
+    expect(params).toEqual(expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.VALIDATION_FAILED }));
+    expect(params).not.toHaveProperty('outcome');
+  });
+
+  test('abandoning the flow (unmount with no success) fires flow_ended with error: abandoned and no outcome', () => {
+    renderAuthPage(AUTH_MODE.LOGIN);
+    act(() => { currentInstance.unmount(); });
+    currentInstance = null;
+
+    const params = lastParamsFor(AUTH_EVENT.FLOW_ENDED);
+    expect(params).toEqual(expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.ABANDONED }));
+    expect(params).not.toHaveProperty('outcome');
+  });
+
+  test('a failed attempt followed by abandonment reports the real failure, not "abandoned"', async () => {
+    Sefaria.api.socialLogin.mockResolvedValue({
+      success: false,
+      code: SSO_ERROR_CODE.NETWORK_ERROR,
+      analyticsError: ANALYTICS_REASON.NETWORK_ERROR,
+      error: { non_field_errors: 'Network error during sign-in' },
+    });
+    renderAuthPage(AUTH_MODE.LOGIN);
+    const ssoProps = currentInstance.root.findByType(SSOButtons).props;
+    act(() => { ssoProps.onMethodChosen('google'); });
+    await act(async () => { await ssoProps.onSSOSuccess('google', 'id-token', {}); });
+    act(() => { currentInstance.unmount(); });
+    currentInstance = null;
+
+    const params = lastParamsFor(AUTH_EVENT.FLOW_ENDED);
+    expect(params).toEqual(expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: SSO_ERROR_CODE.NETWORK_ERROR }));
+    expect(params.error).not.toBe(ANALYTICS_REASON.ABANDONED);
+    expect(params).not.toHaveProperty('outcome');
+  });
+
+  test('a flow that succeeds before unmount fires flow_ended with outcome and no error', async () => {
+    Sefaria.api.authenticate = jest.fn(async () => { Sefaria._auth = { uid: 'test-uid' }; return {}; });
+    renderAuthPage(AUTH_MODE.LOGIN);
+    const button = currentInstance.root.findByType(SystemButton);
+    await act(async () => { await button.props.onPress(); });
+    act(() => { currentInstance.unmount(); });
+    currentInstance = null;
+
+    const params = lastParamsFor(AUTH_EVENT.FLOW_ENDED);
+    expect(params).toEqual(expect.objectContaining({ status: ANALYTICS_STATUS.SUCCESS, outcome: ANALYTICS_OUTCOME.EXISTING_USER_LOGIN }));
+    expect(params).not.toHaveProperty('error');
+  });
+
+  // The is_new_account -> outcome mapping, including the case where
+  // socialLogin's response omits the field and AuthPage falls back to the
+  // same authMode-based rule email/password success uses.
+  describe('SSO success maps is_new_account to outcome', () => {
+    const ssoSucceedsWith = async (authMode, isNewAccount) => {
+      Sefaria.api.socialLogin.mockResolvedValue({
+        success: true,
+        email: 'sso@sefaria.org',
+        ...(isNewAccount !== undefined ? { is_new_account: isNewAccount } : {}),
+      });
+      renderAuthPage(authMode);
+      const ssoProps = currentInstance.root.findByType(SSOButtons).props;
+      // Mints the attempt_id fireProcessEnded requires -- SSOButtons' real
+      // handlers always call onMethodChosen before onSSOSuccess (see
+      // SSOButtons.js), so this mirrors the actual call order.
+      act(() => { ssoProps.onMethodChosen('google'); });
+      await act(async () => { await ssoProps.onSSOSuccess('google', 'id-token', {}); });
+      return lastParamsFor(AUTH_EVENT.PROCESS_ENDED);
+    };
+
+    test('is_new_account: true -> created_new_account', async () => {
+      const params = await ssoSucceedsWith(AUTH_MODE.LOGIN, true);
+      expect(params.outcome).toBe(ANALYTICS_OUTCOME.CREATED_NEW_ACCOUNT);
+    });
+
+    test('is_new_account: false -> existing_user_login', async () => {
+      const params = await ssoSucceedsWith(AUTH_MODE.LOGIN, false);
+      expect(params.outcome).toBe(ANALYTICS_OUTCOME.EXISTING_USER_LOGIN);
+    });
+
+    test('is_new_account: undefined falls back to authMode derivation (register)', async () => {
+      const params = await ssoSucceedsWith(AUTH_MODE.REGISTER, undefined);
+      expect(params.outcome).toBe(ANALYTICS_OUTCOME.CREATED_NEW_ACCOUNT);
+    });
+
+    test('is_new_account: undefined falls back to authMode derivation (login)', async () => {
+      const params = await ssoSucceedsWith(AUTH_MODE.LOGIN, undefined);
+      expect(params.outcome).toBe(ANALYTICS_OUTCOME.EXISTING_USER_LOGIN);
+    });
+  });
+
+  test('SSO failure omits outcome and reports the raw code as error', async () => {
+    Sefaria.api.socialLogin.mockResolvedValue({
+      success: false,
+      code: SSO_ERROR_CODE.NETWORK_ERROR,
+      analyticsError: ANALYTICS_REASON.NETWORK_ERROR,
+      error: { non_field_errors: 'Network error during sign-in' },
+    });
+    renderAuthPage(AUTH_MODE.LOGIN);
+    const ssoProps = currentInstance.root.findByType(SSOButtons).props;
+    act(() => { ssoProps.onMethodChosen('google'); });
+    await act(async () => { await ssoProps.onSSOSuccess('google', 'id-token', {}); });
+
+    const params = lastParamsFor(AUTH_EVENT.PROCESS_ENDED);
+    expect(params).toEqual(expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: SSO_ERROR_CODE.NETWORK_ERROR }));
+    expect(params).not.toHaveProperty('outcome');
   });
 });

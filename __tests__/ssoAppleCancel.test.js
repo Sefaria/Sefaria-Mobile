@@ -79,7 +79,7 @@ describe('Apple sign-in cancellation', () => {
     const handlers = makeHandlers();
     await pressApple(handlers);
     expect(handlers.onProcessEnded).toHaveBeenCalledWith(
-      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.CANCELLED })
+      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED })
     );
   });
 
@@ -89,7 +89,10 @@ describe('Apple sign-in cancellation', () => {
     await pressApple(handlers);
     expect(handlers.onSSOError).toHaveBeenCalled();
     expect(handlers.onProcessEnded).toHaveBeenCalledWith(
-      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.PROVIDER_ERROR })
+      // The raw SDK code (`error.code`) is what reaches analytics here, not
+      // the ANALYTICS_REASON.PROVIDER_ERROR fallback -- that's only used when
+      // there's no raw code/message to report.
+      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: '1000' })
     );
   });
 
@@ -130,7 +133,9 @@ describe('Apple sign-in cancellation', () => {
     await pressApple(handlers);
     expect(handlers.onSSOSuccess).not.toHaveBeenCalled();
     expect(handlers.onProcessEnded).toHaveBeenCalledWith(
-      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.PROVIDER_ERROR })
+      // A locale/OS-dependent sentence would be an uncountable analytics
+      // value; this must stay the closed enum member instead (see Fix 1).
+      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.INVALID_RESPONSE })
     );
   });
 });

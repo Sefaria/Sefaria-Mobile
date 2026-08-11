@@ -23,10 +23,10 @@ import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 import { trackEvent } from './analytics/events';
-import { AUTH_EVENT_FAMILY, truncateForAnalytics, generateUUID } from './analytics/authEventFamilies';
+import { AUTH_EVENT, truncateForAnalytics, generateUUID } from './analytics/authEvents';
 import { SSOButtons, OrDivider } from './SSOButtons';
 import SSOErrorBanner from './SSOErrorBanner';
-import { AUTH_MODE, ANALYTICS_STATUS, ANALYTICS_REASON } from './AuthConstants';
+import { AUTH_MODE, AUTH_FLOW_INTENT_BY_MODE, ANALYTICS_STATUS, ANALYTICS_OUTCOME, ANALYTICS_REASON } from './AuthConstants';
 
 // Exact-match map from the backend's English collision sentences (raised by
 // SefariaNewUserForm.clean_email on the register path) to the localized string
@@ -141,38 +141,56 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   // email attempt's id; currentMethodRef is the fallback method used when
   // fireProcessStarted/fireProcessEnded are invoked generically (via the props
   // handed to SSOButtons) -- call sites here that know the method pass it explicitly.
-  const family = AUTH_EVENT_FAMILY[authMode];
+  //
+  // Mobile has no one-tap flow, so flow_intent is a straight readout of
+  // authMode; registration/login are the only two flow_intent values this
+  // page ever emits (see AUTH_FLOW_INTENT in AuthConstants.js for the third).
+  // Looked up through the explicit AUTH_FLOW_INTENT_BY_MODE map rather than an
+  // inline ternary, so an AUTH_MODE added later without a mapping shows up as
+  // `undefined` here (and fails the exhaustiveness test) instead of silently
+  // reporting `login`.
+  const flowIntent = AUTH_FLOW_INTENT_BY_MODE[authMode];
   const flowIdRef = useRef(generateUUID());
   const attemptIdsRef = useRef({});
   const currentMethodRef = useRef(null);
   const emailAttemptActiveRef = useRef(false);
-  const flowOutcomeRef = useRef({ succeeded: false, isNewAccount: undefined });
+  // Holds exactly what flow_ended needs to emit, resolved as soon as the flow's
+  // outcome is known. Starts as the abandonment case so an unmount before any
+  // attempt at all (the common "user just closed the page" path) reports
+  // correctly with no extra bookkeeping. Every process_ended FAILURE overwrites
+  // it with that attempt's error (see fireProcessEnded below), so a user who
+  // closes the page after a failed attempt is reported with the real failure
+  // reason instead of a generic "abandoned"; a success handler still overwrites
+  // it wholesale, taking precedence over any prior failure.
+  const flowOutcomeRef = useRef({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.ABANDONED });
+
+  // Success derivation for email/password and the SSO undefined-is_new_account
+  // fallback share this rule: sign-up mode created an account, login mode
+  // signed an existing one in.
+  const deriveOutcomeFromAuthMode = () => (authMode === AUTH_MODE.REGISTER ? ANALYTICS_OUTCOME.CREATED_NEW_ACCOUNT : ANALYTICS_OUTCOME.EXISTING_USER_LOGIN);
 
   useEffect(() => {
-    trackEvent(`${family}_flow_started`, source ? { flow_id: flowIdRef.current, source } : { flow_id: flowIdRef.current });
+    trackEvent(AUTH_EVENT.FLOW_STARTED, source ? { flow_id: flowIdRef.current, source, flow_intent: flowIntent } : { flow_id: flowIdRef.current, flow_intent: flowIntent });
     return () => {
-      const outcome = flowOutcomeRef.current;
-      const params = { flow_id: flowIdRef.current };
-      if (outcome.succeeded) {
-        params.status = ANALYTICS_STATUS.SUCCESS;
-        if (outcome.isNewAccount !== undefined) { params.is_new_account = outcome.isNewAccount; }
-      } else {
-        params.status = ANALYTICS_STATUS.FAILURE;
-        params.reason = ANALYTICS_REASON.ABANDONED;
-      }
-      trackEvent(`${family}_flow_ended`, params);
+      const resolved = flowOutcomeRef.current;
+      const params = { flow_id: flowIdRef.current, status: resolved.status };
+      const truncatedOutcome = truncateForAnalytics(resolved.outcome);
+      if (truncatedOutcome !== undefined) { params.outcome = truncatedOutcome; }
+      const truncatedError = truncateForAnalytics(resolved.error);
+      if (truncatedError !== undefined) { params.error = truncatedError; }
+      trackEvent(AUTH_EVENT.FLOW_ENDED, params);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Mints a fresh attempt_id and fires <fam>_method_chosen. Called for every
+  // Mints a fresh attempt_id and fires auth_method_chosen. Called for every
   // new provider tap or new email attempt -- never gated behind a "sent once"
   // flag, so retries correctly re-fire.
   const fireMethodChosen = (method) => {
     const attemptId = generateUUID();
     attemptIdsRef.current[method] = attemptId;
     currentMethodRef.current = method;
-    trackEvent(`${family}_method_chosen`, { flow_id: flowIdRef.current, attempt_id: attemptId, method });
+    trackEvent(AUTH_EVENT.METHOD_CHOSEN, { flow_id: flowIdRef.current, attempt_id: attemptId, method });
   };
 
   const fireProcessStarted = (method = currentMethodRef.current) => {
@@ -181,17 +199,27 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     // attempt_id: undefined would silently corrupt the funnel, which is worse
     // than the missing bookend that dropping it leaves behind.
     if (!attemptId) { return; }
-    trackEvent(`${family}_process_started`, { flow_id: flowIdRef.current, attempt_id: attemptId });
+    trackEvent(AUTH_EVENT.PROCESS_STARTED, { flow_id: flowIdRef.current, attempt_id: attemptId });
   };
 
-  const fireProcessEnded = ({ status, error, reason }, method = currentMethodRef.current) => {
+  const fireProcessEnded = ({ status, outcome, error }, method = currentMethodRef.current) => {
     const attemptId = attemptIdsRef.current[method];
     if (!attemptId) { return; }
     const params = { flow_id: flowIdRef.current, attempt_id: attemptId, status };
+    const truncatedOutcome = truncateForAnalytics(outcome);
+    if (truncatedOutcome !== undefined) { params.outcome = truncatedOutcome; }
     const truncatedError = truncateForAnalytics(error);
     if (truncatedError !== undefined) { params.error = truncatedError; }
-    if (reason) { params.reason = reason; }
-    trackEvent(`${family}_process_ended`, params);
+    trackEvent(AUTH_EVENT.PROCESS_ENDED, params);
+    if (status === ANALYTICS_STATUS.FAILURE) {
+      // Keep the last real failure reason on hand for flow_ended: without
+      // this, a failed attempt followed by the user closing the page reports
+      // `error: abandoned`, indistinguishable from someone who tapped nothing
+      // at all. A later successful attempt still overwrites this wholesale
+      // (see the SUCCESS handlers above), so this only ever affects the case
+      // where the flow ends without ever succeeding.
+      flowOutcomeRef.current = { status: ANALYTICS_STATUS.FAILURE, error };
+    }
     // Only the email attempt uses this flag, so a Google/Apple process_ended
     // can't clobber it.
     if (method === 'email') {
@@ -211,8 +239,13 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   };
 
   const handleEmailSubmitResult = (success) => {
-    fireProcessEnded(success ? { status: ANALYTICS_STATUS.SUCCESS } : { status: ANALYTICS_STATUS.FAILURE, reason: ANALYTICS_REASON.VALIDATION_FAILED }, 'email');
-    if (success) { flowOutcomeRef.current.succeeded = true; }
+    if (success) {
+      const outcome = deriveOutcomeFromAuthMode();
+      fireProcessEnded({ status: ANALYTICS_STATUS.SUCCESS, outcome }, 'email');
+      flowOutcomeRef.current = { status: ANALYTICS_STATUS.SUCCESS, outcome };
+    } else {
+      fireProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.VALIDATION_FAILED }, 'email');
+    }
   };
 
   const {
@@ -250,9 +283,15 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   const handleSSOTokenReceived = async (provider, idToken, userData) => {
     const result = await Sefaria.api.socialLogin(provider, idToken, userData);
     if (result.success) {
-      fireProcessEnded({ status: ANALYTICS_STATUS.SUCCESS }, provider);
-      flowOutcomeRef.current.succeeded = true;
-      if (result.is_new_account !== undefined) { flowOutcomeRef.current.isNewAccount = result.is_new_account; }
+      // is_new_account is the backend's own field name on the socialLogin
+      // response, not the analytics contract -- it maps to the analytics
+      // `outcome` enum below. When the backend omits it, fall back to the
+      // same authMode-based rule email/password success uses.
+      const outcome = result.is_new_account !== undefined
+        ? (result.is_new_account ? ANALYTICS_OUTCOME.CREATED_NEW_ACCOUNT : ANALYTICS_OUTCOME.EXISTING_USER_LOGIN)
+        : deriveOutcomeFromAuthMode();
+      fireProcessEnded({ status: ANALYTICS_STATUS.SUCCESS, outcome }, provider);
+      flowOutcomeRef.current = { status: ANALYTICS_STATUS.SUCCESS, outcome };
       dispatch({
         type: STATE_ACTIONS.setIsLoggedIn,
         value: true,
@@ -269,12 +308,14 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       close(authMode);
       showToast(strings.loginSuccessful);
     } else {
-      // `error` here is the SDK/server error code -- never the closed `reason`
-      // enum -- per the analytics field contract. socialLogin distinguishes a
+      // `error` prefers the raw SDK/server error code (result.code); only
+      // when that's unusable (e.g. a SERVER_REJECTED response with no
+      // data.error) does it fall back to the ANALYTICS_REASON enum value
+      // socialLogin already picked for it. socialLogin distinguishes a
       // failure to reach the server from a failure to store the credentials it
       // returned; reporting either as SERVER_REJECTED would blame the server
       // for a client-side problem.
-      fireProcessEnded({ status: ANALYTICS_STATUS.FAILURE, reason: result.analyticsReason || ANALYTICS_REASON.SERVER_REJECTED, error: result.code }, provider);
+      fireProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: result.code || result.analyticsError || ANALYTICS_REASON.SERVER_REJECTED }, provider);
       if (__DEV__) {
         setSsoError(`SSO backend error [${result.code}]: ${JSON.stringify(result.error).slice(0, 200)}`);
       } else {

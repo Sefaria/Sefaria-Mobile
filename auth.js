@@ -144,8 +144,11 @@ const Auth = {
       body: JSON.stringify(config.buildBody(idToken, userData)),
     });
   },
-  _socialLoginFailure: function(code, analyticsReason, error) {
-    return { success: false, code, analyticsReason, error };
+  // `analyticsError` is the ANALYTICS_REASON fallback AuthPage reports as the
+  // analytics `error` field when `code` itself isn't a usable value (e.g. the
+  // SERVER_REJECTED path below, where `code` is `data.error` and may be absent).
+  _socialLoginFailure: function(code, analyticsError, error) {
+    return { success: false, code, analyticsError, error };
   },
   socialLogin: async function(provider, idToken, userData) {
     const config = SSO_PROVIDER_CONFIG[provider];
@@ -217,7 +220,22 @@ const Auth = {
     }
 
     if (!response.ok) {
-      return Sefaria.api._socialLoginFailure(data.error, ANALYTICS_REASON.SERVER_REJECTED, data);
+      // data.error is server-controlled and not guaranteed to be a scalar --
+      // Django form errors on a nested field (e.g. {"email": ["Already in
+      // use"]}) arrive as an object. Putting that straight into `code` would
+      // make truncateForAnalytics's String(value) emit the literal
+      // "[object Object]" into analytics, and the same value would reach the
+      // user via ssoErrorWithCode in AuthPage. Only adopt it as `code` when
+      // it's actually a string or number; otherwise fall back to the same
+      // INVALID_RESPONSE code used elsewhere in this function for an
+      // unexpected response shape. The raw value is untouched in `data`,
+      // still passed through as the third arg for __DEV__ display.
+      const isScalarErrorCode = typeof data.error === 'string' || typeof data.error === 'number';
+      return Sefaria.api._socialLoginFailure(
+        isScalarErrorCode ? data.error : SSO_ERROR_CODE.INVALID_RESPONSE,
+        ANALYTICS_REASON.SERVER_REJECTED,
+        data,
+      );
     }
     if (!data.access || !data.refresh) {
       // A 2xx with no tokens is not a successful sign-in.
