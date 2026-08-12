@@ -26,7 +26,7 @@ import { trackEvent } from './analytics/events';
 import { AUTH_EVENT, truncateForAnalytics, generateUUID } from './analytics/authEvents';
 import { SSOButtons, OrDivider } from './SSOButtons';
 import SSOErrorBanner from './SSOErrorBanner';
-import { AUTH_MODE, AUTH_FLOW_INTENT_BY_MODE, ANALYTICS_STATUS, ANALYTICS_OUTCOME, ANALYTICS_REASON } from './AuthConstants';
+import { AUTH_MODE, AUTH_FLOW_INTENT_BY_MODE, ANALYTICS_STATUS, ANALYTICS_OUTCOME, ANALYTICS_REASON, SSO_ERROR_CODE, SSO_PROVIDER, AUTH_ERROR_CODE, APPLE_ERROR_CODE_UNKNOWN } from './AuthConstants';
 
 // Exact-match map from the backend's English collision sentences (raised by
 // SefariaNewUserForm.clean_email on the register path) to the localized string
@@ -53,6 +53,17 @@ import { AUTH_MODE, AUTH_FLOW_INTENT_BY_MODE, ANALYTICS_STATUS, ANALYTICS_OUTCOM
 // a child here, pass it `theme` rather than letting it read global state.
 const AUTH_PAGE_THEME = 'white';
 
+// Field keys AuthPage already has a dedicated <AuthTextInput>/<ErrorText>
+// surface for. See hasUnrenderedEmailError below for why this exists.
+// first_name/last_name render under their own register-only inputs;
+// password2 (Django's UserCreationForm._post_clean attaches password-strength
+// failures there, not to password/password1) renders folded into the
+// password input alongside password/password1 -- see that AuthTextInput below.
+// Omitting any of these here doesn't just lose that field's message, it also
+// trips hasUnrenderedEmailError and adds a contradictory generic banner on
+// top of the correct inline error.
+const KNOWN_EMAIL_ERROR_FIELDS = ['email', 'username', 'password', 'password1', 'password2', 'first_name', 'last_name', 'non_field_errors'];
+
 const SSO_COLLISION_MESSAGE_KEYS = {
   "This email address is already registered via Google Sign-In.": 'ssoEmailExistsGoogle',
   "This email address is already registered via Apple Sign-In.": 'ssoEmailExistsApple',
@@ -70,16 +81,67 @@ const ssoCollisionMessage = (backendMessage) => {
   return null;
 };
 
-// The code is not a closed set -- api.js returns its own values
-// (network_error, redirected, invalid_response, missing_tokens, storage_error)
-// but falls back to the backend's `data.error` on a non-ok response, which is
-// server-controlled. Clamp it to an identifier shape and length rather than
-// rendering whatever arrives; none of the real values leak anything, but the
-// UI should not be a passthrough for arbitrary server text.
-const ssoErrorWithCode = (code) => {
-  const safe = String(code ?? '').replace(/[^a-zA-Z0-9._-]/g, '').slice(0, 40);
-  return safe ? `${strings.ssoErrorGeneric} (${safe})` : strings.ssoErrorGeneric;
+// Maps api/login/'s `_auth` payload (sso_only_account, see AUTH_ERROR_CODE in
+// AuthConstants.js) to the localized message naming which provider(s) the
+// account is actually linked to. This is the SAME contract web's session-login
+// path returns from _sso_only_account_error (sso/views.py) -- keep this
+// mapping in sync with that function's provider list, not just with this
+// file's own history.
+//
+// `providers` is documented as a set (order not guaranteed), so this is
+// membership tests rather than array-position logic, and it's read defensively
+// throughout: `_auth` can be absent (any other login failure), and `providers`
+// can be missing or empty even when the code IS sso_only_account (e.g. a user
+// whose linked-account bookkeeping is in a state the backend doesn't have a
+// specific provider name for). Both of those still deserve the "this is an
+// SSO-only account" message, just the generic phrasing -- they must not fall
+// through to null and get treated as an unrendered error by
+// hasUnrenderedEmailError below.
+const ssoOnlyAccountMessage = (auth) => {
+  if (!auth || auth.code !== AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT) { return null; }
+  const providers = new Set(Array.isArray(auth.providers) ? auth.providers : []);
+  const hasGoogle = providers.has(SSO_PROVIDER.GOOGLE);
+  const hasApple = providers.has(SSO_PROVIDER.APPLE);
+  if (hasGoogle && hasApple) { return strings.ssoEmailExistsAppleAndGoogle; }
+  if (hasGoogle) { return strings.ssoEmailExistsGoogle; }
+  if (hasApple) { return strings.ssoEmailExistsApple; }
+  // Falls back to the generic SSO-error string rather than
+  // strings.ssoEmailExistsGeneric: that string is register-path collision
+  // copy ("An account with this email address already exists.") and carries
+  // no SSO signal, which is actively misleading on a login screen -- it tells
+  // the user their account exists but gives no hint that they need to use a
+  // social sign-in button. ssoErrorGeneric is less specific but not
+  // misleading. The correct end state is a dedicated "this account uses
+  // social sign-in" string; that's product copy Penina needs to write
+  // (Hebrew included), not something to draft here. In practice this branch
+  // shouldn't fire today -- the backend only emits sso_only_account when
+  // socialaccount_set.exists() is true -- so this is defensive against a
+  // future provider mobile doesn't yet recognize.
+  return strings.ssoErrorGeneric;
 };
+
+// A raw code (network_error, DEVELOPER_ERROR, a clamped server value...) isn't
+// something a user can act on, so it no longer reaches the banner -- product
+// decision was to replace the old "<generic message> (<code>)" text with
+// actionable, human-readable copy instead of exposing a numeric/opaque SDK
+// code to the user. Network failures get their own message because there IS
+// something the user can do about those (check their connection); everything
+// else collapses to the bare generic string. The code itself isn't lost:
+// fireProcessEnded still reports it as the analytics `error` field (see
+// handleSSOTokenReceived/handleSSOError below), and the __DEV__ branches at
+// both call sites still show it verbatim for debugging -- this function is
+// only reached on the non-__DEV__ path.
+// APPLE_ERROR_CODE_UNKNOWN ('1000', AppleError.UNKNOWN) is included here
+// alongside the client-side NETWORK_ERROR code: it's what SSOButtons' Apple
+// handler passes through onSSOError as error.code when the SDK's
+// performRequest() rejects with no more specific error, and it's the exact
+// code from the reported bug ("יש תקלה, נסו שוב 1000"). Apple's own naming
+// calls it "unknown", not "network" -- mapping it to the network-error
+// message is a deliberate product decision based on observed airplane-mode
+// behavior, not a claim about Apple's semantics (see AuthConstants.js).
+const ssoErrorWithCode = (code) => (
+  (code === SSO_ERROR_CODE.NETWORK_ERROR || code === APPLE_ERROR_CODE_UNKNOWN) ? strings.authErrorNetwork : strings.ssoErrorGeneric
+);
 
 const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoading, onEmailSubmitResult) => {
   setIsLoading(true);
@@ -279,6 +341,31 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
 
   const [ssoError, setSsoError] = useState(null);
   const emailCollisionMessage = ssoCollisionMessage(errors.email);
+  // api/login/'s sso_only_account contract (see ssoOnlyAccountMessage above)
+  // arrives as `errors._auth`, a key `KNOWN_EMAIL_ERROR_FIELDS` doesn't know
+  // about -- so, like emailCollisionMessage, it has to be computed and
+  // excluded from hasUnrenderedEmailError BEFORE that check runs, or the
+  // generic fallback below would treat `_auth` as just another unrendered
+  // field and mask this more specific message with "something went wrong".
+  const ssoOnlyAccountErrorMessage = ssoOnlyAccountMessage(errors._auth);
+
+  // authenticate() (auth.js) forwards a failed backend response body verbatim
+  // as `errors` -- when the body carries some OTHER key, e.g.
+  // TokenObtainPairView's bare `detail` on bad login credentials, setErrors(...)
+  // succeeds but nothing on screen ever goes truthy, so the failure is
+  // invisible. `emailCollisionMessage` and `ssoOnlyAccountErrorMessage` are
+  // each handled separately (they already have a banner path) and are
+  // excluded here so neither is double-counted.
+  const hasUnrenderedEmailError = Object.keys(errors).length > 0
+    && !emailCollisionMessage
+    && !ssoOnlyAccountErrorMessage
+    && !KNOWN_EMAIL_ERROR_FIELDS.some((field) => errors[field]);
+  // Reuses SSOErrorBanner rather than adding a new display surface: it's
+  // already the catch-all for "something failed and none of the per-field
+  // inputs cover it" (see emailCollisionMessage above), so a login-only field
+  // error is just another case of the same problem. The backend's `detail`
+  // text is never shown -- it's English-only and not written for users.
+  const emailGenericErrorMessage = hasUnrenderedEmailError ? strings.ssoErrorGeneric : null;
 
   const handleSSOTokenReceived = async (provider, idToken, userData) => {
     const result = await Sefaria.api.socialLogin(provider, idToken, userData);
@@ -356,7 +443,17 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           theme={theme}
         />
         <OrDivider theme={theme} />
-        <SSOErrorBanner error={(ssoError || emailCollisionMessage) ? { message: ssoError || emailCollisionMessage } : null} theme={theme} />
+        {/* Precedence: a live SSO SDK/backend error (ssoError, cleared on every
+            submit) outranks the email-path messages below it, since it always
+            reflects the most recent attempt. Of the email-path messages,
+            emailCollisionMessage (register-time "this email already exists via
+            X") and ssoOnlyAccountErrorMessage (login-time "this account IS an
+            SSO account") are mutually exclusive in practice -- one comes from
+            register_api, the other from api/login/ -- but both are more
+            specific than emailGenericErrorMessage and so must be checked first,
+            or that catch-all would win and hide them (see
+            hasUnrenderedEmailError above). */}
+        <SSOErrorBanner error={(ssoError || emailCollisionMessage || ssoOnlyAccountErrorMessage || emailGenericErrorMessage) ? { message: ssoError || emailCollisionMessage || ssoOnlyAccountErrorMessage || emailGenericErrorMessage } : null} theme={theme} />
         { isLogin ? null :
           <AuthTextInput
             placeholder={strings.first_name}
@@ -393,8 +490,14 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           placeholder={strings.password}
           placeholderTextColor={placeholderTextColor}
           isPW={true}
-          error={errors.password || errors.password1}
-          errorText={errors.password || errors.password1}
+          // password2 (register's confirm-password field, posted alongside
+          // password1 -- see auth.js) is where Django's
+          // UserCreationForm._post_clean attaches password-strength failures
+          // by default, not password/password1. Folded in here rather than
+          // given its own input since there's no separate confirm-password
+          // field in this UI to attach it to.
+          error={errors.password || errors.password1 || errors.password2}
+          errorText={errors.password || errors.password1 || errors.password2}
           onChangeText={setPassword}
           onFocus={beginEmailAttempt}
           theme={theme}
@@ -528,4 +631,5 @@ export {
   AuthTextInput,
   ssoCollisionMessage,
   ssoErrorWithCode,
+  ssoOnlyAccountMessage,
 };

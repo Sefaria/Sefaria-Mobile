@@ -81,3 +81,25 @@ export const SSO_ERROR_CODE = {
     MISSING_TOKENS: 'missing_tokens',
     STORAGE_ERROR: 'storage_error',
 };
+
+// Apple's own "unknown error" code -- AppleError.UNKNOWN in
+// @invertase/react-native-apple-authentication's index.d.ts (SSOButtons.js
+// lazily `require`s that native module rather than importing it here, since
+// it may be absent; this file stays free of that native dependency, hence a
+// bare constant rather than the SDK enum). Nominally generic/unknown, NOT a
+// network code by Apple's own semantics -- but it's what was observed firing
+// during airplane-mode testing for the reported bug, so AuthPage's
+// ssoErrorWithCode deliberately maps it to the network-error message. That's
+// a product decision based on observed device behavior, not a claim about
+// what '1000' actually means to Apple.
+export const APPLE_ERROR_CODE_UNKNOWN = '1000';
+
+// api/login/'s structured-error contract, carried under the failed response
+// body's `_auth` key. Shared with web's session-login path -- both are
+// produced by sso/views.py's _sso_only_account_error -- so this stays a
+// single-member enum on purpose: it's the one code that contract currently
+// defines, and adding a member here should track a matching addition on the
+// backend, not be invented independently.
+export const AUTH_ERROR_CODE = {
+    SSO_ONLY_ACCOUNT: 'sso_only_account',
+};
