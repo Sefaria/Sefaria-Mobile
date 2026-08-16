@@ -17,6 +17,9 @@ export const SSO_PROVIDER = {
 export const AUTH_MODE = {
     LOGIN: 'login',
     REGISTER: 'register',
+    // Request-a-reset screen. Only the request step lives in the app -- the
+    // emailed confirm link still opens mobile web.
+    FORGOT_PASSWORD: 'forgot_password',
 };
 
 // Analytics event outcome. Paired with ANALYTICS_REASON on failure.
@@ -30,10 +33,13 @@ export const ANALYTICS_STATUS = {
 // flat event names (see analytics/authEvents.js). Mobile has no one-tap flow
 // today -- ONE_TAP_LOGIN is defined only so this enum matches the
 // cross-platform spec that mobile, web, and their analytics consumers share.
+// PASSWORD_RESET is a new member, not yet confirmed against the cross-platform
+// spec -- none of the existing values describe "requested a reset email".
 export const AUTH_FLOW_INTENT = {
     REGISTRATION: 'registration',
     LOGIN: 'login',
     ONE_TAP_LOGIN: 'one_tap_login',
+    PASSWORD_RESET: 'password_reset',
 };
 
 // Explicit AUTH_MODE -> AUTH_FLOW_INTENT lookup, rather than an inline ternary
@@ -44,6 +50,7 @@ export const AUTH_FLOW_INTENT = {
 export const AUTH_FLOW_INTENT_BY_MODE = {
     [AUTH_MODE.REGISTER]: AUTH_FLOW_INTENT.REGISTRATION,
     [AUTH_MODE.LOGIN]: AUTH_FLOW_INTENT.LOGIN,
+    [AUTH_MODE.FORGOT_PASSWORD]: AUTH_FLOW_INTENT.PASSWORD_RESET,
 };
 
 // auth_process_ended / auth_flow_ended's `outcome` field on success: whether

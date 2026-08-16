@@ -25,8 +25,11 @@ import { SSO_PROVIDER, AUTH_MODE, ANALYTICS_STATUS, ANALYTICS_REASON } from './A
 // the browser (a known limitation called out in the Figma spec).
 const appleAndroidRedirectUrl = () => `${Sefaria.api._baseHost}accounts/apple/login/`;
 
-const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded, isHeb, theme }) => {
-  const handleGoogleSignIn = async () => {
+// Extracted out of GoogleSignInButton so the forgot-password banner's
+// "Continue with Google" link (see AuthPage.js) can trigger the same native
+// sign-in without rendering the button UI. Takes setIsLoading/setLoadingProvider
+// as plain setters so any caller can supply its own loading state.
+const createGoogleSignInHandler = ({ authMode, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded }) => async () => {
     // Fired at the very top of the handler, before any async work, so it
     // captures the tap itself rather than however long setup/network takes.
     onMethodChosen(SSO_PROVIDER.GOOGLE);
@@ -110,6 +113,9 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
     }
   };
 
+const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded, isHeb, theme }) => {
+  const handleGoogleSignIn = createGoogleSignInHandler({ authMode, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded });
+
   const isPressed = isLoading && loadingProvider === SSO_PROVIDER.GOOGLE;
 
   return (
@@ -125,8 +131,9 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
   );
 };
 
-const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded, isHeb, theme }) => {
-  const handleAppleSignIn = async () => {
+// Same extraction as createGoogleSignInHandler above, for the same reason.
+// The Android branch (Linking.openURL redirect) is unchanged.
+const createAppleSignInHandler = ({ setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded }) => async () => {
     // Fired at the very top of the handler, before any async work or the
     // iOS/Android branch, so it captures the tap itself.
     onMethodChosen(SSO_PROVIDER.APPLE);
@@ -201,6 +208,9 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
       }
     }
   };
+
+const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded, isHeb, theme }) => {
+  const handleAppleSignIn = createAppleSignInHandler({ setIsLoading, setLoadingProvider, onSSOSuccess, onSSOError, onMethodChosen, onProcessStarted, onProcessEnded });
 
   const isPressed = isLoading && loadingProvider === SSO_PROVIDER.APPLE;
 
@@ -301,4 +311,4 @@ OrDivider.propTypes = {
   theme: PropTypes.object.isRequired,
 };
 
-export { SSOButtons, OrDivider };
+export { SSOButtons, OrDivider, createGoogleSignInHandler, createAppleSignInHandler };

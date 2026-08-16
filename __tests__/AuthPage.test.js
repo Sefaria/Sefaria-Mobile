@@ -2,11 +2,11 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { SystemButton } from '../Misc';
 import TestContextWrapper from '../TestContextWrapper';
-import { AuthPage, AuthTextInput, ssoCollisionMessage, ssoErrorWithCode, ssoOnlyAccountMessage } from '../AuthPage';
+import { AuthPage, AuthTextInput, ssoCollisionMessage, ssoErrorWithCode, ssoOnlyAccountMessage, FORGOT_PASSWORD_VIEW, forgotPasswordViewForResult, forgotPasswordBannerError } from '../AuthPage';
 import { SSOButtons } from '../SSOButtons';
 import SSOErrorBanner from '../SSOErrorBanner';
 import strings from '../LocalizedStrings';
-import { AUTH_MODE, AUTH_FLOW_INTENT, ANALYTICS_STATUS, ANALYTICS_OUTCOME, ANALYTICS_REASON, SSO_ERROR_CODE, AUTH_ERROR_CODE, APPLE_ERROR_CODE_UNKNOWN } from '../AuthConstants';
+import { AUTH_MODE, AUTH_FLOW_INTENT, ANALYTICS_STATUS, ANALYTICS_OUTCOME, ANALYTICS_REASON, SSO_ERROR_CODE, SSO_PROVIDER, AUTH_ERROR_CODE, APPLE_ERROR_CODE_UNKNOWN } from '../AuthConstants';
 import { AUTH_EVENT } from '../analytics/authEvents';
 import { trackEvent } from '../analytics/events';
 
@@ -17,6 +17,23 @@ import { trackEvent } from '../analytics/events';
 // exactly what AuthPage passed in, with no enrichment noise to filter out.
 jest.mock('../analytics/events', () => ({ trackEvent: jest.fn() }));
 
+// The forgot-password banner's provider links go through the same native
+// require() as SSOButtons' own buttons (createGoogleSignInHandler in
+// SSOButtons.js); there's no SSOButtons instance here to bypass it via a prop,
+// so this mock stands in for the module directly. virtual: true because Jest
+// would otherwise try to load the real (broken) module first.
+jest.mock('@react-native-google-signin/google-signin', () => ({
+  GoogleSignin: {
+    configure: jest.fn(),
+    hasPlayServices: jest.fn(async () => true),
+    signOut: jest.fn(async () => {}),
+    signIn: jest.fn(async () => ({
+      data: { idToken: 'google-id-token', user: { email: 'google@sefaria.org', givenName: 'Bob', familyName: 'Bobson' } },
+    })),
+  },
+  statusCodes: { SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED' },
+}), { virtual: true });
+
 
 const AuthPageWrapper = ({ authMode }) => (
   <TestContextWrapper child={AuthPage} childProps={{
@@ -25,6 +42,7 @@ const AuthPageWrapper = ({ authMode }) => (
     showToast: () => {},
     openLogin: () => {},
     openRegister: () => {},
+    openForgotPassword: () => {},
     openUri: () => {},
   }} />
 )
@@ -76,6 +94,34 @@ describe('login', () => {
       mobile_app_key: '',
     });
     expect(Sefaria.api.authenticate.mock.calls[0][1]).toBe(AUTH_MODE.LOGIN);
+  });
+
+  // Entry-point regression for the forgot-password screen: "Forgot your
+  // password?" used to open mobile web (openUri) directly; it must now enter
+  // AUTH_MODE.FORGOT_PASSWORD via the openForgotPassword prop instead, per the
+  // design doc's Entry point section.
+  test('"Forgot your password?" calls openForgotPassword, not openUri', () => {
+    const openForgotPassword = jest.fn();
+    const openUri = jest.fn();
+    act(() => {
+      currentInstance = renderer.create(
+        <TestContextWrapper child={AuthPage} childProps={{
+          close: () => {},
+          authMode: AUTH_MODE.LOGIN,
+          showToast: () => {},
+          openLogin: () => {},
+          openRegister: () => {},
+          openForgotPassword,
+          openUri,
+        }} />
+      );
+    });
+    const forgotPasswordLink = currentInstance.root.findAllByType(require('react-native').TouchableOpacity)
+      .find((t) => t.props.onPress === openForgotPassword);
+    expect(forgotPasswordLink).toBeDefined();
+    act(() => { forgotPasswordLink.props.onPress(); });
+    expect(openForgotPassword).toHaveBeenCalled();
+    expect(openUri).not.toHaveBeenCalled();
   });
 });
 
@@ -344,6 +390,7 @@ describe('SSO handlers', () => {
           syncProfile: props.syncProfile,
           openLogin: () => {},
           openRegister: () => {},
+          openForgotPassword: () => {},
           openUri: () => {},
         }} />
       );
@@ -492,6 +539,7 @@ describe('auth analytics events', () => {
           syncProfile: jest.fn(),
           openLogin: () => {},
           openRegister: () => {},
+          openForgotPassword: () => {},
           openUri: () => {},
           ...props,
         }} />
@@ -513,6 +561,17 @@ describe('auth analytics events', () => {
   ])('flow_started carries flow_intent for authMode %s', (authMode, expectedIntent) => {
     renderAuthPage(authMode);
     expect(lastParamsFor(AUTH_EVENT.FLOW_STARTED)).toEqual(expect.objectContaining({ flow_intent: expectedIntent }));
+  });
+
+  // Forgot-password isn't part of the auth_* funnel: no flow-level bookends,
+  // on mount or on unmount, even though it shares the same trackEvent plumbing.
+  test('forgot-password mode fires neither flow_started nor flow_ended', () => {
+    renderAuthPage(AUTH_MODE.FORGOT_PASSWORD);
+    act(() => { currentInstance.unmount(); });
+    currentInstance = null;
+
+    expect(paramsFor(AUTH_EVENT.FLOW_STARTED)).toEqual([]);
+    expect(paramsFor(AUTH_EVENT.FLOW_ENDED)).toEqual([]);
   });
 
   test('a successful email submit reports outcome on process_ended, no error key', async () => {
@@ -639,5 +698,320 @@ describe('auth analytics events', () => {
     const params = lastParamsFor(AUTH_EVENT.PROCESS_ENDED);
     expect(params).toEqual(expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: SSO_ERROR_CODE.NETWORK_ERROR }));
     expect(params).not.toHaveProperty('outcome');
+  });
+});
+
+// Coverage for the forgot-password mode (AUTH_MODE.FORGOT_PASSWORD): the form
+// is a constant, not swapped out for an error or SSO-only screen -- SENT is
+// the only state that replaces it.
+describe('forgot password mode', () => {
+  let props;
+
+  beforeEach(() => {
+    props = { close: jest.fn(), showToast: jest.fn(), syncProfile: jest.fn(), openLogin: jest.fn() };
+    Sefaria.api.requestPasswordReset = jest.fn();
+    Sefaria.api.socialLogin = jest.fn();
+  });
+
+  const renderForgotPasswordPage = () => {
+    act(() => {
+      currentInstance = renderer.create(
+        <TestContextWrapper child={AuthPage} childProps={{
+          authMode: AUTH_MODE.FORGOT_PASSWORD,
+          close: props.close,
+          showToast: props.showToast,
+          syncProfile: props.syncProfile,
+          openLogin: props.openLogin,
+          openRegister: () => {},
+          openForgotPassword: () => {},
+          openUri: () => {},
+        }} />
+      );
+    });
+    return currentInstance;
+  };
+
+  const submitEmail = async (instance, email = 'bob@sefaria.org') => {
+    const emailInput = instance.root.findByType(AuthTextInput);
+    act(() => { emailInput.props.onChangeText(email); });
+    const button = instance.root.findByType(SystemButton);
+    await act(async () => { await button.props.onPress(); });
+  };
+
+  // Returns the banner's row list ({ message, linkText? }[]), or null if no
+  // banner is showing -- a bare `{ message }` error is normalized to a
+  // one-row list so single-message and multi-row assertions share one helper.
+  const bannerRows = (instance) => {
+    const banners = instance.root.findAllByType(SSOErrorBanner);
+    const withError = banners.find((b) => b.props.error);
+    if (!withError) { return null; }
+    return withError.props.error.rows || [{ message: withError.props.error.message }];
+  };
+  const bannerMessage = (instance) => {
+    const rows = bannerRows(instance);
+    return rows ? rows[0].message : null;
+  };
+  const backToLoginLink = (instance) => instance.root.findAllByType(require('react-native').TouchableOpacity)
+    .find((t) => t.props.onPress === props.openLogin);
+
+  test('renders the form: an email input, a submit button, "Back to login", no banner, no SSO buttons', () => {
+    const instance = renderForgotPasswordPage();
+    expect(instance.root.findAllByType(AuthTextInput).length).toBe(1);
+    expect(instance.root.findByType(AuthTextInput).props.placeholder).toBe(strings.forgotPasswordEmailPlaceholder);
+    expect(instance.root.findByType(SystemButton).props.text).toBe(strings.sendResetLink);
+    expect(backToLoginLink(instance)).toBeDefined();
+    expect(instance.root.findAllByType(SSOButtons).length).toBe(0);
+    expect(bannerRows(instance)).toBeNull();
+  });
+
+  test('the title is "Forgot Password?"', () => {
+    const instance = renderForgotPasswordPage();
+    const title = instance.root.findAllByType(require('react-native').Text)
+      .find((t) => t.props.children === strings.forgotPasswordTitle);
+    expect(title).toBeDefined();
+  });
+
+  test('"Back to login" calls openLogin', () => {
+    const instance = renderForgotPasswordPage();
+    act(() => { backToLoginLink(instance).props.onPress(); });
+    expect(props.openLogin).toHaveBeenCalled();
+  });
+
+  test('a 200 success response replaces the form with the sent state: title, body, no button, no back-to-login', async () => {
+    Sefaria.api.requestPasswordReset.mockResolvedValue({ success: true });
+    const instance = renderForgotPasswordPage();
+    await submitEmail(instance);
+
+    expect(Sefaria.api.requestPasswordReset).toHaveBeenCalledWith('bob@sefaria.org');
+    expect(instance.root.findAllByType(AuthTextInput).length).toBe(0);
+    expect(instance.root.findAllByType(SystemButton).length).toBe(0);
+    expect(backToLoginLink(instance)).toBeUndefined();
+    const title = instance.root.findAllByType(require('react-native').Text)
+      .find((t) => t.props.children === strings.resetLinkSentTitle);
+    expect(title).toBeDefined();
+    const body = instance.root.findAllByType(require('react-native').Text)
+      .find((t) => t.props.children === strings.resetLinkSentBody);
+    expect(body).toBeDefined();
+  });
+
+  test('a network failure shows the network-specific banner ABOVE a form that stays usable', async () => {
+    Sefaria.api.requestPasswordReset.mockResolvedValue({
+      success: false,
+      code: SSO_ERROR_CODE.NETWORK_ERROR,
+      analyticsError: ANALYTICS_REASON.NETWORK_ERROR,
+      error: { non_field_errors: 'Network error' },
+    });
+    const instance = renderForgotPasswordPage();
+    await submitEmail(instance);
+
+    // Same network copy the login/register screen shows for this code, not
+    // the bare generic message -- see forgotPasswordBannerError in AuthPage.js.
+    expect(bannerMessage(instance)).toBe(strings.authErrorNetwork);
+    // The form never left: email input, submit button, and the back-to-login
+    // link are all still there, no separate "try again" screen to leave.
+    expect(instance.root.findAllByType(AuthTextInput).length).toBe(1);
+    expect(instance.root.findByType(SystemButton).props.text).toBe(strings.sendResetLink);
+    expect(backToLoginLink(instance)).toBeDefined();
+  });
+
+  test('a 400 auth.invalid_email response also shows the generic banner with the form intact', async () => {
+    Sefaria.api.requestPasswordReset.mockResolvedValue({
+      success: false,
+      code: 'auth.invalid_email',
+      analyticsError: ANALYTICS_REASON.SERVER_REJECTED,
+      error: { error: 'auth.invalid_email' },
+    });
+    const instance = renderForgotPasswordPage();
+    await submitEmail(instance, 'not-an-email');
+
+    expect(bannerMessage(instance)).toBe(strings.ssoErrorGeneric);
+    expect(instance.root.findAllByType(AuthTextInput).length).toBe(1);
+  });
+
+  test('a rejected requestPasswordReset still clears the loading spinner (regression)', async () => {
+    Sefaria.api.requestPasswordReset.mockRejectedValue(new Error('stream error'));
+    const instance = renderForgotPasswordPage();
+    await expect(submitEmail(instance)).rejects.toThrow('stream error');
+
+    expect(instance.root.findByType(SystemButton).props.isLoading).toBe(false);
+  });
+
+  test('submitting with no email does not call requestPasswordReset', async () => {
+    const instance = renderForgotPasswordPage();
+    const button = instance.root.findByType(SystemButton);
+    await act(async () => { await button.props.onPress(); });
+
+    expect(Sefaria.api.requestPasswordReset).not.toHaveBeenCalled();
+  });
+
+  // Provider mapping through the full request -> render flow. Unlike the login
+  // screen's single combined sentence, the both-providers case here renders
+  // TWO rows (one message+link per provider), matching web's error.providers.map(...).
+  describe('sso_only_account provider mapping', () => {
+    const ssoOnlyResult = (providers) => ({
+      success: false,
+      code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT,
+      analyticsError: ANALYTICS_REASON.SERVER_REJECTED,
+      error: { error: 'auth.generic_error', _auth: { code: 'sso_only_account', providers } },
+      providers,
+    });
+
+    test('google-only shows one row: the Google message plus a "Continue with Google" link', async () => {
+      Sefaria.api.requestPasswordReset.mockResolvedValue(ssoOnlyResult(['google']));
+      const instance = renderForgotPasswordPage();
+      await submitEmail(instance);
+
+      const rows = bannerRows(instance);
+      expect(rows).toEqual([{ message: strings.ssoEmailExistsGoogle, linkText: strings.continueWithGoogle, onPress: expect.any(Function), disabled: false }]);
+      // The form is still there underneath -- no dedicated SSO-only screen.
+      expect(instance.root.findAllByType(AuthTextInput).length).toBe(1);
+      expect(instance.root.findAllByType(SSOButtons).length).toBe(0);
+    });
+
+    test('apple-only shows one row: the Apple message plus a "Continue with Apple" link (iOS)', async () => {
+      Sefaria.api.requestPasswordReset.mockResolvedValue(ssoOnlyResult(['apple']));
+      const instance = renderForgotPasswordPage();
+      await submitEmail(instance);
+
+      const rows = bannerRows(instance);
+      expect(rows).toEqual([{ message: strings.ssoEmailExistsApple, linkText: strings.continueWithApple, onPress: expect.any(Function), disabled: false }]);
+    });
+
+    test('both providers shows TWO rows, one per provider, not the combined sentence', async () => {
+      Sefaria.api.requestPasswordReset.mockResolvedValue(ssoOnlyResult(['google', 'apple']));
+      const instance = renderForgotPasswordPage();
+      await submitEmail(instance);
+
+      const rows = bannerRows(instance);
+      expect(rows.length).toBe(2);
+      expect(rows[0]).toEqual(expect.objectContaining({ message: strings.ssoEmailExistsGoogle, linkText: strings.continueWithGoogle }));
+      expect(rows[1]).toEqual(expect.objectContaining({ message: strings.ssoEmailExistsApple, linkText: strings.continueWithApple }));
+    });
+
+    test('empty providers falls back to the generic SSO error string, with no link', async () => {
+      Sefaria.api.requestPasswordReset.mockResolvedValue(ssoOnlyResult([]));
+      const instance = renderForgotPasswordPage();
+      await submitEmail(instance);
+
+      expect(bannerRows(instance)).toEqual([{ message: strings.ssoErrorGeneric }]);
+    });
+
+    // A response with no _auth key at all never gets classified as
+    // sso_only_account by requestPasswordReset (see auth.js), so it must not
+    // be read as one here.
+    test('missing _auth shows the plain generic banner, not a provider row', async () => {
+      Sefaria.api.requestPasswordReset.mockResolvedValue({
+        success: false,
+        code: SSO_ERROR_CODE.INVALID_RESPONSE,
+        analyticsError: ANALYTICS_REASON.INVALID_RESPONSE,
+        error: { detail: 'unexpected' },
+      });
+      const instance = renderForgotPasswordPage();
+      await submitEmail(instance);
+
+      expect(bannerRows(instance)).toEqual([{ message: strings.ssoErrorGeneric }]);
+    });
+  });
+
+  // forgotPasswordViewForResult pure-function coverage.
+  describe('forgotPasswordViewForResult', () => {
+    test('success -> sent', () => {
+      expect(forgotPasswordViewForResult({ success: true })).toBe(FORGOT_PASSWORD_VIEW.SENT);
+    });
+    test('any failure, including sso_only_account -> error', () => {
+      expect(forgotPasswordViewForResult({ success: false, code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT })).toBe(FORGOT_PASSWORD_VIEW.ERROR);
+      expect(forgotPasswordViewForResult({ success: false, code: 'auth.invalid_email' })).toBe(FORGOT_PASSWORD_VIEW.ERROR);
+      expect(forgotPasswordViewForResult({ success: false, code: SSO_ERROR_CODE.NETWORK_ERROR })).toBe(FORGOT_PASSWORD_VIEW.ERROR);
+    });
+  });
+
+  // Pure-function coverage for forgotPasswordBannerError's precedence rule: a
+  // live ssoError outranks the sso_only_account rows.
+  describe('forgotPasswordBannerError', () => {
+    const deps = { showAppleLink: true, disabled: false, onGoogleLink: () => {}, onAppleLink: () => {} };
+
+    test('a live ssoError wins over an sso_only_account result', () => {
+      const auth = { code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT, providers: ['google'] };
+      const result = forgotPasswordBannerError(auth, 'a live SSO error', deps);
+      expect(result).toEqual({ message: 'a live SSO error' });
+    });
+
+    test('an apple-only result with showAppleLink false (Android) falls back to the generic message', () => {
+      const auth = { code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT, providers: ['apple'] };
+      const result = forgotPasswordBannerError(auth, null, { ...deps, showAppleLink: false });
+      expect(result).toEqual({ message: strings.ssoErrorGeneric });
+    });
+
+    test('no ssoError and no sso_only_account auth -> the generic message', () => {
+      expect(forgotPasswordBannerError(null, null, deps)).toEqual({ message: strings.ssoErrorGeneric });
+    });
+
+    test('a network_error result shows the network string, not the generic one', () => {
+      const auth = { code: SSO_ERROR_CODE.NETWORK_ERROR };
+      expect(forgotPasswordBannerError(auth, null, deps)).toEqual({ message: strings.authErrorNetwork });
+    });
+  });
+
+  // Guards the useSSOSignIn extraction: a sign-in via the banner's "Continue
+  // with Google" link must produce the same dispatch/syncProfile/close/toast
+  // sequence as the login screen's handleSSOTokenReceived, exercised here
+  // through the real createGoogleSignInHandler wiring (top-level google-signin
+  // mock) since there's no SSOButtons instance to grab a prop from.
+  describe('a provider sign-in from the banner link', () => {
+    // Jest runs with __DEV__ true, which selects the raw-message developer
+    // branch instead of ssoErrorWithCode(...); pinned false so the failure
+    // assertion below checks real user-facing behavior.
+    let originalDev;
+    beforeEach(() => { originalDev = global.__DEV__; global.__DEV__ = false; });
+    afterEach(() => { global.__DEV__ = originalDev; });
+
+    const renderWithGoogleOnlyBanner = async () => {
+      Sefaria.api.requestPasswordReset.mockResolvedValue({
+        success: false,
+        code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT,
+        providers: ['google'],
+      });
+      const instance = renderForgotPasswordPage();
+      await submitEmail(instance);
+      return instance;
+    };
+
+    const tapGoogleLink = async (instance) => {
+      const [row] = bannerRows(instance);
+      await act(async () => { await row.onPress(); });
+    };
+
+    test('signs the user in and dismisses the page exactly as the login screen does', async () => {
+      Sefaria.api.socialLogin.mockResolvedValue({ success: true, email: 'token@sefaria.org', is_new_account: false });
+      const instance = await renderWithGoogleOnlyBanner();
+
+      await tapGoogleLink(instance);
+
+      expect(Sefaria.api.socialLogin).toHaveBeenCalledWith('google', 'google-id-token', {
+        email: 'google@sefaria.org', firstName: 'Bob', lastName: 'Bobson',
+      });
+      expect(props.syncProfile).toHaveBeenCalled();
+      expect(props.close).toHaveBeenCalledWith(AUTH_MODE.FORGOT_PASSWORD);
+      expect(props.showToast).toHaveBeenCalledWith(strings.loginSuccessful);
+    });
+
+    test('a failed sign-in from this link surfaces the failure without closing the page', async () => {
+      Sefaria.api.socialLogin.mockResolvedValue({
+        success: false,
+        code: SSO_ERROR_CODE.NETWORK_ERROR,
+        analyticsError: ANALYTICS_REASON.NETWORK_ERROR,
+        error: { non_field_errors: 'Network error during sign-in' },
+      });
+      const instance = await renderWithGoogleOnlyBanner();
+
+      await tapGoogleLink(instance);
+
+      expect(props.close).not.toHaveBeenCalled();
+      expect(props.showToast).not.toHaveBeenCalled();
+      // The live failure now outranks the sso_only_account row (see
+      // forgotPasswordBannerError's precedence test above) -- the banner
+      // switches to the plain failure-code message.
+      expect(bannerMessage(instance)).toBe(ssoErrorWithCode(SSO_ERROR_CODE.NETWORK_ERROR));
+    });
   });
 });

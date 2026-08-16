@@ -27,7 +27,7 @@ import * as Keychain from 'react-native-keychain';
 import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';
 import jwt_decode from 'jwt-decode';
 import { devLog } from './devUtils';
-import { SSO_PROVIDER, AUTH_MODE, ANALYTICS_REASON, SSO_ERROR_CODE } from './AuthConstants';
+import { SSO_PROVIDER, AUTH_MODE, ANALYTICS_REASON, SSO_ERROR_CODE, AUTH_ERROR_CODE } from './AuthConstants';
 
 // Tokens live in OS-backed secure storage (Keychain/Keystore), not plaintext
 // AsyncStorage. Changing AUTH_KEYCHAIN_SERVICE orphans every stored credential
@@ -268,6 +268,118 @@ const Auth = {
       email: tokenEmail || userData?.email,
       ...(data.is_new_account !== undefined ? { is_new_account: data.is_new_account } : {}),
     };
+  },
+  requestPasswordResetRequest: function(email) {
+    const url = `${Sefaria.api._baseHost}api/auth/password/reset`;
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+      body: JSON.stringify({ email }),
+    });
+  },
+  // `analyticsError` mirrors _socialLoginFailure's fallback role: the
+  // ANALYTICS_REASON AuthPage reports when `code` alone isn't a usable
+  // low-cardinality value.
+  _requestPasswordResetFailure: function(code, analyticsError, error, extra = {}) {
+    return { success: false, code, analyticsError, error, ...extra };
+  },
+  // POST api/auth/password/reset (sso/views.py::password_reset_api). Like
+  // socialLogin, classifies failures (network/sso_only_account/other) into a
+  // returned shape rather than throwing, so callers switch instead of catching.
+  requestPasswordReset: async function(email) {
+    const url = `${Sefaria.api._baseHost}api/auth/password/reset`;
+
+    // Each stage caught on its own, same reasoning as socialLogin.
+    let response;
+    try {
+      response = await Sefaria.api.requestPasswordResetRequest(email);
+    } catch (error) {
+      recordError(getCrashlytics(), error);
+      return Sefaria.api._requestPasswordResetFailure(
+        SSO_ERROR_CODE.NETWORK_ERROR,
+        ANALYTICS_REASON.NETWORK_ERROR,
+        { non_field_errors: `Network error requesting password reset: ${error?.message}` },
+      );
+    }
+
+    // Same redirect hazard socialLogin guards against (see that comment).
+    if (response.url && response.url !== url) {
+      devLog(`requestPasswordReset followed a redirect: ${url} -> ${response.url} (HTTP ${response.status})`);
+      return Sefaria.api._requestPasswordResetFailure(
+        SSO_ERROR_CODE.REDIRECTED,
+        ANALYTICS_REASON.INVALID_RESPONSE,
+        { non_field_errors: `Request was redirected (${url} -> ${response.url}). A redirect downgrades POST to GET, so it cannot reach the reset endpoint.` },
+      );
+    }
+
+    // Reading as text first lets a non-JSON error body still be reported with
+    // its content instead of just a status code, same as socialLogin. A bare
+    // 200 {} success body has no JSON worth parsing.
+    //
+    // Guarded (unlike socialLogin's equivalent read) because a body-stream
+    // failure mid-read here would otherwise reject past requestPasswordReset's
+    // classify-don't-throw contract; classified the same way socialLogin
+    // classifies its own fetch() failure, for the same reason.
+    let rawBody;
+    try {
+      rawBody = await response.text();
+    } catch (error) {
+      recordError(getCrashlytics(), error);
+      return Sefaria.api._requestPasswordResetFailure(
+        SSO_ERROR_CODE.NETWORK_ERROR,
+        ANALYTICS_REASON.NETWORK_ERROR,
+        { non_field_errors: `Network error reading password reset response: ${error?.message}` },
+      );
+    }
+    let data = {};
+    if (rawBody) {
+      try {
+        data = JSON.parse(rawBody);
+      } catch (error) {
+        const snippet = rawBody.replace(/\s+/g, ' ').trim().slice(0, 120);
+        devLog(`requestPasswordReset non-JSON response: ${response.status} from ${url} :: ${snippet}`);
+        recordError(getCrashlytics(), error);
+        return Sefaria.api._requestPasswordResetFailure(
+          SSO_ERROR_CODE.INVALID_RESPONSE,
+          ANALYTICS_REASON.INVALID_RESPONSE,
+          { non_field_errors: `Server returned a non-JSON response (HTTP ${response.status} from ${url}): ${snippet}` },
+        );
+      }
+    }
+
+    if (data === null || typeof data !== 'object') {
+      return Sefaria.api._requestPasswordResetFailure(
+        SSO_ERROR_CODE.INVALID_RESPONSE,
+        ANALYTICS_REASON.INVALID_RESPONSE,
+        { non_field_errors: `Server returned an unexpected response body (HTTP ${response.status})` },
+      );
+    }
+
+    if (!response.ok) {
+      // The sso_only_account contract (shared with api/login/, see
+      // AUTH_ERROR_CODE in AuthConstants.js) arrives under `_auth` here too --
+      // surfaced as its own code + providers list so the UI can show a working
+      // SSO button instead of the generic error.
+      if (data._auth?.code === AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT) {
+        return Sefaria.api._requestPasswordResetFailure(
+          AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT,
+          ANALYTICS_REASON.SERVER_REJECTED,
+          data,
+          { providers: Array.isArray(data._auth.providers) ? data._auth.providers : [] },
+        );
+      }
+      // Same scalar guard as socialLogin: a non-scalar data.error (a nested
+      // Django form-error object) must not become `code`, or it reaches
+      // analytics as the literal string "[object Object]".
+      const isScalarErrorCode = typeof data.error === 'string' || typeof data.error === 'number';
+      return Sefaria.api._requestPasswordResetFailure(
+        isScalarErrorCode ? data.error : SSO_ERROR_CODE.INVALID_RESPONSE,
+        ANALYTICS_REASON.SERVER_REJECTED,
+        data,
+      );
+    }
+
+    return { success: true };
   },
   refreshToken: function(refreshToken) {
     const url = `${Sefaria.api._baseHost}api/login/refresh/`;

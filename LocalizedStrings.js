@@ -191,6 +191,15 @@ let strings = new LocalizedStrings({
     ssoEmailExistsApple: "This email address is registered via Apple Sign-In.",
     ssoEmailExistsAppleAndGoogle: "This email address is registered via Google Sign-In and Apple Sign-In.",
     ssoEmailExistsGeneric: "An account with this email address already exists.",
+    // Forgot-password screen. forgotPasswordTitle is a DIFFERENT string from
+    // `forgotPassword` above (the LOGIN screen's link text) -- keep both.
+    forgotPasswordTitle: "Forgot Password?",
+    forgotPasswordEmailPlaceholder: "Email Address",
+    sendResetLink: "Send Reset Link",
+    resetLinkSentTitle: "Reset Link Sent",
+    resetLinkSentBody: "Check your email and follow the instructions to reset your password.",
+    // No web equivalent -- web uses a back arrow, not a text link.
+    backToLogin: "Back to login",
     logout: "Log out",
     define: "Define",
     doubleDownload: "Another Download is in Progress",
@@ -421,6 +430,15 @@ let strings = new LocalizedStrings({
     ssoEmailExistsApple: "דוא״ל זה רשום דרך אפל.",
     ssoEmailExistsAppleAndGoogle: "דוא״ל זה רשום דרך גוגל ואפל.",
     ssoEmailExistsGeneric: "קיים חשבון עם הדוא״ל הזה.",
+    // Same set as the `en` block above -- see that block's comment for why
+    // forgotPasswordTitle is not a duplicate of forgotPassword.
+    forgotPasswordTitle: "שכחת סיסמה?",
+    forgotPasswordEmailPlaceholder: "דוא״ל",
+    sendResetLink: "שליחת קישור לאיפוס",
+    resetLinkSentTitle: "קישור לעדכון סיסמה נשלח",
+    resetLinkSentBody: "שלחנו לך הוראות לעדכון הסיסמה לתיבת הדוא״ל שלך.",
+    // No web equivalent -- web uses a back arrow, not a text link.
+    backToLogin: "חזרה להתחברות",
     logout: "ניתוק מהחשבון",
     define: "הגדרה",
     doubleDownload: "מוריד אוסף אחר, נא להמתין",

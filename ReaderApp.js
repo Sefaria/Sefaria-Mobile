@@ -72,7 +72,7 @@ import {getSafeViewStyleAndStatusBarBackground} from "./getSafeViewStyles";
 const ViewPort = Dimensions.get('window');
 
 //set of `menuOpen` states which you shouldn't be able to go back to
-const SKIP_MENUS = [AUTH_MODE.REGISTER, AUTH_MODE.LOGIN];
+const SKIP_MENUS = [AUTH_MODE.REGISTER, AUTH_MODE.LOGIN, AUTH_MODE.FORGOT_PASSWORD];
 
 class ReaderApp extends React.PureComponent {
   static whyDidYouRender = true;
@@ -1230,6 +1230,10 @@ class ReaderApp extends React.PureComponent {
     this.openMenu(AUTH_MODE.REGISTER, via);
   };
 
+  openForgotPassword = (via) => {
+    this.openMenu(AUTH_MODE.FORGOT_PASSWORD, via);
+  };
+
   openAutocomplete = () => {
     this.openMenu("autocomplete");
   }
@@ -2012,11 +2016,12 @@ class ReaderApp extends React.PureComponent {
         break;
       case(AUTH_MODE.LOGIN):
       case(AUTH_MODE.REGISTER):
+      case(AUTH_MODE.FORGOT_PASSWORD):
         return(
           <AuthPage
-            // Login and register share this switch-case slot with no key, so without one
-            // React reconciles them as the same instance and carries stale internal state
-            // (errors, ssoError, typed fields) across a login <-> register mode switch.
+            // Login/register/forgot-password share this switch-case slot with no key, so
+            // without one React reconciles them as the same instance and carries stale
+            // internal state (errors, ssoError, typed fields) across a mode switch.
             key={this.state.menuOpen}
             authMode={this.state.menuOpen}
             source={this.state.menuOpenSource}
@@ -2024,6 +2029,7 @@ class ReaderApp extends React.PureComponent {
             showToast={this.showToast}
             openLogin={this.openLogin}
             openRegister={this.openRegister}
+            openForgotPassword={this.openForgotPassword}
             openUri={this.openUri}
             syncProfile={this.syncProfileBound}
           />

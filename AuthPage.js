@@ -24,8 +24,9 @@ import strings from './LocalizedStrings';
 import styles from './Styles';
 import { trackEvent } from './analytics/events';
 import { AUTH_EVENT, truncateForAnalytics, generateUUID } from './analytics/authEvents';
-import { SSOButtons, OrDivider } from './SSOButtons';
+import { SSOButtons, OrDivider, createGoogleSignInHandler, createAppleSignInHandler } from './SSOButtons';
 import SSOErrorBanner from './SSOErrorBanner';
+import useSSOSignIn from './useSSOSignIn';
 import { AUTH_MODE, AUTH_FLOW_INTENT_BY_MODE, ANALYTICS_STATUS, ANALYTICS_OUTCOME, ANALYTICS_REASON, SSO_ERROR_CODE, SSO_PROVIDER, AUTH_ERROR_CODE, APPLE_ERROR_CODE_UNKNOWN } from './AuthConstants';
 
 // Exact-match map from the backend's English collision sentences (raised by
@@ -143,6 +144,47 @@ const ssoErrorWithCode = (code) => (
   (code === SSO_ERROR_CODE.NETWORK_ERROR || code === APPLE_ERROR_CODE_UNKNOWN) ? strings.authErrorNetwork : strings.ssoErrorGeneric
 );
 
+// The forgot-password screen's render states. FORM is the pristine state; ERROR
+// is the form plus an error banner, covering both a network/generic failure and
+// an sso_only_account result (they render the same way, just different banner
+// content); SENT replaces the form entirely.
+const FORGOT_PASSWORD_VIEW = {
+  FORM: 'form',
+  SENT: 'sent',
+  ERROR: 'error',
+};
+
+// No dedicated "unknown email" case: a non-existent email still reports
+// success, like web. SSO-only accounts are the exception -- the backend
+// returns 401 + `_auth.providers`, so those ARE enumerable (existence + provider).
+const forgotPasswordViewForResult = (result) => (
+  result.success ? FORGOT_PASSWORD_VIEW.SENT : FORGOT_PASSWORD_VIEW.ERROR
+);
+
+// Builds the ERROR view's banner content, highest precedence first: a live
+// ssoError from tapping one of this banner's own provider links; then an
+// sso_only_account result, one message+link row per linked provider (Apple
+// excluded on Android, same as SSOButtons' own showApple); else the generic
+// message with no link.
+const forgotPasswordBannerError = (auth, ssoError, { showAppleLink, disabled, onGoogleLink, onAppleLink }) => {
+  if (ssoError) { return { message: ssoError }; }
+  if (auth && auth.code === AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT) {
+    const providers = new Set(Array.isArray(auth.providers) ? auth.providers : []);
+    const rows = [];
+    if (providers.has(SSO_PROVIDER.GOOGLE)) {
+      rows.push({ message: strings.ssoEmailExistsGoogle, linkText: strings.continueWithGoogle, onPress: onGoogleLink, disabled });
+    }
+    if (providers.has(SSO_PROVIDER.APPLE) && showAppleLink) {
+      rows.push({ message: strings.ssoEmailExistsApple, linkText: strings.continueWithApple, onPress: onAppleLink, disabled });
+    }
+    if (rows.length) { return { rows }; }
+  }
+  // Route through the same code -> message mapping the login/register banner
+  // uses, so e.g. a network failure shows the network string here too instead
+  // of always collapsing to the bare generic message.
+  return { message: ssoErrorWithCode(auth?.code) };
+};
+
 const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoading, onEmailSubmitResult) => {
   setIsLoading(true);
   const mobileAppKey = await getMobileAppKey();
@@ -192,7 +234,7 @@ const useAuthForm = (authMode, onLoginSuccess, onEmailSubmitResult) => {
   }
 }
 
-const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri, syncProfile, source }) => {
+const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openForgotPassword, openUri, syncProfile, source }) => {
   const dispatch = useContext(DispatchContext);
   const { interfaceLanguage } = useContext(GlobalStateContext);
 
@@ -232,6 +274,10 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   const deriveOutcomeFromAuthMode = () => (authMode === AUTH_MODE.REGISTER ? ANALYTICS_OUTCOME.CREATED_NEW_ACCOUNT : ANALYTICS_OUTCOME.EXISTING_USER_LOGIN);
 
   useEffect(() => {
+    // Forgot-password isn't part of the auth_* funnel (see the comment above
+    // that section below) -- skip both flow-level bookends for it. Its own SSO
+    // taps still emit their normal attempt-level events via useSSOSignIn.
+    if (authMode === AUTH_MODE.FORGOT_PASSWORD) { return; }
     trackEvent(AUTH_EVENT.FLOW_STARTED, source ? { flow_id: flowIdRef.current, source, flow_intent: flowIntent } : { flow_id: flowIdRef.current, flow_intent: flowIntent });
     return () => {
       const resolved = flowOutcomeRef.current;
@@ -367,33 +413,23 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   // text is never shown -- it's English-only and not written for users.
   const emailGenericErrorMessage = hasUnrenderedEmailError ? strings.ssoErrorGeneric : null;
 
+  // Built once per render, bound to this render's authMode; reused by every
+  // SSOButtons control this page renders, including forgot-password's SSO-only
+  // state below (see useSSOSignIn.js).
+  const onSSOSignInSuccess = useSSOSignIn({
+    authMode,
+    deriveOutcomeFromAuthMode,
+    fireProcessEnded,
+    flowOutcomeRef,
+    syncProfile,
+    close,
+    showToast,
+  });
+
   const handleSSOTokenReceived = async (provider, idToken, userData) => {
     const result = await Sefaria.api.socialLogin(provider, idToken, userData);
     if (result.success) {
-      // is_new_account is the backend's own field name on the socialLogin
-      // response, not the analytics contract -- it maps to the analytics
-      // `outcome` enum below. When the backend omits it, fall back to the
-      // same authMode-based rule email/password success uses.
-      const outcome = result.is_new_account !== undefined
-        ? (result.is_new_account ? ANALYTICS_OUTCOME.CREATED_NEW_ACCOUNT : ANALYTICS_OUTCOME.EXISTING_USER_LOGIN)
-        : deriveOutcomeFromAuthMode();
-      fireProcessEnded({ status: ANALYTICS_STATUS.SUCCESS, outcome }, provider);
-      flowOutcomeRef.current = { status: ANALYTICS_STATUS.SUCCESS, outcome };
-      dispatch({
-        type: STATE_ACTIONS.setIsLoggedIn,
-        value: true,
-      });
-      dispatch({
-        type: STATE_ACTIONS.setUserEmail,
-        // result.email comes from the signed ID token (verified server-side) and
-        // wins over userData?.email, which is only populated by Apple on the
-        // user's first authorization and is null on every subsequent sign-in.
-        value: result.email || userData?.email,
-      });
-      trackEvent("LoginSuccessful", { authMode, provider });
-      syncProfile();
-      close(authMode);
-      showToast(strings.loginSuccessful);
+      onSSOSignInSuccess(provider, result, userData);
     } else {
       // `error` prefers the raw SDK/server error code (result.code); only
       // when that's unusable (e.g. a SERVER_REJECTED response with no
@@ -424,6 +460,73 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       setSsoError(ssoErrorWithCode(error?.code));
     }
   };
+
+  // --- Forgot-password mode (AUTH_MODE.FORGOT_PASSWORD) ---------------------
+  // Local to this component -- separate from the login/register form above.
+  // Not part of the analytics auth_* FLOW (see the mount effect above), though
+  // a provider tap from this screen's banner still emits the normal
+  // auth_method_chosen/auth_process_started/auth_process_ended attempt events.
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState(null);
+  const [forgotPasswordView, setForgotPasswordView] = useState(FORGOT_PASSWORD_VIEW.FORM);
+  const [forgotPasswordIsLoading, setForgotPasswordIsLoading] = useState(false);
+  // Populated when requestPasswordReset returns sso_only_account; read by
+  // forgotPasswordBannerError above.
+  const [forgotPasswordSsoAuth, setForgotPasswordSsoAuth] = useState(null);
+  // Disables the banner's provider link(s) for the duration of a tap so a
+  // second tap can't fire a second sign-in.
+  const [forgotPasswordSsoBusy, setForgotPasswordSsoBusy] = useState(false);
+
+  // Give the banner's provider links the same native sign-in SSOButtons'
+  // buttons trigger, routed through the same handlers as every other SSO
+  // entry point on this page. setLoadingProvider is a no-op here: nothing on
+  // this banner renders per-provider loading feedback, unlike SSOButtons'
+  // own isPressed styling, so there's no per-provider state worth keeping.
+  const triggerGoogleSignIn = createGoogleSignInHandler({
+    authMode,
+    setIsLoading: setForgotPasswordSsoBusy,
+    setLoadingProvider: () => {},
+    onSSOSuccess: handleSSOTokenReceived,
+    onSSOError: handleSSOError,
+    onMethodChosen: fireMethodChosen,
+    onProcessStarted: fireProcessStarted,
+    onProcessEnded: fireProcessEnded,
+  });
+  const triggerAppleSignIn = createAppleSignInHandler({
+    setIsLoading: setForgotPasswordSsoBusy,
+    setLoadingProvider: () => {},
+    onSSOSuccess: handleSSOTokenReceived,
+    onSSOError: handleSSOError,
+    onMethodChosen: fireMethodChosen,
+    onProcessStarted: fireProcessStarted,
+    onProcessEnded: fireProcessEnded,
+  });
+
+  const handleForgotPasswordSubmit = async () => {
+    // Empty field: stay inert rather than POST a null email. No dedicated
+    // "enter an email" copy exists yet, so this just doesn't submit.
+    if (!forgotPasswordEmail || !forgotPasswordEmail.trim()) { return; }
+    // Clear a stale live SSO error from an earlier provider-link tap, or it
+    // would keep outranking this submission's own result.
+    setSsoError(null);
+    setForgotPasswordIsLoading(true);
+    try {
+      const result = await Sefaria.api.requestPasswordReset(forgotPasswordEmail);
+      setForgotPasswordSsoAuth(result.success ? null : result);
+      setForgotPasswordView(forgotPasswordViewForResult(result));
+    } finally {
+      setForgotPasswordIsLoading(false);
+    }
+  };
+
+  const forgotPasswordBanner = forgotPasswordView === FORGOT_PASSWORD_VIEW.ERROR
+    ? forgotPasswordBannerError(forgotPasswordSsoAuth, ssoError, {
+        // Apple has no native Android SDK; mirrors SSOButtons' own showApple.
+        showAppleLink: Platform.OS === 'ios',
+        disabled: forgotPasswordSsoBusy,
+        onGoogleLink: triggerGoogleSignIn,
+        onAppleLink: triggerAppleSignIn,
+      })
+    : null;
 
   const mainContent = (
     <ScrollView style={[{flex:1, alignSelf: "stretch"}, theme.mainTextPanel]} contentContainerStyle={{alignItems: "center", paddingBottom: 50}} keyboardShouldPersistTaps='handled'>
@@ -521,7 +624,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
                 </TouchableOpacity>
               </View>
 
-              <TouchableOpacity onPress={() => { openUri('https://www.sefaria.org/password/reset')}}>
+              <TouchableOpacity onPress={openForgotPassword}>
                 <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{strings.forgotPassword}</Text>
               </TouchableOpacity>
             </View>
@@ -547,6 +650,51 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
 
   )
 
+  // The form stays on screen through both FORM and ERROR states (ERROR just
+  // adds a banner above the email input). SENT replaces it entirely: title +
+  // body only, no button, no "Back to login".
+  const forgotPasswordContent = (
+    <ScrollView style={[{flex:1, alignSelf: "stretch"}, theme.mainTextPanel]} contentContainerStyle={{alignItems: "center", paddingBottom: 50}} keyboardShouldPersistTaps='handled'>
+      <RainbowBar />
+      <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
+        <CircleCloseButton onPress={close} themeStr={AUTH_PAGE_THEME} />
+      </View>
+      <Text style={[styles.pageTitle, theme.text]}>
+        {forgotPasswordView === FORGOT_PASSWORD_VIEW.SENT ? strings.resetLinkSentTitle : strings.forgotPasswordTitle}
+      </Text>
+      <View style={{flex: 1, alignSelf: "stretch", marginHorizontal: 37}}>
+        {forgotPasswordView === FORGOT_PASSWORD_VIEW.SENT ? (
+          <Text style={[theme.secondaryText, styles.textCenter, isHeb ? styles.heInt : styles.enInt]}>
+            {strings.resetLinkSentBody}
+          </Text>
+        ) : (
+          <View>
+            <SSOErrorBanner error={forgotPasswordBanner} theme={theme} />
+            <AuthTextInput
+              placeholder={strings.forgotPasswordEmailPlaceholder}
+              autoCapitalize={'none'}
+              placeholderTextColor={placeholderTextColor}
+              onChangeText={setForgotPasswordEmail}
+              theme={theme}
+            />
+            <SystemButton
+              isLoading={forgotPasswordIsLoading}
+              onPress={handleForgotPasswordSubmit}
+              text={strings.sendResetLink}
+              isHeb={isHeb}
+              isBlue
+              theme={theme}
+            />
+            <TouchableOpacity onPress={openLogin} style={{alignItems: 'center', marginTop: 15}}>
+              <Text style={[theme.text, styles.underline, isHeb ? styles.heInt : styles.enInt]}>{strings.backToLogin}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </ScrollView>
+  )
+
+  const content = authMode === AUTH_MODE.FORGOT_PASSWORD ? forgotPasswordContent : mainContent;
 
   return(
     Platform.OS == "ios" ?
@@ -557,11 +705,11 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     // ReaderApp's chrome, outside this component, and still follow the app
     // theme; a proper dark variant would remove the need for all of this.
     <KeyboardAvoidingView style={[{flex:1, alignSelf: "stretch"}, theme.mainTextPanel]} contentContainerStyle={{alignItems: "center", paddingBottom: 50}} behavior="padding">
-      {mainContent}
+      {content}
     </KeyboardAvoidingView>
     :
     <View style={[{flex:1, alignSelf: "stretch"}, theme.mainTextPanel]} contentContainerStyle={{alignItems: "center", paddingBottom: 50}}>
-      {mainContent}
+      {content}
     </View>
   )
 }
@@ -571,6 +719,7 @@ AuthPage.propTypes = {
   showToast:PropTypes.func.isRequired,
   openLogin: PropTypes.func.isRequired,
   openRegister: PropTypes.func.isRequired,
+  openForgotPassword: PropTypes.func.isRequired,
   openUri: PropTypes.func.isRequired,
   // How the user reached this page (nav_bar, la_banner, etc.), passed down
   // from ReaderApp's openMenu(menu, via). Omitted (null) when AuthPage was
@@ -632,4 +781,7 @@ export {
   ssoCollisionMessage,
   ssoErrorWithCode,
   ssoOnlyAccountMessage,
+  FORGOT_PASSWORD_VIEW,
+  forgotPasswordViewForResult,
+  forgotPasswordBannerError,
 };
