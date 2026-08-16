@@ -194,7 +194,19 @@ const Auth = {
 
     // Read as text first, then parse, so a non-JSON error body (HTML from a
     // proxy, say) can still be reported with its content, not just a status code.
-    const rawBody = await response.text();
+    // Guarded like requestPasswordReset's equivalent read: a body-stream
+    // failure mid-read must still classify, not reject.
+    let rawBody;
+    try {
+      rawBody = await response.text();
+    } catch (error) {
+      recordError(getCrashlytics(), error);
+      return Sefaria.api._socialLoginFailure(
+        SSO_ERROR_CODE.NETWORK_ERROR,
+        ANALYTICS_REASON.NETWORK_ERROR,
+        { non_field_errors: `Network error reading sign-in response: ${error?.message}` },
+      );
+    }
     let data;
     try {
       data = JSON.parse(rawBody);
@@ -436,42 +448,68 @@ const Auth = {
   // expired-token refresh (getAuthToken), which is why it short-circuits on
   // _legacyAuthMigrationComplete -- see that flag's declaration for why it is
   // only set on a definitive outcome and never after a failed keychain write.
+  // Wrapped in a top-level try/catch (unlike the specific JSON/keychain
+  // failures below, which are handled on purpose) so an unexpected AsyncStorage
+  // rejection can't escape this function -- callers rely on it never throwing.
   _migrateLegacyAuthToken: async function() {
     if (_legacyAuthMigrationComplete) { return; }
-    const legacyAuth = await AsyncStorage.getItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
-    // Nothing to migrate, now or ever: no legacy key exists.
-    if (!legacyAuth) { _legacyAuthMigrationComplete = true; return; }
-    let parsedLegacyAuth;
     try {
-      parsedLegacyAuth = JSON.parse(legacyAuth);
-    } catch (error) {
-      // Malformed legacy value -- nothing recoverable, drop it.
+      const legacyAuth = await AsyncStorage.getItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
+      // Nothing to migrate, now or ever: no legacy key exists.
+      if (!legacyAuth) { _legacyAuthMigrationComplete = true; return; }
+      let parsedLegacyAuth;
+      try {
+        parsedLegacyAuth = JSON.parse(legacyAuth);
+      } catch (error) {
+        // Malformed legacy value -- nothing recoverable, drop it.
+        await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
+        _legacyAuthMigrationComplete = true;
+        return;
+      }
+      if (!parsedLegacyAuth || !parsedLegacyAuth.token) {
+        await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
+        _legacyAuthMigrationComplete = true;
+        return;
+      }
+      // A keychain entry already existing means credentials got there some
+      // other way (e.g. a fresh sign-in) since this legacy blob was written --
+      // migrating now would overwrite those newer credentials with the stale
+      // legacy ones, so just drop the legacy copy instead.
+      const existing = await Keychain.getGenericPassword({ service: AUTH_KEYCHAIN_SERVICE });
+      if (existing) {
+        await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
+        _legacyAuthMigrationComplete = true;
+        return;
+      }
+      // Only drop the legacy copy once the keychain write succeeds, so a failed
+      // write (e.g. locked device) can retry on the next read.
+      try {
+        await Keychain.setGenericPassword(AUTH_KEYCHAIN_USERNAME, JSON.stringify(parsedLegacyAuth), { service: AUTH_KEYCHAIN_SERVICE, accessible: Keychain.ACCESSIBLE.AFTER_FIRST_UNLOCK });
+      } catch (error) {
+        // Deliberately leave _legacyAuthMigrationComplete false: the legacy copy
+        // is still on disk and this must be retried on the next read.
+        return;
+      }
       await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
       _legacyAuthMigrationComplete = true;
-      return;
-    }
-    if (!parsedLegacyAuth || !parsedLegacyAuth.token) {
-      await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
-      _legacyAuthMigrationComplete = true;
-      return;
-    }
-    // Only drop the legacy copy once the keychain write succeeds, so a failed
-    // write (e.g. locked device) can retry on the next read.
-    try {
-      await Keychain.setGenericPassword(AUTH_KEYCHAIN_USERNAME, JSON.stringify(parsedLegacyAuth), { service: AUTH_KEYCHAIN_SERVICE, accessible: Keychain.ACCESSIBLE.AFTER_FIRST_UNLOCK });
     } catch (error) {
-      // Deliberately leave _legacyAuthMigrationComplete false: the legacy copy
-      // is still on disk and this must be retried on the next read.
-      return;
+      // Unexpected AsyncStorage/Keychain failure -- leave migration retryable
+      // and don't let this bubble into callers that assume it never throws.
+      recordError(getCrashlytics(), error);
     }
-    await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
-    _legacyAuthMigrationComplete = true;
   },
 
   // Rehydrates Sefaria._auth from the Keychain (sole source of truth for the
   // session). Call once during app init; never throws, degrades to logged-out.
   hydrateAuthFromKeychain: async function() {
-    await Sefaria.api._migrateLegacyAuthToken();
+    // _migrateLegacyAuthToken no longer throws (it catches internally), but
+    // guard the call anyway so this function's "never throws" contract holds
+    // even if that changes later.
+    try {
+      await Sefaria.api._migrateLegacyAuthToken();
+    } catch (error) {
+      recordError(getCrashlytics(), error);
+    }
     try {
       const credentials = await Keychain.getGenericPassword({ service: AUTH_KEYCHAIN_SERVICE });
       Sefaria._auth = (credentials && JSON.parse(credentials.password)) || {};
@@ -481,8 +519,10 @@ const Auth = {
     }
     if (!Sefaria._auth.uid) { return false; /* logged out */ }
     // If the token is expired (or otherwise invalid), getAuthToken() will
-    // walk the refresh-token path itself, clearing auth storage if that also
-    // fails.
+    // walk the refresh-token path itself, clearing auth storage only on a
+    // genuine server rejection -- a network failure there leaves the existing
+    // session (and Sefaria._auth) untouched, so cold start offline keeps the
+    // user signed in instead of logging them out.
     await Sefaria.api.getAuthToken();
     return !!Sefaria._auth.uid;
   },
@@ -493,7 +533,13 @@ const Auth = {
     if (!Sefaria._auth.token || Sefaria._auth.expires <= currTime) {
       // Cheap no-op once the migration has a definitive outcome; still retries
       // for the one case that needs it (keychain write previously failed).
-      await Sefaria.api._migrateLegacyAuthToken();
+      // Guarded so this function's rejection surface doesn't grow to include
+      // migration's AsyncStorage calls.
+      try {
+        await Sefaria.api._migrateLegacyAuthToken();
+      } catch (error) {
+        recordError(getCrashlytics(), error);
+      }
       try {
         const credentials = await Keychain.getGenericPassword({ service: AUTH_KEYCHAIN_SERVICE });
         Sefaria._auth = (credentials && JSON.parse(credentials.password)) || {};
@@ -504,17 +550,46 @@ const Auth = {
         // Covers a stale/expired/missing token as well as a Keychain read
         // failure (locked device, corrupt entry) -- in every case, fall back
         // to attempting a refresh with whatever refreshToken we last had.
-        const parsedRes = await Sefaria.api.refreshToken(Sefaria._auth.refreshToken).then(res => res.json());
+        let parsedRes;
+        try {
+          const refreshRes = await Sefaria.api.refreshToken(Sefaria._auth.refreshToken);
+          parsedRes = await refreshRes.json();
+        } catch (refreshError) {
+          // The refresh request itself failed (offline, timeout) or came back
+          // non-JSON (e.g. a captive portal's HTML) -- the server never
+          // actually rejected the refresh token, so this is NOT a sign-out.
+          // Keep the existing (possibly stale) session and let the next
+          // getAuthToken() call retry.
+          return;
+        }
         if (!parsedRes.access) {
-          Sefaria.api.clearAuthStorage();
+          // The server responded and genuinely rejected the refresh token --
+          // this is the real sign-out path.
+          await Sefaria.api.clearAuthStorage();
         } else {
-          Sefaria.api.storeAuthToken(parsedRes);
+          try {
+            await Sefaria.api.storeAuthToken(parsedRes);
+          } catch (storeError) {
+            // A locked-device keychain write failure here shouldn't make
+            // getAuthToken() reject -- the refreshed token just doesn't
+            // persist this time; Sefaria._auth is still updated in memory by
+            // storeAuthToken before the write, so the session keeps working
+            // for the rest of this app session.
+            recordError(getCrashlytics(), storeError);
+          }
         }
       }
     }
   },
   clearAuthStorage: async function() {
-    await Keychain.resetGenericPassword({ service: AUTH_KEYCHAIN_SERVICE });
+    try {
+      await Keychain.resetGenericPassword({ service: AUTH_KEYCHAIN_SERVICE });
+    } catch (error) {
+      // Keep clearing app-level state even if the OS-level reset fails, so
+      // callers reading Sefaria._auth right after this resolves see the
+      // logged-out state consistently instead of racing the reset.
+      recordError(getCrashlytics(), error);
+    }
     await AsyncStorage.removeItem(LEGACY_AUTH_ASYNC_STORAGE_KEY);
     await AsyncStorage.removeItem('lastSyncTime');
     await AsyncStorage.removeItem('lastSettingsUpdateTime');

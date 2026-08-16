@@ -699,6 +699,33 @@ describe('auth analytics events', () => {
     expect(params).toEqual(expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: SSO_ERROR_CODE.NETWORK_ERROR }));
     expect(params).not.toHaveProperty('outcome');
   });
+
+  // Regression for Fix 5: fireProcessEnded falls back to currentMethodRef when
+  // no method is passed explicitly, and focusing an email field mid-SSO-flow
+  // repoints that ref to 'email' (see beginEmailAttempt). SSOButtons must
+  // always pass its own provider explicitly so a Google/Apple process_ended
+  // can't get attributed to whatever email attempt happens to be active.
+  test('a provider-scoped process_ended is attributed to that provider, not a later email attempt', async () => {
+    renderAuthPage(AUTH_MODE.LOGIN);
+    const ssoProps = currentInstance.root.findByType(SSOButtons).props;
+    act(() => { ssoProps.onMethodChosen('google'); });
+    const googleAttemptId = lastParamsFor(AUTH_EVENT.METHOD_CHOSEN).attempt_id;
+
+    // User touches the email field while the Google sign-in is still in
+    // flight -- this repoints currentMethodRef to 'email'.
+    const emailInput = currentInstance.root.findAllByType(AuthTextInput)
+      .find((t) => t.props.placeholder === strings.email);
+    act(() => { emailInput.props.onFocus(); });
+    const emailAttemptId = lastParamsFor(AUTH_EVENT.METHOD_CHOSEN).attempt_id;
+    expect(emailAttemptId).not.toBe(googleAttemptId);
+
+    // SSOButtons now always passes its provider explicitly (see SSOButtons.js).
+    act(() => { ssoProps.onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED }, 'google'); });
+
+    const processEndedParams = lastParamsFor(AUTH_EVENT.PROCESS_ENDED);
+    expect(processEndedParams.attempt_id).toBe(googleAttemptId);
+    expect(processEndedParams.attempt_id).not.toBe(emailAttemptId);
+  });
 });
 
 // Coverage for the forgot-password mode (AUTH_MODE.FORGOT_PASSWORD): the form
@@ -828,12 +855,16 @@ describe('forgot password mode', () => {
     expect(instance.root.findAllByType(AuthTextInput).length).toBe(1);
   });
 
-  test('a rejected requestPasswordReset still clears the loading spinner (regression)', async () => {
+  test('a rejected requestPasswordReset is caught, clears the spinner, and shows the generic banner (regression)', async () => {
     Sefaria.api.requestPasswordReset.mockRejectedValue(new Error('stream error'));
     const instance = renderForgotPasswordPage();
-    await expect(submitEmail(instance)).rejects.toThrow('stream error');
+    // requestPasswordReset is documented as classify-don't-throw, but
+    // handleForgotPasswordSubmit must not propagate an unexpected throw --
+    // it should be caught, not leave an unhandled rejection.
+    await expect(submitEmail(instance)).resolves.toBeUndefined();
 
     expect(instance.root.findByType(SystemButton).props.isLoading).toBe(false);
+    expect(bannerMessage(instance)).toBe(strings.ssoErrorGeneric);
   });
 
   test('submitting with no email does not call requestPasswordReset', async () => {
@@ -925,21 +956,27 @@ describe('forgot password mode', () => {
     });
   });
 
-  // Pure-function coverage for forgotPasswordBannerError's precedence rule: a
-  // live ssoError outranks the sso_only_account rows.
+  // Pure-function coverage for forgotPasswordBannerError: a live ssoError is
+  // surfaced ABOVE any sso_only_account rows rather than replacing them, and
+  // an actionable-link-less provider (Apple on Android) still gets named.
   describe('forgotPasswordBannerError', () => {
     const deps = { showAppleLink: true, disabled: false, onGoogleLink: () => {}, onAppleLink: () => {} };
 
-    test('a live ssoError wins over an sso_only_account result', () => {
+    test('a live ssoError is shown alongside the sso_only_account rows, not instead of them', () => {
       const auth = { code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT, providers: ['google'] };
       const result = forgotPasswordBannerError(auth, 'a live SSO error', deps);
-      expect(result).toEqual({ message: 'a live SSO error' });
+      expect(result).toEqual({
+        rows: [
+          { message: 'a live SSO error' },
+          { message: strings.ssoEmailExistsGoogle, linkText: strings.continueWithGoogle, onPress: deps.onGoogleLink, disabled: false },
+        ],
+      });
     });
 
-    test('an apple-only result with showAppleLink false (Android) falls back to the generic message', () => {
+    test('an apple-only result with showAppleLink false (Android) still shows the SSO-only message, with no link', () => {
       const auth = { code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT, providers: ['apple'] };
       const result = forgotPasswordBannerError(auth, null, { ...deps, showAppleLink: false });
-      expect(result).toEqual({ message: strings.ssoErrorGeneric });
+      expect(result).toEqual({ rows: [{ message: strings.ssoEmailExistsApple }] });
     });
 
     test('no ssoError and no sso_only_account auth -> the generic message', () => {

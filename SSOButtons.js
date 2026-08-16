@@ -37,7 +37,7 @@ const createGoogleSignInHandler = ({ authMode, setIsLoading, setLoadingProvider,
     try {
       ({ GoogleSignin, statusCodes } = require('@react-native-google-signin/google-signin'));
     } catch (e) {
-      onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.MODULE_UNAVAILABLE });
+      onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.MODULE_UNAVAILABLE }, SSO_PROVIDER.GOOGLE);
       const rebuildCmd = Platform.OS === 'ios' ? 'npx react-native run-ios' : 'npx react-native run-android';
       onSSOError(new Error(`Google Sign-In native module not available. Rebuild the app with: ${rebuildCmd}`));
       return;
@@ -71,22 +71,31 @@ const createGoogleSignInHandler = ({ authMode, setIsLoading, setLoadingProvider,
       // no Google account, e.g. every BrowserStack device -- reaches the user as
       // a provider error and lands in the funnel as one.
       if (response?.type === 'cancelled') {
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED }, SSO_PROVIDER.GOOGLE);
         return;
       }
       const idToken = response.data?.idToken;
       if (idToken) {
-        await onSSOSuccess(SSO_PROVIDER.GOOGLE, idToken, {
-          email: response.data?.user?.email,
-          firstName: response.data?.user?.givenName,
-          lastName: response.data?.user?.familyName,
-        });
+        try {
+          await onSSOSuccess(SSO_PROVIDER.GOOGLE, idToken, {
+            email: response.data?.user?.email,
+            firstName: response.data?.user?.givenName,
+            lastName: response.data?.user?.familyName,
+          });
+        } catch (postSuccessError) {
+          // The sign-in itself already succeeded and was reported as such
+          // (onSSOSuccess fires process_ended SUCCESS before doing anything
+          // else) -- a throw from its post-login chain (dispatch/sync/close)
+          // must not fall into the catch below and get reported as a provider
+          // failure on top of an already-reported success.
+          console.error('Post sign-in error after Google SSO success:', postSuccessError);
+        }
       } else {
         // Reached when the SDK signs in but returns no token, which on Android
         // means webClientId was empty at configure() time: Utils.java only calls
         // requestIdToken(webClientId) when it is non-empty, so the flow succeeds
         // and getIdToken() is null. Surface it instead of failing silently.
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.INVALID_RESPONSE });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.INVALID_RESPONSE }, SSO_PROVIDER.GOOGLE);
         onSSOError(new Error('Google sign-in did not return an identity token.'));
       }
     } catch (error) {
@@ -100,12 +109,12 @@ const createGoogleSignInHandler = ({ authMode, setIsLoading, setLoadingProvider,
         // uncountable. The message text itself still reaches the developer via
         // onSSOError below (console.log + the __DEV__ banner in AuthPage), it
         // just doesn't leak into analytics.
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: error?.code || ANALYTICS_REASON.PROVIDER_ERROR });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: error?.code || ANALYTICS_REASON.PROVIDER_ERROR }, SSO_PROVIDER.GOOGLE);
         onSSOError(error);
       } else {
         // Cancel is intentionally swallowed from the user-facing error banner
         // (unchanged behavior) but still needs to be tracked as a failure.
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED }, SSO_PROVIDER.GOOGLE);
       }
     } finally {
       setIsLoading(false);
@@ -142,12 +151,12 @@ const createAppleSignInHandler = ({ setIsLoading, setLoadingProvider, onSSOSucce
       try {
         appleAuth = require('@invertase/react-native-apple-authentication').default;
       } catch (e) {
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.MODULE_UNAVAILABLE });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.MODULE_UNAVAILABLE }, SSO_PROVIDER.APPLE);
         onSSOError(new Error('Apple Sign-In native module not available. Rebuild the app with: npx react-native run-ios'));
         return;
       }
       if (!appleAuth.isSupported) {
-        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.UNSUPPORTED_DEVICE });
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.UNSUPPORTED_DEVICE }, SSO_PROVIDER.APPLE);
         onSSOError(new Error('Apple Sign-In is not supported on this device (requires a real iOS device, not a simulator)'));
         return;
       }
@@ -163,11 +172,18 @@ const createAppleSignInHandler = ({ setIsLoading, setLoadingProvider, onSSOSucce
         });
         const { identityToken, fullName, email } = appleAuthRequestResponse;
         if (identityToken) {
-          await onSSOSuccess(SSO_PROVIDER.APPLE, identityToken, {
-            email,
-            firstName: fullName?.givenName,
-            lastName: fullName?.familyName,
-          });
+          try {
+            await onSSOSuccess(SSO_PROVIDER.APPLE, identityToken, {
+              email,
+              firstName: fullName?.givenName,
+              lastName: fullName?.familyName,
+            });
+          } catch (postSuccessError) {
+            // Same reasoning as the Google button's equivalent guard above:
+            // success was already reported, so a downstream throw here must
+            // not be misreported as a provider failure.
+            console.error('Post sign-in error after Apple SSO success:', postSuccessError);
+          }
         } else {
           // Unlike the equivalent Google branch above, nothing here calls
           // onSSOError, so this console.log is the only place a developer sees
@@ -175,7 +191,7 @@ const createAppleSignInHandler = ({ setIsLoading, setLoadingProvider, onSSOSucce
           // low-cardinality reason enum (see the comment on the catch block
           // below), not this message.
           console.log('Apple Sign-In: performRequest resolved with no identityToken.');
-          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.INVALID_RESPONSE });
+          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.INVALID_RESPONSE }, SSO_PROVIDER.APPLE);
         }
       } catch (error) {
         if (error.code !== appleAuth.Error.CANCELED) {
@@ -183,11 +199,11 @@ const createAppleSignInHandler = ({ setIsLoading, setLoadingProvider, onSSOSucce
           // SDK *code*, falling back to ANALYTICS_REASON.PROVIDER_ERROR when
           // there isn't one. `error.message` is deliberately excluded -- see the
           // matching comment on the Google button's catch block above.
-          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: error?.code || ANALYTICS_REASON.PROVIDER_ERROR });
+          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: error?.code || ANALYTICS_REASON.PROVIDER_ERROR }, SSO_PROVIDER.APPLE);
           onSSOError(error);
         } else {
           // Cancel path: see the same comment on the Google button above.
-          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED });
+          onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED }, SSO_PROVIDER.APPLE);
         }
       } finally {
         setIsLoading(false);

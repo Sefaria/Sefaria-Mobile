@@ -167,18 +167,30 @@ const forgotPasswordViewForResult = (result) => (
 // excluded on Android, same as SSOButtons' own showApple); else the generic
 // message with no link.
 const forgotPasswordBannerError = (auth, ssoError, { showAppleLink, disabled, onGoogleLink, onAppleLink }) => {
-  if (ssoError) { return { message: ssoError }; }
+  const rows = [];
   if (auth && auth.code === AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT) {
     const providers = new Set(Array.isArray(auth.providers) ? auth.providers : []);
-    const rows = [];
     if (providers.has(SSO_PROVIDER.GOOGLE)) {
       rows.push({ message: strings.ssoEmailExistsGoogle, linkText: strings.continueWithGoogle, onPress: onGoogleLink, disabled });
     }
-    if (providers.has(SSO_PROVIDER.APPLE) && showAppleLink) {
-      rows.push({ message: strings.ssoEmailExistsApple, linkText: strings.continueWithApple, onPress: onAppleLink, disabled });
+    if (providers.has(SSO_PROVIDER.APPLE)) {
+      // Apple-only accounts still get named on Android even though there's no
+      // actionable link there (see AppleSignInButton's showApple comment in
+      // SSOButtons.js) -- a plain message row beats falling through to the
+      // misleading generic "Something went wrong" message below.
+      rows.push(showAppleLink
+        ? { message: strings.ssoEmailExistsApple, linkText: strings.continueWithApple, onPress: onAppleLink, disabled }
+        : { message: strings.ssoEmailExistsApple });
     }
-    if (rows.length) { return { rows }; }
   }
+  if (ssoError) {
+    // A live error from tapping one of this banner's own provider links --
+    // surface it above any provider rows instead of replacing them, so a
+    // transient failure doesn't strand the user with no retry path when a
+    // provider link was the only way in.
+    return { rows: [{ message: ssoError }, ...rows] };
+  }
+  if (rows.length) { return { rows }; }
   // Route through the same code -> message mapping the login/register banner
   // uses, so e.g. a network failure shows the network string here too instead
   // of always collapsing to the bare generic message.
@@ -513,6 +525,13 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openFor
       const result = await Sefaria.api.requestPasswordReset(forgotPasswordEmail);
       setForgotPasswordSsoAuth(result.success ? null : result);
       setForgotPasswordView(forgotPasswordViewForResult(result));
+    } catch (error) {
+      // requestPasswordReset is documented as classify-don't-throw, but an
+      // unexpected throw here would otherwise leave the form pristine with no
+      // feedback and an unhandled rejection.
+      console.error('Unexpected error requesting password reset:', error);
+      setForgotPasswordSsoAuth(null);
+      setForgotPasswordView(FORGOT_PASSWORD_VIEW.ERROR);
     } finally {
       setForgotPasswordIsLoading(false);
     }

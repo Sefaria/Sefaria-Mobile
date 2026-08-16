@@ -78,8 +78,12 @@ describe('Apple sign-in cancellation', () => {
     mockPerformRequest = () => Promise.reject(Object.assign(new Error('The user canceled the authorization attempt'), { code: CANCELED_CODE }));
     const handlers = makeHandlers();
     await pressApple(handlers);
+    // The provider must be passed explicitly (not left to fall back to
+    // currentMethodRef), so a focus on some other field mid-flow can't
+    // misattribute this event -- see Fix 5.
     expect(handlers.onProcessEnded).toHaveBeenCalledWith(
-      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED })
+      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED }),
+      'apple'
     );
   });
 
@@ -92,7 +96,8 @@ describe('Apple sign-in cancellation', () => {
       // The raw SDK code (`error.code`) is what reaches analytics here, not
       // the ANALYTICS_REASON.PROVIDER_ERROR fallback -- that's only used when
       // there's no raw code/message to report.
-      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: '1000' })
+      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: '1000' }),
+      'apple'
     );
   });
 
@@ -135,7 +140,8 @@ describe('Apple sign-in cancellation', () => {
     expect(handlers.onProcessEnded).toHaveBeenCalledWith(
       // A locale/OS-dependent sentence would be an uncountable analytics
       // value; this must stay the closed enum member instead (see Fix 1).
-      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.INVALID_RESPONSE })
+      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.INVALID_RESPONSE }),
+      'apple'
     );
   });
 });

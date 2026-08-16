@@ -66,8 +66,12 @@ describe('Google sign-in cancellation', () => {
     mockSignInResult = CANCELLED;
     const handlers = makeHandlers();
     await pressGoogle(handlers);
+    // The provider must be passed explicitly (not left to fall back to
+    // currentMethodRef), so a focus on some other field mid-flow can't
+    // misattribute this event -- see Fix 5.
     expect(handlers.onProcessEnded).toHaveBeenCalledWith(
-      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED })
+      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.CANCELLED }),
+      'google'
     );
   });
 
@@ -93,7 +97,8 @@ describe('Google sign-in provider error with no error code', () => {
     await pressGoogle(handlers);
 
     expect(handlers.onProcessEnded).toHaveBeenCalledWith(
-      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.PROVIDER_ERROR })
+      expect.objectContaining({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.PROVIDER_ERROR }),
+      'google'
     );
     // Still surfaced to the developer, just not through analytics.
     expect(handlers.onSSOError).toHaveBeenCalledWith(mockSignInRejection);

@@ -30,13 +30,15 @@ const SSOErrorBanner = ({ error, theme }) => {
   return (
     <View style={[styles.ssoErrorBanner, theme.ssoErrorBannerBackground, theme.ssoErrorBannerBorder, { flexDirection: 'column', alignItems: isHeb ? 'flex-end' : 'flex-start' }]}>
       {rows.map((row, index) => (
-        <View key={index} style={index > 0 ? { marginTop: 8 } : null}>
-          <Text style={[styles.ssoErrorBannerText, theme.ssoErrorBannerText, isHeb ? styles.heInt : styles.enInt]}>
+        // flex:0 undoes styles.ssoErrorBannerText's flex:1, which sizes the text
+        // across a row banner but stretches it down a column one.
+        <View key={index} style={[{ alignSelf: 'stretch' }, index > 0 ? { marginTop: 8 } : null]}>
+          <Text style={[styles.ssoErrorBannerText, theme.ssoErrorBannerText, isHeb ? styles.heInt : styles.enInt, { flex: 0 }]}>
             {row.message}
           </Text>
           {!!row.linkText && (
             <TouchableOpacity onPress={row.onPress} disabled={row.disabled}>
-              <Text style={[styles.ssoErrorBannerText, styles.underline, theme.ssoErrorBannerText, isHeb ? styles.heInt : styles.enInt, { marginTop: 4 }]}>
+              <Text style={[styles.ssoErrorBannerText, styles.underline, theme.ssoErrorBannerText, isHeb ? styles.heInt : styles.enInt, { flex: 0, marginTop: 4 }]}>
                 {row.linkText}
               </Text>
             </TouchableOpacity>
