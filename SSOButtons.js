@@ -220,6 +220,7 @@ const createAppleSignInHandler = ({ setIsLoading, setLoadingProvider, onSSOSucce
       try {
         await Linking.openURL(appleAndroidRedirectUrl());
       } catch (error) {
+        onProcessEnded({ status: ANALYTICS_STATUS.FAILURE, error: ANALYTICS_REASON.PROVIDER_ERROR }, SSO_PROVIDER.APPLE);
         onSSOError(new Error('Could not open Apple sign-in. Please try again.'));
       }
     }
