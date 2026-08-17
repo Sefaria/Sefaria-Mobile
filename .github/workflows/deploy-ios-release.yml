@@ -70,6 +70,16 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      # react-native-config bakes .env at build time; .env is gitignored, so CI must write one.
+      # GOOGLE_SSO_IOS_CLIENT_ID is required separately: Google rejects the custom-scheme
+      # redirect for any client type other than iOS.
+      - name: Write .env for react-native-config
+        run: |
+          {
+            echo "GOOGLE_SSO_CLIENT_ID=${{ secrets.GOOGLE_SSO_CLIENT_ID }}"
+            echo "GOOGLE_SSO_IOS_CLIENT_ID=${{ secrets.GOOGLE_SSO_IOS_CLIENT_ID }}"
+          } > .env
+
       - name: Install CocoaPods
         working-directory: ios
         run: |

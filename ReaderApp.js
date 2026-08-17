@@ -34,6 +34,7 @@ import styles from './Styles';
 import strings from './LocalizedStrings';
 import Sefaria from './sefaria';
 import { LinkFilter } from './Filter';
+import { AUTH_MODE } from './AuthConstants';
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
 import {TextsPage} from "./TextsPage";
 import {LearningSchedulesPage} from "./learningSchedules/LearningSchedules";
@@ -70,6 +71,9 @@ import {getSafeViewStyleAndStatusBarBackground} from "./getSafeViewStyles";
 
 const ViewPort = Dimensions.get('window');
 
+//set of `menuOpen` states which you shouldn't be able to go back to
+const SKIP_MENUS = [AUTH_MODE.REGISTER, AUTH_MODE.LOGIN, AUTH_MODE.FORGOT_PASSWORD];
+
 class ReaderApp extends React.PureComponent {
   static whyDidYouRender = true;
   static propTypes = {
@@ -103,6 +107,10 @@ class ReaderApp extends React.PureComponent {
         textTitle: "",
         loaded: false,
         menuOpen: "navigation",
+        // Tracks the `via` passed to the most recent openMenu() call, purely so
+        // AuthPage can read the original `source` when it's mounted into the
+        // login/register slot below. Not meaningful for any other menu.
+        menuOpenSource: null,
         textFlow: "segmented",
         subMenuOpen: null, // currently only used to define subpages in search
         navigationCategories: [],
@@ -1080,8 +1088,6 @@ class ReaderApp extends React.PureComponent {
   };
 
   openMenu = (menu, via, pushHistory=true) => {
-    //set of `menuOpen` states which you shouldn't be able to go back to
-    const SKIP_MENUS = ["register", "login"]
     if (!!menu && pushHistory && !SKIP_MENUS.includes(this.state.menuOpen)) {
       if (!this.state.menuOpen && !!this.state.data) {
         // text column. remove related data
@@ -1089,8 +1095,12 @@ class ReaderApp extends React.PureComponent {
       }
       this.modifyHistory({ dir: "forward", state: this.state });
     }
-    this.setState({menuOpen: menu});
-    if (via && typeof via === 'string') {
+    // openLogin/openRegister are handed straight to onPress in places, so `via`
+    // can arrive as a press event rather than a source name. Only a non-empty
+    // string counts as a source.
+    const source = (typeof via === 'string' && via) ? via : null;
+    this.setState({menuOpen: menu, menuOpenSource: source});
+    if (source) {
       trackEvent("OpenMenu", {menu, via});
     }
   };
@@ -1213,11 +1223,15 @@ class ReaderApp extends React.PureComponent {
   };
 
   openLogin = (via) => {
-    this.openMenu("login", via);
+    this.openMenu(AUTH_MODE.LOGIN, via);
   };
 
   openRegister = (via) => {
-    this.openMenu("register", via);
+    this.openMenu(AUTH_MODE.REGISTER, via);
+  };
+
+  openForgotPassword = (via) => {
+    this.openMenu(AUTH_MODE.FORGOT_PASSWORD, via);
   };
 
   openAutocomplete = () => {
@@ -2000,15 +2014,22 @@ class ReaderApp extends React.PureComponent {
           />
         );*/
         break;
-      case("login"):
-      case("register"):
+      case(AUTH_MODE.LOGIN):
+      case(AUTH_MODE.REGISTER):
+      case(AUTH_MODE.FORGOT_PASSWORD):
         return(
           <AuthPage
+            // Login/register/forgot-password share this switch-case slot with no key, so
+            // without one React reconciles them as the same instance and carries stale
+            // internal state (errors, ssoError, typed fields) across a mode switch.
+            key={this.state.menuOpen}
             authMode={this.state.menuOpen}
+            source={this.state.menuOpenSource}
             close={this.closeAuthPage}
             showToast={this.showToast}
             openLogin={this.openLogin}
             openRegister={this.openRegister}
+            openForgotPassword={this.openForgotPassword}
             openUri={this.openUri}
             syncProfile={this.syncProfileBound}
           />

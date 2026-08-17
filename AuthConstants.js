@@ -1,0 +1,109 @@
+'use strict';
+
+// Shared string enums for the auth flow. These values cross file boundaries
+// (AuthPage <-> SSOButtons <-> api <-> analytics), so a typo in any one of them
+// is a silent failure rather than a crash -- an unrecognized provider routes to
+// the wrong endpoint, an unrecognized reason becomes a junk analytics value.
+// Follows the existing convention in VocalizationEnum.js and errors.js.
+
+export const SSO_PROVIDER = {
+    GOOGLE: 'google',
+    APPLE: 'apple',
+};
+
+export const AUTH_MODE = {
+    LOGIN: 'login',
+    REGISTER: 'register',
+    // Request-a-reset screen. Only the request step lives in the app -- the
+    // emailed confirm link still opens mobile web.
+    FORGOT_PASSWORD: 'forgot_password',
+};
+
+// Analytics event outcome. Paired with ANALYTICS_REASON on failure.
+export const ANALYTICS_STATUS = {
+    SUCCESS: 'success',
+    FAILURE: 'failure',
+};
+
+// auth_flow_started's `flow_intent` field. Distinguishes what used to be
+// separate sign_up_/login_ event families, now that both flows emit the same
+// flat event names (see analytics/authEvents.js). Mobile has no one-tap flow
+// today -- ONE_TAP_LOGIN is defined only so this enum matches the
+// cross-platform spec that mobile, web, and their analytics consumers share.
+// PASSWORD_RESET is a new member, not yet confirmed against the cross-platform
+// spec -- none of the existing values describe "requested a reset email".
+export const AUTH_FLOW_INTENT = {
+    REGISTRATION: 'registration',
+    LOGIN: 'login',
+    ONE_TAP_LOGIN: 'one_tap_login',
+    PASSWORD_RESET: 'password_reset',
+};
+
+// Explicit AUTH_MODE -> AUTH_FLOW_INTENT lookup, rather than an inline ternary
+// at the call site (AuthPage.js). A ternary silently maps any future AUTH_MODE
+// member to LOGIN; an unmapped key here reads as `undefined` on flow_started
+// instead, and the exhaustiveness test in analytics/__tests__/authEvents.test.js
+// fails loudly the moment AUTH_MODE grows a member this map doesn't cover.
+export const AUTH_FLOW_INTENT_BY_MODE = {
+    [AUTH_MODE.REGISTER]: AUTH_FLOW_INTENT.REGISTRATION,
+    [AUTH_MODE.LOGIN]: AUTH_FLOW_INTENT.LOGIN,
+    [AUTH_MODE.FORGOT_PASSWORD]: AUTH_FLOW_INTENT.PASSWORD_RESET,
+};
+
+// auth_process_ended / auth_flow_ended's `outcome` field on success: whether
+// the attempt created an account or signed an existing user in. Omitted
+// entirely on failure -- there's nothing to report.
+export const ANALYTICS_OUTCOME = {
+    CREATED_NEW_ACCOUNT: 'created_new_account',
+    EXISTING_USER_LOGIN: 'existing_user_login',
+};
+
+// Fallback value for the analytics `error` field. The field prefers a raw
+// provider/server error code when one exists (see AuthPage's fireProcessEnded
+// call sites); these values are what it falls back to when there is no raw
+// code to report, e.g. a cancelled sheet or an abandoned flow.
+export const ANALYTICS_REASON = {
+    ABANDONED: 'abandoned',
+    VALIDATION_FAILED: 'validation_failed',
+    SERVER_REJECTED: 'server_rejected',
+    CANCELLED: 'cancelled',
+    MODULE_UNAVAILABLE: 'module_unavailable',
+    PROVIDER_ERROR: 'provider_error',
+    UNSUPPORTED_DEVICE: 'unsupported_device',
+    NETWORK_ERROR: 'network_error',
+    INVALID_RESPONSE: 'invalid_response',
+    STORAGE_ERROR: 'storage_error',
+};
+
+// Client-side failure codes returned by Sefaria.api.socialLogin. Not a closed
+// set at the UI: a non-ok server response forwards the backend's own `error`
+// value instead, which is why AuthPage clamps the code before displaying it.
+export const SSO_ERROR_CODE = {
+    NETWORK_ERROR: 'network_error',
+    REDIRECTED: 'redirected',
+    INVALID_RESPONSE: 'invalid_response',
+    MISSING_TOKENS: 'missing_tokens',
+    STORAGE_ERROR: 'storage_error',
+};
+
+// Apple's own "unknown error" code -- AppleError.UNKNOWN in
+// @invertase/react-native-apple-authentication's index.d.ts (SSOButtons.js
+// lazily `require`s that native module rather than importing it here, since
+// it may be absent; this file stays free of that native dependency, hence a
+// bare constant rather than the SDK enum). Nominally generic/unknown, NOT a
+// network code by Apple's own semantics -- but it's what was observed firing
+// during airplane-mode testing for the reported bug, so AuthPage's
+// ssoErrorWithCode deliberately maps it to the network-error message. That's
+// a product decision based on observed device behavior, not a claim about
+// what '1000' actually means to Apple.
+export const APPLE_ERROR_CODE_UNKNOWN = '1000';
+
+// api/login/'s structured-error contract, carried under the failed response
+// body's `_auth` key. Shared with web's session-login path -- both are
+// produced by sso/views.py's _sso_only_account_error -- so this stays a
+// single-member enum on purpose: it's the one code that contract currently
+// defines, and adding a member here should track a matching addition on the
+// backend, not be invented independently.
+export const AUTH_ERROR_CODE = {
+    SSO_ONLY_ACCOUNT: 'sso_only_account',
+};

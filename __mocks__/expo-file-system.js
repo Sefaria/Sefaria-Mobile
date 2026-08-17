@@ -108,6 +108,7 @@ const clear = jest.fn(() => {
 });
 const documentDirectory = '';
 const cacheDirectory = '';
+const bundleDirectory = '';
 
 export {
   getInfoAsync,
@@ -120,5 +121,6 @@ export {
   clear,
   documentDirectory,
   cacheDirectory,
+  bundleDirectory,
   readDirectoryAsync,
 }

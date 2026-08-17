@@ -157,10 +157,6 @@ const ASYNC_STORAGE_DEFAULTS = {
     default: 'stacked',
     action: ACTION_CREATORS.setBiLayout,
   },
-  auth: {
-    default: false,
-    action: ACTION_CREATORS.setIsLoggedIn,
-  },
   userEmail: {
     default: "",
     action: ACTION_CREATORS.setUserEmail,
@@ -179,6 +175,13 @@ const ASYNC_STORAGE_DEFAULTS = {
   },
 };
 
+// Not part of ASYNC_STORAGE_DEFAULTS: auth lives in the Keychain (api.js),
+// hydrated at init via initAsyncStorage() below.
+const AUTH_DEFAULT = {
+  default: false,
+  action: ACTION_CREATORS.setIsLoggedIn,
+};
+
 const DEFAULT_STATE = {
   //theme: themeWhite,
   themeStr: ASYNC_STORAGE_DEFAULTS.color.default,
@@ -192,7 +195,7 @@ const DEFAULT_STATE = {
   vocalization: ASYNC_STORAGE_DEFAULTS.vocalization.default,
   debugInterruptingMessage: ASYNC_STORAGE_DEFAULTS.debugInterruptingMessage.default,
   biLayout: ASYNC_STORAGE_DEFAULTS.biLayout.default,
-  isLoggedIn: ASYNC_STORAGE_DEFAULTS.auth.default,
+  isLoggedIn: AUTH_DEFAULT.default,
   userEmail: ASYNC_STORAGE_DEFAULTS.userEmail.default,
   hasDismissedSyncModal: ASYNC_STORAGE_DEFAULTS.hasDismissedSyncModal.default,
   downloadNetworkSetting: ASYNC_STORAGE_DEFAULTS.downloadNetworkSetting.default,
@@ -367,6 +370,23 @@ const initAsyncStorage = dispatch => {
       promises.push(promise);
     }
   }
+  // The signed-in session lives in the Keychain, not AsyncStorage (see
+  // api.js hydrateAuthFromKeychain), so it's rehydrated separately here
+  // rather than through the ASYNC_STORAGE_DEFAULTS loop above. This is what
+  // makes a cold start restore an existing session instead of defaulting to
+  // logged out. hydrateAuthFromKeychain() is written to never reject, but
+  // this call is still guarded the same way the AsyncStorage loaders above
+  // are, so a truly unexpected failure degrades to logged out instead of
+  // blocking app init.
+  const authPromise = Sefaria.api.hydrateAuthFromKeychain()
+    .then(isLoggedIn => {
+      dispatch(AUTH_DEFAULT.action(isLoggedIn, true));
+    })
+    .catch(function(error) {
+      console.error("Failed to hydrate auth from keychain: " + error);
+      dispatch(AUTH_DEFAULT.action(false, true));
+    });
+  promises.push(authPromise);
   return Promise.all(promises);
 };
 
