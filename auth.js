@@ -146,6 +146,68 @@ const Auth = {
   _socialLoginFailure: function(code, analyticsError, error) {
     return { success: false, code, analyticsError, error };
   },
+  // Shared machinery behind socialLogin and requestPasswordReset: fire the
+  // request, guard against a redirect silently downgrading POST to GET,
+  // read the body as text, then parse it as JSON -- classifying a failure at
+  // any stage via `failureFactory` instead of throwing, so callers can just
+  // `await` this and branch on `result.failure`. Each stage is caught on its
+  // own so a client-side failure (network, parsing) isn't reported as an
+  // indistinguishable single error, and wording/labelling stays specific to
+  // the caller via the `messages`/`label` options.
+  //
+  // Compared by URL rather than via the standard `response.redirected`
+  // because React Native's fetch is the whatwg-fetch polyfill (3.6.x), whose
+  // Response never assigns `redirected` -- reading it always yields
+  // undefined, so that check would silently never fire on device.
+  //
+  // `allowEmptyBody` lets requestPasswordReset treat a bare 200 with no body
+  // as `{}` instead of a JSON-parse failure; socialLogin always expects a body.
+  // `sendRequest` is a thunk, not a promise: it must be INVOKED inside the try
+  // below so a synchronous throw is classified like a rejection. Passing an
+  // already-created promise would evaluate it at the call site, outside any
+  // try, and a sync throw would escape the classify-don't-throw contract.
+  _postAndReadJson: async function(sendRequest, url, { label, messages, failureFactory, allowEmptyBody = false }) {
+    let response;
+    try {
+      response = await sendRequest();
+    } catch (error) {
+      recordError(getCrashlytics(), error);
+      return { failure: failureFactory(SSO_ERROR_CODE.NETWORK_ERROR, ANALYTICS_REASON.NETWORK_ERROR, { non_field_errors: messages.requestError(error) }) };
+    }
+
+    if (response.url && response.url !== url) {
+      devLog(`${label} followed a redirect: ${url} -> ${response.url} (HTTP ${response.status})`);
+      return { failure: failureFactory(SSO_ERROR_CODE.REDIRECTED, ANALYTICS_REASON.INVALID_RESPONSE, { non_field_errors: messages.redirected(response) }) };
+    }
+
+    let rawBody;
+    try {
+      rawBody = await response.text();
+    } catch (error) {
+      recordError(getCrashlytics(), error);
+      return { failure: failureFactory(SSO_ERROR_CODE.NETWORK_ERROR, ANALYTICS_REASON.NETWORK_ERROR, { non_field_errors: messages.readError(error) }) };
+    }
+
+    let data = allowEmptyBody ? {} : undefined;
+    if (!allowEmptyBody || rawBody) {
+      try {
+        data = JSON.parse(rawBody);
+      } catch (error) {
+        const snippet = rawBody.replace(/\s+/g, ' ').trim().slice(0, 120);
+        devLog(`${label} non-JSON response: ${response.status} from ${url} :: ${snippet}`);
+        recordError(getCrashlytics(), error);
+        return { failure: failureFactory(SSO_ERROR_CODE.INVALID_RESPONSE, ANALYTICS_REASON.INVALID_RESPONSE, { non_field_errors: messages.nonJson(response, snippet) }) };
+      }
+    }
+
+    // Valid JSON doesn't guarantee an object -- `null`, a number, or a string
+    // all parse successfully, and reading fields off those would throw.
+    if (data === null || typeof data !== 'object') {
+      return { failure: failureFactory(SSO_ERROR_CODE.INVALID_RESPONSE, ANALYTICS_REASON.INVALID_RESPONSE, { non_field_errors: `Server returned an unexpected response body (HTTP ${response.status})` }) };
+    }
+
+    return { response, data };
+  },
   socialLogin: async function(provider, idToken, userData) {
     const config = SSO_PROVIDER_CONFIG[provider];
     if (!config) {
@@ -157,75 +219,22 @@ const Auth = {
     }
     const url = `${Sefaria.api._baseHost}${config.endpoint}`;
 
-    // Each stage is caught on its own so a client-side failure (storage,
-    // parsing) isn't reported as an indistinguishable 'network_error'.
-    let response;
-    try {
-      response = await Sefaria.api.socialLoginRequest(provider, idToken, userData);
-    } catch (error) {
-      recordError(getCrashlytics(), error);
-      return Sefaria.api._socialLoginFailure(
-        SSO_ERROR_CODE.NETWORK_ERROR,
-        ANALYTICS_REASON.NETWORK_ERROR,
-        { non_field_errors: `Network error during sign-in: ${error?.message}` },
-      );
-    }
-
-    // A redirect silently downgrades this POST to a GET, which hits a
-    // POST-only view and comes back with a non-JSON error body. Name it
-    // explicitly rather than letting it surface as a mystery 405.
-    //
-    // Compared by URL rather than via the standard `response.redirected`
-    // because React Native's fetch is the whatwg-fetch polyfill (3.6.x), whose
-    // Response never assigns `redirected` -- reading it always yields
-    // undefined, so that check would silently never fire on device.
-    if (response.url && response.url !== url) {
-      devLog(`socialLogin followed a redirect: ${url} -> ${response.url} (HTTP ${response.status})`);
-      return Sefaria.api._socialLoginFailure(
-        SSO_ERROR_CODE.REDIRECTED,
-        ANALYTICS_REASON.INVALID_RESPONSE,
-        { non_field_errors: `Request was redirected (${url} -> ${response.url}). A redirect downgrades POST to GET, so it cannot reach the sign-in endpoint.` },
-      );
-    }
-
-    // Read as text first, then parse, so a non-JSON error body (HTML from a
-    // proxy, say) can still be reported with its content, not just a status code.
-    // Guarded like requestPasswordReset's equivalent read: a body-stream
-    // failure mid-read must still classify, not reject.
-    let rawBody;
-    try {
-      rawBody = await response.text();
-    } catch (error) {
-      recordError(getCrashlytics(), error);
-      return Sefaria.api._socialLoginFailure(
-        SSO_ERROR_CODE.NETWORK_ERROR,
-        ANALYTICS_REASON.NETWORK_ERROR,
-        { non_field_errors: `Network error reading sign-in response: ${error?.message}` },
-      );
-    }
-    let data;
-    try {
-      data = JSON.parse(rawBody);
-    } catch (error) {
-      const snippet = rawBody.replace(/\s+/g, ' ').trim().slice(0, 120);
-      devLog(`socialLogin non-JSON response: ${response.status} from ${url} :: ${snippet}`);
-      recordError(getCrashlytics(), error);
-      return Sefaria.api._socialLoginFailure(
-        SSO_ERROR_CODE.INVALID_RESPONSE,
-        ANALYTICS_REASON.INVALID_RESPONSE,
-        { non_field_errors: `Server returned a non-JSON response (HTTP ${response.status} from ${url}): ${snippet}` },
-      );
-    }
-
-    // Valid JSON doesn't guarantee an object -- `null`, a number, or a string
-    // all parse successfully, and reading data.error off those would throw.
-    if (data === null || typeof data !== 'object') {
-      return Sefaria.api._socialLoginFailure(
-        SSO_ERROR_CODE.INVALID_RESPONSE,
-        ANALYTICS_REASON.INVALID_RESPONSE,
-        { non_field_errors: `Server returned an unexpected response body (HTTP ${response.status})` },
-      );
-    }
+    const result = await Sefaria.api._postAndReadJson(
+      () => Sefaria.api.socialLoginRequest(provider, idToken, userData),
+      url,
+      {
+        label: 'socialLogin',
+        failureFactory: Sefaria.api._socialLoginFailure,
+        messages: {
+          requestError: (error) => `Network error during sign-in: ${error?.message}`,
+          redirected: (response) => `Request was redirected (${url} -> ${response.url}). A redirect downgrades POST to GET, so it cannot reach the sign-in endpoint.`,
+          readError: (error) => `Network error reading sign-in response: ${error?.message}`,
+          nonJson: (response, snippet) => `Server returned a non-JSON response (HTTP ${response.status} from ${url}): ${snippet}`,
+        },
+      },
+    );
+    if (result.failure) { return result.failure; }
+    const { response, data } = result;
 
     if (!response.ok) {
       // data.error is server-controlled and not guaranteed to be a scalar --
@@ -297,71 +306,24 @@ const Auth = {
   requestPasswordReset: async function(email) {
     const url = `${Sefaria.api._baseHost}api/auth/password/reset`;
 
-    // Each stage caught on its own, same reasoning as socialLogin.
-    let response;
-    try {
-      response = await Sefaria.api.requestPasswordResetRequest(email);
-    } catch (error) {
-      recordError(getCrashlytics(), error);
-      return Sefaria.api._requestPasswordResetFailure(
-        SSO_ERROR_CODE.NETWORK_ERROR,
-        ANALYTICS_REASON.NETWORK_ERROR,
-        { non_field_errors: `Network error requesting password reset: ${error?.message}` },
-      );
-    }
-
-    // Same redirect hazard socialLogin guards against (see that comment).
-    if (response.url && response.url !== url) {
-      devLog(`requestPasswordReset followed a redirect: ${url} -> ${response.url} (HTTP ${response.status})`);
-      return Sefaria.api._requestPasswordResetFailure(
-        SSO_ERROR_CODE.REDIRECTED,
-        ANALYTICS_REASON.INVALID_RESPONSE,
-        { non_field_errors: `Request was redirected (${url} -> ${response.url}). A redirect downgrades POST to GET, so it cannot reach the reset endpoint.` },
-      );
-    }
-
-    // Reading as text first lets a non-JSON error body still be reported with
-    // its content instead of just a status code, same as socialLogin. A bare
-    // 200 {} success body has no JSON worth parsing.
-    //
-    // Guarded (unlike socialLogin's equivalent read) because a body-stream
-    // failure mid-read here would otherwise reject past requestPasswordReset's
-    // classify-don't-throw contract; classified the same way socialLogin
-    // classifies its own fetch() failure, for the same reason.
-    let rawBody;
-    try {
-      rawBody = await response.text();
-    } catch (error) {
-      recordError(getCrashlytics(), error);
-      return Sefaria.api._requestPasswordResetFailure(
-        SSO_ERROR_CODE.NETWORK_ERROR,
-        ANALYTICS_REASON.NETWORK_ERROR,
-        { non_field_errors: `Network error reading password reset response: ${error?.message}` },
-      );
-    }
-    let data = {};
-    if (rawBody) {
-      try {
-        data = JSON.parse(rawBody);
-      } catch (error) {
-        const snippet = rawBody.replace(/\s+/g, ' ').trim().slice(0, 120);
-        devLog(`requestPasswordReset non-JSON response: ${response.status} from ${url} :: ${snippet}`);
-        recordError(getCrashlytics(), error);
-        return Sefaria.api._requestPasswordResetFailure(
-          SSO_ERROR_CODE.INVALID_RESPONSE,
-          ANALYTICS_REASON.INVALID_RESPONSE,
-          { non_field_errors: `Server returned a non-JSON response (HTTP ${response.status} from ${url}): ${snippet}` },
-        );
-      }
-    }
-
-    if (data === null || typeof data !== 'object') {
-      return Sefaria.api._requestPasswordResetFailure(
-        SSO_ERROR_CODE.INVALID_RESPONSE,
-        ANALYTICS_REASON.INVALID_RESPONSE,
-        { non_field_errors: `Server returned an unexpected response body (HTTP ${response.status})` },
-      );
-    }
+    const result = await Sefaria.api._postAndReadJson(
+      () => Sefaria.api.requestPasswordResetRequest(email),
+      url,
+      {
+        label: 'requestPasswordReset',
+        failureFactory: Sefaria.api._requestPasswordResetFailure,
+        // A bare 200 {} success body has no JSON worth parsing.
+        allowEmptyBody: true,
+        messages: {
+          requestError: (error) => `Network error requesting password reset: ${error?.message}`,
+          redirected: (response) => `Request was redirected (${url} -> ${response.url}). A redirect downgrades POST to GET, so it cannot reach the reset endpoint.`,
+          readError: (error) => `Network error reading password reset response: ${error?.message}`,
+          nonJson: (response, snippet) => `Server returned a non-JSON response (HTTP ${response.status} from ${url}): ${snippet}`,
+        },
+      },
+    );
+    if (result.failure) { return result.failure; }
+    const { response, data } = result;
 
     if (!response.ok) {
       // The sso_only_account contract (shared with api/login/, see

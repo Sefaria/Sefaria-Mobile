@@ -247,6 +247,15 @@ export default StyleSheet.create({
     color: Colors.tertiaryText,
     borderColor: Colors.border,
   },
+  // UNREACHABLE as of today: the only screen that consumes these keys
+  // (AuthPage) pins itself to the light theme -- see AUTH_PAGE_THEME -- and
+  // ssoLayout.test.js asserts it stays light for both app theme settings.
+  // Design deliberately specced this page light-only, so nothing below
+  // renders. Kept so ThemeBlack doesn't silently lack keys ThemeWhite has: if
+  // AUTH_PAGE_THEME ever goes away the page degrades to mistuned colors rather
+  // than `undefined` styles. Do NOT tune these against a screenshot -- you
+  // cannot produce one -- and get design sign-off before they go live.
+  //
   // SSO (Google/Apple) button colors. Background stays white even in dark
   // mode: img/sso-google.png is Google's full-color "G" mark, which its brand
   // guidelines require on a white/near-white background, and img/sso-apple.png

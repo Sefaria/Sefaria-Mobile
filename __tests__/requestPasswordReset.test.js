@@ -130,6 +130,18 @@ describe('requestPasswordReset', () => {
     expect(result.analyticsError).toBe(ANALYTICS_REASON.NETWORK_ERROR);
   });
 
+  test('a SYNCHRONOUS throw from fetch is classified, not propagated', async () => {
+    // Guards the classify-don't-throw contract against the request being
+    // started outside _postAndReadJson's try block: if the thunk were replaced
+    // by an already-created promise, this throw would escape to the caller.
+    global.fetch = jest.fn(() => { throw new TypeError('Network request failed'); });
+    const result = await Sefaria.api.requestPasswordReset('bob@sefaria.org');
+
+    expect(result.success).toBe(false);
+    expect(result.code).toBe(SSO_ERROR_CODE.NETWORK_ERROR);
+    expect(result.analyticsError).toBe(ANALYTICS_REASON.NETWORK_ERROR);
+  });
+
   test('a redirected response is classified as redirected, not passed through as success', async () => {
     mockResponse({ ok: true, status: 200, body: {}, responseUrl: `${Sefaria.api._baseHost}accounts/login/` });
     const result = await Sefaria.api.requestPasswordReset('bob@sefaria.org');
