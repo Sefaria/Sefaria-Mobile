@@ -53,16 +53,19 @@ const createGoogleSignInHandler = ({ authMode, setIsLoading, setLoadingProvider,
       // Pre-flight check succeeded -- this is the "clicked -> provider sheet
       // shown" gap the spec wants measured, so process_started fires here.
       onProcessStarted();
-      if (authMode === AUTH_MODE.REGISTER) {
-        // The native SDK remembers the last authorized account and would sign
-        // the user straight back in with it. On sign-up that's wrong: someone
-        // creating an account needs to choose which Google account it belongs
-        // to, not silently inherit whoever signed in last on this device.
-        // Best-effort — nothing to clear on a first run.
-        try {
-          await GoogleSignin.signOut();
-        } catch (e) {}
-      }
+      // The native SDK remembers the last authorized account and would sign
+      // the user straight back in with it, skipping the account chooser
+      // entirely. That's wrong on both paths: on sign-up someone creating an
+      // account needs to choose which Google account it belongs to rather
+      // than silently inherit whoever signed in last on this device, and on
+      // login it means a user with more than one Google account has no way
+      // to pick the other one -- they're stuck re-authorizing whichever
+      // account the SDK cached, however many times they tap the button.
+      // Clearing the cached account first is what forces the chooser to
+      // appear. Best-effort — nothing to clear on a first run.
+      try {
+        await GoogleSignin.signOut();
+      } catch (e) {}
       const response = await GoogleSignin.signIn();
       // Since v13 a cancellation RESOLVES as { type: 'cancelled', data: null }
       // rather than rejecting with SIGN_IN_CANCELLED, so it never reaches the
