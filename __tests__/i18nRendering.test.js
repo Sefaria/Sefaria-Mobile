@@ -321,6 +321,20 @@ beforeAll(() => {
   Sefaria.galusOrIsrael = 'diaspora';
 });
 
+/**
+ * Nothing in this file may reach the network.
+ *
+ * A screen that quietly fetches makes the suite slow, flaky, and dependent on sefaria.org
+ * being up — and it is easy to introduce by accident, because a component fetches on mount
+ * whether or not the test cares. Failing loudly here turns that into an obvious error
+ * instead of a real request to production. A test that needs a particular response replaces
+ * `global.fetch` itself and puts this back afterwards; see the API-layer alerts below.
+ */
+const REFUSE_NETWORK = () =>
+  Promise.reject(new Error('a test tried to reach the network; stub the Sefaria.api method it calls'));
+
+beforeAll(() => { global.fetch = jest.fn(REFUSE_NETWORK); });
+
 afterAll(() => { strings.setLanguage('en'); });
 
 describe('Settings screen', () => {
@@ -762,7 +776,6 @@ describe('Alerts', () => {
     // _request(ref, apiType, urlify, extra_args, failSilently). failSilently must stay false:
     // that is the flag that decides between showing the alert and rejecting quietly.
     const request = async (fetchImpl) => {
-      const realFetch = global.fetch;
       global.fetch = jest.fn(fetchImpl);
       try {
         // The alert's own buttons are what settle this promise, so awaiting it here would
@@ -770,7 +783,7 @@ describe('Alerts', () => {
         Sefaria.api._request('Genesis 1', 'text', true, {}, false).catch(noop);
         await flushPromises();
       } finally {
-        global.fetch = realFetch;
+        global.fetch = jest.fn(REFUSE_NETWORK);
       }
     };
 
@@ -1124,6 +1137,24 @@ describe('Alerts from the settings page', () => {
     act(() => { node.props.onPress(); });
   };
 
+  /**
+   * Runs `fn` with setTimeout under the test's control, then discards anything still pending.
+   *
+   * Tapping a package row starts a 1500ms "ignore a second tap" guard
+   * (`preventDoubleTap`, SettingsPage.js:584) that nothing cancels on unmount. Left running,
+   * it holds the Jest worker open past the end of the run. setImmediate stays real because
+   * `flushPromises` is built on it.
+   */
+  const withTimersUnderControl = async (fn) => {
+    jest.useFakeTimers({ doNotFake: ['setImmediate', 'nextTick', 'performance'] });
+    try {
+      await fn();
+    } finally {
+      jest.clearAllTimers();
+      jest.useRealTimers();
+    }
+  };
+
   test('deleting the library asks for confirmation in both languages', async () => {
     await expectAlertLocalizes(
       () => pressLabelled(renderSettings(), 'download.delete_library'),
@@ -1141,7 +1172,7 @@ describe('Alerts from the settings page', () => {
   });
 
   test('a package covered by its parent says so, in both languages', async () => {
-    await expectAlertLocalizes(
+    await withTimersUnderControl(() => expectAlertLocalizes(
       async () => {
         // Tapping "Torah" while "Tanakh" is already downloaded explains that it is included
         // in the parent package rather than starting a second download.
@@ -1152,11 +1183,11 @@ describe('Alerts from the settings page', () => {
         await act(async () => { await row.props.onPress(); });
       },
       ['download.already_downloaded', 'download.are_included_in', 'common.ok']
-    );
+    ));
   });
 
   test('deleting a package asks for confirmation in both languages', async () => {
-    await expectAlertLocalizes(
+    await withTimersUnderControl(() => expectAlertLocalizes(
       async () => {
         // "Tanakh" is downloaded and is nobody's child, so tapping it offers to remove it.
         const inst = renderSettings();
@@ -1164,7 +1195,7 @@ describe('Alerts from the settings page', () => {
         await act(async () => { await row.props.onPress(); });
       },
       ['common.delete', 'download.are_you_sure_delete_package', 'common.yes', 'common.no']
-    );
+    ));
   });
 
   test('an up-to-date library says so in both languages', async () => {
@@ -1219,6 +1250,8 @@ describe('Alerts from the settings page', () => {
 
 describe('Lexicon panel', () => {
   test('renders its heading in both languages', () => {
+    // The box fires a dictionary lookup for the selected words as soon as it mounts.
+    Sefaria.api.lexicon = jest.fn(async () => []);
     expectScreenLocalizes(wrap(LexiconBox, {
       selectedWords: 'בְּרֵאשִׁית', oref: { categories: ['Tanakh'] }, handleOpenURL: noop,
     }), ['connections.define']);
@@ -1452,7 +1485,7 @@ describe('Topics', () => {
     Sefaria._topicTocPages = { null: [] };
     Sefaria.api.topic = jest.fn(async () => topicData);
     Sefaria.api.getParashaNextRead = jest.fn(async () => ({}));
-    Sefaria.api.bulkText = jest.fn(async () => ({}));
+    Sefaria.api.getBulkText = jest.fn(async () => ({}));
     Sefaria.topicTocPage = jest.fn(() => []);
     Sefaria.getTopicTocObject = jest.fn(() => null);
     // The trending list is what carries the heading; without it the section is not rendered
@@ -1475,12 +1508,16 @@ describe('Topics', () => {
   });
 
   test('a parasha page offers to read the portion, in both languages', async () => {
+    // `ref` has to be the {en, he} pair the header button reads, not a bare string.
     Sefaria.api.topic = jest.fn(async () => ({
-      ...topicData, parasha: 'Bereshit', ref: 'Genesis 1:1-6:8',
+      ...topicData,
+      parasha: 'Bereshit',
+      ref: { en: 'Genesis 1:1-6:8', he: 'בראשית א׳:א׳-ו׳:ח׳' },
     }));
-    Sefaria.api.getParashaNextRead = jest.fn(async () => ({
-      ref: 'Genesis 1:1-6:8', heRef: 'בראשית א׳:א׳-ו׳:ח׳', he_ref: 'בראשית א׳:א׳-ו׳:ח׳',
-    }));
+    // An empty array is the shape this returns when there is no upcoming reading, and it
+    // keeps the readings table (dates, haftarah list — all content, no interface strings)
+    // out of the way. The button under test is in the page header.
+    Sefaria.api.getParashaNextRead = jest.fn(async () => []);
     await expectSettledScreenLocalizes(
       wrap(TopicPage, topicProps()), ['learning_schedules.read_the_portion']);
   });
