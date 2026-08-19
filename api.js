@@ -7,9 +7,7 @@ import 'abortcontroller-polyfill';
 
 import strings from './LocalizedStrings';
 import LinkContent from './LinkContent';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
-import jwt_decode from 'jwt-decode';
+import Auth from './auth';
 
 var Api = {
   /*
@@ -629,149 +627,10 @@ var Api = {
       return obj;
     }, {});
   },
-  deleteUserAccount: async function() {
-    await Sefaria.api.getAuthToken();
-    if (!Sefaria._auth.uid) { console.log("Not signed in"); return; }
-    const url = `${Sefaria.api._baseHost}api/account/delete`;
-    fetch(url, {
-      method: "DELETE",
-      headers: {
-        'Authorization': `Bearer ${Sefaria._auth.token}`,
-        "Content-Type": "application/json;charset=UTF-8",
-      },
-    }).then(response => {
-      if (response.status >= 200 && response.status < 300) {
-        return response;
-      } else {
-        console.error('Error in response code', response.text());
-        throw new Error("Bad Response Code " + response.status);
-      }
-    })
-    .then(response => response.json())
-    .then(json => {
-      if ("error" in json) {
-        console.error('Error in response json', json.error);
-        throw new Error("Bad Response " + json.error);
-      }else{
-        return json;
-      }
-    })
-    .catch(e => {
-      console.error('Network Error', e);
-      throw new Error("Network Error " + e);
-    });
-  },
-    
-  login: function(authData) {
-    const url = `${Sefaria.api._baseHost}api/login/`;
-    const authBody = {
-      username: authData.email,
-      password: authData.password,
-    };
-    return fetch(url, {
-      method: "POST",
-      body: JSON.stringify(authBody),
-      headers: {
-        "Content-Type": "application/json;charset=UTF-8"
-      }
-    });
-  },
-  register: function(authData) {
-    const url = `${Sefaria.api._baseHost}api/register/`;
-    const authBody = {
-      email: authData.email,
-      first_name: authData.first_name,
-      last_name: authData.last_name,
-      password1: authData.password,
-      password2: authData.password,
-      mobile_app_key: authData.mobile_app_key,
-    };
-    console.log(authBody, Sefaria.api.urlFormEncode(authBody));
-    return fetch(url, {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-      },
-      body: Sefaria.api.urlFormEncode(authBody)
-    });
-  },
-  refreshToken: function(refreshToken) {
-    const url = `${Sefaria.api._baseHost}api/login/refresh/`;
-    const authBody = {
-      refresh: refreshToken,
-    };
-    return fetch(url, {
-      method: "POST",
-      body: JSON.stringify(authBody),
-      headers: {
-        "Content-Type": "application/json;charset=UTF-8"
-      }
-    });
-  },
-  authenticate: async function(authData, authMode = "login") {
-    try {
-      const parsedRes = await (authMode === 'login' ? Sefaria.api.login(authData) : Sefaria.api.register(authData)).then(res => res.json());
-      if (!parsedRes.access) {
-        return parsedRes;  // return errors
-      } else {
-        await Sefaria.api.storeAuthToken(parsedRes);
-      }
-    } catch (error) {
-      recordError(getCrashlytics(), error);
-      return {
-        non_field_errors: "Unknown authentication error"
-      };
-    }
-
-  },
-
-  storeAuthToken: async function({ access, refresh }) {
-    const decodedToken = jwt_decode(access);
-    Sefaria._auth = {
-      token: access,
-      expires: decodedToken.exp,
-      uid: decodedToken.user_id,
-      refreshToken: refresh,
-    };
-    await AsyncStorage.setItem("auth", JSON.stringify(Sefaria._auth));
-  },
-
-  getAuthToken: async function() {
-    if (!Object.keys(Sefaria._auth).length) { return; /* logged out */ }
-    const currTime = Sefaria.util.epoch_time();
-    if (!Sefaria._auth.token || Sefaria._auth.expires <= currTime) {
-      const tempAuth = await AsyncStorage.getItem("auth");
-      Sefaria._auth = JSON.parse(tempAuth) || {};
-      try {
-        if (!Sefaria._auth.token) { throw new Error("no token!"); }
-        if (Sefaria._auth.expires <= currTime) { throw new Error("expired token"); }
-        return;  // token is valid
-      } catch (error) {
-        // use refreshToken to get new authToken
-        const parsedRes = await Sefaria.api.refreshToken(Sefaria._auth.refreshToken).then(res => res.json());
-        if (!parsedRes.access) {
-          Sefaria.api.clearAuthStorage();
-        } else {
-          Sefaria.api.storeAuthToken(parsedRes);
-        }
-      }
-    }
-  },
-  clearAuthStorage: async function() {
-    await AsyncStorage.removeItem('auth');
-    await AsyncStorage.removeItem('lastSyncTime');
-    await AsyncStorage.removeItem('lastSettingsUpdateTime');
-    await AsyncStorage.removeItem('hasDismissedSyncModal');
-    await AsyncStorage.removeItem('hasSyncedOnce');
-    await AsyncStorage.removeItem('hasSwipeDeleted');
-    Sefaria._auth = {};
-    Sefaria.history._hasSwipeDeleted = false;
-    const hasSyncedOnce = Sefaria.history._hasSyncedOnce;
-    Sefaria.history._hasSyncedOnce = false;
-    if (!hasSyncedOnce) { return; /* dont fully delete data if not backed up */}
-
-    Sefaria.history.deleteHistory(true);
-  },
+  // Auth (SSO, JWT storage/refresh, keychain, login/register/logout) lives in
+  // auth.js. Spread in here so every existing `Sefaria.api.<authMethod>` call
+  // site -- and every test that stubs one -- keeps working unchanged.
+  ...Auth,
 
 /*
 failSilently - if true, dont display a message if api call fails

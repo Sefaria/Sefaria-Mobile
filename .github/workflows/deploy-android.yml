@@ -59,6 +59,10 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      # react-native-config bakes .env at build time; .env is gitignored, so CI must write one.
+      - name: Write .env for react-native-config
+        run: echo "GOOGLE_SSO_CLIENT_ID=${{ secrets.GOOGLE_SSO_CLIENT_ID }}" > .env
+
       - name: Install Firebase CLI
         # Firebase CLI is used by the testrelease lane to distribute the APK.
         # It handles first-time App Distribution app initialisation, which the
@@ -92,18 +96,22 @@ jobs:
 
       - name: List keystore (debug info)
         working-directory: android
+        env:
+          STOREPASS: ${{ secrets.STOREPASS }}
         run: |
           echo "PWD = $(pwd)"
           file upload-kstore.keystore || true
           keytool -list -v \
             -keystore upload-kstore.keystore \
-            -storepass "${{ secrets.STOREPASS }}" \
+            -storepass:env STOREPASS \
           || true
 
       - name: Run Fastlane
         working-directory: android
+        env:
+          STOREPASS: ${{ secrets.STOREPASS }}
         run: |
-          bundle exec fastlane android testrelease storepass:${{ secrets.STOREPASS }}
+          bundle exec fastlane android testrelease
 
       - name: Commit updated source files
         if: success()

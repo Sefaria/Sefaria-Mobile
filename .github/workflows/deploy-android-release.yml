@@ -87,6 +87,10 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      # react-native-config bakes .env at build time; .env is gitignored, so CI must write one.
+      - name: Write .env for react-native-config
+        run: echo "GOOGLE_SSO_CLIENT_ID=${{ secrets.GOOGLE_SSO_CLIENT_ID }}" > .env
+
       - name: Decode Android keystore
         # Decode to both android/ and android/app/ — Gradle resolves the path
         # relative to the :app subproject directory, but this varies by Gradle version.
@@ -111,7 +115,9 @@ jobs:
 
       - name: Run Fastlane release
         working-directory: android
-        run: bundle exec fastlane android release storepass:${{ secrets.STOREPASS }}
+        env:
+          STOREPASS: ${{ secrets.STOREPASS }}
+        run: bundle exec fastlane android release
 
       - name: Generate GitHub App token for protected-branch push
         # Short-lived token scoped only to the push step below.

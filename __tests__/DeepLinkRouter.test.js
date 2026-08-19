@@ -1,0 +1,121 @@
+import Sefaria from '../sefaria';
+import DeepLinkRouter from '../DeepLinkRouter';
+
+// These paths are excluded from the iOS universal-links (AASA) file by
+// Sefaria-Project's apple_app_site_association view, specifically so that
+// iOS doesn't yank users mid-login into the app. That only holds together if
+// DeepLinkRouter also treats them as "not ours" and hands them to the browser
+// via catchAll, instead of trying to open them as in-app routes. These tests
+// pin that behavior so the two repos can't silently drift apart.
+describe('DeepLinkRouter auth paths fall through to catchAll', () => {
+  let router;
+  let openUri;
+  let openRef;
+  let nameSpy;
+
+  beforeEach(() => {
+    openUri = jest.fn();
+    openRef = jest.fn();
+    nameSpy = jest.spyOn(Sefaria.api, 'name').mockResolvedValue({ completion_objects: [] });
+    router = new DeepLinkRouter({
+      openNav: jest.fn(),
+      openMenu: jest.fn(),
+      openRef,
+      openUri,
+      openTextTocDirectly: jest.fn(),
+      openSearch: jest.fn(),
+      openTopic: jest.fn(),
+      setSearchOptions: jest.fn(),
+      setTextLanguage: jest.fn(),
+      setNavigationCategories: jest.fn(),
+    });
+  });
+
+  afterEach(() => {
+    nameSpy.mockRestore();
+  });
+
+  describe.each([
+    '/login', '/login/',
+    '/register', '/register/',
+    '/logout', '/logout/',
+  ])('%s', (path) => {
+    it('reaches catchAll (openUri) without ever touching openRef or Sefaria.api.name', () => {
+      router.route(path);
+      expect(openUri).toHaveBeenCalledTimes(1);
+      expect(openRef).not.toHaveBeenCalled();
+      expect(nameSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe.each([
+    '/accounts/apple/login/callback/',
+    '/accounts/google/login/callback/',
+    '/_allauth/browser/v1/auth/session',
+    '/password/reset',
+    '/password/reset/done',
+  ])('%s', (path) => {
+    it('already falls through to catchAll (openUri) via the multi-segment case', () => {
+      router.route(path);
+      expect(openUri).toHaveBeenCalledTimes(1);
+      expect(openRef).not.toHaveBeenCalled();
+      expect(nameSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('regression: legitimate content routing is not shadowed', () => {
+    it('routes a real text ref to openRef', () => {
+      Sefaria.booksDict['Genesis'] = 1;
+      router.route('/Genesis.1.1');
+      expect(openRef).toHaveBeenCalledTimes(1);
+      expect(openUri).not.toHaveBeenCalled();
+    });
+
+    it('routes a texts/ category path without going through catchAll', () => {
+      router.route('/texts/Tanakh');
+      expect(openUri).not.toHaveBeenCalled();
+    });
+  });
+});
+
+// Sefaria.api._baseHost defaults to 'https://www.sefaria.org/' (see api.js),
+// which is what these tests rely on via the real Sefaria import above.
+const makeProps = () => ({
+  openNav: jest.fn(),
+  openMenu: jest.fn(),
+  openRef: jest.fn(),
+  openUri: jest.fn(),
+  openTextTocDirectly: jest.fn(),
+  openSearch: jest.fn(),
+  openTopic: jest.fn(),
+  setSearchOptions: jest.fn(),
+  setTextLanguage: jest.fn(),
+  setNavigationCategories: jest.fn(),
+});
+
+describe('DeepLinkRouter interface language switching', () => {
+  test('hands a cross-domain language switch back to the browser', () => {
+    const props = makeProps();
+    const router = new DeepLinkRouter(props);
+    router.route('https://www.sefaria.org/texts?set-language-cookie=', true);
+    expect(props.openUri).toHaveBeenCalledWith('https://www.sefaria.org/texts?set-language-cookie=');
+    expect(props.openNav).not.toHaveBeenCalled();
+  });
+
+  test('hands a language switch to the Hebrew domain back to the browser', () => {
+    const props = makeProps();
+    const router = new DeepLinkRouter(props);
+    const url = 'https://www.sefaria.org.il/Genesis.1?set-language-cookie=';
+    router.route(url, true);
+    expect(props.openUri).toHaveBeenCalledWith(url);
+    expect(props.openRef).not.toHaveBeenCalled();
+  });
+
+  test('still opens ordinary deep links in the app', () => {
+    const props = makeProps();
+    const router = new DeepLinkRouter(props);
+    router.route('https://www.sefaria.org/texts', true);
+    expect(props.openNav).toHaveBeenCalled();
+    expect(props.openUri).not.toHaveBeenCalled();
+  });
+});

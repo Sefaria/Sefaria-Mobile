@@ -28,6 +28,13 @@ class DeepLinkRouter extends React.PureComponent {
       ['^search$', this.openSearch],
       ['^topics/(category)/(.+)$', this.openTopic, ['categoryString','slug']],
       ['^topics/(.+)$', {fromOutside: this.catchAll, fromInside: this.openTopic}, ['slug']],
+      // login/register/logout are browser-session/CSRF-bound auth flows the app can't
+      // complete in-app, so they must exit to the browser via catchAll rather than fall
+      // into the tref route below and get treated as a text title lookup. Sefaria-Project's
+      // apple_app_site_association view excludes these same paths (and /accounts/*, /_allauth/*,
+      // /password/reset*) from the iOS universal-links file for the same reason -- keep this
+      // list in sync with that exclusion list.
+      ['^(login|register|logout)$', this.catchAll],
       ['^([^/]+)$', this.openRef, ['tref']],  // NOTE: if any static page matches a title, it will try to be opened in the app. In this case, we'll need to explicitly list the route above this route.
       ['^.*$', this.catchAll],
     ];
@@ -103,6 +110,14 @@ class DeepLinkRouter extends React.PureComponent {
     let { pathname, query, host, hostname } = u;
     if (!hostname.match('(?:www\.)?sefaria\.org')) {
       // this is not a sefaria URL. Route to browser
+      this.catchAll({ url });
+      return;
+    }
+    if ('set-language-cookie' in query) {
+      // The site switches interface language by redirecting across domains
+      // (sefaria.org <-> sefaria.org.il) with this param. Android app links grab that
+      // redirect, which strands the user in the app instead of on the site they asked for.
+      // Hand it back to the browser so the language switch completes there.
       this.catchAll({ url });
       return;
     }

@@ -1,11 +1,12 @@
-def VERSION_BUILD=62061078
+def VERSION_BUILD=62061080
 def VERSION_MAJOR=6
-def VERSION_MINOR=7
-def VERSION_PATCH=15
+def VERSION_MINOR=8
+def VERSION_PATCH=2
 
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -103,6 +104,12 @@ android {
         // qaAppName is passed by Fastlane/CI so each QA build shows its own label on the home screen.
         // Falls back to "Sefaria" for production builds.
         resValue "string", "app_name", project.findProperty("qaAppName") ?: "Sefaria"
+
+        // react-native-config finds BuildConfig by reflection, guessing its package
+        // from getPackageName() -- the applicationId, which QA builds override
+        // (above) while BuildConfig stays at the namespace. Without pinning this,
+        // every Config.* value is silently undefined in QA builds.
+        resValue "string", "build_config_package", "org.sefaria.sefaria"
 
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion

@@ -22,6 +22,18 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<!-- Google Sign-In: reversed form of the iOS OAuth client id (GOOGLE_SSO_IOS_CLIENT_ID). Hardcoded
+	     because the URL scheme is needed at build time and this project does not enable Info.plist
+	     preprocessing. Not a secret; it ships in every build. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.203667201820-isj9lodav2j16r3ip2l4gbtilk2hek7s</string>
+			</array>
+		</dict>
+	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>

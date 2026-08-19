@@ -9,6 +9,35 @@ const isIOS = Platform.OS === 'ios';
 const isAndroid = Platform.OS === 'android';
 const readerSideMargin = 42;
 const readerSideMarginIpad = 60;
+
+// Design tokens for the SSO (Google/Apple) sign-in UI, sourced from the Figma
+// spec (docs/superpowers/specs/2026-07-21-mobile-sso-design.md, section 2).
+// Every SSO spacing, font size, and dimension below should reference one of
+// these named constants rather than a hardcoded literal in the styles.
+// SSO colors are not here: they live as theme tokens in ThemeWhite.js /
+// ThemeBlack.js and are applied by the caller.
+const SSOSpacing = {
+  buttonGap: 16,      // vertical gap between Google and Apple buttons (Figma --global/dimension-200)
+  sectionGap: 24,     // gap between SSO buttons section and the "or" divider
+  buttonPaddingH: 24, // horizontal padding inside a button (--sds-size-space-600)
+  iconTextGap: 8,     // gap between icon and label (--sds-size-space-200)
+  dividerLabelGap: 16,// horizontal margin around the "or" label
+  titleGap: 24,       // gap between the page title (Log in / Sign up) and the first SSO button
+};
+
+const SSODimensions = {
+  buttonHeight: 51,
+  buttonBorderWidth: 1.5, // --sds-size-stroke-border
+  buttonRadius: 4,        // --space-1
+  iconSize: 24,
+  // No fixed container width: see __tests__/ssoLayout.test.js for why.
+};
+
+const SSOTypography = {
+  buttonTextSize: 16,
+  buttonFontWeight: '600',
+  dividerTextSize: 14,
+};
 // Fraction of a scrolling panel's own height to append as bottom padding. Allows a
 // one-line last segment to scroll up to the top of the panel when pressed, without
 // scrolling it out of view. Applied at runtime against each panel's measured height
@@ -813,6 +842,73 @@ export default StyleSheet.create({
   },
   logInMotivator: {
     marginVertical: 15,
+  },
+  ssoSection: {
+    alignItems: 'center',
+    marginBottom: 0,
+    marginTop: SSOSpacing.titleGap,
+    // Stretch to the parent's gutter rather than a fixed width -- see
+    // __tests__/ssoLayout.test.js for why. The email inputs below use the
+    // same implicit stretch, which is why they line up correctly everywhere.
+    alignSelf: 'stretch',
+    gap: SSOSpacing.buttonGap,
+  },
+  // Colors (background/border/text) come from theme.ssoButton* -- see
+  // ThemeWhite.js/ThemeBlack.js -- applied by the caller as [styles.ssoButton, theme.ssoButtonBackground, ...].
+  ssoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: SSODimensions.buttonHeight,
+    borderWidth: SSODimensions.buttonBorderWidth,
+    borderRadius: SSODimensions.buttonRadius,
+    paddingHorizontal: SSOSpacing.buttonPaddingH,
+    gap: SSOSpacing.iconTextGap,
+  },
+  // Pressed/in-flight visual for SSO buttons. The Figma spec (a wireframe) does
+  // not define a distinct pressed treatment, so this reuses TouchableOpacity's
+  // own default activeOpacity (0.2) as the "pressed" opacity, applied as a
+  // persistent style so finger-down and in-flight look identical. Confirm with
+  // design if a dedicated pressed token should replace this.
+  ssoButtonPressed: {
+    opacity: 0.2,
+  },
+  ssoButtonText: {
+    fontSize: SSOTypography.buttonTextSize,
+    fontFamily: 'OpenSans',
+    fontWeight: SSOTypography.buttonFontWeight,
+  },
+  ssoIcon: {
+    width: SSODimensions.iconSize,
+    height: SSODimensions.iconSize,
+  },
+  orDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: SSOSpacing.sectionGap,
+  },
+  orDividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  orDividerText: {
+    marginHorizontal: SSOSpacing.dividerLabelGap,
+    fontSize: SSOTypography.dividerTextSize,
+  },
+  ssoErrorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    borderWidth: 1,
+    borderRadius: SSODimensions.buttonRadius,
+    paddingVertical: SSOSpacing.iconTextGap,
+    paddingHorizontal: SSOSpacing.buttonPaddingH,
+    marginBottom: SSOSpacing.buttonGap,
+  },
+  ssoErrorBannerText: {
+    flex: 1,
+    fontSize: SSOTypography.dividerTextSize,
   },
   category: {
     marginBottom: 10
