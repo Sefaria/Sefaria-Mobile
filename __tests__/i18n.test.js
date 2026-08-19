@@ -49,6 +49,18 @@ describe('i18n string files', () => {
     expect(mismatched).toEqual([]);
   });
 
+  test('no id has the same text in both languages', () => {
+    // `i18nRendering.test.js` decides that a label never went through the string table by
+    // spotting its English value in a Hebrew render. That only works while every string has
+    // a Hebrew translation that differs from its English source, which is true today but is
+    // not something Weblate enforces — a translator can paste the English straight through.
+    // If this ever fails, either the translation is missing, or that leak check has to be
+    // relaxed for the id in question.
+    const identical = Object.keys(flatEn)
+      .filter(id => flatHe[id].trim() && flatEn[id].trim() === flatHe[id].trim());
+    expect(identical).toEqual([]);
+  });
+
   test('the runtime map exposes every id in both languages', () => {
     for (const lang of ['en', 'he']) {
       strings.setLanguage(lang);
@@ -99,48 +111,86 @@ describe('i18n ids referenced in source', () => {
 /**
  * Ids that exist in en.json and he.json but that no app code reads.
  *
- * Every one of these was already dead before the Weblate migration — either the feature was
- * removed, or the string was a sentence fragment (`common.of`, `common.by`) that a full
- * sentence with placeholders replaced. They are listed rather than deleted because deleting
- * them also throws away Hebrew translations, which is a call for the team, not this test.
+ * They are listed rather than deleted because deleting one also throws away Hebrew a
+ * translator wrote. Which of them to delete is a call for the team, not for this test — so
+ * each is filed below under why it went quiet, traced back to the commit that dropped it.
  *
- * The point of the list is that it must not grow: a new unused id means a string was added to
- * Weblate that nothing displays, or a screen stopped using one. Wire the id up, or delete it
- * from both JSON files — do not append to this list.
+ * The point of the list is that it must not grow: a new unused id means a string was added
+ * to Weblate that nothing displays, or a screen stopped using one. Wire the id up, or delete
+ * it from both JSON files — do not append to this list.
  */
 const KNOWN_UNUSED = [
-  'about.about',
-  'about.feedback',
-  'about.support_sefaria',
-  'common.apply',
+  // === Regressions: the feature is still there, the message is not. Wire these back up. ===
+
+  // The search page used to tell an offline user why there were no results. The line that
+  // did it went out with the `status` variable in ce5e45f8 (2023-01-29,
+  // "chore(search): follow pycharm suggestions to clean up code") — collateral damage in a
+  // tidy-up, not a decision. Offline search now just shows an empty result list.
+  'errors.connect_to_search_message',
+
+  // Same shape: TranslationsBox had an `apiError` branch that said "Connect to the internet
+  // to read other versions." f1c1df0e (2024-03-26, the api-v3 translations refactor) deleted
+  // the branch, so a failed versions fetch is now indistinguishable from a text that has no
+  // other versions.
+  'errors.connect_to_versions_message',
+
+  // === Not used on master, but do not delete: an unmerged branch needs it. ===
+
+  // Used by the in-flight auth work (48a4cfcf, on feature/sc-45083-sso-google-apple-signin
+  // and feature/sc-46734-google-account-chooser-on-login). Deleting it breaks those branches.
   'common.back',
-  'common.by',
-  'common.clear_all',
-  'common.of',
+
+  // === Removed features. The screens that displayed these no longer exist. ===
+
+  // The 2020 downloader rewrite: 0a118f48 ("deleted old packages and downloader files") and
+  // 681ab892 ("separating download logic from UI concerns") took out the pause/resume UI.
   'download.are_you_sure_delete_download_progress',
-  'download.download_in_progress',
-  'download.download_library',
   'download.download_paused',
-  'download.download_updates',
-  'download.downloading',
   'download.how_to_resume_download_message',
   'download.library_downloading',
   'download.library_downloading_message',
   'download.pause',
   'download.resume_download',
+
+  // The package-download UI that preceded it (2018–2020).
+  'download.download_in_progress',
+  'download.download_library',
+  'download.download_updates',
+  'download.downloading',
   'download.texts_downloaded',
-  'errors.connect_to_search_message',
-  'errors.connect_to_versions_message',
-  'learning_schedules.haftara',
-  'learning_schedules.parashah',
+
+  // The 2023 navigation rewrite: da2f15c9 ("basic new texts page") and 1123abe5
+  // ("chore: remove unused file") replaced the old menu.
+  'about.about',
+  'about.feedback',
   'nav.browse',
   'nav.calendar',
+
+  // The 2023 search-filter refactor (4d5000c6, 22e645fe, aeb2d8d0) replaced the
+  // Apply / Clear All footer and the filter-by-text field with the current design.
+  'common.apply',
+  'common.clear_all',
   'search.filter_by_text',
-  'search.results',
+
+  // Sheets came out of the app in November 2025 (63252a7d, e51c51c6, b6d75f7d).
   'topics.views',
-  'versions.compare',
   'versions.read',
+
+  // Older versions-box changes: the compare button went in 2018 (022355a8) and the section
+  // was renamed from "Versions" to "Translations" in 2020 (1f6c3029).
+  'versions.compare',
   'versions.versions',
+
+  // Superseded by a full sentence with placeholders, or by a rewrite of the screen.
+  'about.support_sefaria',   // donate button reworked, 5e4f8fb7 (2019)
+  'common.by',               // now part of `topics.this_source_is_connected_to`
+  'common.of',               // now part of `download.downloading_progress`
+  'search.results',          // search results summary rewritten, 98629944 (2019)
+
+  // Calendar entries have come from the calendar data, not from fixed labels, since 57274340
+  // (2016-12-06).
+  'learning_schedules.haftara',
+  'learning_schedules.parashah',
 ];
 
 describe('unused i18n ids', () => {

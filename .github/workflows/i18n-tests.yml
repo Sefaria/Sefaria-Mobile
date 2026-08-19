@@ -1,0 +1,44 @@
+# Guards the interface strings in i18n/en.json and i18n/he.json.
+#
+# Weblate commits translator edits straight into this repository, and it validates nothing —
+# not key names, not key parity between the two files, not placeholders. A string that goes
+# missing does not crash React Native, it renders blank. These tests are the only thing that
+# catches that, so they have to run on the Weblate merge pull request, not just on a
+# developer's laptop when someone remembers.
+#
+# Scope: this job runs the two i18n suites only. Six other Jest suites in this repo have
+# failures that predate this workflow (see __tests__/AuthPage, history, ReaderApp,
+# SettingsPage, SwipeableCategoryList and search/__tests__/FilterSearcher). Widening the
+# command to the whole suite would make this check red on arrival, which is the fastest way
+# to teach people to ignore it. Widen it once those are fixed.
+name: i18n tests
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  i18n:
+    runs-on: ubuntu-latest
+    name: Interface strings
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run i18n tests
+        run: npx jest __tests__/i18n.test.js __tests__/i18nRendering.test.js --watchAll=false --ci

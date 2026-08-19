@@ -3,7 +3,6 @@
 import {
   AppRegistry,
   LogBox,
-  Alert,
 } from 'react-native';
 import React, { useReducer } from 'react';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
@@ -14,8 +13,8 @@ import {
   DEFAULT_STATE,
   getTheme,
 } from './StateManager';
-import strings from './LocalizedStrings';
 import {ErrorBoundaryFallbackComponent} from "./ErrorBoundaryFallbackComponent";
+import { generalAppErrorAlert } from './errors';
 import {ErrorBoundary, useErrorBoundary} from "react-error-boundary";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ReaderApp from './ReaderApp';
@@ -35,16 +34,6 @@ LogBox.ignoreLogs([
   'You seem to update the renderersProps prop(s) of the "RenderHTML" component in short periods of time',  // seems to not be a real issue
   'You seem to update the renderers prop(s) of the "RenderHTML" component',  // slightly different wording
 ]);
-
-const generalAppErrorAlert = () => {
-  Alert.alert(
-      strings.errors.general_error_alert_title,
-      strings.errors.general_error_alert_message,
-      [
-        {text: strings.common.ok, style: 'cancel'},
-      ]
-  );
-};
 
 const ReaderAppGesturified = gestureHandlerRootHOC(ReaderApp);
 
