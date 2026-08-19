@@ -225,8 +225,12 @@ const DotSeparatedList = ({ items, renderItem, keyExtractor, flexDirection='row'
   );
 };
 
-const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[], extraImageStyles=[], placeholderImg=true }) => {
-  const { theme } = useGlobalState();
+const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[], extraImageStyles=[], placeholderImg=true, theme: themeProp }) => {
+  const { theme: themeContext } = useGlobalState();
+  // `themeProp` lets a caller (e.g. AuthPage, which is intentionally
+  // light-only) force the theme instead of following the app's global theme.
+  // Falls back to context so every other call site is unaffected.
+  const theme = themeProp ?? themeContext;
   const flexDirection = isHeb ? "row-reverse" : "row";
   return (
     <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, theme.mainTextPanel, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)].concat(extraStyles)}>
@@ -864,8 +868,12 @@ const CloseButton = ({ onPress }) => {
   );
 }
 
-const CircleCloseButton = ({ onPress }) => {
-  const { themeStr } = useContext(GlobalStateContext);
+const CircleCloseButton = ({ onPress, themeStr: themeStrProp }) => {
+  const { themeStr: themeStrContext } = useContext(GlobalStateContext);
+  // `themeStrProp` lets a caller (e.g. AuthPage, which is intentionally
+  // light-only) force the icon variant instead of following the app's global
+  // theme. Falls back to context so every other call site is unaffected.
+  const themeStr = themeStrProp ?? themeStrContext;
   return (
     <TouchableOpacity style={styles.headerButton} onPress={onPress} accessibilityLabel="Close">
       <Image

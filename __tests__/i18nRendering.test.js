@@ -25,6 +25,7 @@ import { GlobalStateContext, DispatchContext, DEFAULT_STATE } from '../StateMana
 import { iconData } from '../IconData';
 import SettingsPage from '../SettingsPage';
 import { AuthPage } from '../AuthPage';
+import { ForgotPasswordScreen } from '../ForgotPasswordScreen';
 import { AccountNavigationMenu } from '../AccountNavigationMenu';
 import ConnectionsPanel from '../ConnectionsPanel';
 import TextList from '../TextList';
@@ -44,12 +45,16 @@ import VersionBlock, { VersionBlockWithPreview } from '../VersionBlock';
 import ReaderTextTableOfContents from '../ReaderTextTableOfContents';
 import { SearchResultPage } from '../search/SearchResultPage';
 import AutocompleteList from '../search/AutocompleteList';
-import { ButtonToggleSet, SefariaProgressBar, SaveButton, openActionSheet } from '../Misc';
+import {
+  ButtonToggleSet, SefariaProgressBar, SaveButton, openActionSheet, SystemButton,
+} from '../Misc';
 import * as DownloadControl from '../DownloadControl';
 import {
   promptLibraryUpdate, doubleDownload, PackagesState, Package, Tracker as DownloadTracker,
 } from '../DownloadControl';
 import { generalAppErrorAlert } from '../errors';
+import { ssoCollisionMessage, ssoOnlyAccountMessage, ssoErrorWithCode } from '../authErrorMessages';
+import { AUTH_ERROR_CODE, SSO_ERROR_CODE } from '../AuthConstants';
 import ReaderApp from '../ReaderApp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ActionSheet from 'react-native-action-sheet';
@@ -364,21 +369,76 @@ describe('Auth screens', () => {
 
   test('login renders its labels in both languages', () => {
     expectScreenLocalizes(wrap(AuthPage, authProps('login')), [
-      'account.login', 'account.save_texts', 'account.sync_your_reading', 'account.get_updates',
+      'account.login',
       // The two form fields label themselves with a placeholder rather than a caption.
       'account.email', 'account.password',
+      // Sign in with Google/Apple, either side of an "or" divider.
+      'account.continue_with_google', 'account.continue_with_apple', 'common.or',
       'account.dont_have_an_account', 'account.create_an_account', 'account.forgot_password',
     ]);
   });
 
   test('register renders its labels in both languages', () => {
     expectScreenLocalizes(wrap(AuthPage, authProps('register')), [
-      'account.signup', 'account.save_texts', 'account.sync_your_reading', 'account.get_updates',
+      'account.signup',
       // Registering asks for a name as well, so it has two more fields than logging in.
       'account.first_name', 'account.last_name', 'account.email', 'account.password',
+      'account.continue_with_google', 'account.continue_with_apple', 'common.or',
       'account.already_have_an_account', 'account.login',
       'account.by_clicking_sign_up', 'account.terms_of_use_and_privacy_policy',
     ]);
+  });
+});
+
+describe('Forgot password screen', () => {
+  const forgotProps = {
+    theme: {}, themeStr: 'white', isHeb: false,
+    close: noop, openLogin: noop,
+    fireMethodChosen: noop, fireProcessStarted: noop, fireProcessEnded: noop,
+    handleSSOTokenReceived: noop, handleSSOError: noop,
+    ssoError: null, setSsoError: noop,
+  };
+
+  test('the form renders its labels in both languages', () => {
+    expectScreenLocalizes(wrap(ForgotPasswordScreen, forgotProps), [
+      'account.forgot_password_title', 'account.forgot_password_email_placeholder',
+      'account.send_reset_link', 'account.back_to_login',
+    ]);
+  });
+
+  // After a successful submit the same screen swaps to a confirmation, so the two views
+  // never appear together.
+  //
+  // Driven by hand rather than through `expectSettledScreenLocalizes`: the submit handler
+  // closes over the email from the last render and returns early on an empty one, so typing
+  // has to be committed in its own act() before the button is pressed — and act() blocks
+  // cannot be nested inside the helper's own.
+  test('the confirmation renders its labels in both languages', async () => {
+    // Not `account.back_to_login`: that link sits in the form branch, which the
+    // confirmation replaces. The form test above covers it.
+    const expectedIds = ['account.reset_link_sent_title', 'account.reset_link_sent_body'];
+    markCovered(expectedIds);
+    Sefaria.api.requestPasswordReset = jest.fn(async () => ({ success: true }));
+
+    const byLang = {};
+    for (const lang of ['en', 'he']) {
+      strings.setLanguage(lang);
+      let inst;
+      await act(async () => {
+        inst = renderer.create(wrap(ForgotPasswordScreen, forgotProps)());
+      });
+      await act(async () => {
+        inst.root.findAllByType(TextInput)[0].props.onChangeText('someone@example.com');
+      });
+      await act(async () => {
+        inst.root.findAllByType(SystemButton)
+          .find(b => normalize(b.props.text) === normalize(strings.account.send_reset_link))
+          .props.onPress();
+      });
+      byLang[lang] = renderedText(inst);
+      await act(async () => { inst.unmount(); });
+    }
+    assertLocalized(byLang, expectedIds);
   });
 });
 
@@ -885,6 +945,39 @@ describe('Alerts', () => {
       await expectAlertLocalizes(pressReadingHistoryOff,
         ['common.delete', 'settings.turning_this_feature_off', 'common.cancel']);
     });
+  });
+});
+
+/**
+ * The sign-in failure messages.
+ *
+ * These never reach a screen through a render this file can drive — they come back from
+ * `authErrorMessages.js` as strings, which the banner then displays — so they are checked
+ * the same way the dynamic namespaces below are: call the mapping function once per
+ * language and compare against the table.
+ *
+ * Each is reached by a distinct backend answer, and picking the wrong branch shows the user
+ * the wrong provider, so the branches are exercised individually rather than in bulk.
+ */
+describe('Sign-in error messages', () => {
+  const CASES = [
+    ['a Google-only account',     () => ssoOnlyAccountMessage({ code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT, providers: ['google'] }),           'errors.sso_email_exists_google'],
+    ['an Apple-only account',     () => ssoOnlyAccountMessage({ code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT, providers: ['apple'] }),            'errors.sso_email_exists_apple'],
+    ['an account with both',      () => ssoOnlyAccountMessage({ code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT, providers: ['google', 'apple'] }),  'errors.sso_email_exists_apple_and_google'],
+    ['an unrecognised answer',    () => ssoOnlyAccountMessage({ code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT, providers: [] }),                   'errors.sso_generic'],
+    ['a dropped connection',      () => ssoErrorWithCode(SSO_ERROR_CODE.NETWORK_ERROR),                                                     'errors.auth_network'],
+    ['any other failure',         () => ssoErrorWithCode('some_other_code'),                                                                'errors.sso_generic'],
+    // This one is matched from the backend's English sentence, so it also proves the
+    // dotted-id lookup in SSO_COLLISION_MESSAGE_KEYS still resolves.
+    ['a duplicate-email reply',   () => ssoCollisionMessage('An account with this email address already exists.'), 'errors.sso_email_exists_generic'],
+  ];
+
+  test.each(CASES)('%s is reported in both languages', (_label, produce, id) => {
+    markCovered([id]);
+    for (const lang of ['en', 'he']) {
+      strings.setLanguage(lang);
+      expect({ lang, message: produce() }).toEqual({ lang, message: value(lang, id) });
+    }
   });
 });
 
@@ -1560,6 +1653,9 @@ const NOT_YET_COVERED = [
   // are kept in the JSON rather than deleted because deleting them also throws away Hebrew a
   // translator wrote; see the note on KNOWN_UNUSED.
   'about.about', 'about.feedback', 'about.support_sefaria',
+  // The login screen's three-bullet pitch ("Save texts" / "Sync your reading" /
+  // "Get updates"), replaced by the Google and Apple buttons in 3b570bff.
+  'account.get_updates', 'account.save_texts', 'account.sync_your_reading',
   'common.apply', 'common.back', 'common.by', 'common.clear_all', 'common.of',
   'download.are_you_sure_delete_download_progress', 'download.download_in_progress',
   'download.download_library', 'download.download_paused', 'download.download_updates',

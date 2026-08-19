@@ -140,6 +140,13 @@ const KNOWN_UNUSED = [
   // and feature/sc-46734-google-account-chooser-on-login). Deleting it breaks those branches.
   'common.back',
 
+  // The login screen used to open with a three-bullet pitch: "Save texts", "Sync your
+  // reading", "Get updates". 3b570bff ("feat: add Google and Apple SSO sign-in to auth
+  // flow") replaced that block with the Google and Apple buttons.
+  'account.get_updates',
+  'account.save_texts',
+  'account.sync_your_reading',
+
   // === Removed features. The screens that displayed these no longer exist. ===
 
   // The 2020 downloader rewrite: 0a118f48 ("deleted old packages and downloader files") and

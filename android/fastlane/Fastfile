@@ -32,15 +32,19 @@ platform :android do
     gradle(task: "clean")
     # Version bump is handled by CI (deploy-android-release.yml) before this lane runs.
     # If running locally, bump build.gradle manually first.
+    # Prefer the STOREPASS env var over a CLI option: a password passed as a
+    # lane argument is visible in the process listing to anything else on the
+    # machine. The option is kept as a fallback for local runs.
+    storepass = options[:storepass] || ENV["STOREPASS"]
     gradle(
       task: "bundle",
       build_type: "Release",
       properties: {
         # No qaApplicationId — falls back to "org.sefaria.sefaria" (production)
         "android.injected.signing.store.file"     => "./upload-kstore.keystore",
-        "android.injected.signing.store.password" => options[:storepass],
+        "android.injected.signing.store.password" => storepass,
         "android.injected.signing.key.alias"      => "upload-kstore",
-        "android.injected.signing.key.password"   => options[:storepass],
+        "android.injected.signing.key.password"   => storepass,
       }
     )
     upload_to_play_store(track: "internal")
@@ -114,6 +118,9 @@ platform :android do
     # build as an update. Production releases use VERSION_BUILD (incremented
     # only in the release lane and committed to master).
     qa_version_code = Time.now.to_i
+    # See the release lane: prefer STOREPASS from the environment so the
+    # password never appears in the process listing.
+    storepass = options[:storepass] || ENV["STOREPASS"]
     gradle(
       task: "assemble",       # assemble builds an APK; Firebase App Distribution uses APKs (not bundles)
       build_type: "Release",
@@ -122,9 +129,9 @@ platform :android do
         "qaAppName"                                   => app_label,
         "qaVersionCode"                               => qa_version_code,
         "android.injected.signing.store.file"         => "./upload-kstore.keystore",
-        "android.injected.signing.store.password"     => options[:storepass],
+        "android.injected.signing.store.password"     => storepass,
         "android.injected.signing.key.alias"          => "upload-kstore",
-        "android.injected.signing.key.password"       => options[:storepass],
+        "android.injected.signing.key.password"       => storepass,
       }
     )
 

@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sefaria Mobile — SSO Build Identity Explorer</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161a21; --panel2:#1c212a; --line:#272e3a;
+    --fg:#e6e9ef; --dim:#98a2b3; --faint:#6b7480;
+    --ok:#3fb950; --bad:#f85149; --warn:#d29922; --accent:#58a6ff;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f6f7f9; --panel:#fff; --panel2:#f0f2f5; --line:#d8dee6;
+      --fg:#1a1f28; --dim:#5a6474; --faint:#8a94a3;
+      --ok:#1a7f37; --bad:#cf222e; --warn:#9a6700; --accent:#0969da;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:15px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 80px}
+  h1{font-size:26px;margin:0 0 6px}
+  h2{font-size:18px;margin:34px 0 12px;padding-top:18px;border-top:1px solid var(--line)}
+  h3{font-size:14px;margin:18px 0 8px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+  .sub{color:var(--dim);margin:0 0 22px}
+  code,.m{font-family:var(--mono);font-size:.9em}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .idea{background:var(--panel2);border-left:3px solid var(--accent)}
+  .idea p{margin:6px 0}
+  .split{display:grid;grid-template-columns:260px 1fr;gap:16px}
+  @media(max-width:860px){.split{grid-template-columns:1fr}}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .seg button{flex:1;min-width:76px;background:var(--panel2);color:var(--dim);
+    border:1px solid var(--line);border-radius:7px;padding:9px 8px;cursor:pointer;
+    font:inherit;font-size:13px;transition:.12s}
+  .seg button:hover{color:var(--fg)}
+  .seg button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  .verdict{border-radius:8px;padding:12px 14px;margin-bottom:14px;font-weight:600;
+    border:1px solid;display:flex;gap:9px;align-items:flex-start}
+  .v-ok{background:color-mix(in srgb,var(--ok) 12%,transparent);border-color:var(--ok);color:var(--ok)}
+  .v-bad{background:color-mix(in srgb,var(--bad) 12%,transparent);border-color:var(--bad);color:var(--bad)}
+  .v-warn{background:color-mix(in srgb,var(--warn) 12%,transparent);border-color:var(--warn);color:var(--warn)}
+  .verdict .why{display:block;font-weight:400;color:var(--fg);margin-top:4px;font-size:13.5px}
+  table{width:100%;border-collapse:collapse}
+  td,th{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:14px}
+  th{color:var(--faint);font-weight:500;width:190px}
+  td .m{word-break:break-all}
+  .tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:20px;
+    border:1px solid var(--line);color:var(--dim);margin-left:6px;vertical-align:middle}
+  .t-ok{color:var(--ok);border-color:var(--ok)}
+  .t-bad{color:var(--bad);border-color:var(--bad)}
+  .t-warn{color:var(--warn);border-color:var(--warn)}
+  dfn{font-style:normal;border-bottom:1px dotted var(--faint);cursor:help}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:820px){.grid3{grid-template-columns:1fr}}
+  .opt{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+  .opt.win{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .opt h4{margin:0 0 4px;font-size:15px}
+  .opt .id{font-family:var(--mono);font-size:12px;color:var(--dim);word-break:break-all;margin-bottom:10px}
+  .count{font-size:34px;font-weight:700;line-height:1.1}
+  .count small{font-size:12px;font-weight:400;color:var(--dim);display:block}
+  .sliderRow{display:flex;align-items:center;gap:12px;margin:14px 0 18px}
+  input[type=range]{flex:1;accent-color:var(--accent)}
+  pre{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    padding:12px;overflow:auto;font-family:var(--mono);font-size:12.5px;line-height:1.55;margin:0}
+  ul{margin:8px 0;padding-left:20px} li{margin:5px 0}
+  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:820px){.cols2{grid-template-columns:1fr}}
+  .danger{border-left:3px solid var(--bad)}
+  .note{border-left:3px solid var(--warn)}
+  .promptBox{position:sticky;bottom:0;margin-top:32px;background:var(--panel);
+    border:1px solid var(--accent);border-radius:10px;padding:14px}
+  .promptBox textarea{width:100%;min-height:88px;background:var(--panel2);color:var(--fg);
+    border:1px solid var(--line);border-radius:7px;padding:10px;font-family:var(--mono);
+    font-size:12.5px;resize:vertical}
+  .btn{background:var(--accent);color:#fff;border:0;border-radius:7px;padding:8px 16px;
+    cursor:pointer;font:inherit;font-size:13px;font-weight:600}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+  .unknown{color:var(--warn)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>SSO Build Identity Explorer</h1>
+<p class="sub">Why Google sign-in works on a laptop, fails in QA, and would fail in production — Sefaria&nbsp;Mobile.</p>
+
+<div class="card idea">
+  <p><strong>One idea explains everything on this page.</strong></p>
+  <p>Every app <em>build</em> has an <strong>identity</strong>. Google and Apple only let a build sign users in if that exact identity was <strong>registered with them in advance</strong>.</p>
+  <p>📱 <strong>Android</strong> identity = <dfn title="The package name baked into the build, e.g. org.sefaria.sefaria">applicationId</dfn> + <dfn title="A fingerprint (hash) of the certificate inside the .keystore file that signed the build">SHA-1 fingerprint</dfn>. The app carries <em>no</em> client id — Google recognises it by that pair alone.</p>
+  <p>🍎 <strong>iOS</strong> identity = <dfn title="Apple's equivalent of applicationId">bundle id</dfn> only. No certificate involved — but the app <em>does</em> carry a client id, in Info.plist.</p>
+</div>
+
+<h2>1 · Identity explorer</h2>
+<div class="split">
+  <div>
+    <h3>Environment</h3>
+    <div class="seg" id="envSeg">
+      <button data-v="local" aria-pressed="true">🏠 Local</button>
+      <button data-v="qa" aria-pressed="false">🧪 QA</button>
+      <button data-v="prod" aria-pressed="false">🚀 Production</button>
+    </div>
+    <h3>Platform</h3>
+    <div class="seg" id="platSeg">
+      <button data-v="android" aria-pressed="true">📱 Android</button>
+      <button data-v="ios" aria-pressed="false">🍎 iOS</button>
+    </div>
+    <h3>Presets</h3>
+    <div class="seg" id="preSeg" style="flex-direction:column">
+      <button data-e="local" data-p="android">The one that works</button>
+      <button data-e="qa" data-p="android">The BrowserStack failure</button>
+      <button data-e="prod" data-p="android">The hidden production bug</button>
+      <button data-e="prod" data-p="ios">iOS, the simple case</button>
+    </div>
+  </div>
+
+  <div>
+    <div id="verdict" class="verdict v-ok"></div>
+    <div class="card"><table id="idTable"></table></div>
+  </div>
+</div>
+
+<h2>2 · What to call the QA build</h2>
+<p class="sub" style="margin-bottom:6px">Each distinct <dfn title="A record in a Google Cloud project saying 'this app identity is legitimate'. Private — not a public listing, no app name, no review.">OAuth client</dfn> covers exactly one identity. Drag the slider to see how each strategy scales.</p>
+
+<div class="card note" style="margin-bottom:16px">
+  <strong>Worth knowing before you choose:</strong> registering one client per build variant is <em>normal and explicitly Google-endorsed</em> — it appears in Firebase's own guidance on organising multi-variant builds. It is not an anti-pattern. An OAuth client is a private record, not something users ever see.
+</div>
+
+<div class="sliderRow">
+  <label for="branches">Active QA branches</label>
+  <input type="range" id="branches" min="1" max="12" value="3">
+  <strong id="branchOut" style="min-width:2ch">3</strong>
+</div>
+
+<div class="grid3" id="opts"></div>
+
+<h2>3 · Production is broken too — the highest-priority finding 🔴</h2>
+<p class="sub">This is <em>not</em> the QA symptom that started the investigation. It is latent, and it would hit every real user.</p>
+<div class="cols2">
+  <div class="card danger">
+    <h4 style="margin:0 0 8px">Reason A · Play re-signs your app</h4>
+    <p style="margin:0 0 8px">You upload a build signed with the <dfn title="The key your team holds and signs uploads with">upload key</dfn>. Google Play <strong>strips that signature</strong> and re-signs with its own <dfn title="A key Google generates and holds; the signature real users actually receive">app signing key</dfn>.</p>
+    <p style="margin:0">So users run a build whose fingerprint was never registered. You must register the <strong>App signing key certificate</strong> from Play Console → App Integrity — not just the upload key. Registering only the upload key is the classic cause of “works everywhere except from the Play Store”.</p>
+  </div>
+  <div class="card danger">
+    <h4 style="margin:0 0 8px">Reason B · No client id in any CI build</h4>
+    <p style="margin:0 0 8px"><code>.env</code> is gitignored, and until commit <code>f2efdf4f</code> no workflow created one.</p>
+    <p style="margin:0">So <code>serverClientId</code> — the <dfn title="A Web-type OAuth client id passed to the SDK; it becomes the audience (aud) claim of the returned ID token. Not an app-identity credential.">web client id</dfn> the SDK needs — was <code>undefined</code> in every QA <em>and</em> production build. Two independent gaps, stacked; both must close.</p>
+  </div>
+</div>
+
+<h2>4 · Target state</h2>
+<pre>
+GCP project 203667201820          ← the project that already owns the web client
+│                                   NOT Firebase 581880202059 ("sefaria-mobile-analytics")
+│                                   interoperating clients must share ONE project
+│
+├─ 📱 ANDROID   1. local    org.sefaria.sefaria      + debug keystore SHA-1
+│               2. prod     org.sefaria.sefaria      + upload key
+│               3. prod     org.sefaria.sefaria      + Play app signing key   ← mandatory
+│               4..N  QA    one per active branch    (same SHA-1, new name)
+│
+├─ 🍎 iOS       exactly 1 client, forever
+│               bundle id never varies → covers local + TestFlight + App Store
+│
+└─ 🌐 WEB       1 client (already exists) — the serverClientId on both platforms
+</pre>
+<p class="sub" style="margin-top:10px">Apple Sign-In needs nothing extra: it identifies the app by bundle id, and Sefaria's never changes.</p>
+
+<h2>5 · Actions</h2>
+<div class="cols2">
+  <div class="card">
+    <h4 style="margin:0 0 8px">🖥️ Code changes</h4>
+    <ul>
+      <li>Decide the QA naming strategy and update Fastlane</li>
+      <li>Audit every CI path for the missing client id</li>
+      <li>Wire the real iOS client id, replacing the placeholder in <code>Info.plist</code></li>
+      <li>Add a build check that <em>fails</em> when the client id is unset, instead of shipping silently</li>
+      <li>Remove <code>APPLE_SSO_*</code> from the mobile <code>.env</code> (§6)</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 style="margin:0 0 8px">☁️ Needs GCP / Play Console</h4>
+    <ul>
+      <li>Create the Android client(s) in project <code>203667201820</code></li>
+      <li>Read the upload keystore SHA-1 from any QA CI log</li>
+      <li>Register the <strong>Play app signing key</strong> certificate</li>
+      <li>Create the iOS client for <code>org.sefaria.sefariaApp</code></li>
+      <li>Confirm whether that project already holds mobile clients</li>
+    </ul>
+  </div>
+</div>
+
+<h2>6 · Separate security item 🔓</h2>
+<div class="card danger">
+  <p style="margin:0 0 8px"><code>react-native-config</code> publishes <strong>every</strong> key in <code>.env</code> into both <code>BuildConfig</code> and an APK string resource — plain, extractable text.</p>
+  <p style="margin:0 0 8px">So <code>APPLE_SSO_PRIVATE_KEY</code> is readable in any <em>locally built</em> APK. CI builds are clean: they write only the Google client id.</p>
+  <p style="margin:0">Those keys are <strong>backend settings</strong> (<code>sefaria/local_settings.py</code>) that were copied into the mobile repo by mistake. Nothing in the app reads them. Delete them; rotate only if a locally built APK was ever shared.</p>
+</div>
+
+<h2>7 · Open unknowns</h2>
+<div class="card">
+  <ul style="margin:0">
+    <li class="unknown">The upload keystore's SHA-1 — password-protected, but printed in every QA CI log</li>
+    <li class="unknown">Which build produced the BrowserStack binaries</li>
+    <li class="unknown">Whether project <code>203667201820</code> already contains mobile OAuth clients</li>
+  </ul>
+</div>
+
+<div class="promptBox">
+  <div class="row"><strong style="font-size:13px">Prompt — copy back into Claude</strong>
+    <button class="btn" id="copyBtn">Copy</button></div>
+  <textarea id="prompt" readonly></textarea>
+</div>
+
+</div>
+<script>
+const DATA = {
+  android: {
+    local: {verdict:'ok', head:'✅ Signs in',
+      why:'This identity was registered once, and it never changes — because the debug keystore is committed to the repo, every developer produces the same fingerprint.',
+      rows:[['applicationId','org.sefaria.sefaria'],
+            ['Signed by','android/app/debug.keystore <span class="tag">committed to the repo</span>'],
+            ['SHA-1','5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25'],
+            ['Registered?','<span class="tag t-ok">yes</span>'],
+            ['Why it matters','A checked-in keystore means one fingerprint for the whole team — one registration covers every developer.']]},
+    qa: {verdict:'bad', head:'❌ DEVELOPER_ERROR',
+      why:'Both halves of the identity differ from anything registered — the name changes per branch, and the signing key is not the debug one.',
+      rows:[['applicationId','org.sefaria.sefaria.&lt;branch-name&gt; <span class="tag t-bad">new on every branch</span>'],
+            ['Derived by','Fastlane, from the git branch name'],
+            ['Signed by','upload-kstore.keystore <span class="tag">not the debug key</span>'],
+            ['SHA-1','<span class="unknown">unknown — password-protected, but printed in every QA CI log</span>'],
+            ['Registered?','<span class="tag t-bad">no — neither half</span>'],
+            ['Why it matters','Registering the fingerprint alone would not help: the package name is still new on each branch.']]},
+    prod: {verdict:'bad', head:'❌ Would fail for all users',
+      why:'Google Play strips your signature and re-signs with its own key, so users run a build whose fingerprint was never registered.',
+      rows:[['applicationId','org.sefaria.sefaria'],
+            ['Signed by','upload-kstore.keystore, then <strong>re-signed by Google Play</strong>'],
+            ['SHA-1 users get','the Play app signing certificate — different from the upload key'],
+            ['Registered?','<span class="tag t-bad">no</span>'],
+            ['Second problem','No client id was compiled into any CI build before commit f2efdf4f'],
+            ['Why it matters','Two independent failures stacked. This is latent — nobody noticed because QA broke first.']]}
+  },
+  ios: {
+    local:{}, qa:{}, prod:{}
+  }
+};
+const IOS = {verdict:'warn', head:'⚠️ Untested — no iOS client exists yet',
+  why:'iOS is far simpler: the bundle id is identical in every environment, so one registration would cover all three. It just has not been created.',
+  rows:[['bundle id','org.sefaria.sefariaApp <span class="tag t-ok">identical everywhere</span>'],
+        ['Varies per branch?','No — there is no iOS equivalent of the Android rename'],
+        ['Certificate involved?','None. Apple/Google identify iOS apps by bundle id alone.'],
+        ['Client id in app','Yes — but currently the reversed <strong>web</strong> client id, an acknowledged placeholder'],
+        ['Registered?','<span class="tag t-warn">no iOS OAuth client exists</span>'],
+        ['Why it matters','One client would cover local, TestFlight and the App Store together.']]};
+DATA.ios.local = DATA.ios.qa = DATA.ios.prod = IOS;
+
+const state = {env:'local', plat:'android', branches:3};
+
+function seg(id, key){
+  document.getElementById(id).addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    state[key] = b.dataset.v; render();
+  });
+}
+seg('envSeg','env'); seg('platSeg','plat');
+
+document.getElementById('preSeg').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  state.env = b.dataset.e; state.plat = b.dataset.p; render();
+});
+document.getElementById('branches').addEventListener('input', e=>{
+  state.branches = +e.target.value; render();
+});
+
+function renderIdentity(){
+  ['envSeg','platSeg'].forEach((id,i)=>{
+    const key = i===0?'env':'plat';
+    document.querySelectorAll('#'+id+' button').forEach(b=>
+      b.setAttribute('aria-pressed', String(b.dataset.v===state[key])));
+  });
+  const d = DATA[state.plat][state.env];
+  const v = document.getElementById('verdict');
+  v.className = 'verdict v-'+d.verdict;
+  v.innerHTML = '<div><span>'+d.head+'</span><span class="why">'+d.why+'</span></div>';
+  document.getElementById('idTable').innerHTML =
+    d.rows.map(r=>'<tr><th>'+r[0]+'</th><td class="m">'+r[1]+'</td></tr>').join('');
+}
+
+function renderOptions(){
+  const n = state.branches;
+  const opts = [
+    {k:'A', name:'Reuse the production name', id:'org.sefaria.sefaria',
+     clients:1, side:false,
+     tradeoff:'Fewest registrations, but a QA build overwrites the production app on a tester’s device — and cannot install over a Play-installed copy at all, because the signing certificates differ.'},
+    {k:'B', name:'One stable QA name', id:'org.sefaria.sefaria.qa',
+     clients:2, side:false,
+     tradeoff:'Registered once, then never again. QA installs alongside production, but branches overwrite each other — one QA build on a device at a time.'},
+    {k:'C', name:'Per branch (today)', id:'org.sefaria.sefaria.&lt;branch&gt;',
+     clients:1+n, side:true,
+     tradeoff:'Every branch installs side by side, so testers can hold several at once. Costs one registration per active branch — cheap individually (same fingerprint, new name) but ongoing.'}
+  ];
+  const best = Math.min(...opts.map(o=>o.clients));
+  document.getElementById('opts').innerHTML = opts.map(o=>`
+    <div class="opt${o.clients===best?' win':''}">
+      <h4>${o.k} · ${o.name}</h4>
+      <div class="id">${o.id}</div>
+      <div class="count">${o.clients}<small>Android OAuth client${o.clients===1?'':'s'} to maintain</small></div>
+      <p style="margin:10px 0 0;font-size:13.5px">
+        ${o.side?'<span class="tag t-ok">side-by-side installs</span>':'<span class="tag">one install at a time</span>'}
+      </p>
+      <p style="margin:8px 0 0;font-size:13.5px;color:var(--dim)">${o.tradeoff}</p>
+    </div>`).join('');
+  document.getElementById('branchOut').textContent = n;
+}
+
+function renderPrompt(){
+  const p = [];
+  p.push('I am working on Google/Apple sign-in for the Sefaria mobile app.');
+  p.push('');
+  p.push('Context: an app build’s identity is (applicationId + signing certificate SHA-1) on Android, and bundle id alone on iOS. Google only permits sign-in for identities registered in advance.');
+  p.push('');
+  const d = DATA[state.plat][state.env];
+  p.push(`I am looking at the ${state.plat === 'android' ? 'Android' : 'iOS'} build in ${state.env === 'prod' ? 'production' : state.env === 'qa' ? 'QA' : 'local development'}: ${d.head.replace(/[✅❌⚠️]\s*/,'')}. ${d.why}`);
+  p.push('');
+  p.push(`With ${state.branches} QA branch${state.branches===1?'':'es'} active, the three naming strategies need 1, 2 and ${1+state.branches} Android OAuth clients respectively.`);
+  p.push('');
+  p.push('Two things are already known and do not need rediscovering: production is broken independently of QA (Play App Signing re-signs the app, so the registered upload key is not what users run; and no CI build carried the web client id before commit f2efdf4f). Separately, APPLE_SSO_PRIVATE_KEY leaks into locally built APKs via react-native-config and should be removed from the mobile .env entirely.');
+  p.push('');
+  p.push('Help me decide the naming strategy and sequence the work.');
+  document.getElementById('prompt').value = p.join('\n');
+}
+
+function render(){ renderIdentity(); renderOptions(); renderPrompt(); }
+
+document.getElementById('copyBtn').addEventListener('click', async e=>{
+  await navigator.clipboard.writeText(document.getElementById('prompt').value);
+  const b = e.target, t = b.textContent;
+  b.textContent = 'Copied!'; setTimeout(()=>b.textContent=t, 1200);
+});
+
+render();
+</script>
+</body>
+</html>

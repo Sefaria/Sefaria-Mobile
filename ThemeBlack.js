@@ -23,6 +23,13 @@ let Colors = {
   buttonBackground: "#333331",
   sefariaBlue: "#18345D",
   buttonBlue: '#0B71E7',
+  // Surface the SSO (Google/Apple) buttons sit on. Intentionally white even in
+  // the dark theme -- see the ssoButtonBackground comment below -- which is why
+  // it is its own constant instead of mainForeground/buttonBackground.
+  ssoButtonSurface: "#FFFFFF",
+  errorBannerBackground: "#4A1F1F",
+  errorBannerBorder: "#D9534F",
+  errorBannerText: "#F5A9A9",
 }
 
 export default StyleSheet.create({
@@ -239,5 +246,44 @@ export default StyleSheet.create({
   languageName: {
     color: Colors.tertiaryText,
     borderColor: Colors.border,
+  },
+  // UNREACHABLE as of today: the only screen that consumes these keys
+  // (AuthPage) pins itself to the light theme -- see AUTH_PAGE_THEME -- and
+  // ssoLayout.test.js asserts it stays light for both app theme settings.
+  // Design deliberately specced this page light-only, so nothing below
+  // renders. Kept so ThemeBlack doesn't silently lack keys ThemeWhite has: if
+  // AUTH_PAGE_THEME ever goes away the page degrades to mistuned colors rather
+  // than `undefined` styles. Do NOT tune these against a screenshot -- you
+  // cannot produce one -- and get design sign-off before they go live.
+  //
+  // SSO (Google/Apple) button colors. Background stays white even in dark
+  // mode: img/sso-google.png is Google's full-color "G" mark, which its brand
+  // guidelines require on a white/near-white background, and img/sso-apple.png
+  // is solid black with no light-on-dark variant shipped, so it would vanish
+  // on a dark button. Border/text stay sefariaBlue for the same reason -- they
+  // sit on that same white surface regardless of app theme.
+  ssoButtonBackground: {
+    backgroundColor: Colors.ssoButtonSurface,
+  },
+  ssoButtonBorder: {
+    borderColor: Colors.sefariaBlue,
+  },
+  ssoButtonText: {
+    color: Colors.sefariaBlue,
+  },
+  ssoDividerLine: {
+    backgroundColor: Colors.secondaryBorder,
+  },
+  ssoDividerText: {
+    color: Colors.tertiaryText,
+  },
+  ssoErrorBannerBackground: {
+    backgroundColor: Colors.errorBannerBackground,
+  },
+  ssoErrorBannerBorder: {
+    borderColor: Colors.errorBannerBorder,
+  },
+  ssoErrorBannerText: {
+    color: Colors.errorBannerText,
   },
 });
