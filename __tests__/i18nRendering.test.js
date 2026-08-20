@@ -17,7 +17,7 @@
 import React from 'react';
 import { Text, TextInput, TouchableOpacity, Alert, Platform, Animated } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
-import strings from '../LocalizedStrings';
+import strings, { buildContent } from '../LocalizedStrings';
 import en from '../i18n/en.json';
 import he from '../i18n/he.json';
 import TestContextWrapper from '../TestContextWrapper';
@@ -60,15 +60,40 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ActionSheet from 'react-native-action-sheet';
 
 const TABLES = { en, he };
-const NAMESPACES = Object.keys(en);
+// The JSON files are flat -- {"common.ok": "OK"} -- so an id IS a key. Namespaces are the
+// distinct first segments.
+const NAMESPACES = [...new Set(Object.keys(en).map(id => id.split('.')[0]))];
+const idsIn = (ns) => Object.keys(en).filter(id => id.startsWith(`${ns}.`));
 // A bare id that reached the screen, e.g. "common.ok" rendered instead of "OK".
 const RAW_ID_RE = new RegExp(`^(?:${NAMESPACES.join('|')})\\.[a-z0-9_]+$`);
 // A placeholder formatString never filled in, e.g. "Downloading ({percent}% of {size}mb)".
 const UNFILLED_PLACEHOLDER_RE = /\{[a-z_][a-z0-9_]*\}/;
 
+/** The raw value in a JSON file — "" for a string still awaiting translation. */
+const rawValue = (lang, id) => TABLES[lang][id];
+
+/**
+ * The text the app actually puts on screen for `id` in `lang`.
+ *
+ * Mirrors `withFallback` in LocalizedStrings.js: an untranslated string (empty in he.json)
+ * renders its English source, so that is what the assertions here have to look for. Reading
+ * the raw "" instead would make the "did this string reach the screen?" check vacuous — every
+ * render trivially contains the empty string.
+ */
 const value = (lang, id) => {
-  const [ns, leaf] = id.split('.');
-  return TABLES[lang][ns][leaf];
+  const raw = rawValue(lang, id);
+  return (raw || '').trim() ? raw : rawValue('en', id);
+};
+
+/**
+ * Whether `id` has a Hebrew translation that differs from its English source.
+ *
+ * False while a string is waiting on a translator: he.json holds "" until then, and the app
+ * renders the English text in its place. Used to skip the English-leak check for those ids.
+ */
+const hasDistinctHebrew = (id) => {
+  const he_ = (rawValue('he', id) || '').trim();
+  return !!he_ && he_ !== (rawValue('en', id) || '').trim();
 };
 
 /**
@@ -196,12 +221,15 @@ const shows = (normalizedTexts, lang, id) => {
  * widget it contains, and a hand-read list comes out short. Add the scenario with an empty
  * `expectedIds`, then temporarily make `expectScreenLocalizes` harvest instead of assert:
  *
- *   const idTable = Object.fromEntries(Object.entries(en).map(([ns, leaves]) =>
- *     [ns, Object.fromEntries(Object.keys(leaves).map(k => [k, `${ns}.${k}`]))]));
- *   strings.setContent({ en, he, zz: idTable });       // a language whose values are its ids
- *   console.log(renderIn('zz', buildElement, interact) // so every label prints its own id
+ *   const idTable = Object.keys(en).reduce((acc, id) => {
+ *     const [ns, leaf] = id.split('.');
+ *     (acc[ns] = acc[ns] || {})[leaf] = id;   // the table is flat; the library needs it nested
+ *     return acc;
+ *   }, {});
+ *   strings.setContent({ ...buildContent(), zz: idTable });  // values are their own ids
+ *   console.log(renderIn('zz', buildElement, interact)      // so every label prints its own id
  *     .flatMap(t => t.match(new RegExp(`(?:${NAMESPACES.join('|')})\\.[a-z0-9_]+`, 'gi')) || []));
- *   strings.setContent({ en, he });                    // `strings` is a process-wide singleton
+ *   strings.setContent(buildContent());                     // `strings` is a process-wide singleton
  *   strings.setLanguage('en');
  *
  * Paste what it prints into `expectedIds`, lower-cased, and take the harvesting back out.
@@ -237,11 +265,16 @@ const assertLocalized = (byLang, expectedIds) => {
     expect({ lang, rawIds }).toEqual({ lang, rawIds: [] });
   }
 
-  // Every string on these screens has a Hebrew translation distinct from its English one —
-  // `i18n.test.js` has a test that proves no en/he pair is identical — so an English value
-  // showing up in the Hebrew render means that label never went through the string table.
+  // An English value showing up in the Hebrew render means that label never went through
+  // the string table — it was hardcoded in the component.
+  //
+  // That inference only holds for a string whose Hebrew differs from its English. An id
+  // still awaiting translation renders its English text in Hebrew on purpose (see
+  // `withFallback` in LocalizedStrings.js), so it is indistinguishable from a leak and is
+  // skipped. The skip is per id: every translated string on the screen is still checked.
   const heNormalized = byLang.he.map(normalize);
-  expect(expectedIds.filter(id => shows(heNormalized, 'en', id))).toEqual([]);
+  expect(expectedIds.filter(id => hasDistinctHebrew(id) && shows(heNormalized, 'en', id)))
+    .toEqual([]);
 };
 
 const expectScreenLocalizes = (buildElement, expectedIds, { interact } = {}) => {
@@ -810,7 +843,9 @@ const expectAlertLocalizes = async (trigger, expectedIds) => {
     expect({ lang, rawIds: texts.filter(t => RAW_ID_RE.test(t.trim())) })
       .toEqual({ lang, rawIds: [] });
     if (lang === 'he') {
-      expect(expectedIds.filter(id => shows(normalized, 'en', id))).toEqual([]);
+      // Skips ids still awaiting translation, for the reason given in `assertLocalized`.
+      expect(expectedIds.filter(id => hasDistinctHebrew(id) && shows(normalized, 'en', id)))
+        .toEqual([]);
     }
   }
 };
@@ -992,7 +1027,7 @@ describe('Sign-in error messages', () => {
  */
 describe('Ids assembled at run time', () => {
   const dynamicNamespace = (ns) => {
-    const ids = Object.keys(en[ns]).map(leaf => `${ns}.${leaf}`);
+    const ids = idsIn(ns);
     markCovered(ids);
     for (const lang of ['en', 'he']) {
       strings.setLanguage(lang);
@@ -1029,9 +1064,8 @@ describe('Strings with placeholders', () => {
 
   test('the list below is every string in the table that has a placeholder', () => {
     // So a new placeholder string added in Weblate cannot go unchecked.
-    const withPlaceholders = NAMESPACES.flatMap(ns => Object.keys(en[ns])
-      .map(leaf => `${ns}.${leaf}`)
-      .filter(id => UNFILLED_PLACEHOLDER_RE.test(value('en', id))));
+    const withPlaceholders = Object.keys(en)
+      .filter(id => UNFILLED_PLACEHOLDER_RE.test(value('en', id)));
     expect(withPlaceholders.sort()).toEqual(Object.keys(SUBSTITUTIONS).sort());
   });
 
@@ -1701,7 +1735,7 @@ const NOT_YET_COVERED = [
 ];
 
 describe('coverage of the whole string table', () => {
-  const allIds = NAMESPACES.flatMap(ns => Object.keys(en[ns]).map(leaf => `${ns}.${leaf}`));
+  const allIds = Object.keys(en);
 
   test('the allowlist names only real ids', () => {
     // Catches a typo in the list, and an id deleted from the JSON but left behind here.

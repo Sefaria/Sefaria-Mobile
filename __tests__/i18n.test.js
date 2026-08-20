@@ -6,65 +6,88 @@ import strings from '../LocalizedStrings';
 
 const REPO = path.join(__dirname, '..');
 
-// Same shape Sefaria-Project enforces: lowercase snake_case segments, at least two of them.
+// Lowercase snake_case, exactly two segments: `namespace.leaf`.
 // Weblate does NOT validate key names, so a translator (or a sync) can introduce a camelCase
 // key that the app silently fails to resolve. This test is the guard against that.
-const ID_RE = /^[a-z0-9_]+(\.[a-z0-9_]+)+$/;
+//
+// Exactly two segments, not "at least two": `unflatten` in LocalizedStrings.js splits each id
+// on its first dot to build the object tree the string library needs, so a third segment
+// would land inside a leaf name and `strings.a.b.c` would stop resolving.
+const ID_RE = /^[a-z0-9_]+\.[a-z0-9_]+$/;
 
-/** Flattens {ns: {leaf: value}} into {"ns.leaf": value}. */
-const flatten = (obj) => Object.entries(obj).reduce((acc, [ns, leaves]) => {
-  Object.entries(leaves).forEach(([leaf, value]) => { acc[`${ns}.${leaf}`] = value; });
-  return acc;
-}, {});
-
-const flatEn = flatten(en);
-const flatHe = flatten(he);
+// The files are flat -- {"common.ok": "OK"} -- so an id IS a key and no flattening is needed.
+// Namespaces are the distinct first segments.
+const NAMESPACES = [...new Set(Object.keys(en).map(id => id.split('.')[0]))];
 
 describe('i18n string files', () => {
-  test('every id is lowercase snake_case with at least two segments', () => {
-    const bad = [...Object.keys(flatEn), ...Object.keys(flatHe)].filter(id => !ID_RE.test(id));
+  test('every id is lowercase snake_case with exactly two segments', () => {
+    const bad = [...Object.keys(en), ...Object.keys(he)].filter(id => !ID_RE.test(id));
     expect(bad).toEqual([]);
   });
 
   test('en.json and he.json define exactly the same ids', () => {
-    const enIds = Object.keys(flatEn).sort();
-    const heIds = Object.keys(flatHe).sort();
-    expect(heIds.filter(id => !(id in flatEn))).toEqual([]);  // extra in he
-    expect(enIds.filter(id => !(id in flatHe))).toEqual([]);  // missing from he
+    const enIds = Object.keys(en).sort();
+    const heIds = Object.keys(he).sort();
+    expect(heIds.filter(id => !(id in en))).toEqual([]);  // extra in he
+    expect(enIds.filter(id => !(id in he))).toEqual([]);  // missing from he
   });
 
   test('no English source value is empty', () => {
-    // An empty Hebrew value is legal (it renders blank on purpose), but an empty English
-    // value means the source string is missing and Weblate has nothing to translate.
-    expect(Object.entries(flatEn).filter(([, v]) => !v || !v.trim()).map(([k]) => k)).toEqual([]);
+    // An empty Hebrew value is legal — it marks a string still awaiting translation, and
+    // falls back to the English source. An empty English value has nothing to fall back to:
+    // it means the source string is missing and Weblate has nothing to translate.
+    expect(Object.entries(en).filter(([, v]) => !v || !v.trim()).map(([k]) => k)).toEqual([]);
   });
 
   test('placeholders match between en and he', () => {
     // formatString substitutes by name, so a placeholder that exists in one language but
     // not the other renders a literal "{platform}" to those users.
+    //
+    // Ids with no Hebrew yet are skipped: they render the English source, placeholders and
+    // all, so there is nothing to disagree. Comparing against the empty value instead would
+    // fail every new placeholder string until a translator got to it.
     const names = (s) => (s.match(/\{[a-z_][a-z0-9_]*\}/g) || []).sort();
-    const mismatched = Object.keys(flatEn)
-      .filter(id => JSON.stringify(names(flatEn[id])) !== JSON.stringify(names(flatHe[id])))
-      .map(id => `${id}: en=${names(flatEn[id])} he=${names(flatHe[id])}`);
+    const mismatched = Object.keys(en)
+      .filter(id => he[id].trim())
+      .filter(id => JSON.stringify(names(en[id])) !== JSON.stringify(names(he[id])))
+      .map(id => `${id}: en=${names(en[id])} he=${names(he[id])}`);
     expect(mismatched).toEqual([]);
   });
 
-  test('no id has the same text in both languages', () => {
-    // `i18nRendering.test.js` decides that a label never went through the string table by
-    // spotting its English value in a Hebrew render. That only works while every string has
-    // a Hebrew translation that differs from its English source, which is true today but is
-    // not something Weblate enforces — a translator can paste the English straight through.
-    // If this ever fails, either the translation is missing, or that leak check has to be
-    // relaxed for the id in question.
-    const identical = Object.keys(flatEn)
-      .filter(id => flatHe[id].trim() && flatEn[id].trim() === flatHe[id].trim());
-    expect(identical).toEqual([]);
+  test('reports how many strings are still waiting on Hebrew', () => {
+    // Deliberately a report rather than an assertion. Translation is asynchronous: a string
+    // is added in English and the Hebrew follows once a translator gets to it in Weblate, so
+    // "some ids have no Hebrew yet" is the normal state this whole setup exists to support.
+    // Failing on it would turn every new string into a red build.
+    //
+    // Untranslated shows up two ways — empty in he.json (what Weblate writes), or the English
+    // pasted straight through. Both render the English text to Hebrew users; see
+    // `withFallback` in LocalizedStrings.js.
+    const total = Object.keys(en).length;
+    const untranslated = Object.keys(en).filter(id =>
+      !he[id].trim() || he[id].trim() === en[id].trim());
+    const pct = Math.round(((total - untranslated.length) / total) * 100);
+    console.log(`Hebrew translation: ${total - untranslated.length}/${total} strings (${pct}%)` +
+                (untranslated.length ? `, awaiting: ${untranslated.join(', ')}` : ''));
+  });
+
+  test('no id renders empty in either language', () => {
+    // The invariant that replaces the old "en and he must differ" assertion, and the one that
+    // actually protects users: an untranslated string must fall back to its English source,
+    // never render as a blank label. `localized-strings` treats "" as a real value, so this
+    // holds only because `withFallback` in LocalizedStrings.js fills the empties.
+    for (const lang of ['en', 'he']) {
+      strings.setLanguage(lang);
+      const blank = Object.keys(en).filter(id => !(strings.getString(id) || '').trim());
+      expect({ lang, blank }).toEqual({ lang, blank: [] });
+    }
+    strings.setLanguage('en');
   });
 
   test('the runtime map exposes every id in both languages', () => {
     for (const lang of ['en', 'he']) {
       strings.setLanguage(lang);
-      const missing = Object.keys(flatEn).filter(id => strings.getString(id) === null);
+      const missing = Object.keys(en).filter(id => strings.getString(id) === null);
       expect(missing).toEqual([]);
     }
     strings.setLanguage('en');
@@ -84,9 +107,8 @@ const collectSourceFiles = (dir, acc = [], { skipTests = false } = {}) => {
 
 describe('i18n ids referenced in source', () => {
   test('every id referenced in source exists in the string files', () => {
-    const namespaces = Object.keys(en);
     // strings.common.cancel  /  strings.getString('common.cancel')
-    const memberRe = new RegExp(`\\bstrings\\.(${namespaces.join('|')})\\.([a-z0-9_]+)`, 'g');
+    const memberRe = new RegExp(`\\bstrings\\.(${NAMESPACES.join('|')})\\.([a-z0-9_]+)`, 'g');
     const getStringRe = /getString\(\s*['"]([a-z0-9_]+(?:\.[a-z0-9_]+)+)['"]\s*\)/g;
     // stringKey={"common.cancel"} / titleKey: 'search.sort_by' / prefixTextKey={'topics.…'}
     const propRe = /\b(?:stringKey|titleKey|sectionTitleKey|prefixTextKey|elementKey)\s*[:=]\s*\{?\s*['"]([a-z0-9_]+(?:\.[a-z0-9_]+)+)['"]/g;
@@ -100,7 +122,7 @@ describe('i18n ids referenced in source', () => {
         let m;
         while ((m = re.exec(src)) !== null) {
           const id = re === memberRe ? `${m[1]}.${m[2]}` : m[1];
-          if (!(id in flatEn)) missing.push(`${rel}: ${id}`);
+          if (!(id in en)) missing.push(`${rel}: ${id}`);
         }
       }
     }
@@ -201,8 +223,7 @@ const KNOWN_UNUSED = [
 ];
 
 describe('unused i18n ids', () => {
-  const namespaces = Object.keys(en);
-  const nsAlternation = namespaces.join('|');
+  const nsAlternation = NAMESPACES.join('|');
 
   // Tests are excluded on purpose: an id that only a test mentions is not shown to any user.
   const appSource = collectSourceFiles(REPO, [], { skipTests: true })
@@ -229,7 +250,7 @@ describe('unused i18n ids', () => {
     ...matchAll(new RegExp(`['"]((?:${nsAlternation}))\\.['"]\\s*\\+`, 'g')).map(m => m[1]),
   ]);
 
-  const unused = Object.keys(flatEn)
+  const unused = Object.keys(en)
     .filter(id => !referenced.has(id) && !dynamicNamespaces.has(id.split('.')[0]))
     .sort();
 
