@@ -45,7 +45,7 @@ const SheetMeta = ({ sheet, close, openTopic }) => {
       <View style={[styles.header, theme.header]}>
         <CloseButton onPress={close} />
         <Text style={[langStyle, styles.textTocHeaderTitle, styles.textCenter, theme.text]}>
-          {strings.tableOfContents}
+          {strings.reader.table_of_contents}
         </Text>
         <LanguageToggleButton />
       </View>

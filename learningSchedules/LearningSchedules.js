@@ -16,20 +16,20 @@ const useCalendarItemsBySection = () => {
     const makeListings = enTitleList => calendarItems.filter(c => enTitleList.indexOf(c.title.en) !== -1);
     const calendarTitleSections = [
         {
-            sectionTitleKey: "weeklyTorahPortion",
+            sectionTitleKey: "learning_schedules.weekly_torah_portion",
             calendarTitles: [
                 "Parashat Hashavua", "Haftarah (A)", "Haftarah (S)", "Haftarah"
             ],
         },
         {
-            sectionTitleKey: "dailyLearning",
+            sectionTitleKey: "learning_schedules.daily_learning",
             calendarTitles: [
                 "Daf Yomi", "929", "Daily Mishnah", "Daily Rambam", "Daily Rambam (3 Chapters)", "Halakhah Yomit",
                 "Arukh HaShulchan Yomi", "Tanakh Yomi", "Zohar for Elul", "Chok LeYisrael", "Tanya Yomi", "Yerushalmi Yomi"
             ],
         },
         {
-            sectionTitleKey: "weeklyLearning",
+            sectionTitleKey: "learning_schedules.weekly_learning",
             calendarTitles: ["Daf a Week"],
         },
     ];
@@ -60,7 +60,7 @@ const LearningSchedulesPageHeader = ({ onBack }) => {
     return (
         <FlexFrame dir={"column"}>
             <BackButtonRow onPress={onBack} />
-            <Header titleKey={"learningSchedules"} />
+            <Header titleKey={"learning_schedules.learning_schedules"} />
             <CurrentDate />
             <InterfaceText
                 en={"Since biblical times, the Torah has been divided into sections which are read each week on a set yearly calendar. Following this practice, many other calendars have been created to help communities of learners work through specific texts together."}

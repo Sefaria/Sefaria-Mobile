@@ -83,10 +83,10 @@ test('press reading history button', async () => {
 
   // check that popup is open
   expect(Alert.alert).toHaveBeenCalledTimes(1);
-  expect(Alert.alert.mock.calls[0][0]).toBe(strings.delete);
+  expect(Alert.alert.mock.calls[0][0]).toBe(strings.common.delete);
 
   // press delete button on popup
-  const deleteButton = Alert.alert.mock.calls[0][2].find(btn => btn.text === strings.delete);
+  const deleteButton = Alert.alert.mock.calls[0][2].find(btn => btn.text === strings.common.delete);
   act(deleteButton.onPress);
 
   // check that value of globalState is 'off'

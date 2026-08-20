@@ -143,7 +143,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openFor
     // try to sync immediately after login
     syncProfile();
     close(authMode);
-    showToast(strings.loginSuccessful);
+    showToast(strings.account.login_successful);
   }, handleEmailSubmitResult);
   const theme = getTheme(AUTH_PAGE_THEME);
   const isLogin = authMode === AUTH_MODE.LOGIN;
@@ -175,7 +175,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openFor
   // inputs cover it" (see emailCollisionMessage above), so a login-only field
   // error is just another case of the same problem. The backend's `detail`
   // text is never shown -- it's English-only and not written for users.
-  const emailGenericErrorMessage = hasUnrenderedEmailError ? strings.ssoErrorGeneric : null;
+  const emailGenericErrorMessage = hasUnrenderedEmailError ? strings.errors.sso_generic : null;
 
   // Built once per render, bound to this render's authMode; reused by every
   // SSOButtons control this page renders, including forgot-password's SSO-only
@@ -231,7 +231,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openFor
       <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
         <CircleCloseButton onPress={close} themeStr={AUTH_PAGE_THEME} />
       </View>
-      <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.login : strings.signup}</Text>
+      <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.account.login : strings.account.signup}</Text>
       <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
         <SSOButtons
           authMode={authMode}
@@ -256,7 +256,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openFor
         <SSOErrorBanner error={(ssoError || emailCollisionMessage || ssoOnlyAccountErrorMessage || emailGenericErrorMessage) ? { message: ssoError || emailCollisionMessage || ssoOnlyAccountErrorMessage || emailGenericErrorMessage } : null} theme={theme} />
         { isLogin ? null :
           <AuthTextInput
-            placeholder={strings.first_name}
+            placeholder={strings.account.first_name}
             placeholderTextColor={placeholderTextColor}
             error={errors.first_name}
             errorText={errors.first_name}
@@ -267,7 +267,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openFor
         }
         { isLogin ? null :
           <AuthTextInput
-            placeholder={strings.last_name}
+            placeholder={strings.account.last_name}
             placeholderTextColor={placeholderTextColor}
             error={errors.last_name}
             errorText={errors.last_name}
@@ -277,7 +277,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openFor
           />
         }
         <AuthTextInput
-          placeholder={strings.email}
+          placeholder={strings.account.email}
           autoCapitalize={'none'}
           placeholderTextColor={placeholderTextColor}
           error={!emailCollisionMessage && (errors.username || errors.email)}
@@ -287,7 +287,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openFor
           theme={theme}
         />
         <AuthTextInput
-          placeholder={strings.password}
+          placeholder={strings.account.password}
           placeholderTextColor={placeholderTextColor}
           isPW={true}
           // password2 (register's confirm-password field, posted alongside
@@ -306,7 +306,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openFor
         <SystemButton
           isLoading={isLoading}
           onPress={() => { setSsoError(null); beginEmailAttempt(); onSubmit(); }}
-          text={isLogin ? strings.login : strings.signup}
+          text={isLogin ? strings.account.login : strings.account.signup}
           isHeb={isHeb}
           isBlue
           theme={theme}
@@ -315,29 +315,29 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openFor
           isLogin ?
             <View style={{ alignItems: 'center', marginTop: 15 }}>
               <View style={{flexDirection: isHeb ? 'row-reverse' : 'row', alignItems: 'center'}}>
-                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.dontHaveAnAccount}</Text>
+                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.account.dont_have_an_account}</Text>
                 <TouchableOpacity onPress={openRegister}>
-                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.createAnAccount}`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.account.create_an_account}`}</Text>
                 </TouchableOpacity>
               </View>
 
               <TouchableOpacity onPress={openForgotPassword}>
-                <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{strings.forgotPassword}</Text>
+                <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{strings.account.forgot_password}</Text>
               </TouchableOpacity>
             </View>
           :
             <View style={{alignItems: 'center', marginTop: 15}}>
               <View style={{flexDirection: isHeb ? 'row-reverse' : 'row', alignItems: 'center'}}>
-                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.alreadyHaveAnAccount}</Text>
+                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.account.already_have_an_account}</Text>
                 <TouchableOpacity onPress={openLogin}>
-                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.login}.`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.account.login}.`}</Text>
                 </TouchableOpacity>
               </View>
 
               <View style={{alignItems: 'center'}}>
-                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.byClickingSignUp}</Text>
+                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.account.by_clicking_sign_up}</Text>
                 <TouchableOpacity onPress={() => { openUri('https://www.sefaria.org/terms')}}>
-                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.termsOfUseAndPrivacyPolicy}.`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.account.terms_of_use_and_privacy_policy}.`}</Text>
                 </TouchableOpacity>
               </View>
             </View>

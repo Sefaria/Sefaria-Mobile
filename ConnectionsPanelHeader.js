@@ -52,7 +52,7 @@ class ConnectionsPanelHeader extends React.Component {
         // summary
         outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader, {flexDirection: isheb ? 'row-reverse' : 'row'}];
         content = (
-          <Text style={[isheb ? styles.heInt : styles.enInt, this.props.theme.textListHeaderSummaryText]}>{strings.resources}</Text>
+          <Text style={[isheb ? styles.heInt : styles.enInt, this.props.theme.textListHeaderSummaryText]}>{strings.connections.resources}</Text>
         );
         break;
       case 'version open': // fall-through
@@ -91,7 +91,7 @@ class ConnectionsPanelHeader extends React.Component {
         break;
       default:
         // category filter selected
-        const backText = strings.resources;
+        const backText = strings.connections.resources;
         outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader];
         content = (
           <View style={{flex: 1, flexDirection: isheb ? 'row-reverse' : 'row', justifyContent: 'flex-start' }}>

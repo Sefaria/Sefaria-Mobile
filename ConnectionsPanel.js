@@ -348,16 +348,16 @@ const MainMenuButtons = ({linkSummary,
   let string, icon;
   if (buttonsOverload && !showAllRelated) {
     navButtonPropsList = navButtonPropsList.slice(0, collapsedTopLevelLimit);
-    string = 'more';
+    string = 'common.more';
     icon = 'more';
   } else if (buttonsOverload) {
-    string = 'less';
+    string = 'common.less';
     icon = 'up'
   }
   const navButtons = navButtonPropsList.map(props => makeLibraryNavButton(props));
   if (buttonsOverload) {navButtons.push(<ToolsButton
         onPress={toggleShowAllRelated}
-        text={strings[string]}
+        text={strings.getString(string)}
         icon={iconData.get(icon, themeStr)}
         key='showMreLessButton'
     />)}
@@ -370,7 +370,7 @@ const MainMenuButtons = ({linkSummary,
       setConnectionsMode={setConnectionsMode}
       reloadRelated={reloadRelated}
     />
-    <ConnectionsPanelSection title={strings.relatedTexts}>{navButtons}</ConnectionsPanelSection>
+    <ConnectionsPanelSection title={strings.connections.related_texts}>{navButtons}</ConnectionsPanelSection>
     <ResourcesList
       themeStr={themeStr}
       topicsCount={relatedData.topics ? Sefaria.links.topicsCount(relatedData.topics) : 0}
@@ -453,16 +453,16 @@ const TopButtons = ({relatedHasError, reloadRelated, themeStr, setConnectionsMod
   return (
     <ConnectionsPanelSection>
       {relatedHasError && <ToolsButton
-        text={strings.resourcesFailedToLoad}
+        text={strings.connections.resources_failed_to_load}
         onPress={reloadRelated}
       /> }
       <ToolsButton
-        text={strings.aboutThisText}
+        text={strings.versions.about_this_text}
         icon={iconData.get('info', themeStr)}
         onPress={()=> {setConnectionsMode("about"); }}
       />
       {sheet ? null : <ToolsButton
-        text={strings.translations}
+        text={strings.versions.translations}
         icon={iconData.get('translations', themeStr)}
         count={versionsCount}
         onPress={()=> {setConnectionsMode("versions"); }}
@@ -481,10 +481,10 @@ TopButtons.propTypes = {
 
 const ResourcesList = ({themeStr, setConnectionsMode, topicsCount}) => {
   return (
-      <ConnectionsPanelSection title={strings.resources}>
+      <ConnectionsPanelSection title={strings.connections.resources}>
         {/*here was sheets button that's removed as part of Modularization - the old con can be found in link - https://github.com/Sefaria/Sefaria-Mobile/pull/186/commits/63252a7d20c469b34ba2d3ea6b02e8f5b8dc4bdf  */}
         {!!topicsCount && <ToolsButton
-            text={strings.topics} count={topicsCount}
+            text={strings.common.topics} count={topicsCount}
             icon={iconData.get('hashtag', themeStr)}
             onPress={() => setConnectionsMode("topicsByRef")}
         /> }
@@ -499,19 +499,19 @@ ResourcesList.propTypes = {
 
 const ToolsList = ({themeStr, shareCurrentSegment, sheet, reportError, viewOnSite}) => {
   return (
-      <ConnectionsPanelSection title={strings.tools}>
+      <ConnectionsPanelSection title={strings.connections.tools}>
         <ToolsButton
-          text={strings.share}
+          text={strings.common.share}
           icon={iconData.get('share-full', themeStr)}
           onPress={() => shareCurrentSegment()}
         />
         {sheet ? null : <ToolsButton
-          text={strings.reportError}
+          text={strings.connections.report_error}
           icon={iconData.get('bubble', themeStr)}
           onPress={reportError}
         />}
         <ToolsButton
-          text={strings.viewOnSite}
+          text={strings.connections.view_on_site}
           icon={iconData.get('externalLink', themeStr)}
           onPress={viewOnSite}
         />

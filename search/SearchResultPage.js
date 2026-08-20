@@ -17,7 +17,7 @@ const getStatusFromState = (searchState) => (
 
 const useSearchTabData = ({ textSearchState }) => {
     return [
-        {text: strings.sources, id: 'text', count: getStatusFromState(textSearchState)},
+        {text: strings.common.sources, id: 'text', count: getStatusFromState(textSearchState)},
     ];
 }
 
@@ -30,7 +30,7 @@ export const SearchResultPage = (props) => {
     return (
         <View style={styles.menu}>
             <View style={styles.pageMargins}>
-                <PageHeader><Header titleKey={"search"}/></PageHeader>
+                <PageHeader><Header titleKey={"common.search"}/></PageHeader>
                 <SearchBar
                     search={props.search}
                     query={props.query}
@@ -81,7 +81,7 @@ const FilterButton = ({ onPress, numFilters }) => {
     return (
         <TouchableOpacity onPress={onPress} style={[{borderRadius: 6, paddingVertical: 10, paddingHorizontal: 7}, theme.lighterGreyBackground]}>
             <Text style={[theme.tertiaryText]}>
-                {strings.filter}
+                {strings.search.filter}
                 <Text style={theme.text}>
                     {`(${numFilters})`}
                 </Text>

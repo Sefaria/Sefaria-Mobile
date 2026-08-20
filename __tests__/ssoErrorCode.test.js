@@ -18,24 +18,24 @@ import { SSO_ERROR_CODE, APPLE_ERROR_CODE_UNKNOWN } from '../AuthConstants';
 // case, which is exactly the bug this file now guards against.
 describe('ssoErrorWithCode', () => {
   test('the network error code shows the network-specific message', () => {
-    expect(ssoErrorWithCode(SSO_ERROR_CODE.NETWORK_ERROR)).toBe(strings.authErrorNetwork);
+    expect(ssoErrorWithCode(SSO_ERROR_CODE.NETWORK_ERROR)).toBe(strings.errors.auth_network);
   });
 
   test("Apple's '1000' unknown-error code also shows the network-specific message", () => {
-    expect(ssoErrorWithCode(APPLE_ERROR_CODE_UNKNOWN)).toBe(strings.authErrorNetwork);
-    expect(ssoErrorWithCode('1000')).toBe(strings.authErrorNetwork);
+    expect(ssoErrorWithCode(APPLE_ERROR_CODE_UNKNOWN)).toBe(strings.errors.auth_network);
+    expect(ssoErrorWithCode('1000')).toBe(strings.errors.auth_network);
   });
 
   test.each(
     Object.values(SSO_ERROR_CODE).filter((code) => code !== SSO_ERROR_CODE.NETWORK_ERROR)
   )('the %s code shows the bare generic message, with no code appended', (code) => {
-    expect(ssoErrorWithCode(code)).toBe(strings.ssoErrorGeneric);
+    expect(ssoErrorWithCode(code)).toBe(strings.errors.sso_generic);
   });
 
   test.each([undefined, null, '', 'auth.social_signin_failed', 'DEVELOPER_ERROR', '<script>alert(1)</script>'])(
     'falls back to the bare generic message for %p',
     (code) => {
-      expect(ssoErrorWithCode(code)).toBe(strings.ssoErrorGeneric);
+      expect(ssoErrorWithCode(code)).toBe(strings.errors.sso_generic);
     }
   );
 

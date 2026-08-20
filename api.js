@@ -660,9 +660,9 @@ failSilently - if true, dont display a message if api call fails
         if ("error" in json) {
           if (!failSilently) {
             Alert.alert(
-              strings.textUnavailable,
-              strings.textUnavailableFromWebMessage,
-              [{text: strings.ok, onPress: () => { reject("Return to Nav"); } }]);
+              strings.errors.text_unavailable,
+              strings.errors.text_unavailable_from_web_message,
+              [{text: strings.common.ok, onPress: () => { reject("Return to Nav"); } }]);
           } else {
             reject("Return to Nav");
           }
@@ -677,11 +677,11 @@ failSilently - if true, dont display a message if api call fails
           reject("Return to Nav");
         } else {
           Alert.alert(
-            strings.noInternet,
-            strings.noInternetMessage,
+            strings.errors.no_internet,
+            strings.errors.no_internet_message,
             [
-              {text: strings.cancel, onPress: () => { reject("Return to Nav"); }, style: 'cancel' },
-              {text: strings.tryAgain, onPress: () => {
+              {text: strings.common.cancel, onPress: () => { reject("Return to Nav"); }, style: 'cancel' },
+              {text: strings.common.try_again, onPress: () => {
                 Sefaria.api._request(ref,apiType, urlify, extra_args,failSilently,isPrivate).then(resolve);
               }}
             ]

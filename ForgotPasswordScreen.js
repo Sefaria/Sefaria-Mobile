@@ -46,7 +46,7 @@ const forgotPasswordBannerError = (auth, ssoError, { showAppleLink, disabled, on
   if (auth?.code === AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT) {
     const providers = new Set(Array.isArray(auth.providers) ? auth.providers : []);
     if (providers.has(SSO_PROVIDER.GOOGLE)) {
-      rows.push({ message: strings.ssoEmailExistsGoogle, linkText: strings.continueWithGoogle, onPress: onGoogleLink, disabled });
+      rows.push({ message: strings.errors.sso_email_exists_google, linkText: strings.account.continue_with_google, onPress: onGoogleLink, disabled });
     }
     if (providers.has(SSO_PROVIDER.APPLE)) {
       // Apple-only accounts still get named on Android even though there's no
@@ -54,8 +54,8 @@ const forgotPasswordBannerError = (auth, ssoError, { showAppleLink, disabled, on
       // SSOButtons.js) -- a plain message row beats falling through to the
       // misleading generic "Something went wrong" message below.
       rows.push(showAppleLink
-        ? { message: strings.ssoEmailExistsApple, linkText: strings.continueWithApple, onPress: onAppleLink, disabled }
-        : { message: strings.ssoEmailExistsApple });
+        ? { message: strings.errors.sso_email_exists_apple, linkText: strings.account.continue_with_apple, onPress: onAppleLink, disabled }
+        : { message: strings.errors.sso_email_exists_apple });
     }
   }
   if (ssoError) {
@@ -172,18 +172,18 @@ const ForgotPasswordScreen = ({
         <CircleCloseButton onPress={close} themeStr={themeStr} />
       </View>
       <Text style={[styles.pageTitle, theme.text]}>
-        {forgotPasswordView === FORGOT_PASSWORD_VIEW.SENT ? strings.resetLinkSentTitle : strings.forgotPasswordTitle}
+        {forgotPasswordView === FORGOT_PASSWORD_VIEW.SENT ? strings.account.reset_link_sent_title : strings.account.forgot_password_title}
       </Text>
       <View style={{flex: 1, alignSelf: "stretch", marginHorizontal: 37}}>
         {forgotPasswordView === FORGOT_PASSWORD_VIEW.SENT ? (
           <Text style={[theme.secondaryText, styles.textCenter, isHeb ? styles.heInt : styles.enInt]}>
-            {strings.resetLinkSentBody}
+            {strings.account.reset_link_sent_body}
           </Text>
         ) : (
           <View>
             <SSOErrorBanner error={forgotPasswordBanner} theme={theme} />
             <AuthTextInput
-              placeholder={strings.forgotPasswordEmailPlaceholder}
+              placeholder={strings.account.forgot_password_email_placeholder}
               autoCapitalize={'none'}
               placeholderTextColor={placeholderTextColor}
               onChangeText={setForgotPasswordEmail}
@@ -192,13 +192,13 @@ const ForgotPasswordScreen = ({
             <SystemButton
               isLoading={forgotPasswordIsLoading}
               onPress={handleForgotPasswordSubmit}
-              text={strings.sendResetLink}
+              text={strings.account.send_reset_link}
               isHeb={isHeb}
               isBlue
               theme={theme}
             />
             <TouchableOpacity onPress={openLogin} style={{alignItems: 'center', marginTop: 15}}>
-              <Text style={[theme.text, styles.underline, isHeb ? styles.heInt : styles.enInt]}>{strings.backToLogin}</Text>
+              <Text style={[theme.text, styles.underline, isHeb ? styles.heInt : styles.enInt]}>{strings.account.back_to_login}</Text>
             </TouchableOpacity>
           </View>
         )}

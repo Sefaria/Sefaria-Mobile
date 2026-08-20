@@ -78,7 +78,7 @@ const LexiconBox = ({ selectedWords, oref, handleOpenURL }) => {
   return (
     <ScrollView style={{flex: 1}} key={selectedWords} contentContainerStyle={{paddingLeft: 42, paddingRight: 64, paddingTop: 20, paddingBottom: 40}}>
       <View style={[{flexDirection: isHeb ? "row-reverse" : "row", borderBottomWidth: 1, paddingBottom: 15}, theme.borderedBottom]}>
-        <SText lang={"english"} style={[styles.enInt, theme.tertiaryText, {fontSize: 0.8*fontSize}]}>{`${strings.define}: `}</SText>
+        <SText lang={"english"} style={[styles.enInt, theme.tertiaryText, {fontSize: 0.8*fontSize}]}>{`${strings.connections.define}: `}</SText>
         <SText lang={"hebrew"} style={[styles.he, {fontSize}, theme.text]}>{selectedWords}</SText>
       </View>
       { content }
