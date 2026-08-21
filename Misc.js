@@ -38,7 +38,8 @@ const CSS_CLASS_STYLES = {
     fontFamily: "Taamey Frank Taamim Fix",
     writingDirection: "rtl",
     flex: -1,
-    textAlign: Platform.OS == "android" ? "right" : "justify",
+    // Justification of RTL text is broken on iOS since RN 0.77 (see useHTMLViewStyles.js); use 'right' on both platforms.
+    textAlign: "right",
   },
   english: {
     fontFamily: "Amiri",
