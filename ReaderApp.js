@@ -804,7 +804,14 @@ class ReaderApp extends React.PureComponent {
   };
   loadTranslations = async (ref) => {
     try {
-      Sefaria.offlineOnline.loadTranslations(ref).then(response => {
+      // Careful with `hasInternet` here: it is `undefined` until NetInfo's listener first fires
+      // in componentDidMount, and passing it while unset does NOT mean "offline". loadTranslations
+      // declares `online=true` as a default parameter, and a default parameter applies whenever
+      // the argument is `undefined` -- so an unset hasInternet reads as "online" and skips the
+      // offline guard entirely. Not reachable today (NetInfo reports long before Sefaria.init
+      // finishes, let alone before a section loads and prefetches its translations), but worth
+      // knowing before moving this call anywhere earlier in startup.
+      Sefaria.offlineOnline.loadTranslations(ref, this.state.hasInternet).then(response => {
         const sectionIndex = this._getSectionIndex(ref);
         const translations = [...this.state.translations];
         translations[sectionIndex] = response;
