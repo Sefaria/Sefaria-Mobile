@@ -17,11 +17,26 @@ import {useState} from "react";
 import {iconData} from "./IconData";
 import strings from './LocalizedStrings';
 
+/**
+ * Translates a license name that arrives from the API (e.g. "Public Domain", "CC-BY-SA")
+ * into a `licenses.*` string id, falling back to the raw value when we have no translation.
+ *
+ * Only "Public Domain" is translated today; the CC licenses render as-is, which is what
+ * happened before the i18n refactor too (they were never in the string map).
+ */
+// The third argument suppresses getString's "no localization found" log: a miss is the
+// normal path here (only Public Domain is translated), not a bug worth warning about.
+const translateLicense = (license) => (
+  strings.getString('licenses.' + license.toLowerCase().replace(/[\s-]+/g, '_'), null, true) || license
+);
+
 
 const useVersionTitle = (version) => {
   const { interfaceLanguage } = useGlobalState();
   if (version.merged) {
-    return strings.mergedFrom + " " + Array.from(new Set(version.sources)).join(", ");
+    return strings.formatString(strings.versions.merged_from, {
+      sources: Array.from(new Set(version.sources)).join(", "),
+    });
   } else if (interfaceLanguage === "english" || !version.versionTitleInHebrew) {
     return version.versionTitle;
   } else {
@@ -94,13 +109,13 @@ export const VersionBlockWithPreview = ({version, openFilter, segmentRef, openUr
         extraStyles={[styles[language]]}
     />
   );
-  const currentlySelected = (isCurrent) ? strings.currentlySelected : '';
+  const currentlySelected = (isCurrent) ? strings.versions.currently_selected : '';
   const versionsToOpen = {['en']: version.versionTitle};
   if (textLanguage === 'hebrew') {
       versionsToOpen.he = heVersionTitle;
   }
   const openVersions = () => openActionSheet(segmentRef, versionsToOpen, openRef, interfaceLanguage, 'en');
-  const openButton = (!isCurrent && <Text onPress={openVersions} style={[theme.openButton, {fontStyle: 'normal'}]}>{strings.open}</Text>)
+  const openButton = (!isCurrent && <Text onPress={openVersions} style={[theme.openButton, {fontStyle: 'normal'}]}>{strings.common.open}</Text>)
   const padding = (showDetails) ? {paddingBottom: 7} : null;
   return (
     <View>
@@ -166,21 +181,21 @@ const VersionMetadata = ({version, showVersionTitle, openUri, greyBackground}) =
     return (
         <View style={backgroundStyle}>
             {showVersionTitle && <Text style={[textStyle, theme.primaryText, textAlign]}>{useVersionTitle(version)}</Text>}
-            <LinkWithKey elementKey={"source"} value={shortVersionSource} url={version.versionSource} openUri={openUri} />
+            <LinkWithKey elementKey={"versions.source"} value={shortVersionSource} url={version.versionSource} openUri={openUri} />
             {version.digitizedBySefaria &&
-                <LinkWithKey elementKey={'digitization'} value={strings.sefaria} url={'https://www.sefaria.org.il/digitized-by-sefaria'} openUri={openUri} />
+                <LinkWithKey elementKey={'versions.digitization'} value={strings.common.sefaria} url={'https://www.sefaria.org.il/digitized-by-sefaria'} openUri={openUri} />
             }
             {version.license &&
                 <LinkWithKey
-                    elementKey={'license'}
-                    value={strings[version.license.replace(' ', '')] || version.license}
+                    elementKey={'versions.license'}
+                    value={translateLicense(version.license)}
                     url={Sefaria.util.getLicenseURL(version.license) || ''}
                     openUri={openUri}
                 />
             }
             {version.purchaseInformationURL &&
                 <TouchableOpacity onPress={() => { openUri(version.purchaseInformationURL); }}>
-                    <Text style={[textStyle, textAlign, theme.sefariaColorText]}>{strings.buyInPrint}</Text>
+                    <Text style={[textStyle, textAlign, theme.sefariaColorText]}>{strings.versions.buy_in_print}</Text>
                 </TouchableOpacity>
             }
         </View>
@@ -199,7 +214,7 @@ const LinkWithKey = ({elementKey, value, url, openUri}) => {
     const textStyle = [styles.textTocVersionInfoText, theme.tertiaryText];
     return (
         <Text style={[textStyle, textAlign]}>
-          {strings[elementKey]}:
+          {strings.getString(elementKey)}:
           <Text style={textStyle} onPress={() => { openUri(url); }}> {value}</Text>
         </Text>
     );

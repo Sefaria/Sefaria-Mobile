@@ -104,7 +104,7 @@ const FilterLoadingView = () => {
     const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
     return (
         <Text style={[langStyle, theme.searchResultSummaryText]}>
-            {strings.loadingFilters}
+            {strings.search.loading_filters}
         </Text>
     );
 }
@@ -116,7 +116,7 @@ const TopHeaderRow = ({ onBack, onResetPress }) => {
             <BackButtonRow onPress={onBack} />
             <SefariaPressable onPress={onResetPress}>
                 <FlexFrame dir={"row"} alignItems={"center"}>
-                    <InterfaceText stringKey={"reset"} extraStyles={[theme.secondaryText, {paddingHorizontal: 7}]}/>
+                    <InterfaceText stringKey={"common.reset"} extraStyles={[theme.secondaryText, {paddingHorizontal: 7}]}/>
                     <Icon name={"circle-close"} length={13} />
                 </FlexFrame>
             </SefariaPressable>
@@ -129,12 +129,12 @@ const SearchFilterHeader = ({ onBack, onResetPress, buttonToggleSetData, onFilte
     return (
         <View>
             <TopHeaderRow onBack={onBack} onResetPress={onResetPress} />
-            <TitledButtonToggleSet {...buttonToggleSetData.get(strings.sortBy)} />
+            <TitledButtonToggleSet {...buttonToggleSetData.get(strings.search.sort_by)} />
             <View style={[{borderBottomWidth: 1, paddingVertical: 8}, theme.lightGreyBorder]}>
-                <Header titleKey={"text"} />
+                <Header titleKey={"search.text"} />
             </View>
             <View style={{marginVertical: 16}}>
-                <CondensedSearchBar onChange={onFilterQueryChange} query={filterQuery} placeholder={strings.searchTexts} />
+                <CondensedSearchBar onChange={onFilterQueryChange} query={filterQuery} placeholder={strings.search.search_texts} />
             </View>
         </View>
     );
@@ -142,16 +142,16 @@ const SearchFilterHeader = ({ onBack, onResetPress, buttonToggleSetData, onFilte
 
 const SearchFilterFooter = ({ buttonToggleSetData }) => {
     const { theme } = useGlobalState();
-    const { toggleFunction, active } = buttonToggleSetData.get(strings.exactSearch);
+    const { toggleFunction, active } = buttonToggleSetData.get(strings.search.exact_search);
     return (
         <View>
             <View style={[{borderBottomWidth: 1, paddingVertical: 8}, theme.lightGreyBorder]}>
-                <Header titleKey={"options"} />
+                <Header titleKey={"search.options"} />
             </View>
             <View style={{marginTop: 16}}>
                 <FlexFrame dir={"row"} justifyContent={"flex-start"} alignItems={"center"}>
                     <IndeterminateCheckBox onPress={toggleFunction} state={active+0} />
-                    <InterfaceText stringKey={"exactMatchesOnly"} extraStyles={[{marginHorizontal: 10}, theme.text]}/>
+                    <InterfaceText stringKey={"search.exact_matches_only"} extraStyles={[{marginHorizontal: 10}, theme.text]}/>
                 </FlexFrame>
             </View>
         </View>
@@ -247,7 +247,7 @@ const ShowResultsButton = ({ applyFilters }) => {
    return (
        <SystemButton
            onPress={applyFilters}
-           text={strings.showResults}
+           text={strings.search.show_results}
            isBlue
            isHeb={interfaceLanguage === "hebrew"}
        />
@@ -289,13 +289,13 @@ class ButtonToggleSetData {
         this.searchState = searchState;
         this.onSetOptions = onSetOptions;
         this._data = {
-            [strings.sortBy]:
+            [strings.search.sort_by]:
                 {
-                    titleKey: "sortBy",
+                    titleKey: "search.sort_by",
                     options: this._getSortOptions(),
                     active: this.searchState.sortType
                 },
-            [strings.exactSearch]:
+            [strings.search.exact_search]:
                 {
                     toggleFunction: this._getExactToggleFunction(),
                     active: this.searchState.field === this.searchState.fieldExact
@@ -310,12 +310,12 @@ class ButtonToggleSetData {
     _getSortOptions = () => {
         return [
             {
-                name: "relevance", text: strings.relevance, onPress: () => {
+                name: "relevance", text: strings.search.relevance, onPress: () => {
                     this.setOptions(this.type, "relevance", this.searchState.field);
                 }
             },
             {
-                name: "chronological", text: strings.chronological, onPress: () => {
+                name: "chronological", text: strings.search.chronological, onPress: () => {
                     this.setOptions(this.type, "chronological", this.searchState.field);
                 }
             },

@@ -89,7 +89,7 @@ class SwipeableCategoryList extends React.Component {
     <View style={[{flex:1}, this.props.theme.secondaryBackground]}>
       <TouchableOpacity onPress={() => { this.removeItem(item); }} style={{alignSelf: 'flex-end', justifyContent: 'center', flex:1, width:90}}>
         <Text style={[{textAlign: 'center'}, this.props.theme.contrastText]}>
-          {strings.remove}
+          {strings.common.remove}
         </Text>
       </TouchableOpacity>
     </View>
@@ -188,8 +188,8 @@ const SyncPrompt = ({ openLogin }) => {
       onPress={openLogin}
     >
       <Text style={[ styles.systemButtonText, styles.systemButtonTextBlue, styles.enInt]}>
-        { `${strings.wantToSync} ` }
-        <Text style={[{ textDecorationLine: 'underline'}]}>{ strings.login }</Text>
+        { `${strings.history.want_to_sync} ` }
+        <Text style={[{ textDecorationLine: 'underline'}]}>{ strings.account.login }</Text>
       </Text>
 
       <TouchableOpacity onPress={() => {
@@ -214,9 +214,9 @@ const ReadingHistoryPrompt = ({ openSettings }) => {
   return (
     <View>
       <Text style={[langStyle, {textAlign: "center", marginTop: 20, paddingHorizontal: 15}, theme.secondaryText]}>
-        {strings.readingHistoryIsCurrentlyDisabled + " "}
+        {strings.history.reading_history_is_currently_disabled + " "}
         <Text style={[langStyle, theme.text]} onPress={openSettings}>
-          {strings.settings.toLowerCase()}
+          {strings.common.settings.toLowerCase()}
         </Text>
         {'.'}
       </Text>

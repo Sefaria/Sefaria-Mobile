@@ -716,9 +716,9 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
   } catch (e) {
     log(getCrashlytics(), e);
     Alert.alert(
-      strings.downloadError,
-      strings.downloadErrorMessage,
-      [{text: strings.ok}]
+      strings.download.download_error,
+      strings.download.download_error_message,
+      [{text: strings.common.ok}]
     )
   }
 
@@ -835,7 +835,7 @@ const downloadBlockedNotification = () => {
   Alert.alert(
     "Download Blocked by Network",
     `Current network setting forbids download`,
-    [{text: strings.ok}]
+    [{text: strings.common.ok}]
   )
 };
 
@@ -1060,22 +1060,23 @@ function promptLibraryUpdate(totalDownloads, newBooks, networkMode) {
    * that component.
    */
   const updates = totalDownloads.length - newBooks.length;
-  const updateString = `${newBooks.length} ${strings.newBooksAvailable}\n${updates} ${strings.updatesAvailableMessage}`;
+  const updateString = strings.formatString(strings.download.new_books_available, { count: newBooks.length })
+    + "\n" + strings.formatString(strings.download.updates_available_message, { count: updates });
 
   const onCancel = function () {
     Alert.alert(
-      strings.updateLater,
-      strings.howToUpdateLibraryMessage,
+      strings.download.update_later,
+      strings.download.how_to_update_library_message,
       [
-        {text: strings.ok}
+        {text: strings.common.ok}
       ])
   };
   Alert.alert(
-    strings.updateLibrary,
+    strings.download.update_library,
     updateString,
     [
-      {text: strings.download, onPress: () => downloadUpdate(networkMode, true, totalDownloads)},
-      {text: strings.notNow, onPress: onCancel}
+      {text: strings.download.download, onPress: () => downloadUpdate(networkMode, true, totalDownloads)},
+      {text: strings.common.not_now, onPress: onCancel}
     ]
   )
 
@@ -1115,10 +1116,10 @@ async function throttlePromiseAll(argList, promiseCallback, maxWorkers=10) {
 
 function doubleDownload() {
   Alert.alert(
-    strings.doubleDownload,
+    strings.download.double_download,
     '',
     [
-      {text: strings.ok, onPress: () => {}}
+      {text: strings.common.ok, onPress: () => {}}
     ]
   )
 }

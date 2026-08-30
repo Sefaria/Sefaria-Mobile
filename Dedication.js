@@ -62,7 +62,7 @@ export const ShortDedication = ({openDedication}) => {
         <View style={[styles.navReDedicationBox, theme.lightestGreyBackground]}>
             <Text style={[styles.dedication, (interfaceLanguage === "hebrew") ? styles.hebrewSystemFont : null, theme.secondaryText]} 
                   onPress={openDedication}>
-              { Platform.OS === 'ios' ? strings.dedicatedIOS : strings.dedicatedAndroid }
+              { Platform.OS === 'ios' ? strings.about.dedicated_ios : strings.about.dedicated_android }
             </Text>  
         </View>
       );

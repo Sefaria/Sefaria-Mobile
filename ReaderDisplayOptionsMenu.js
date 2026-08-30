@@ -63,7 +63,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
     }, {});
     const options = [
       {
-        label: strings.languageYo,
+        label: strings.reader.language,
         onPress: this.props.setTextLanguage,
         buttons: ["english","bilingual","hebrew"],
         icons: [icons.a_icon, icons.a_aleph, icons.aleph],
@@ -72,7 +72,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
       },
       {
         condition: this.props.canBeContinuous,
-        label: strings.layout,
+        label: strings.reader.layout,
         onPress: this.props.setTextFlow,
         buttons: ["segmented","continuous"],
         icons: [icons.breaks, icons.continuous],
@@ -81,7 +81,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
       },
       {
         condition: this.props.textLanguage === 'bilingual',
-        label: strings.bilingualLayout,
+        label: strings.reader.bilingual_layout,
         onPress: this.props.setBiLayout,
         buttons: ["stacked", "sidebyside", "sidebysiderev"],
         icons: [icons.stacked, icons.sidebyside, icons.sidebysiderev],
@@ -90,7 +90,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
         iconLength: 19,
       },
       {
-        label: strings.color,
+        label: strings.reader.color,
         onPress: this.props.setTheme,
         buttons:["white","black"],
         colors:["#ffffff", "#444444"],
@@ -99,15 +99,15 @@ class ReaderDisplayOptionsMenu extends React.Component {
       },
       {
         condition: this.props.canHaveAliyot,
-        label: strings.aliyot,
+        label: strings.reader.aliyot,
         onPress: this.props.setAliyot,
         buttons:[true, false],
-        text: [strings.on, strings.off],
+        text: [strings.common.on, strings.common.off],
         currVal: this.props.showAliyot,
         parametrized: true,
       },
       {
-        label: strings.fontSize,
+        label: strings.reader.font_size,
         onPress: this.props.incrementFont,
         buttons:["smaller","larger"],
         icons: [icons.a_icon_small, icons.a_icon],
@@ -116,7 +116,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
       },
       {
         condition: this.props.vowelToggleAvailable < VOCALIZATION.NONE,
-        label: this.props.vowelToggleAvailable === VOCALIZATION.TAAMIM_AND_NIKKUD ? strings.vocalization : strings.vowels,
+        label: this.props.vowelToggleAvailable === VOCALIZATION.TAAMIM_AND_NIKKUD ? strings.reader.vocalization : strings.reader.vowels,
         onPress: this.props.setVocalization,
         buttons:[VOCALIZATION.TAAMIM_AND_NIKKUD, VOCALIZATION.NIKKUD, VOCALIZATION.NONE].slice(this.props.vowelToggleAvailable),
         text: ["אָ֑", "אָ", "א"].slice(this.props.vowelToggleAvailable),

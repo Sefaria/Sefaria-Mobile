@@ -54,7 +54,7 @@ const SearchBar = ({
               onFocus={onFocus}
               value={query}
               underlineColorAndroid={"transparent"}
-              placeholder={strings.search}
+              placeholder={strings.common.search}
               placeholderTextColor={placeholderTextColor}
               autoCorrect={false} />
           {query.length ?
@@ -66,7 +66,7 @@ const SearchBar = ({
             <SefariaPressable onPress={()=>{
               textInputRef.current.blur();
             }} extraStyles={{marginLeft: 15}}>
-              <InterfaceText stringKey={"cancel"} extraStyles={[styles.fontSize16, theme.tertiaryText]}/>
+              <InterfaceText stringKey={"common.cancel"} extraStyles={[styles.fontSize16, theme.tertiaryText]}/>
             </SefariaPressable>
         ) : null}
       </View>

@@ -49,6 +49,41 @@ import { trackEvent } from './analytics/events';
 const DEBUG_MODE = false;
 
 /**
+ * Maps a settings option name to its interface-string id.
+ *
+ * The option names are also the values persisted in global state (e.g. setTextLanguage
+ * is called with 'bilingual'), so they must stay exactly as they are — only the string
+ * they render is looked up here.
+ */
+const SETTINGS_OPTION_STRING_IDS = {
+  english:       'languages.english',
+  hebrew:        'languages.hebrew',
+  bilingual:     'settings.bilingual',
+  daily:         'settings.daily',
+  weekly:        'settings.weekly',
+  never:         'settings.never',
+  sephardi:      'settings.sephardi',
+  ashkenazi:     'settings.ashkenazi',
+  wifiOnly:      'settings.wifi_only',
+  mobileNetwork: 'settings.mobile_network',
+  on:            'common.on',
+  off:           'common.off',
+  onFem:         'common.on_fem',
+  offFem:        'common.off_fem',
+};
+
+/** Maps a settings toggle name (also a global-state key) to its section-header string id. */
+const SETTINGS_HEADER_STRING_IDS = {
+  textLanguage:           'settings.text_language',
+  interfaceLanguage:      'settings.interface_language',
+  emailFrequency:         'settings.email_frequency',
+  readingHistory:         'settings.reading_history',
+  preferredCustom:        'settings.preferred_custom',
+  downloadNetworkSetting: 'settings.download_network_setting',
+  groggerActive:          'settings.grogger_active',
+};
+
+/**
  *
  * @param {array} options
  * @param {func} onPress
@@ -56,7 +91,7 @@ const DEBUG_MODE = false;
  */
 const generateOptions = (options, onPress, values=[]) => Sefaria.util.zip([options, values]).map(([o,v]) => ({
   name: o,
-  text: strings[o],
+  text: strings.getString(SETTINGS_OPTION_STRING_IDS[o]),
   value: v,
   onPress: () => { onPress(typeof v == 'undefined' ? o : v); },
 }));
@@ -71,10 +106,10 @@ const getIsDisabledObj = () => {
 
 const onPressDisabled = (child, parent) => {
   Alert.alert(
-    strings.alreadyDownloaded,
-    `${strings.areIncludedIn} "${parent}"`,
+    strings.download.already_downloaded,
+    strings.formatString(strings.download.are_included_in, { package: parent }),
     [
-      {text: strings.ok, onPress: () => {}}
+      {text: strings.common.ok, onPress: () => {}}
     ]
   );
 };
@@ -100,7 +135,7 @@ const usePkgState = () => {
           Alert.alert(
             "Download Blocked by Network",
             `Current network setting forbids download. Please change settings or connect to internet and try again.`,
-            [{text: strings.ok}]
+            [{text: strings.common.ok}]
           );
           return
         }
@@ -115,9 +150,9 @@ const usePkgState = () => {
       };
       if (PackagesState[pkgName].clicked) {
         Alert.alert(
-          strings.delete,
-          strings.areYouSureDeletePackage,
-          [{text: strings.yes, onPress: removePackage}, {text: strings.no}]
+          strings.common.delete,
+          strings.download.are_you_sure_delete_package,
+          [{text: strings.common.yes, onPress: removePackage}, {text: strings.common.no}]
         )
       }
       else {
@@ -165,10 +200,10 @@ function abstractUpdateChecker(disableUpdateComponent, networkMode) {
       }
       else {
         Alert.alert(
-          strings.libraryUpToDate,
-          strings.libraryUpToDateMessage,
+          strings.download.library_up_to_date,
+          strings.formatString(strings.download.library_up_to_date_message, { platform: Platform.OS }),
           [
-            {text: strings.ok}
+            {text: strings.common.ok}
           ])}
     } catch (e) {
       console.log(e);  // todo: proper error handling
@@ -214,7 +249,7 @@ const AppVersionSection = ({ versionNumber, langStyle, headerStyle }) => {
   return (
     <View style={{ marginTop: 10 }}>
       <Text style={[langStyle, ...headerStyle]}>
-        {`${strings.appVersion}:`}
+        {`${strings.settings.app_version}:`}
         <Text onPress={handlePress}> {versionNumber}</Text>
       </Text>
       <Modal visible={showHostChange} transparent animationType="fade" onRequestClose={() => setShowHostChange(false)}>
@@ -271,20 +306,20 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
   };
   const deleteAccount = () => {
     Alert.alert( //ask for confirmation
-      strings.deleteAccount,
-      strings.deleteAccountMsg,
+      strings.account.delete_account,
+      strings.account.delete_account_message,
       [
         {
-          text: strings.cancel, onPress: () => {console.log("cancel delete")}, style: "cancel"
+          text: strings.common.cancel, onPress: () => {console.log("cancel delete")}, style: "cancel"
         },
-        { text: strings.ok, onPress: () => {
+        { text: strings.common.ok, onPress: () => {
             setIsProcessing(true);
             trackEvent("DeleteUser", {platform: "app"});
             console.log("Deleting account");
             Sefaria.api.deleteUserAccount()
                 .then(()=> { //Inform user account has been deleted
-                   Alert.alert("", strings.deleteAccountOK, [{
-                    text: strings.ok, onPress: () => {
+                   Alert.alert("", strings.account.delete_account_ok, [{
+                    text: strings.common.ok, onPress: () => {
                       setIsProcessing(false); //do it here so the delete account link doesnt re appear for a moment after deleting account
                       logout();
                     }
@@ -292,8 +327,8 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
                 })
                 .catch(e => {// If an error occurred, inform user and open an email window to allow sending us an email
                   setIsProcessing(false);
-                  Alert.alert("", strings.deleteAccountError, [{
-                    text: strings.ok, onPress: () => {
+                  Alert.alert("", strings.account.delete_account_error, [{
+                    text: strings.common.ok, onPress: () => {
                       Sefaria.util.openComposedEmail("hello@sefaria.org", `Delete Account Error`, "");
                     }
                   }]);
@@ -309,7 +344,7 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
       <CategoryColorLine category={"Other"} />
       <View style={[styles.header, theme.header]}>
         <CloseButton onPress={close} />
-        <Text style={[langStyle, styles.settingsHeader, theme.text]}>{strings.settings.toUpperCase()}</Text>
+        <Text style={[langStyle, styles.settingsHeader, theme.text]}>{strings.common.settings.toUpperCase()}</Text>
       </View>
 
       <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'} style={{flex: 1}}>
@@ -321,26 +356,26 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
 
           <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, theme.readerDisplayOptionsMenuDivider]}/>
           <View>
-            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.offlineAccess}</Text>
+            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.settings.offline_access}</Text>
           </View>
 
           {wereBooksDownloaded() ?
             <View>
               <SystemButton
                 onPress={checkUpdatesForSettings}
-                text={updatesDisabled ? strings.checking : strings.checkForUpdates}
+                text={updatesDisabled ? strings.download.checking : strings.download.check_for_updates}
                 isLoading={updatesDisabled}
               />
 
               <SystemButton
                 onPress={() => {
                   Alert.alert(
-                    strings.deleteLibrary,
-                    strings.confirmDeleteLibraryMessage,
-                    [{text: strings.yes, onPress: deleteLibrary}, {text: strings.no}]
+                    strings.download.delete_library,
+                    strings.download.confirm_delete_library_message,
+                    [{text: strings.common.yes, onPress: deleteLibrary}, {text: strings.common.no}]
                   )
                 }}
-                text={strings.deleteLibrary}
+                text={strings.download.delete_library}
               />
 
               {DEBUG_MODE ? <TouchableOpacity style={styles.button} onPress={() => {
@@ -381,13 +416,13 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
               );
             }
           }}>
-            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.system}</Text>
+            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.settings.system}</Text>
           </TouchableWithoutFeedback>
           { isLoggedIn ?
-            <SystemButton onPress={onLogOut} text={strings.logout} isHeb={interfaceLanguage === "hebrew"} />
+            <SystemButton onPress={onLogOut} text={strings.account.logout} isHeb={interfaceLanguage === "hebrew"} />
             : null
           }
-          <SystemButton onPress={()=>{ openUri('https://www.sefaria.org/terms'); }} text={strings.termsAndPrivacy} isHeb={interfaceLanguage === "hebrew"} />
+          <SystemButton onPress={()=>{ openUri('https://www.sefaria.org/terms'); }} text={strings.settings.terms_and_privacy} isHeb={interfaceLanguage === "hebrew"} />
           <AppVersionSection
             versionNumber={VersionNumber.appVersion}
             langStyle={langStyle}
@@ -396,7 +431,7 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
           { isLoggedIn ?
               (isProcessing ? <LoadingView/> :
               <Text style={[{marginTop:30, marginBottom:30}, langStyle, styles.settingsSectionHeader, theme.tertiaryText]} onPress={deleteAccount}>
-                    { strings.deleteAccount }
+                    { strings.account.delete_account }
               </Text>)
             : null
           }
@@ -466,12 +501,12 @@ const ButtonToggleSection = ({ langStyle }) => {
     );
     if (!isReadingHistory && globalState.readingHistory) {
       Alert.alert(
-        strings.delete,
-        strings.turningThisFeatureOff,
+        strings.common.delete,
+        strings.settings.turning_this_feature_off,
         [
-          {text: strings.cancel, onPress: ()=>{}},
+          {text: strings.common.cancel, onPress: ()=>{}},
           {
-            text: strings.delete,
+            text: strings.common.delete,
             onPress: dispatcher,
             style: 'destructive',
           }
@@ -502,7 +537,7 @@ const ButtonToggleSection = ({ langStyle }) => {
       {toggleButtons.map(s => (
         <View style={styles.settingsSection} key={s} stateKey={s}>
           <View>
-            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings[s]}</Text>
+            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.getString(SETTINGS_HEADER_STRING_IDS[s])}</Text>
           </View>
           <ButtonToggleSet
             options={options[`${s}Options`]}

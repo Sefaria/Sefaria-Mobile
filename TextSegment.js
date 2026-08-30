@@ -72,9 +72,9 @@ const TextSegment = React.memo(({
     if (Platform.OS === 'ios') { return; /* no actionsheet for ios, this is handled by text selection */ }
     ActionSheet.showActionSheetWithOptions({
       options: [
-        strings.copy,
-        strings.share,
-        strings.cancel,
+        strings.common.copy,
+        strings.common.share,
+        strings.common.cancel,
       ],
       cancelButtonIndex: 2,
     },

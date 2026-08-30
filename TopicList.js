@@ -53,7 +53,7 @@ const TopicListItem = ({ topic, openTopic, segmentRef, heSegmentRef }) => {
       onPress={() => { openTopic(new Topic({ slug: topic.topic, ...topic })); }}
       extraStyles={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSidePadding]}
     >
-      <DataSourceLine dataSources={topic.dataSources} title={{en: segmentRef, he: heSegmentRef}} flexDirection={flexDirection} prefixText={strings.thisTopicIsConnectedTo}>
+      <DataSourceLine dataSources={topic.dataSources} title={{en: segmentRef, he: heSegmentRef}} flexDirection={flexDirection} prefixTextKey={'topics.this_topic_is_connected_to'}>
         <ContentTextWithFallback {...topic.title} lang={menuLanguage} lineMultiplier={1.05} extraStyles={[{marginBottom: -10}, theme.text]} />
       </DataSourceLine>
       {

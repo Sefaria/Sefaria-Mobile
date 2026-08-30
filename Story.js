@@ -117,11 +117,11 @@ const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onCli
 SheetBlock.propTypes = {sheet: sheetPropType.isRequired};
 
 
-const SaveLine = ({ children, historyItem, dref, versions={}, showToast, flexDirection="row", imageStyles=[] }) => (
+const SaveLine = ({ children, historyItem, dref, heDref, versions={}, showToast, flexDirection="row", imageStyles=[] }) => (
   <View style={[styles.saveLine, {flexDirection}]}>
     {children}
     <SaveButton
-      historyItem={historyItem || {ref: dref, versions, book: Sefaria.textTitleForRef(dref)}}
+      historyItem={historyItem || {ref: dref, he_ref: heDref, versions, book: Sefaria.textTitleForRef(dref)}}
       showToast={showToast}
       extraStyles={imageStyles}
     />
@@ -131,6 +131,11 @@ const SaveLine = ({ children, historyItem, dref, versions={}, showToast, flexDir
 SaveLine.propTypes = {
   historyItem:        PropTypes.object,   // One or
   dref:                 PropTypes.string,   // the other
+  heDref:               PropTypes.string,   // Hebrew ref, required alongside `dref`: SaveButton's
+                                            // toast shows he_ref whenever the menu language is
+                                            // Hebrew, and it is persisted by saveSavedItem.
+                                            // Pass the RAW heRef, not normHebrewRef() — that
+                                            // strips ׳״ for display only.
   versions:             PropTypes.object,
   afterChildren:        PropTypes.object,
 };

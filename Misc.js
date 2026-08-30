@@ -134,9 +134,9 @@ const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
 };
 
 /**
- * Component to render an interface string that is present in strings.js
+ * Component to render an interface string that is present in i18n/en.json + i18n/he.json
  * Please use this as opposed to InterfaceTextWithFallback when possible
- * @param stringKey the key of the string to be rendered (must exist in all interface languages). If not passed, must pass `en` and `he`
+ * @param stringKey dotted id of the string to be rendered, e.g. "common.cancel" (must exist in all interface languages). If not passed, must pass `en` and `he`
  * @param lang Optional explicit language to control which style of text is displayed. Either "english" or "hebrew".
  * @param en Explicit text to be displayed when interfaceLanguage is English. Only used if stringKey is not supplied.
  * @param he Explicit text to be displayed when interfaceLanguage is Hebrew. Only used if stringKey is not supplied.
@@ -154,7 +154,8 @@ const InterfaceText = ({stringKey, lang, en, he, extraStyles = [], allowFontScal
   const langStyle = intTextStyles[lang];
   let text;
   if (stringKey) {
-    text = strings[stringKey];
+    // getString resolves a dotted id ("common.cancel") against the nested map
+    text = strings.getString(stringKey);
   } else {
     text = lang === 'english' ? en : he;
   }
@@ -314,8 +315,11 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
           style={[{flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row"}, styles.sefariaProgressBarOverlay]}>
           <Text
             style={[{color: "#999"}, interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt]}>{
-              downloadActive ? `${strings.downloading} (${downloadPercentage}% ${strings.of} ${parseInt(trueDownloadSize/ 1e6)}mb)`
-                :  <DynamicRepeatingText displayText={strings.connecting} repeatText={'.'} maxCount={3} />
+              downloadActive ? strings.formatString(strings.download.downloading_progress, {
+                percent: downloadPercentage,
+                size: parseInt(trueDownloadSize/ 1e6),
+              })
+                :  <DynamicRepeatingText displayText={strings.common.connecting} repeatText={'.'} maxCount={3} />
           }</Text>
           {!!onClose ?
             <TouchableOpacity onPress={onClose} accessibilityLabel="Close">
@@ -1164,7 +1168,7 @@ const SearchBarWithIcon = ({ onChange, query, onFocus }) => {
     <View style={[{borderRadius: 400, borderWidth: 1, paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
       <FlexFrame dir={"row"} alignItems={"center"}>
         <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
-        <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={strings.search} />
+        <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={strings.common.search} />
         <SearchCancelButton onChange={onChange} query={query} />
       </FlexFrame>
     </View>
@@ -1214,7 +1218,7 @@ const SaveButton = ({ historyItem, showToast, extraStyles=[] }) => {
           );
           const { is_sheet, sheet_title, ref, he_ref } = newHistoryItem;
           const title = is_sheet ? Sefaria.util.stripHtml(sheet_title || '') : (isHeb ? he_ref : ref);
-          showToast(`${willBeSaved ? strings.saved2 : strings.removed} ${title}`);
+          showToast(`${willBeSaved ? strings.history.saved_confirmation : strings.history.removed_confirmation} ${title}`);
           forceUpdate();
         }
       }>
@@ -1435,7 +1439,12 @@ ProfilePic.propTypes = {
   showButtons: PropTypes.bool,  // show profile pic action buttons
 };
 
-const DataSourceLine = ({ children, dataSources, title, flexDirection="row", prefixText, imageStyles=[] }) => {
+/**
+ * @param prefixTextKey dotted id of a string containing {title} and {sources} placeholders,
+ *   e.g. "topics.this_source_is_connected_to". It holds the whole sentence rather than just
+ *   a prefix so Hebrew can order the title and the sources differently from English.
+ */
+const DataSourceLine = ({ children, dataSources, title, flexDirection="row", prefixTextKey, imageStyles=[] }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const [displaySource, setDisplaySource] = useState(false);
   const theme = getTheme(themeStr);
@@ -1443,7 +1452,10 @@ const DataSourceLine = ({ children, dataSources, title, flexDirection="row", pre
   let dataSourceText = '';
   const langKey = isHeb ? 'he' : 'en';
   if (!!dataSources && Object.values(dataSources).length > 0) {
-    dataSourceText = `${prefixText}"${title && title[langKey]}" ${strings.by} ${Object.values(dataSources).map(d => d[langKey]).join(' & ')}.`;
+    dataSourceText = strings.formatString(strings.getString(prefixTextKey), {
+      title: title && title[langKey],
+      sources: Object.values(dataSources).map(d => d[langKey]).join(' & '),
+    });
   }
   return (
     <View>
@@ -1553,7 +1565,7 @@ const Sefaria501 = () => {
   return(
         <View>
             <Text style={[styles.navReSefaria501, (interfaceLanguage === "hebrew") ? styles.hebrewSystemFont : null, theme.secondaryText]}>
-              { strings.sefaria501 }
+              { strings.about.sefaria_501 }
             </Text>
         </View>
       );
@@ -1584,7 +1596,7 @@ const GreyBoxFrame = ({ children }) => {
 
 const singleActionPopup = (text, action) => {
   ActionSheet.showActionSheetWithOptions({
-    options: [text, strings.cancel],
+    options: [text, strings.common.cancel],
     cancelButtonIndex: 1,
   },
   (buttonIndex) => {
@@ -1601,8 +1613,8 @@ const openActionSheet = (refStr, versions, openRef, interfaceLanguage, heRefStr,
     }
     openRef(refStr, versions, loadNewVersions);
   }
-  const toOpen = versions ? strings.version : Sefaria.getTitle(refStr, heRefStr, category === 'Commentary', interfaceLanguage === "hebrew");
-  const text = `${strings.open} ${toOpen}`
+  const toOpen = versions ? strings.versions.version : Sefaria.getTitle(refStr, heRefStr, category === 'Commentary', interfaceLanguage === "hebrew");
+  const text = strings.formatString(strings.common.open_item, { item: toOpen })
   singleActionPopup(text, tempOpenRef)
 }
 

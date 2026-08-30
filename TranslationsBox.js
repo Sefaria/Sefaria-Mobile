@@ -98,16 +98,17 @@ const TranslationsBox = ({
   return (
     <ScrollView
       contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin, ]}>
-      <Text style={[theme.tertiaryText, styles.translationsHeader, textAlign]}>{strings.translations}</Text>
+      <Text style={[theme.tertiaryText, styles.translationsHeader, textAlign]}>{strings.versions.translations}</Text>
       <Text style={[theme.tertiaryText, styles.fontSize14, textAlign]}>
-        {strings.translationsDescription + ' '}
-        <Text onPress={() => openUri('https://www.sefaria.org/sheets/511573')} style={{textDecorationLine: 'underline'}}>{strings.learnMore} ›</Text>
+        {strings.versions.translations_description + ' '}
+        <Text onPress={() => openUri('https://www.sefaria.org/sheets/511573')} style={{textDecorationLine: 'underline'}}>{strings.common.learn_more} ›</Text>
       </Text>
       {
         vLangState.versionLangs.map((lang, i) => (
           <View key={lang}>
             <View style={[styles.translationsBoxLang, theme.languageName]}>
-              <Text style={[styles.versionsBoxLangText, theme.tertiaryText, textAlign]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang)}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
+              {/* getString's third arg omits its "not found" log: an unknown ISO code falls back to the raw code by design */}
+              <Text style={[styles.versionsBoxLangText, theme.tertiaryText, textAlign]}>{(strings.getString(`languages.${Sefaria.util.translateISOLanguageCode(lang)}`, null, true) || lang)}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
             </View>
             {
               vLangState.versionLangMap[lang].map((v, j) => (

@@ -138,7 +138,7 @@ const GoogleSignInButton = ({ authMode, isLoading, loadingProvider, setIsLoading
       activeOpacity={0.2}
     >
       <Image source={require('./img/sso-google.png')} style={styles.ssoIcon} resizeMode="contain" />
-      <Text style={[styles.ssoButtonText, theme.ssoButtonText, isHeb ? styles.heInt : styles.enInt]}>{strings.continueWithGoogle}</Text>
+      <Text style={[styles.ssoButtonText, theme.ssoButtonText, isHeb ? styles.heInt : styles.enInt]}>{strings.account.continue_with_google}</Text>
     </TouchableOpacity>
   );
 };
@@ -242,7 +242,7 @@ const AppleSignInButton = ({ isLoading, loadingProvider, setIsLoading, setLoadin
       activeOpacity={0.2}
     >
       <Image source={require('./img/sso-apple.png')} style={styles.ssoIcon} resizeMode="contain" />
-      <Text style={[styles.ssoButtonText, theme.ssoButtonText, isHeb ? styles.heInt : styles.enInt]}>{strings.continueWithApple}</Text>
+      <Text style={[styles.ssoButtonText, theme.ssoButtonText, isHeb ? styles.heInt : styles.enInt]}>{strings.account.continue_with_apple}</Text>
     </TouchableOpacity>
   );
 };
@@ -308,7 +308,7 @@ const OrDivider = ({ theme }) => {
   return (
     <View style={styles.orDivider}>
       <View style={[styles.orDividerLine, theme.ssoDividerLine]} />
-      <Text style={[styles.orDividerText, theme.ssoDividerText, isHeb ? styles.heInt : styles.enInt]}>{strings.or}</Text>
+      <Text style={[styles.orDividerText, theme.ssoDividerText, isHeb ? styles.heInt : styles.enInt]}>{strings.common.or}</Text>
       <View style={[styles.orDividerLine, theme.ssoDividerLine]} />
     </View>
   );

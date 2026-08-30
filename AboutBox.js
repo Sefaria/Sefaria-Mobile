@@ -28,7 +28,7 @@ const AboutBox = ({ textToc, currVersionObjects, openFilter, sheet, openUri, seg
     <ScrollView contentContainerStyle={[styles.aboutBoxScrollView, styles.readerSideMargin]}>
       <View>
         <View style={[styles.aboutHeaderWrapper, theme.bordered]}>
-          <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{strings.aboutThisText}</Text>
+          <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{strings.versions.about_this_text}</Text>
         </View>
         <Text style={[styles.aboutTitle, hei ? styles.he : styles.en, theme.text]}>
           { Sefaria.util.stripHtml(sheet.title) }
@@ -95,7 +95,7 @@ const AboutBox = ({ textToc, currVersionObjects, openFilter, sheet, openUri, seg
     detailSection = (
       <View>
         <View style={[styles.aboutHeaderWrapper, theme.bordered]}>
-          <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{strings.aboutThisText}</Text>
+          <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{strings.versions.about_this_text}</Text>
         </View>
         <Text style={[styles.aboutTitle, hei ? styles.he : styles.en, theme.text]}>
           { hei ? d.heTitle : d.title }
@@ -121,7 +121,7 @@ const AboutBox = ({ textToc, currVersionObjects, openFilter, sheet, openUri, seg
   const versionSectionHe =
     (!!vh && showSourceVersionDetails ? <View style={styles.currVersionSection}>
       <View style={[styles.aboutHeaderWrapper, theme.bordered]}>
-        <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{ strings.currentHebrewVersion }</Text>
+        <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{ strings.versions.current_hebrew_version }</Text>
       </View>
       <VersionBlock
         version={vh}
@@ -132,7 +132,7 @@ const AboutBox = ({ textToc, currVersionObjects, openFilter, sheet, openUri, seg
   const versionSectionEn =
     (!!ve && showTranslationVersionDetails ? <View style={styles.currVersionSection}>
       <View style={[styles.aboutHeaderWrapper, theme.bordered]}>
-        <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{ strings.currentEnglishVersion }</Text>
+        <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{ strings.versions.current_english_version }</Text>
       </View>
       <VersionBlock
         version={ve}
@@ -144,7 +144,7 @@ const AboutBox = ({ textToc, currVersionObjects, openFilter, sheet, openUri, seg
   const versionBlocks = (
     otherPrimaryVersions.length > 0 && <View style={styles.currVersionSection}>
       <View style={[styles.aboutHeaderWrapper, theme.bordered]}>
-        <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{ strings.otherPrimaryVersions }</Text>
+        <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{ strings.versions.other_primary_versions }</Text>
       </View>
       {otherPrimaryVersions.map((v) =>
         (<VersionBlock

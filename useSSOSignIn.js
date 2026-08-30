@@ -46,7 +46,7 @@ const useSSOSignIn = ({ authMode, deriveOutcomeFromAuthMode, fireProcessEnded, f
     // try to sync immediately after login
     syncProfile();
     close(authMode);
-    showToast(strings.loginSuccessful);
+    showToast(strings.account.login_successful);
   };
 };
 

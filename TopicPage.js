@@ -277,8 +277,8 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
       <View style={[{padding: 15}, theme.lightestGreyBackground]}>
         <View style={[{borderBottomWidth: 1, paddingBottom: 5}, theme.lightGreyBorder]}>
           <InterfaceTextWithFallback
-            en={strings.trendingTopics}
-            he={strings.trendingTopics}
+            en={strings.topics.trending_topics}
+            he={strings.topics.trending_topics}
             lang={menuLanguage}
             extraStyles={[{fontSize: 16, fontWeight: "bold"}, theme.tertiaryText]}
           />
@@ -332,9 +332,9 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, setT
   const hasWorks = isAuthor && topicData?.indexes?.length;
   const tabs = [];
   if (hasWorks) {
-    tabs.push({text: strings.worksOnSefaria, id: 'works'});
+    tabs.push({text: strings.topics.works_on_sefaria, id: 'works'});
   } else if (topicData?.textRefs?.length) {
-    tabs.push({text: strings.sources, id: 'sources'});
+    tabs.push({text: strings.common.sources, id: 'sources'});
   }
   useEffect(() => {
     if (tabs.length && tabs[0].id !== topicsTab) { setTopicsTab(tabs[0].id); }
@@ -471,7 +471,7 @@ TopicPage.propTypes = {
 const TopicListEmpty = ({ query, tab, isLoading }) => {
   const { theme } = useGlobalState();
   if (!query || isLoading) { return null; }
-  const message = `${strings.noResultsContaining} "${query}"`
+  const message = strings.formatString(strings.search.no_results_containing, { query })
   return (
     <View style={{flex: 1, alignItems: "center"}}>
       <ContentTextWithFallback
@@ -533,7 +533,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
       {topicRef ?
         (
           <SystemButton
-            text={parasha ? strings.readThePortion : (isHeb ? Sefaria.normHebrewRef(topicRef.he) : topicRef.en)}
+            text={parasha ? strings.learning_schedules.read_the_portion : (isHeb ? Sefaria.normHebrewRef(topicRef.he) : topicRef.en)}
             img={require('./img/book-black.png')}
             extraStyles={[isHeb ? styles.readThePortionButtonHe : styles.readThePortionButton, {alignSelf: isHeb ? "flex-end" : "flex-start"}]}
             extraImageStyles={[{tintColor: "#fff"}]}
@@ -581,8 +581,8 @@ const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   return (
     <StoryFrame extraStyles={styles.topicItemMargins}>
       <View style={{marginBottom: 10}}>
-        <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo} imageStyles={[{marginTop: -12}]}>
-          <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
+        <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixTextKey={'topics.this_source_is_connected_to'} imageStyles={[{marginTop: -12}]}>
+          <SaveLine dref={text.ref} heDref={text.heRef} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
             <StoryTitleBlock en={text.ref} he={Sefaria.normHebrewRef(text.heRef)} onClick={() => openRef(text.ref)} />
           </SaveLine>
         </DataSourceLine>

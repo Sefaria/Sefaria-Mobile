@@ -5,7 +5,7 @@ import { SSO_PROVIDER, AUTH_ERROR_CODE, SSO_ERROR_CODE, APPLE_ERROR_CODE_UNKNOWN
 
 // Exact-match map from the backend's English collision sentences (raised by
 // SefariaNewUserForm.clean_email on the register path) to the localized string
-// *key* that should be shown for each. Values are key names rather than
+// *id* that should be shown for each. Values are string ids rather than
 // `strings.x` snapshots because `strings` is re-localized at runtime when the
 // interface language changes -- capturing `strings.x` here at module load
 // would freeze these messages in whatever language was active on first import.
@@ -15,9 +15,9 @@ import { SSO_PROVIDER, AUTH_ERROR_CODE, SSO_ERROR_CODE, APPLE_ERROR_CODE_UNKNOWN
 // which has no such code-based indirection, so this still depends on clean_email's messages
 // staying un-translated (see the comment there) until this map gets the same code-based fix.
 const SSO_COLLISION_MESSAGE_KEYS = {
-  "This email address is already registered via Google Sign-In.": 'ssoEmailExistsGoogle',
-  "This email address is already registered via Apple Sign-In.": 'ssoEmailExistsApple',
-  "An account with this email address already exists.": 'ssoEmailExistsGeneric',
+  "This email address is already registered via Google Sign-In.": 'errors.sso_email_exists_google',
+  "This email address is already registered via Apple Sign-In.": 'errors.sso_email_exists_apple',
+  "An account with this email address already exists.": 'errors.sso_email_exists_generic',
 };
 
 // Returns the localized collision message for an exact backend match, or null.
@@ -26,7 +26,9 @@ const ssoCollisionMessage = (backendMessage) => {
   const messages = Array.isArray(backendMessage) ? backendMessage : [backendMessage];
   for (const message of messages) {
     const key = SSO_COLLISION_MESSAGE_KEYS[(message || '').toString().trim()];
-    if (key) { return strings[key]; }
+    // getString, not strings[key]: ids are namespaced now, so the lookup is by dotted
+    // path rather than a top-level property.
+    if (key) { return strings.getString(key); }
   }
   return null;
 };
@@ -52,11 +54,11 @@ const ssoOnlyAccountMessage = (auth) => {
   const providers = new Set(Array.isArray(auth.providers) ? auth.providers : []);
   const hasGoogle = providers.has(SSO_PROVIDER.GOOGLE);
   const hasApple = providers.has(SSO_PROVIDER.APPLE);
-  if (hasGoogle && hasApple) { return strings.ssoEmailExistsAppleAndGoogle; }
-  if (hasGoogle) { return strings.ssoEmailExistsGoogle; }
-  if (hasApple) { return strings.ssoEmailExistsApple; }
+  if (hasGoogle && hasApple) { return strings.errors.sso_email_exists_apple_and_google; }
+  if (hasGoogle) { return strings.errors.sso_email_exists_google; }
+  if (hasApple) { return strings.errors.sso_email_exists_apple; }
   // Falls back to the generic SSO-error string rather than
-  // strings.ssoEmailExistsGeneric: that string is register-path collision
+  // strings.errors.sso_email_exists_generic: that string is register-path collision
   // copy ("An account with this email address already exists.") and carries
   // no SSO signal, which is actively misleading on a login screen -- it tells
   // the user their account exists but gives no hint that they need to use a
@@ -67,7 +69,7 @@ const ssoOnlyAccountMessage = (auth) => {
   // shouldn't fire today -- the backend only emits sso_only_account when
   // socialaccount_set.exists() is true -- so this is defensive against a
   // future provider mobile doesn't yet recognize.
-  return strings.ssoErrorGeneric;
+  return strings.errors.sso_generic;
 };
 
 // A raw code (network_error, DEVELOPER_ERROR, a clamped server value...) isn't
@@ -90,7 +92,7 @@ const ssoOnlyAccountMessage = (auth) => {
 // message is a deliberate product decision based on observed airplane-mode
 // behavior, not a claim about Apple's semantics (see AuthConstants.js).
 const ssoErrorWithCode = (code) => (
-  (code === SSO_ERROR_CODE.NETWORK_ERROR || code === APPLE_ERROR_CODE_UNKNOWN) ? strings.authErrorNetwork : strings.ssoErrorGeneric
+  (code === SSO_ERROR_CODE.NETWORK_ERROR || code === APPLE_ERROR_CODE_UNKNOWN) ? strings.errors.auth_network : strings.errors.sso_generic
 );
 
 export { ssoCollisionMessage, ssoOnlyAccountMessage, ssoErrorWithCode };

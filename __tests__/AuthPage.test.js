@@ -74,8 +74,8 @@ describe('login', () => {
     act(() => { currentInstance = renderer.create(<AuthPageWrapper authMode={AUTH_MODE.LOGIN} />); });
     const inputs = currentInstance.root.findAllByType(AuthTextInput);
     const fields = {
-      [strings.email]: 'bob@bobandco.co',
-      [strings.password]: 'bobI$daB3st',
+      [strings.account.email]: 'bob@bobandco.co',
+      [strings.account.password]: 'bobI$daB3st',
     };
     for (let i of inputs) {
       act(() => {
@@ -89,8 +89,8 @@ describe('login', () => {
     expect(Sefaria.api.authenticate.mock.calls[0][0]).toEqual({
       first_name: null,
       last_name: null,
-      email: fields[strings.email],
-      password: fields[strings.password],
+      email: fields[strings.account.email],
+      password: fields[strings.account.password],
       mobile_app_key: '',
     });
     expect(Sefaria.api.authenticate.mock.calls[0][1]).toBe(AUTH_MODE.LOGIN);
@@ -149,7 +149,7 @@ describe('a failed email login with only an unrendered error field', () => {
 
     const { error } = currentInstance.root.findByType(SSOErrorBanner).props;
     expect(error).not.toBeNull();
-    expect(error.message).toBe(strings.ssoErrorGeneric);
+    expect(error.message).toBe(strings.errors.sso_generic);
     expect(error.message).not.toContain('No active account');
   });
 });
@@ -173,7 +173,7 @@ describe('register errors that have a dedicated inline surface show no generic b
     const { error } = currentInstance.root.findByType(SSOErrorBanner).props;
     expect(error).toBeNull();
     const [firstNameInput] = currentInstance.root.findAllByType(AuthTextInput)
-      .filter((i) => i.props.placeholder === strings.first_name);
+      .filter((i) => i.props.placeholder === strings.account.first_name);
     expect(firstNameInput.props.error).toEqual(['This field is required.']);
   });
 
@@ -182,7 +182,7 @@ describe('register errors that have a dedicated inline surface show no generic b
     const { error } = currentInstance.root.findByType(SSOErrorBanner).props;
     expect(error).toBeNull();
     const [lastNameInput] = currentInstance.root.findAllByType(AuthTextInput)
-      .filter((i) => i.props.placeholder === strings.last_name);
+      .filter((i) => i.props.placeholder === strings.account.last_name);
     expect(lastNameInput.props.error).toEqual(['This field is required.']);
   });
 
@@ -223,7 +223,7 @@ describe('a failed email login against an SSO-only account', () => {
     }));
     const error = await submitLogin();
     expect(error).not.toBeNull();
-    expect(error.message).toBe(strings.ssoEmailExistsGoogle);
+    expect(error.message).toBe(strings.errors.sso_email_exists_google);
   });
 
   test('apple-only account shows the Apple-specific message', async () => {
@@ -232,7 +232,7 @@ describe('a failed email login against an SSO-only account', () => {
       _auth: { code: 'sso_only_account', providers: ['apple'] },
     }));
     const error = await submitLogin();
-    expect(error.message).toBe(strings.ssoEmailExistsApple);
+    expect(error.message).toBe(strings.errors.sso_email_exists_apple);
   });
 
   test('account linked to both providers shows the combined message', async () => {
@@ -241,7 +241,7 @@ describe('a failed email login against an SSO-only account', () => {
       _auth: { code: 'sso_only_account', providers: ['apple', 'google'] },
     }));
     const error = await submitLogin();
-    expect(error.message).toBe(strings.ssoEmailExistsAppleAndGoogle);
+    expect(error.message).toBe(strings.errors.sso_email_exists_apple_and_google);
   });
 
   test('empty providers falls back to the generic SSO error string, not the collision-copy generic', async () => {
@@ -254,14 +254,14 @@ describe('a failed email login against an SSO-only account', () => {
     // this email address already exists.") and carries no SSO signal -- wrong
     // on a login screen. ssoErrorGeneric is the correct (if less specific)
     // fallback here. See ssoOnlyAccountMessage's comment in AuthPage.js.
-    expect(error.message).toBe(strings.ssoErrorGeneric);
-    expect(error.message).not.toBe(strings.ssoEmailExistsGeneric);
+    expect(error.message).toBe(strings.errors.sso_generic);
+    expect(error.message).not.toBe(strings.errors.sso_email_exists_generic);
   });
 
   test('missing _auth falls back to the plain generic error message (regression)', async () => {
     Sefaria.api.authenticate = jest.fn(async () => ({ detail: 'No active account found with the given credentials' }));
     const error = await submitLogin();
-    expect(error.message).toBe(strings.ssoErrorGeneric);
+    expect(error.message).toBe(strings.errors.sso_generic);
   });
 });
 
@@ -274,35 +274,35 @@ describe('new localized strings exist in both languages', () => {
 
   test('ssoEmailExistsAppleAndGoogle', () => {
     strings.setLanguage('en');
-    expect(strings.ssoEmailExistsAppleAndGoogle).toBe('This email address is registered via Google Sign-In and Apple Sign-In.');
+    expect(strings.errors.sso_email_exists_apple_and_google).toBe('This email address is registered via Google Sign-In and Apple Sign-In.');
     strings.setLanguage('he');
-    expect(strings.ssoEmailExistsAppleAndGoogle).toBe('דוא״ל זה רשום דרך גוגל ואפל.');
+    expect(strings.errors.sso_email_exists_apple_and_google).toBe('דוא״ל זה רשום דרך גוגל ואפל.');
   });
 
   test('authErrorNetwork', () => {
     strings.setLanguage('en');
-    expect(strings.authErrorNetwork).toBe('Network error. Check your internet connection.');
+    expect(strings.errors.auth_network).toBe('Network error. Check your internet connection.');
     strings.setLanguage('he');
-    expect(strings.authErrorNetwork).toBe('יש בעיה ברשת. נסו לבדוק את החיבור לאינטרנט.');
+    expect(strings.errors.auth_network).toBe('יש בעיה ברשת. נסו לבדוק את החיבור לאינטרנט.');
   });
 });
 
 describe('ssoCollisionMessage', () => {
   test('matches the Google collision sentence', () => {
     expect(ssoCollisionMessage('This email address is already registered via Google Sign-In.'))
-      .toBe(strings.ssoEmailExistsGoogle);
+      .toBe(strings.errors.sso_email_exists_google);
   });
   test('matches the Apple collision sentence', () => {
     expect(ssoCollisionMessage('This email address is already registered via Apple Sign-In.'))
-      .toBe(strings.ssoEmailExistsApple);
+      .toBe(strings.errors.sso_email_exists_apple);
   });
   test('matches the generic existing-account sentence', () => {
     expect(ssoCollisionMessage('An account with this email address already exists.'))
-      .toBe(strings.ssoEmailExistsGeneric);
+      .toBe(strings.errors.sso_email_exists_generic);
   });
   test('matches when the backend wraps the sentence in an array', () => {
     expect(ssoCollisionMessage(['This email address is already registered via Google Sign-In.']))
-      .toBe(strings.ssoEmailExistsGoogle);
+      .toBe(strings.errors.sso_email_exists_google);
   });
   test('returns null for an unrelated field error', () => {
     expect(ssoCollisionMessage('This password is too short.')).toBeNull();
@@ -321,29 +321,29 @@ describe('ssoOnlyAccountMessage', () => {
   const authWith = (providers) => ({ code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT, providers });
 
   test('google only', () => {
-    expect(ssoOnlyAccountMessage(authWith(['google']))).toBe(strings.ssoEmailExistsGoogle);
+    expect(ssoOnlyAccountMessage(authWith(['google']))).toBe(strings.errors.sso_email_exists_google);
   });
 
   test('apple only', () => {
-    expect(ssoOnlyAccountMessage(authWith(['apple']))).toBe(strings.ssoEmailExistsApple);
+    expect(ssoOnlyAccountMessage(authWith(['apple']))).toBe(strings.errors.sso_email_exists_apple);
   });
 
   test('both providers, regardless of array order', () => {
-    expect(ssoOnlyAccountMessage(authWith(['google', 'apple']))).toBe(strings.ssoEmailExistsAppleAndGoogle);
-    expect(ssoOnlyAccountMessage(authWith(['apple', 'google']))).toBe(strings.ssoEmailExistsAppleAndGoogle);
+    expect(ssoOnlyAccountMessage(authWith(['google', 'apple']))).toBe(strings.errors.sso_email_exists_apple_and_google);
+    expect(ssoOnlyAccountMessage(authWith(['apple', 'google']))).toBe(strings.errors.sso_email_exists_apple_and_google);
   });
 
   test('empty providers falls back to the generic SSO error string', () => {
-    expect(ssoOnlyAccountMessage(authWith([]))).toBe(strings.ssoErrorGeneric);
-    expect(ssoOnlyAccountMessage(authWith([]))).not.toBe(strings.ssoEmailExistsGeneric);
+    expect(ssoOnlyAccountMessage(authWith([]))).toBe(strings.errors.sso_generic);
+    expect(ssoOnlyAccountMessage(authWith([]))).not.toBe(strings.errors.sso_email_exists_generic);
   });
 
   test('missing providers falls back to the generic SSO error string', () => {
-    expect(ssoOnlyAccountMessage({ code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT })).toBe(strings.ssoErrorGeneric);
+    expect(ssoOnlyAccountMessage({ code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT })).toBe(strings.errors.sso_generic);
   });
 
   test('unrecognized provider values fall back to the generic SSO error string', () => {
-    expect(ssoOnlyAccountMessage(authWith(['facebook']))).toBe(strings.ssoErrorGeneric);
+    expect(ssoOnlyAccountMessage(authWith(['facebook']))).toBe(strings.errors.sso_generic);
   });
 
   test('returns null when _auth is absent', () => {
@@ -415,7 +415,7 @@ describe('SSO handlers', () => {
       expect(Sefaria.api.socialLogin).toHaveBeenCalledWith('google', 'id-token', userData);
       expect(props.syncProfile).toHaveBeenCalled();
       expect(props.close).toHaveBeenCalledWith(AUTH_MODE.LOGIN);
-      expect(props.showToast).toHaveBeenCalledWith(strings.loginSuccessful);
+      expect(props.showToast).toHaveBeenCalledWith(strings.account.login_successful);
       expect(bannerMessage(instance)).toBeNull();
     });
 
@@ -459,7 +459,7 @@ describe('SSO handlers', () => {
       const instance = renderAuthPage();
       await act(async () => { ssoProps(instance).onSSOError(new Error('Google sign-in did not return an identity token.')); });
 
-      expect(bannerMessage(instance)).toBe(strings.ssoErrorGeneric);
+      expect(bannerMessage(instance)).toBe(strings.errors.sso_generic);
       expect(bannerMessage(instance)).not.toContain('identity token');
     });
 
@@ -474,7 +474,7 @@ describe('SSO handlers', () => {
         ssoProps(instance).onSSOError({ code: APPLE_ERROR_CODE_UNKNOWN, message: 'The operation could not be completed.' });
       });
 
-      expect(bannerMessage(instance)).toBe(strings.authErrorNetwork);
+      expect(bannerMessage(instance)).toBe(strings.errors.auth_network);
       expect(bannerMessage(instance)).not.toContain('1000');
     });
   });
@@ -499,7 +499,7 @@ describe('SSO handlers', () => {
       expect(bannerMessage(instance)).toBe(ssoErrorWithCode('DEVELOPER_ERROR'));
 
       await submit(instance);
-      expect(bannerMessage(instance)).toBe(strings.ssoEmailExistsGoogle);
+      expect(bannerMessage(instance)).toBe(strings.errors.sso_email_exists_google);
     });
 
     test('does not linger after a submit that raises no error of its own', async () => {
@@ -714,7 +714,7 @@ describe('auth analytics events', () => {
     // User touches the email field while the Google sign-in is still in
     // flight -- this repoints currentMethodRef to 'email'.
     const emailInput = currentInstance.root.findAllByType(AuthTextInput)
-      .find((t) => t.props.placeholder === strings.email);
+      .find((t) => t.props.placeholder === strings.account.email);
     act(() => { emailInput.props.onFocus(); });
     const emailAttemptId = lastParamsFor(AUTH_EVENT.METHOD_CHOSEN).attempt_id;
     expect(emailAttemptId).not.toBe(googleAttemptId);
@@ -784,8 +784,8 @@ describe('forgot password mode', () => {
   test('renders the form: an email input, a submit button, "Back to login", no banner, no SSO buttons', () => {
     const instance = renderForgotPasswordPage();
     expect(instance.root.findAllByType(AuthTextInput).length).toBe(1);
-    expect(instance.root.findByType(AuthTextInput).props.placeholder).toBe(strings.forgotPasswordEmailPlaceholder);
-    expect(instance.root.findByType(SystemButton).props.text).toBe(strings.sendResetLink);
+    expect(instance.root.findByType(AuthTextInput).props.placeholder).toBe(strings.account.forgot_password_email_placeholder);
+    expect(instance.root.findByType(SystemButton).props.text).toBe(strings.account.send_reset_link);
     expect(backToLoginLink(instance)).toBeDefined();
     expect(instance.root.findAllByType(SSOButtons).length).toBe(0);
     expect(bannerRows(instance)).toBeNull();
@@ -794,7 +794,7 @@ describe('forgot password mode', () => {
   test('the title is "Forgot Password?"', () => {
     const instance = renderForgotPasswordPage();
     const title = instance.root.findAllByType(require('react-native').Text)
-      .find((t) => t.props.children === strings.forgotPasswordTitle);
+      .find((t) => t.props.children === strings.account.forgot_password_title);
     expect(title).toBeDefined();
   });
 
@@ -814,10 +814,10 @@ describe('forgot password mode', () => {
     expect(instance.root.findAllByType(SystemButton).length).toBe(0);
     expect(backToLoginLink(instance)).toBeUndefined();
     const title = instance.root.findAllByType(require('react-native').Text)
-      .find((t) => t.props.children === strings.resetLinkSentTitle);
+      .find((t) => t.props.children === strings.account.reset_link_sent_title);
     expect(title).toBeDefined();
     const body = instance.root.findAllByType(require('react-native').Text)
-      .find((t) => t.props.children === strings.resetLinkSentBody);
+      .find((t) => t.props.children === strings.account.reset_link_sent_body);
     expect(body).toBeDefined();
   });
 
@@ -833,11 +833,11 @@ describe('forgot password mode', () => {
 
     // Same network copy the login/register screen shows for this code, not
     // the bare generic message -- see forgotPasswordBannerError in AuthPage.js.
-    expect(bannerMessage(instance)).toBe(strings.authErrorNetwork);
+    expect(bannerMessage(instance)).toBe(strings.errors.auth_network);
     // The form never left: email input, submit button, and the back-to-login
     // link are all still there, no separate "try again" screen to leave.
     expect(instance.root.findAllByType(AuthTextInput).length).toBe(1);
-    expect(instance.root.findByType(SystemButton).props.text).toBe(strings.sendResetLink);
+    expect(instance.root.findByType(SystemButton).props.text).toBe(strings.account.send_reset_link);
     expect(backToLoginLink(instance)).toBeDefined();
   });
 
@@ -851,7 +851,7 @@ describe('forgot password mode', () => {
     const instance = renderForgotPasswordPage();
     await submitEmail(instance, 'not-an-email');
 
-    expect(bannerMessage(instance)).toBe(strings.ssoErrorGeneric);
+    expect(bannerMessage(instance)).toBe(strings.errors.sso_generic);
     expect(instance.root.findAllByType(AuthTextInput).length).toBe(1);
   });
 
@@ -864,7 +864,7 @@ describe('forgot password mode', () => {
     await expect(submitEmail(instance)).resolves.toBeUndefined();
 
     expect(instance.root.findByType(SystemButton).props.isLoading).toBe(false);
-    expect(bannerMessage(instance)).toBe(strings.ssoErrorGeneric);
+    expect(bannerMessage(instance)).toBe(strings.errors.sso_generic);
   });
 
   test('submitting with no email does not call requestPasswordReset', async () => {
@@ -893,7 +893,7 @@ describe('forgot password mode', () => {
       await submitEmail(instance);
 
       const rows = bannerRows(instance);
-      expect(rows).toEqual([{ message: strings.ssoEmailExistsGoogle, linkText: strings.continueWithGoogle, onPress: expect.any(Function), disabled: false }]);
+      expect(rows).toEqual([{ message: strings.errors.sso_email_exists_google, linkText: strings.account.continue_with_google, onPress: expect.any(Function), disabled: false }]);
       // The form is still there underneath -- no dedicated SSO-only screen.
       expect(instance.root.findAllByType(AuthTextInput).length).toBe(1);
       expect(instance.root.findAllByType(SSOButtons).length).toBe(0);
@@ -905,7 +905,7 @@ describe('forgot password mode', () => {
       await submitEmail(instance);
 
       const rows = bannerRows(instance);
-      expect(rows).toEqual([{ message: strings.ssoEmailExistsApple, linkText: strings.continueWithApple, onPress: expect.any(Function), disabled: false }]);
+      expect(rows).toEqual([{ message: strings.errors.sso_email_exists_apple, linkText: strings.account.continue_with_apple, onPress: expect.any(Function), disabled: false }]);
     });
 
     test('both providers shows TWO rows, one per provider, not the combined sentence', async () => {
@@ -915,8 +915,8 @@ describe('forgot password mode', () => {
 
       const rows = bannerRows(instance);
       expect(rows.length).toBe(2);
-      expect(rows[0]).toEqual(expect.objectContaining({ message: strings.ssoEmailExistsGoogle, linkText: strings.continueWithGoogle }));
-      expect(rows[1]).toEqual(expect.objectContaining({ message: strings.ssoEmailExistsApple, linkText: strings.continueWithApple }));
+      expect(rows[0]).toEqual(expect.objectContaining({ message: strings.errors.sso_email_exists_google, linkText: strings.account.continue_with_google }));
+      expect(rows[1]).toEqual(expect.objectContaining({ message: strings.errors.sso_email_exists_apple, linkText: strings.account.continue_with_apple }));
     });
 
     test('empty providers falls back to the generic SSO error string, with no link', async () => {
@@ -924,7 +924,7 @@ describe('forgot password mode', () => {
       const instance = renderForgotPasswordPage();
       await submitEmail(instance);
 
-      expect(bannerRows(instance)).toEqual([{ message: strings.ssoErrorGeneric }]);
+      expect(bannerRows(instance)).toEqual([{ message: strings.errors.sso_generic }]);
     });
 
     // A response with no _auth key at all never gets classified as
@@ -940,7 +940,7 @@ describe('forgot password mode', () => {
       const instance = renderForgotPasswordPage();
       await submitEmail(instance);
 
-      expect(bannerRows(instance)).toEqual([{ message: strings.ssoErrorGeneric }]);
+      expect(bannerRows(instance)).toEqual([{ message: strings.errors.sso_generic }]);
     });
   });
 
@@ -968,7 +968,7 @@ describe('forgot password mode', () => {
       expect(result).toEqual({
         rows: [
           { message: 'a live SSO error' },
-          { message: strings.ssoEmailExistsGoogle, linkText: strings.continueWithGoogle, onPress: deps.onGoogleLink, disabled: false },
+          { message: strings.errors.sso_email_exists_google, linkText: strings.account.continue_with_google, onPress: deps.onGoogleLink, disabled: false },
         ],
       });
     });
@@ -976,16 +976,16 @@ describe('forgot password mode', () => {
     test('an apple-only result with showAppleLink false (Android) still shows the SSO-only message, with no link', () => {
       const auth = { code: AUTH_ERROR_CODE.SSO_ONLY_ACCOUNT, providers: ['apple'] };
       const result = forgotPasswordBannerError(auth, null, { ...deps, showAppleLink: false });
-      expect(result).toEqual({ rows: [{ message: strings.ssoEmailExistsApple }] });
+      expect(result).toEqual({ rows: [{ message: strings.errors.sso_email_exists_apple }] });
     });
 
     test('no ssoError and no sso_only_account auth -> the generic message', () => {
-      expect(forgotPasswordBannerError(null, null, deps)).toEqual({ message: strings.ssoErrorGeneric });
+      expect(forgotPasswordBannerError(null, null, deps)).toEqual({ message: strings.errors.sso_generic });
     });
 
     test('a network_error result shows the network string, not the generic one', () => {
       const auth = { code: SSO_ERROR_CODE.NETWORK_ERROR };
-      expect(forgotPasswordBannerError(auth, null, deps)).toEqual({ message: strings.authErrorNetwork });
+      expect(forgotPasswordBannerError(auth, null, deps)).toEqual({ message: strings.errors.auth_network });
     });
   });
 
@@ -1029,7 +1029,7 @@ describe('forgot password mode', () => {
       });
       expect(props.syncProfile).toHaveBeenCalled();
       expect(props.close).toHaveBeenCalledWith(AUTH_MODE.FORGOT_PASSWORD);
-      expect(props.showToast).toHaveBeenCalledWith(strings.loginSuccessful);
+      expect(props.showToast).toHaveBeenCalledWith(strings.account.login_successful);
     });
 
     test('a failed sign-in from this link surfaces the failure without closing the page', async () => {

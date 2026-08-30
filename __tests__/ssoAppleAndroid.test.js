@@ -46,13 +46,13 @@ describe('Apple sign-in visibility by platform', () => {
 
   it.each([AUTH_MODE.LOGIN, AUTH_MODE.REGISTER])('hides Apple on Android in %s mode', (authMode) => {
     const tree = renderOn('android', authMode);
-    expect(tree).toContain(strings.continueWithGoogle);
-    expect(tree).not.toContain(strings.continueWithApple);
+    expect(tree).toContain(strings.account.continue_with_google);
+    expect(tree).not.toContain(strings.account.continue_with_apple);
   });
 
   it('still shows Apple on iOS', () => {
     const tree = renderOn('ios');
-    expect(tree).toContain(strings.continueWithGoogle);
-    expect(tree).toContain(strings.continueWithApple);
+    expect(tree).toContain(strings.account.continue_with_google);
+    expect(tree).toContain(strings.account.continue_with_apple);
   });
 });
