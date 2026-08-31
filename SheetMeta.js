@@ -58,10 +58,9 @@ const SheetMeta = ({ sheet, close, openTopic }) => {
             </Text>
           </View>
           <View style={styles.textTocCategoryBox}>
-            {interfaceLanguage == "hebrew" ?
-              <Text style={[styles.he, styles.textTocCategory, theme.secondaryText]}>דף</Text> :
-              <Text style={[styles.en, styles.textTocCategory, theme.secondaryText]}>Sheet</Text>
-            }
+            <Text style={[interfaceLanguage == "hebrew" ? styles.he : styles.en, styles.textTocCategory, theme.secondaryText]}>
+              {strings.common.sheet}
+            </Text>
           </View>
           <View style={{flexDirection: "row", flex: 1}}>
             <Image

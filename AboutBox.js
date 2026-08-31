@@ -55,8 +55,9 @@ const AboutBox = ({ textToc, currVersionObjects, openFilter, sheet, openUri, seg
     if (d.authors && d.authors.length) {
       const authorArrayEn = d.authors.filter((elem) => !!elem.en);
       const authorArrayHe = d.authors.filter((elem) => !!elem.he);
-      authorsEn = [<Text key="authorText">{"Author: "}</Text>];
-      authorsHe = [<Text key="authorText">{"מחבר: "}</Text>];
+      const authorLabel = <Text key="authorText">{`${strings.versions.author} `}</Text>;
+      authorsEn = [authorLabel];
+      authorsHe = [authorLabel];
       authorsEn = authorsEn.concat(authorArrayEn.map(author => <Text key={author.en}>{author.en}</Text> ));
       authorsHe = authorsHe.concat(authorArrayHe.map(author => <Text key={author.en}>{author.he}</Text> ));
     }
@@ -82,15 +83,18 @@ const AboutBox = ({ textToc, currVersionObjects, openFilter, sheet, openUri, seg
         //I don't think there are any texts which are mixed BCE/CE
         const lowerDate = Math.abs(d.compDate - d.errorMargin);
         const upperDate = Math.abs(d.compDate - d.errorMargin);
-        dateTextEn = `(c.${lowerDate} - c.${upperDate} ${d.compDate < 0 ? "BCE" : "CE"})`;
-        dateTextHe = `(${lowerDate} - ${upperDate} ${d.compDate < 0 ? 'לפנה"ס בקירוב' : 'לספירה בקירוב'})`;
+        const era = d.compDate < 0 ? 'versions.bce' : 'versions.ce';
+        dateTextEn = `(c.${lowerDate} - c.${upperDate} ${strings.getString(era, 'en')})`;
+        dateTextHe = `(${lowerDate} - ${upperDate} ${strings.getString(era, 'he')})`;
       } else {
-        dateTextEn = `(${Math.abs(d.compDate)} ${d.compDate < 0 ? "BCE" : "CE"})`;
-        dateTextHe = `(${Math.abs(d.compDate)} ${d.compDate < 0 ? 'לפנה"ס בקירוב' : 'לספירה בקירוב'})`;
+        const era = d.compDate < 0 ? 'versions.bce' : 'versions.ce';
+        dateTextEn = `(${Math.abs(d.compDate)} ${strings.getString(era, 'en')})`;
+        dateTextHe = `(${Math.abs(d.compDate)} ${strings.getString(era, 'he')})`;
       }
     } else if (d.pubDate) {
-      dateTextEn = `(${Math.abs(d.pubDate)} ${d.pubDate < 0 ? "BCE" : "CE"})`;
-      dateTextHe = `(${Math.abs(d.pubDate)} ${d.pubDate < 0 ? 'לפנה"ס בקירוב' : 'לספירה בקירוב'})`;
+      const era = d.pubDate < 0 ? 'versions.bce' : 'versions.ce';
+      dateTextEn = `(${Math.abs(d.pubDate)} ${strings.getString(era, 'en')})`;
+      dateTextHe = `(${Math.abs(d.pubDate)} ${strings.getString(era, 'he')})`;
     }
     detailSection = (
       <View>
@@ -107,7 +111,7 @@ const AboutBox = ({ textToc, currVersionObjects, openFilter, sheet, openUri, seg
         }
         { !!placeTextEn || !!dateTextEn ?
           <Text style={[styles.aboutSubtitle, hei ? styles.heInt : styles.enInt, theme.secondaryText]}>
-            { hei ? `נוצר/נערך: ${!!placeTextHe ? placeTextHe : ""} ${!!dateTextHe ? dateTextHe : ""}` : `Composed: ${!!placeTextEn ? placeTextEn : ""} ${!!dateTextEn ? dateTextEn : ""}`}
+            { hei ? `${strings.versions.composed} ${!!placeTextHe ? placeTextHe : ""} ${!!dateTextHe ? dateTextHe : ""}` : `${strings.versions.composed} ${!!placeTextEn ? placeTextEn : ""} ${!!dateTextEn ? dateTextEn : ""}`}
           </Text> : null
         }
         { hei ? (!!d.heDesc ? <SimpleMarkdown style={[styles.aboutDescription, styles.heInt, theme.text]}>{d.heDesc}</SimpleMarkdown> : null) :

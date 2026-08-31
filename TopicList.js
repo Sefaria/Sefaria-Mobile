@@ -13,6 +13,7 @@ import {
 import styles from './Styles';
 import strings from './LocalizedStrings';
 import {
+    InterfaceText,
     InterfaceTextWithFallback,
     ContentTextWithFallback,
     SefariaPressable,
@@ -25,9 +26,8 @@ const TopicList = ({ topics, openTopic, segmentRef, heSegmentRef }) => {
     <FlatList
       data={topicsAggregated}
       ListEmptyComponent={<View style={{marginTop: 16, alignItems: "center"}}>
-        <InterfaceTextWithFallback
-          en={"No topics known here."}
-          he={"אין נושאים ידועים."}
+        <InterfaceText
+          stringKey={"topics.no_topics_known_here"}
           extraStyles={[{fontStyle: "italic"}]}
         />
       </View>}

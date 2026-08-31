@@ -133,8 +133,8 @@ const usePkgState = () => {
         const netState = await NetInfo.fetch();
         if (!isDownloadAllowed(netState, downloadNetworkSetting)) {
           Alert.alert(
-            "Download Blocked by Network",
-            `Current network setting forbids download. Please change settings or connect to internet and try again.`,
+            strings.download.blocked_by_network,
+            strings.download.blocked_by_network_settings_message,
             [{text: strings.common.ok}]
           );
           return

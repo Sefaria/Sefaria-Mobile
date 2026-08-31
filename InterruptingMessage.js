@@ -18,6 +18,7 @@ import {
 import bstyles from './Styles';
 import { getTheme, GlobalStateContext } from './StateManager.js';
 import {iconData} from "./IconData";
+import strings from './LocalizedStrings';
 
 var styles = StyleSheet.create({
   interruptingMessageBox: {
@@ -180,7 +181,7 @@ class InterruptingMessage extends React.Component {
                   <View style={styles.interruptingMessageCloseBox}>
                     <TouchableOpacity
                       onPress={this.close}
-                      accessibilityLabel="Close pop up"
+                      accessibilityLabel={strings.a11y.close_pop_up}
                     >
                       <Image source={iconData.get('circle-close', this.context.themeStr)}
                         resizeMode={'contain'}

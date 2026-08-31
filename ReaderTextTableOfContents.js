@@ -159,8 +159,8 @@ const TextTableOfContentsNavigation = ({ schema, commentatorList, alts, defaultS
   if (!exclude_structs.includes('schema')) {
     options = [{
       name: "default",
-      text: "sectionNames" in schema ? schema.sectionNames[0] : "Contents",
-      heText: "sectionNames" in schema ? Sefaria.hebrewSectionName(schema.sectionNames[0]) : "תוכן",
+      text: "sectionNames" in schema ? schema.sectionNames[0] : strings.getString('reader.contents', 'en'),
+      heText: "sectionNames" in schema ? Sefaria.hebrewSectionName(schema.sectionNames[0]) : strings.getString('reader.contents', 'he'),
       onPress: () => {
         setTab('default');
       },
@@ -181,8 +181,8 @@ const TextTableOfContentsNavigation = ({ schema, commentatorList, alts, defaultS
   if (commentatorList.length) {
     options.push({
       name: "commentary",
-      text: "Commentary",
-      heText: "מפרשים",
+      text: strings.getString('reader.commentary', 'en'),
+      heText: strings.getString('reader.commentary', 'he'),
       onPress: () => { setTab('commentary'); },
     });
   }

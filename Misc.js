@@ -217,7 +217,7 @@ const OrderedList = ({items, renderItem}) => {
 const DotSeparatedList = ({ items, renderItem, keyExtractor, flexDirection='row' }) => {
   return (
     items.map((item, i) => (
-      <View key={keyExtractor(item)} style={{flexDirection, alignItems: 'center'}} accessibilityLabel="A horizontal list of items separated by bullets">
+      <View key={keyExtractor(item)} style={{flexDirection, alignItems: 'center'}} accessibilityLabel={strings.a11y.bulleted_list}>
         { renderItem(item, i) }
         { i < (items.length - 1) ? <Image source={require('./img/dot.png')} resizeMode={'contain'} style={{marginHorizontal: 5}}/> : null}
       </View>
@@ -322,7 +322,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
                 :  <DynamicRepeatingText displayText={strings.common.connecting} repeatText={'.'} maxCount={3} />
           }</Text>
           {!!onClose ?
-            <TouchableOpacity onPress={onClose} accessibilityLabel="Close">
+            <TouchableOpacity onPress={onClose} accessibilityLabel={strings.a11y.close}>
               <Image
                 source={iconData.get('close', themeStr)}
                 resizeMode={'contain'}
@@ -717,7 +717,7 @@ const LanguageToggleButton = () => {
 
   const style = [styles.languageToggle, theme.languageToggle, enabled ? null : {opacity:0}];
   return (
-    <TouchableOpacity style={style} onPress={toggle} disabled={!enabled} accessibilityLabel={`Change language to ${isHeb ? "English" : "Hebrew"}`}>
+    <TouchableOpacity style={style} onPress={toggle} disabled={!enabled} accessibilityLabel={strings.formatString(strings.a11y.change_language_to, { language: isHeb ? strings.languages.english : strings.languages.hebrew })}>
       <Icon name={iconName} length={13.5} />
     </TouchableOpacity>
   );
@@ -845,7 +845,7 @@ const SearchButton = ({ onPress, extraStyles, disabled }) => {
 const MenuButton = ({ onPress, placeholder }) => {
   const { themeStr } = useGlobalState();
   return (
-    <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton, {opacity: placeholder ? 0 : 1}]} onPress={onPress} accessibilityLabel="Open Menu">
+    <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton, {opacity: placeholder ? 0 : 1}]} onPress={onPress} accessibilityLabel={strings.a11y.open_menu}>
       <Image
         source={iconData.get('menu', themeStr)}
         style={styles.menuButton}
@@ -858,7 +858,7 @@ const MenuButton = ({ onPress, placeholder }) => {
 const CloseButton = ({ onPress }) => {
   const { themeStr } = useContext(GlobalStateContext);
   return (
-    <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={onPress} accessibilityLabel="Close">
+    <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={onPress} accessibilityLabel={strings.a11y.close}>
       <Image
         source={iconData.get('close', themeStr)}
         style={styles.closeButton}
@@ -875,7 +875,7 @@ const CircleCloseButton = ({ onPress, themeStr: themeStrProp }) => {
   // theme. Falls back to context so every other call site is unaffected.
   const themeStr = themeStrProp ?? themeStrContext;
   return (
-    <TouchableOpacity style={styles.headerButton} onPress={onPress} accessibilityLabel="Close">
+    <TouchableOpacity style={styles.headerButton} onPress={onPress} accessibilityLabel={strings.a11y.close}>
       <Image
         source={iconData.get('circle-close', themeStr)}
         style={styles.circleCloseButton}
@@ -908,7 +908,7 @@ const DisplaySettingsButton = ({ onPress }) => {
     <TouchableOpacity
       style={[styles.headerButton, styles.rightHeaderButton]}
       onPress={onPress}
-      accessibilityLabel="Open display settings"
+      accessibilityLabel={strings.a11y.open_display_settings}
     >
       <Image
         source={iconData.get(iconName, themeStr)}
@@ -1190,7 +1190,7 @@ const CondensedSearchBar = ({ onChange, query, onFocus, placeholder }) => {
 const CancelButton = ({ onPress, extraStyles=[] }) => {
   const { themeStr } = useGlobalState();
   return (
-    <TouchableOpacity onPress={onPress} accessibilityLabel="close">
+    <TouchableOpacity onPress={onPress} accessibilityLabel={strings.a11y.close}>
       <Image
         source={iconData.get('close', themeStr)}
         style={[styles.cancelSearchButton].concat(extraStyles)}

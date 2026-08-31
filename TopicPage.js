@@ -20,6 +20,7 @@ import {
   SearchBarWithIcon,
   DataSourceLine,
   FilterableFlatList,
+  InterfaceText,
   InterfaceTextWithFallback,
   ContentTextWithFallback,
   DotSeparatedList,
@@ -38,7 +39,7 @@ import {
 
 import { useAsyncVariable, useIncrementalLoad, useGlobalState, useRtlFlexDir } from './Hooks';
 import Sefaria from './sefaria';
-import strings from './LocalizedStrings';
+import strings, { stringPair } from './LocalizedStrings';
 import styles from './Styles';
 import {iconData} from "./IconData";
 import {SimpleMarkdown} from './Misc'
@@ -149,8 +150,8 @@ const organizeLinks = (topic, links) => {
     const subtopics = Sefaria.topicTocPage(category && category.slug) || [];
     linkTypeArray.push({
       title: {
-        en: !category ? 'Explore Topics' : category.en,
-        he: !category ?  'נושאים כלליים' : category.he,
+        en: !category ? strings.getString('topics.explore_topics', 'en') : category.en,
+        he: !category ? strings.getString('topics.explore_topics', 'he') : category.he,
       },
       links: subtopics.slice(0, 20).map(({slug, en, he}) => (new Topic ({
         slug,
@@ -162,8 +163,8 @@ const organizeLinks = (topic, links) => {
     // rename
     const title = topic.title || {}
     linkTypeArray[0].title = {
-      en: `Topics Related to ${title.en}`,
-      he: `נושאים קשורים ל-${title.he}`,
+      en: strings.formatString(strings.getString('topics.topics_related_to', 'en'), { title: title.en }),
+      he: strings.formatString(strings.getString('topics.topics_related_to', 'he'), { title: title.he }),
     };
   }
   return linkTypeArray;
@@ -206,13 +207,8 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
   }, [slug]);
 
   const headerTopic = topic || {
-    title: {
-      en: "Explore by Topic", he: "חיפוש לפי נושאים",
-    },
-    description: {
-      en: "Selections of texts about thousands of subjects",
-      he: "מבחר מקורות באלפי נושאים שונים",
-    },
+    title: stringPair('topics.explore_by_topic'),
+    description: stringPair('topics.explore_by_topic_description'),
   };
 
   return (
@@ -688,9 +684,8 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
   const moreButton = hasMore ?
     (
       <SefariaPressable extraStyles={[styles.topicLinkSideMore, {flexDirection: isHeb ? 'row-reverse': 'row'}]} onPress={() => setShowMore(prevShowMore => !prevShowMore)}>
-        <InterfaceTextWithFallback
-          en={showMore ? "See Less" : "See More"}
-          he={showMore ? "ראה פחות" : "ראה עוד"}
+        <InterfaceText
+          stringKey={showMore ? "topics.see_less" : "topics.see_more"}
           extraStyles={[theme.secondaryText, {fontSize: 13}]}
         />
         <Image
@@ -723,7 +718,7 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
   return (
     <View>
       <View style={[styles.readingsHeader, styles.readingsSection, theme.lighterGreyBorder, {flexDirection}]}>
-        <InterfaceTextWithFallback en={"Readings"} he={"פרשיות והפטרות"} extraStyles={[styles.SystemBodyEn, styles.topicLinkTypeHeader, theme.tertiaryText, {borderBottomWidth: 0}]}/>
+        <InterfaceText stringKey={"topics.readings"} extraStyles={[styles.SystemBodyEn, styles.topicLinkTypeHeader, theme.tertiaryText, {borderBottomWidth: 0}]}/>
         <View style={{flexDirection}}>
           <InterfaceTextWithFallback en={parashaDate} he={parashaDate} extraStyles={[theme.secondaryText]} />
           <Text style={styles.separator}> · </Text>
@@ -731,13 +726,13 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
         </View>
       </View>
       <View style={styles.readingsSection}>
-        <InterfaceTextWithFallback en={"Torah"} he={"תורה"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
+        <InterfaceText stringKey={"common.torah"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
         <SefariaPressable onPress={()=>{ openRef(tref.en); }} extraStyles={{marginTop: 6}}>
           <ContentTextWithFallback en={tref.en} he={Sefaria.normHebrewRef(tref.he)} extraStyles={[theme.text]}/>
         </SefariaPressable>
       </View>
       <View style={styles.readingsSection}>
-        <InterfaceTextWithFallback en={"Haftarah"} he={"הפטרה"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
+        <InterfaceText stringKey={"common.haftarah"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
         <View style={{flexDirection}}>
           <DotSeparatedList
             flexDirection={flexDirection}

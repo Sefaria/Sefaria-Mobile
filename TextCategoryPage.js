@@ -11,6 +11,7 @@ import {
 } from "./Misc";
 import Sefaria from "./sefaria";
 import {LearningSchedulesBoxFactory} from "./learningSchedules/LearningSchedulesBox";
+import strings, {stringPair} from "./LocalizedStrings";
 
 /**
  * Return modified categories for cases with category toggles
@@ -37,8 +38,8 @@ const getCategoryTitle = (displayCategories) => {
         if (lastCat === "Commentary") {
             const tocItem = Sefaria.tocObjectByCategories(displayCategories.slice(0, -1));
             return {
-                en: `${tocItem.category} Commentary`.toUpperCase(),
-                he: `${tocItem.heCategory} מפרשים`,
+                en: strings.formatString(strings.getString('reader.category_commentary', 'en'), { category: tocItem.category }).toUpperCase(),
+                he: strings.formatString(strings.getString('reader.category_commentary', 'he'), { category: tocItem.heCategory }),
             };
         } else {
             const tocItem = Sefaria.tocObjectByCategories(displayCategories);
@@ -213,12 +214,12 @@ const getSubCategoryToggle = categories => {
         "Talmud": {
             categoryPathDepth: 2,
             subCategories: ["Bavli", "Yerushalmi"],
-            subCategoriesDisplay: [{en: "Babylonian", he: "בבלי"}, {en: "Jerusalem", he: "ירושלמי"}]
+            subCategoriesDisplay: [stringPair('nav.talmud_bavli'), stringPair('nav.talmud_yerushalmi')]
         },
         "Tosefta": {
             categoryPathDepth: 2,
             subCategories: ["Vilna Edition", "Lieberman Edition"],
-            subCategoriesDisplay: [{en: "Vilna", he: "דפוס וילנא"}, {en: "Lieberman", he: "מהדורת ליברמן"}]
+            subCategoriesDisplay: [stringPair('nav.tosefta_vilna'), stringPair('nav.tosefta_lieberman')]
         },
     };
     if (!categories.length || !(categories[0] in toggleEnableMap) || categories.length !== toggleEnableMap[categories[0]]["categoryPathDepth"]) {

@@ -78,3 +78,23 @@ export const buildContent = () => ({
 const strings = new LocalizedStrings(buildContent());
 
 export default strings;
+
+/**
+ * The `{en, he}` pair for an id, for call sites whose shape is fixed by something else and
+ * that need both languages at once rather than one resolved string: `InterfaceTextWithFallback`,
+ * and the option/title objects that TextColumn, TextCategoryPage and LearningSchedulesBox
+ * hand to their children.
+ *
+ * Prefer member access on `strings`, or InterfaceText's `stringKey` prop, wherever a single
+ * string will do — those follow the interface language on their own. This is the escape hatch,
+ * not the default. (Both are spelled without an example id here on purpose: i18n.test.js scans
+ * source for those two forms, and an illustrative id in a comment reads to it as a real call
+ * site pointing at a string that does not exist.)
+ *
+ * Passing the language explicitly to `getString` is what makes it work: `strings.x.y` resolves
+ * against whichever language is active, so it can only ever give one side of the pair.
+ */
+export const stringPair = (id) => ({
+  en: strings.getString(id, 'en'),
+  he: strings.getString(id, 'he'),
+});

@@ -12,6 +12,7 @@ import {
     StoryBodyBlock,
 } from "../Story";
 import {iconData} from "../IconData";
+import strings from "../LocalizedStrings";
 
 export const SearchTextResult = ({text, tref, heTref, openRef, lang, versionTitle, duplicates, isDuplicate}) => {
     const en = lang === "english" ? text : "";
@@ -84,7 +85,7 @@ const SimilarResultsButton = ({ showDuplicates, toggleDuplicates, numDuplicates 
     const iconName = showDuplicates ? 'up' : 'down';
     return (
         <TouchableOpacity onPress={toggleDuplicates} style={{flexDirection, alignItems: "center"}}>
-            <Text style={[styles.enInt, theme.secondaryText, {fontSize: 14}]}>{`${numDuplicates} more versions`}</Text>
+            <Text style={[styles.enInt, theme.secondaryText, {fontSize: 14}]}>{strings.formatString(strings.search.more_versions, { count: numDuplicates })}</Text>
             <Image source={iconData.get(iconName, themeStr)} resizeMode={'contain'} style={{marginHorizontal: 5, width: 8, height: 8}}/>
         </TouchableOpacity>
     );

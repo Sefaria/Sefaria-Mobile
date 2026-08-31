@@ -54,10 +54,13 @@ const LexiconBox = ({ selectedWords, oref, handleOpenURL }) => {
 
   const refCats = (oref && oref.categories) ? oref.categories.join(", ") : null; //TODO: the way to filter by categories is very limiting.
   const activated = shouldActivate(selectedWords);
-  const enEmpty = `No definitions found${activated ? ` for "${ selectedWords }".` : ''}`;
-  const heEmpty = `לא נמצאו תוצאות${activated ? ` "${ selectedWords}".` : ''}`;
+  // Two ids, not one plus a concatenated tail: the word order around the search term
+  // differs by language, so each sentence has to be translatable whole.
+  const empty = activated ?
+    strings.formatString(strings.connections.no_definitions_found_for, { words: selectedWords }) :
+    strings.connections.no_definitions_found;
   const isHeb = interfaceLanguage === 'hebrew';
-  let content = (<Text style={[isHeb ? styles.heInt : styles.enInt, {paddingTop: 15}, theme.text]}>{isHeb ? heEmpty : enEmpty}</Text>);
+  let content = (<Text style={[isHeb ? styles.heInt : styles.enInt, {paddingTop: 15}, theme.text]}>{empty}</Text>);
   if (activated) {
     if(!loaded) {
         content = (<LoadingView />);

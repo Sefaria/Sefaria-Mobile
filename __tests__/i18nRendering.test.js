@@ -38,11 +38,16 @@ import { SearchFilterPage } from '../search/SearchFilterPage';
 import { LearningSchedulesPage } from '../learningSchedules/LearningSchedules';
 import { LearningSchedulesBoxFactory } from '../learningSchedules/LearningSchedulesBox';
 import { TextsPage } from '../TextsPage';
-import { ShortDedication } from '../Dedication';
+import { Dedication, ShortDedication } from '../Dedication';
+import TopicList from '../TopicList';
+import SheetMeta from '../SheetMeta';
 import { HistorySavedPage } from '../HistorySavedPage';
 import SwipeableCategoryList from '../SwipeableCategoryList';
 import VersionBlock, { VersionBlockWithPreview } from '../VersionBlock';
 import ReaderTextTableOfContents from '../ReaderTextTableOfContents';
+import { TextCategoryPage } from '../TextCategoryPage';
+import ReaderControls from '../ReaderControls';
+import InterruptingMessage from '../InterruptingMessage';
 import { SearchResultPage } from '../search/SearchResultPage';
 import AutocompleteList from '../search/AutocompleteList';
 import {
@@ -50,7 +55,8 @@ import {
 } from '../Misc';
 import * as DownloadControl from '../DownloadControl';
 import {
-  promptLibraryUpdate, doubleDownload, PackagesState, Package, Tracker as DownloadTracker,
+  promptLibraryUpdate, doubleDownload, downloadUpdate, PackagesState, Package,
+  Tracker as DownloadTracker,
 } from '../DownloadControl';
 import { generalAppErrorAlert } from '../errors';
 import { ssoCollisionMessage, ssoOnlyAccountMessage, ssoErrorWithCode } from '../authErrorMessages';
@@ -58,6 +64,7 @@ import { AUTH_ERROR_CODE, SSO_ERROR_CODE } from '../AuthConstants';
 import ReaderApp from '../ReaderApp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ActionSheet from 'react-native-action-sheet';
+import NetInfo from '@react-native-community/netinfo';
 
 const TABLES = { en, he };
 // The JSON files are flat -- {"common.ok": "OK"} -- so an id IS a key. Namespaces are the
@@ -125,6 +132,12 @@ const flattenChildren = (children, acc = []) => {
 const renderedText = (inst) => [
   ...inst.root.findAllByType(Text).flatMap(node => flattenChildren(node.props.children)),
   ...inst.root.findAllByType(TextInput).map(node => node.props.placeholder).filter(Boolean),
+  // Screen-reader labels. A blind user reads these the way a sighted one reads a <Text>, and
+  // the `a11y` namespace exists only on this prop -- a <Text>-only sweep could never see it.
+  // `findAll` rather than `findAllByType`: the prop rides on whatever element carries it,
+  // usually a TouchableOpacity.
+  ...inst.root.findAll(node => typeof node.props?.accessibilityLabel === 'string')
+    .map(node => node.props.accessibilityLabel),
 ];
 
 /**
@@ -300,6 +313,26 @@ const noop = () => {};
 // inside a `.then()`, so the call that triggers them returns before the alert exists.
 const flushPromises = () => new Promise(resolve => setImmediate(resolve));
 
+/**
+ * Runs `fn` with `NetInfo.fetch` reporting `state`, then puts the real one back.
+ *
+ * Assigning over the property rather than `jest.spyOn`: the netinfo module is already a Jest
+ * mock, and `mockRestore` on a spy over it leaves `fetch` resolving `undefined` — which then
+ * breaks every later test that asks whether the device is online, well away from here.
+ */
+const withNetworkState = async (state, fn) => {
+  const realFetch = NetInfo.fetch;
+  NetInfo.fetch = jest.fn(async () => state);
+  try {
+    return await fn();
+  } finally {
+    NetInfo.fetch = realFetch;
+  }
+};
+
+/** A reachable cellular connection: the state a "Wi-Fi only" setting refuses. */
+const CELLULAR = { type: 'cellular', isConnected: true, isInternetReachable: true };
+
 const wrap = (child, childProps) => () => (
   <TestContextWrapper child={child} childProps={childProps} />
 );
@@ -314,6 +347,33 @@ const wrap = (child, childProps) => () => (
 const wrapWithState = (child, childProps, stateOverrides) => () => (
   <DispatchContext.Provider value={noop}>
     <GlobalStateContext.Provider value={{ ...DEFAULT_STATE, theme: {}, ...stateOverrides }}>
+      {React.createElement(child, childProps)}
+    </GlobalStateContext.Provider>
+  </DispatchContext.Provider>
+);
+
+/**
+ * `wrap`, but with the interface language in global state following the language the render
+ * is in.
+ *
+ * Most screens read their text out of `strings`, so `strings.setLanguage` on its own decides
+ * what they show and plain `wrap` is enough. A few instead hold both languages at once and
+ * choose between them on `interfaceLanguage` from context rather than on the string table:
+ * AboutBox picks `dateTextHe` over `dateTextEn`, the table-of-contents toggle picks `heText`
+ * over `text`, the category toggle picks `he` over `en`. Rendered through plain `wrap` those
+ * screens stay in English during the Hebrew pass, and every id on them reads as missing.
+ *
+ * Reading the language back off `strings` is what makes this work: `renderIn` sets it before
+ * calling the builder, so by the time this runs it is already the language under test.
+ */
+const wrapInRenderLanguage = (child, childProps, stateOverrides) => () => (
+  <DispatchContext.Provider value={noop}>
+    <GlobalStateContext.Provider value={{
+      ...DEFAULT_STATE,
+      theme: {},
+      interfaceLanguage: strings.getLanguage() === 'he' ? 'hebrew' : 'english',
+      ...stateOverrides,
+    }}>
       {React.createElement(child, childProps)}
     </GlobalStateContext.Provider>
   </DispatchContext.Provider>
@@ -532,6 +592,9 @@ describe('Connections panel on Ezra 1:1', () => {
       heTitle: 'עזרא',
       compDate: -350,
       errorMargin: 0,
+      // Drives the "Author:" line and, with compDate, the "Composed: … (350 BCE)" line.
+      authors: [{ en: 'Ezra the Scribe', he: 'עזרא הסופר' }],
+      compPlaceString: { en: 'Babylon', he: 'בבל' },
       enDesc: 'Ezra recounts the return from the Babylonian exile.',
       heDesc: 'ספר עזרא מתאר את שיבת ציון.',
     },
@@ -576,10 +639,22 @@ describe('Connections panel on Ezra 1:1', () => {
   });
 
   test('about-this-text renders its labels in both languages', () => {
-    expectScreenLocalizes(wrap(ConnectionsPanel, ezraProps('about')), [
+    expectScreenLocalizes(wrapInRenderLanguage(ConnectionsPanel, ezraProps('about')), [
       'versions.about_this_text',
       'versions.current_hebrew_version', 'versions.current_english_version',
+      'versions.author', 'versions.composed', 'versions.bce',
     ]);
+  });
+
+  test('a text composed in the common era says CE, in both languages', () => {
+    // The same line as above with the sign of `compDate` flipped. The two era labels are
+    // separate ids because Hebrew renders them as "before/after the count, approximately"
+    // rather than as an abbreviation, so neither can be derived from the other.
+    const props = ezraProps('about');
+    expectScreenLocalizes(
+      wrapInRenderLanguage(ConnectionsPanel, { ...props, textToc: { ...props.textToc, compDate: 200 } }),
+      ['versions.composed', 'versions.ce']
+    );
   });
 
   // The translations panel's mode is spelled 'versions', not 'translations'.
@@ -663,6 +738,44 @@ describe('Reader display options menu', () => {
   });
 });
 
+describe('Reader header', () => {
+  // The header's own text is the current ref, which is data. Its interface strings are the
+  // two screen-reader labels on its icon buttons — invisible on screen, and the only thing
+  // a blind reader has to go on.
+  test('labels its icon buttons in both languages', () => {
+    expectScreenLocalizes(wrap(ReaderControls, {
+      enRef: 'Genesis 1:1', heRef: 'בראשית א׳:א׳', categories: ['Tanakh', 'Torah'],
+      openTextToc: noop, openSheetMeta: noop, goBack: noop,
+      toggleReaderDisplayOptionsMenu: noop, openUri: noop, sheet: null,
+      getHistoryObject: () => ({ ref: 'Genesis 1:1', versions: {} }), showToast: noop,
+    }), ['a11y.open_display_settings']);
+  });
+});
+
+describe('Interrupting message', () => {
+  // The modal renders nothing until its remote JSON arrives, and then only after a 20-second
+  // timer. Rather than drive the fetch and the timer, the message is put straight into state:
+  // the close button under test is in the render, not in the loading path.
+  const showMessage = (inst) => {
+    inst.root.findByType(InterruptingMessage).instance.setState({
+      modalVisible: true,
+      data: {
+        title: 'Support Sefaria', text: ['A paragraph of appeal.'],
+        buttonLink: 'https://sefaria.org', buttonText: 'Make a Donation',
+        name: 'test-message', schemaVersion: 1,
+      },
+    });
+  };
+
+  test('labels its close button in both languages', () => {
+    expectScreenLocalizes(
+      wrap(InterruptingMessage, { interfaceLanguage: 'english', debugInterruptingMessage: false }),
+      ['a11y.close_pop_up'],
+      { interact: showMessage }
+    );
+  });
+});
+
 describe('Footer tab bar', () => {
   test('renders every tab label in both languages', () => {
     expectScreenLocalizes(wrap(FooterTabBar, { selectedTabName: 'Texts', setTab: noop }), [
@@ -721,6 +834,7 @@ describe('Learning schedules page', () => {
       [
         'learning_schedules.learning_schedules', 'learning_schedules.weekly_torah_portion',
         'learning_schedules.daily_learning', 'learning_schedules.weekly_learning',
+        'learning_schedules.description',
       ]
     );
   });
@@ -739,13 +853,28 @@ describe('Texts page', () => {
 });
 
 describe('Dedication footer', () => {
-  // The full Dedication page is hand-written English and Hebrew prose, not string ids. The
-  // one localized part is this footer line, and it is per-platform: `about.dedicated_ios` on
-  // iOS, `about.dedicated_android` on Android. Jest reports Platform.OS as 'ios', so only
-  // the iOS line can be rendered; the Android one is asserted on directly below.
+  // The footer line is per-platform: `about.dedicated_ios` on iOS, `about.dedicated_android`
+  // on Android. Jest reports Platform.OS as 'ios', so only the iOS line can be rendered
+  // here; the Android one is asserted on directly below.
   test('renders its label in both languages', () => {
     expectScreenLocalizes(wrap(ShortDedication, { openDedication: noop }),
       ['about.dedicated_ios']);
+  });
+});
+
+describe('Dedication page', () => {
+  // The page the footer opens. Its five paragraphs of prose used to be written inline in
+  // both languages; they are string ids now, so they can be checked like anything else.
+  //
+  // The closing psalm line is deliberately not here: it is a Hebrew scripture quote shown
+  // to every reader in Hebrew, the same as the text of a source, so it is content rather
+  // than an interface string and has no id.
+  test('renders its prose in both languages', () => {
+    expectScreenLocalizes(wrap(Dedication, { close: noop }), [
+      'about.app_for_ios_and_android', 'about.dedication_honor', 'about.dedication_inspired',
+      'about.dedication_apps', 'about.dedication_grateful',
+      'a11y.close',
+    ]);
   });
 });
 
@@ -954,6 +1083,16 @@ describe('Alerts', () => {
     test('the double-download warning renders in both languages', async () => {
       await expectAlertLocalizes(doubleDownload, ['download.double_download', 'common.ok']);
     });
+
+    test('a download the network setting forbids says so, in both languages', async () => {
+      // "Wi-Fi only" plus a reachable cellular connection is the state `isDownloadAllowed`
+      // refuses, and refusing is all this needs to do — the alert is raised before any
+      // bundle work starts, so nothing further has to be stubbed.
+      await withNetworkState(CELLULAR, () => expectAlertLocalizes(
+        () => downloadUpdate('wifiOnly', true),
+        ['download.blocked_by_network', 'download.blocked_by_network_message', 'common.ok']
+      ));
+    });
   });
 
   describe('from the settings page', () => {
@@ -1040,6 +1179,32 @@ describe('Ids assembled at run time', () => {
   test('every licence name resolves in both languages', () => { dynamicNamespace('licenses'); });
 });
 
+describe('Truncated link previews', () => {
+  // A very long linked source is cut short in the connections panel and given a "tap to read
+  // more" marker. The marker is spliced into an HTML string rather than rendered as a <Text>,
+  // so no screen render can see it — but `onLinkLoad` rewrites its argument in place, which
+  // makes the result readable directly.
+  //
+  // Both languages come out of one call: the panel holds the English and the Hebrew side by
+  // side, so the method picks each language explicitly instead of following the active one.
+  const longText = `${'word '.repeat(1000)}end`;
+
+  test('names the marker in both languages', () => {
+    markCovered(['connections.tap_to_read_more']);
+    let inst;
+    act(() => { inst = renderer.create(
+        <TestContextWrapper passContextToChildren child={ReaderApp}
+          childProps={{ showErrorBoundary: noop }} />); });
+    const data = { en: longText, he: longText, sectionRef: 'Genesis 1' };
+    act(() => { inst.root.findByType(ReaderApp).instance.onLinkLoad(0, data); });
+
+    for (const [lang, field] of [['en', 'en'], ['he', 'he']]) {
+      expect({ lang, marker: data[field].includes(value(lang, 'connections.tap_to_read_more')) })
+        .toEqual({ lang, marker: true });
+    }
+  });
+});
+
 /**
  * Placeholder substitution.
  *
@@ -1050,15 +1215,20 @@ describe('Ids assembled at run time', () => {
  */
 describe('Strings with placeholders', () => {
   const SUBSTITUTIONS = {
+    'a11y.change_language_to': { language: 'Hebrew' },
     'common.open_item': { item: 'Genesis' },
+    'connections.no_definitions_found_for': { words: 'shalom' },
     'download.are_included_in': { package: 'Tanakh' },
     'download.downloading_progress': { percent: 42, size: 130 },
     'download.library_up_to_date_message': { platform: 'ios' },
     'download.new_books_available': { count: 3 },
+    'reader.category_commentary': { category: 'Talmud' },
+    'search.more_versions': { count: 3 },
     'download.updates_available_message': { count: 7 },
     'search.no_results_containing': { query: 'moses' },
     'topics.this_source_is_connected_to': { title: 'Passover', sources: '4 sources' },
     'topics.this_topic_is_connected_to': { title: 'Passover', sources: '4 sources' },
+    'topics.topics_related_to': { title: 'Passover' },
     'versions.merged_from': { sources: 'two editions' },
   };
 
@@ -1152,7 +1322,63 @@ describe('Table of contents', () => {
     expectScreenLocalizes(wrap(ReaderTextTableOfContents, {
       title: 'Genesis', textToc: null, currentRef: 'Genesis 1:1', currentHeRef: 'בראשית א׳:א׳',
       openRef: noop, close: noop, openUri: noop, textUnavailableAlert: noop,
-    }), ['reader.table_of_contents']);
+    }), ['reader.table_of_contents', 'a11y.close', 'a11y.change_language_to']);
+  });
+
+  test('the struct toggle names its two tabs in both languages', () => {
+    // The toggle only renders when there is more than one way through the book, so this
+    // needs both halves: a schema (which supplies the first tab) and a commentary list
+    // (the second). And the first tab reads "Contents" only when the schema has no
+    // `sectionNames` of its own to name it with — with them it shows the section name.
+    Sefaria.index = jest.fn(() => ({ heTitle: 'בראשית', categories: ['Tanakh', 'Torah'] }));
+    Sefaria.primaryCategoryForTitle = jest.fn(() => 'Tanakh');
+    Sefaria.hebrewCategory = jest.fn(c => c);
+    Sefaria.commentaryList = jest.fn(() => [
+      { title: 'Rashi on Genesis', heTitle: 'רש״י על בראשית',
+        collectiveTitle: 'Rashi', heCollectiveTitle: 'רש״י' },
+    ]);
+    expectScreenLocalizes(wrapInRenderLanguage(ReaderTextTableOfContents, {
+      title: 'Genesis',
+      textToc: { title: 'Genesis', heTitle: 'בראשית', schema: { addressTypes: [], nodes: [] } },
+      currentRef: 'Genesis 1:1', currentHeRef: 'בראשית א׳:א׳',
+      openRef: noop, close: noop, openUri: noop, textUnavailableAlert: noop,
+    }), ['reader.contents', 'reader.commentary']);
+  });
+});
+
+describe('Text category page', () => {
+  // The two categories that carry a sub-category toggle. Everything else on the page is
+  // book and category names, which come from the table of contents rather than the string
+  // table, so the toggle labels are the whole interface-string surface here.
+  const categoryProps = (categories) => ({
+    categories, setCategories: noop, openRef: noop, onBack: noop,
+  });
+
+  test('Talmud names its two traditions in both languages', () => {
+    expectScreenLocalizes(wrapInRenderLanguage(TextCategoryPage, categoryProps(['Talmud'])),
+      ['nav.talmud_bavli', 'nav.talmud_yerushalmi']);
+  });
+
+  test('Tosefta names its two editions in both languages', () => {
+    // Talmud is in the shared `Sefaria.toc` fixture above and Tosefta is not, so the page
+    // header — which looks the category up by name — needs one supplied here.
+    // `contents` too: the same lookup supplies both the header and the list of books under
+    // it, and the list walk throws on an item without one. Empty is fine — book names are
+    // data, and the toggle labels are what this case is about.
+    Sefaria.tocObjectByCategories = jest.fn(() => ({
+      category: 'Tosefta', heCategory: 'תוספתא', contents: [],
+    }));
+    expectScreenLocalizes(wrapInRenderLanguage(TextCategoryPage, categoryProps(['Tosefta'])),
+      ['nav.tosefta_vilna', 'nav.tosefta_lieberman']);
+  });
+
+  test('a commentary category heads itself with the work it comments on, in both languages', () => {
+    Sefaria.tocObjectByCategories = jest.fn(() => ({
+      category: 'Mishnah', heCategory: 'משנה', contents: [],
+    }));
+    expectScreenLocalizes(
+      wrapInRenderLanguage(TextCategoryPage, categoryProps(['Mishnah', 'Commentary'])),
+      ['reader.category_commentary']);
   });
 });
 
@@ -1298,6 +1524,22 @@ describe('Alerts from the settings page', () => {
     );
   });
 
+  test('a package the network setting forbids says so, in both languages', async () => {
+    // Same refusal as the download controller's, but the settings page words it at length,
+    // because here the user is standing on the screen that holds the setting to change.
+    // "COMPLETE LIBRARY" is the one package `stubPackagesState` leaves un-clicked, so
+    // pressing it starts a download rather than offering to remove one.
+    await withNetworkState(CELLULAR, () => withTimersUnderControl(() => expectAlertLocalizes(
+      async () => {
+        const inst = renderSettings();
+        const row = inst.root.findAll(n => n.props.enText === 'COMPLETE LIBRARY')[0];
+        await act(async () => { await row.props.onPress(); });
+      },
+      ['download.blocked_by_network', 'download.blocked_by_network_settings_message',
+       'common.ok']
+    )));
+  });
+
   test('a package covered by its parent says so, in both languages', async () => {
     await withTimersUnderControl(() => expectAlertLocalizes(
       async () => {
@@ -1382,6 +1624,50 @@ describe('Lexicon panel', () => {
     expectScreenLocalizes(wrap(LexiconBox, {
       selectedWords: 'בְּרֵאשִׁית', oref: { categories: ['Tanakh'] }, handleOpenURL: noop,
     }), ['connections.define']);
+  });
+
+  test('a word with no dictionary entry names the word, in both languages', async () => {
+    // Settled, not synchronous: while the lookup is in flight the box shows a spinner, and
+    // this line is what replaces it when the lookup comes back with nothing.
+    Sefaria.api.lexicon = jest.fn(async () => []);
+    await expectSettledScreenLocalizes(wrap(LexiconBox, {
+      selectedWords: 'בְּרֵאשִׁית', oref: { categories: ['Tanakh'] }, handleOpenURL: noop,
+    }), ['connections.define', 'connections.no_definitions_found_for']);
+  });
+
+  test('a selection too long to look up says so, in both languages', () => {
+    // `shouldActivate` in LexiconBox.js only fires a lookup for three words or fewer. Past
+    // that the box shows the shorter empty line, the one that does not name the selection —
+    // which is the whole reason these are two ids and not one plus a concatenated tail.
+    Sefaria.api.lexicon = jest.fn(async () => []);
+    expectScreenLocalizes(wrap(LexiconBox, {
+      selectedWords: 'בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם',
+      oref: { categories: ['Tanakh'] }, handleOpenURL: noop,
+    }), ['connections.define', 'connections.no_definitions_found']);
+  });
+});
+
+describe('Topic list on a source', () => {
+  test('says when there are no topics, in both languages', () => {
+    Sefaria.links = { ...Sefaria.links, aggregateTopics: jest.fn(() => []) };
+    expectScreenLocalizes(wrap(TopicList, {
+      topics: [], openTopic: noop, segmentRef: 'Genesis 1:1', heSegmentRef: 'בראשית א׳:א׳',
+    }), ['topics.no_topics_known_here']);
+  });
+});
+
+describe('Sheet metadata page', () => {
+  test('renders its labels in both languages', () => {
+    expectScreenLocalizes(wrap(SheetMeta, {
+      sheet: {
+        // Deliberately does not contain the word "Sheet": the English-leak check looks for
+        // the English value of every expected id in the Hebrew render, and a title carrying
+        // it would read as `common.sheet` never having gone through the string table.
+        title: 'On Freedom', topics: [], ownerName: 'A Person', ownerImageUrl: '',
+        dateModified: '2024-01-01', views: 0,
+      },
+      close: noop, openTopic: noop,
+    }), ['common.sheet', 'reader.table_of_contents', 'a11y.close', 'a11y.change_language_to']);
   });
 });
 
@@ -1615,6 +1901,9 @@ describe('Topics', () => {
     Sefaria.api.getBulkText = jest.fn(async () => ({}));
     Sefaria.topicTocPage = jest.fn(() => []);
     Sefaria.getTopicTocObject = jest.fn(() => null);
+    // No category for this topic, which is what makes the side column fall back to its
+    // "Explore Topics" heading rather than naming a category.
+    Sefaria.topicTocCategory = jest.fn(() => null);
     // The trending list is what carries the heading; without it the section is not rendered
     // at all. `_trendingTags` is the cache the component reads before the request returns.
     const trending = [{ slug: 'passover', title: 'Passover', heTitle: 'פסח' }];
@@ -1623,7 +1912,63 @@ describe('Topics', () => {
   });
 
   test('a topic with sources names its tab in both languages', async () => {
-    await expectSettledScreenLocalizes(wrap(TopicPage, topicProps()), ['common.sources']);
+    // `wrapInRenderLanguage`, because the side column's section headings are
+    // `InterfaceTextWithFallback` pairs picked by interface language rather than by the
+    // string table — see the helper's note.
+    await expectSettledScreenLocalizes(wrapInRenderLanguage(TopicPage, topicProps()),
+      ['common.sources', 'topics.explore_topics']);
+  });
+
+  test('a topic with more than one kind of link offers to expand, in both languages', async () => {
+    // The expand button appears only when there is a second section to expand into, so this
+    // needs two link types, each with a link that is displayable.
+    const linkType = (key, title) => ({
+      shouldDisplay: true,
+      title: { en: title, he: title },
+      links: [{ topic: `${key}-topic`, title: { en: title, he: title }, shouldDisplay: true }],
+    });
+    Sefaria.api.topic = jest.fn(async () => ({
+      ...topicData,
+      links: { about: linkType('about', 'About'), sheets: linkType('sheets', 'Uses') },
+    }));
+    await expectSettledScreenLocalizes(
+      wrapInRenderLanguage(TopicPage, topicProps()), ['topics.see_more']);
+  });
+
+  test('an expanded topic offers to collapse again, in both languages', async () => {
+    const linkType = (key, title) => ({
+      shouldDisplay: true,
+      title: { en: title, he: title },
+      links: [{ topic: `${key}-topic`, title: { en: title, he: title }, shouldDisplay: true }],
+    });
+    Sefaria.api.topic = jest.fn(async () => ({
+      ...topicData,
+      links: { about: linkType('about', 'About'), sheets: linkType('sheets', 'Uses') },
+    }));
+    await expectSettledScreenLocalizes(
+      wrapInRenderLanguage(TopicPage, topicProps()), ['topics.see_less'],
+      { interact: (inst) => pressTitled(inst, 'topics.see_more') });
+  });
+
+  test('a parasha page lists its readings in both languages', async () => {
+    // `getParashaNextRead` returns [] when there is no upcoming reading, and the readings
+    // block is skipped for an array — so this has to be the object shape, together with the
+    // topic's own `ref`, before any of the three headings render.
+    Sefaria.api.topic = jest.fn(async () => ({
+      ...topicData,
+      parasha: 'Bereshit',
+      ref: { en: 'Genesis 1:1-6:8', he: 'בראשית א׳:א׳-ו׳:ח׳' },
+    }));
+    Sefaria.api.getParashaNextRead = jest.fn(async () => ({
+      date: '2024-10-26',
+      he_date: { en: '24 Tishrei 5785', he: 'כ״ד תשרי תשפ״ה' },
+      haftarah: [{
+        url: 'Isaiah.42.5-43.10',
+        displayValue: { en: 'Isaiah 42:5-43:10', he: 'ישעיהו מ״ב:ה׳-מ״ג:י׳' },
+      }],
+    }));
+    await expectSettledScreenLocalizes(wrapInRenderLanguage(TopicPage, topicProps()),
+      ['topics.readings', 'common.torah', 'common.haftarah', 'a11y.bulleted_list']);
   });
 
   test('an author page names its works tab in both languages', async () => {
@@ -1650,9 +1995,12 @@ describe('Topics', () => {
   });
 
   test('the topics landing page heads its list in both languages', async () => {
+    // The heading and its strapline are the pair the page falls back to when no topic is
+    // selected, so they only exist on this `topic: null` render.
     await expectSettledScreenLocalizes(
-      wrap(TopicCategory, { topic: null, openTopic: noop, onBack: noop, openNav: noop }),
-      ['topics.trending_topics']);
+      wrapInRenderLanguage(TopicCategory, { topic: null, openTopic: noop, onBack: noop, openNav: noop }),
+      ['topics.trending_topics', 'topics.explore_by_topic', 'topics.explore_by_topic_description',
+       'a11y.bulleted_list']);
   });
 });
 
@@ -1715,8 +2063,26 @@ const NOT_YET_COVERED = [
   // TextSegment.js:71 builds an action sheet offering Copy / Share / Cancel, but the
   // `onLongPress` callback it defines is never passed to the TouchableOpacity below it, so
   // the sheet never opens. `common.share` and `common.cancel` are covered elsewhere;
-  // `common.copy` appears nowhere else.
-  'common.copy',
+  // `common.copy` appears nowhere else. `common.copied_to_clipboard` is the toast that same
+  // dead sheet raises on its Copy button, so it goes the same way — wire the sheet up and
+  // both of these come back together.
+  'common.copy', 'common.copied_to_clipboard',
+
+  // Misc.js:845 MenuButton carries this label, and the only thing that renders MenuButton is
+  // SystemHeader (Misc.js:107), on Android alone. Nothing renders SystemHeader: TopicPage
+  // imports it and never uses it. So the button reaches no screen on any platform.
+  'a11y.open_menu',
+
+  // ---------------------------------------------------------------------------------------
+  // Displayed, but only from inside a component too heavy to mount here.
+
+  // The aliyah headings the reader draws between segments of the weekly portion
+  // (TextColumn.js:251). TextColumn is the virtualized reading list: reaching a row of this
+  // type means a mounted column with a parasha `textToc`, a section of loaded text, aliyot
+  // switched on, and the height-measurement pass finished. The seven names are one list in
+  // one place, so what a render would add over `i18n.test.js` is small.
+  'reader.aliyah_first', 'reader.aliyah_second', 'reader.aliyah_third', 'reader.aliyah_fourth',
+  'reader.aliyah_fifth', 'reader.aliyah_sixth', 'reader.aliyah_seventh',
 
   // SettingsPage.js: the update button is given `text={strings.download.checking}` and
   // `isLoading` at the same moment, and SystemButton renders a spinner instead of its text

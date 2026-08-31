@@ -61,7 +61,7 @@ const TextSegment = React.memo(({
   }, [segmentRef]);
   const copyToClipboard = useCallback((text) => {
     Clipboard.setString(text);
-    showToast("Copied to clipboard");
+    showToast(strings.common.copied_to_clipboard);
   }, []);
   let menuItems = ['Copy', 'Define', 'Share'];
   if (textType === 'english') {

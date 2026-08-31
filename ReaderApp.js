@@ -1416,12 +1416,12 @@ class ReaderApp extends React.PureComponent {
     if (data.en.length > cutoffLen) {
       let spaceInd = data.en.indexOf(' ', cutoffLen);
       if (spaceInd === -1) { spaceInd = cutoffLen; }
-      data.en = data.en.slice(0, spaceInd) + "... <b>(Tap to read more)</b>";
+      data.en = data.en.slice(0, spaceInd) + `... <b>${strings.getString('connections.tap_to_read_more', 'en')}</b>`;
     }
     if (data.he.length > cutoffLen) {
       let spaceInd = data.he.indexOf(' ', cutoffLen);
       if (spaceInd === -1) { spaceInd = cutoffLen; }
-      data.he = data.he.slice(0, spaceInd) + "... <b>(לחץ לקרוא עוד)</b>";
+      data.he = data.he.slice(0, spaceInd) + `... <b>${strings.getString('connections.tap_to_read_more', 'he')}</b>`;
     }
     
     this.setState(prevState => {

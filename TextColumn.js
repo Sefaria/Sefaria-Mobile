@@ -18,6 +18,7 @@ import TextRange from './TextRange';
 import TextRangeContinuous from './TextRangeContinuous';
 import TextHeightMeasurer from './TextHeightMeasurer';
 import { VOCALIZATION } from './VocalizationEnum';
+import { stringPair } from './LocalizedStrings';
 const ViewPort  = Dimensions.get('window');
 const COMMENTARY_LINE_THRESHOLD = 100;
 
@@ -248,14 +249,17 @@ class TextColumn extends React.PureComponent {
   };
 
   _getParashaDict = nodes => {
+    // Listed one id per line rather than built from an ordinal: the unused-id guard in
+    // i18n.test.js finds ids by scanning source for the literal string, so an assembled id
+    // would read to it as seven dead entries in the table.
     const aliyaNames = [
-      {en: "First", he: "ראשון"},
-      {en: "Second", he: "שני"},
-      {en: "Third", he: "שלישי"},
-      {en: "Fourth", he: "רביעי"},
-      {en: "Fifth", he: "חמישי"},
-      {en: "Sixth", he: "שישי"},
-      {en: "Seventh", he: "שביעי"},
+      stringPair('reader.aliyah_first'),
+      stringPair('reader.aliyah_second'),
+      stringPair('reader.aliyah_third'),
+      stringPair('reader.aliyah_fourth'),
+      stringPair('reader.aliyah_fifth'),
+      stringPair('reader.aliyah_sixth'),
+      stringPair('reader.aliyah_seventh'),
     ];
     const parashaDict = {};
     for (let n of nodes) {

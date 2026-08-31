@@ -10,6 +10,7 @@ import {
 import {useGlobalState} from "../Hooks";
 import {useCalendarItems} from "./useCalendarItems";
 import styles from "../Styles";
+import {stringPair} from "../LocalizedStrings";
 
 /**
  * Learning schedules box to insert wherever a sidebar element can go on the site. A bit more modular than BasicLearningSchedulesBox.
@@ -96,7 +97,7 @@ const LearningScheduleTable = ({ desiredCalendarTitles, openRef }) => {
 const LearningScheduleRow = ({ calendarItem, openRef }) => {
     const { theme, interfaceLanguage } = useGlobalState();
     const onPress = () => openRef(calendarItem.refs[0]);
-    const displayTitle = calendarItem.title.en === "Parashat Hashavua" ? {en: "Torah", he: "תורה"} : calendarItem.title
+    const displayTitle = calendarItem.title.en === "Parashat Hashavua" ? stringPair('common.torah') : calendarItem.title
     return (
         <SefariaPressable onPress={onPress}>
             <FlexFrame dir={"row"} justifyContent={"space-between"}>
