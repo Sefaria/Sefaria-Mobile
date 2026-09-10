@@ -113,11 +113,13 @@ class DeepLinkRouter extends React.PureComponent {
       this.catchAll({ url });
       return;
     }
-    if ('set-language-cookie' in query) {
-      // The site switches interface language by redirecting across domains
-      // (sefaria.org <-> sefaria.org.il) with this param. Android app links grab that
-      // redirect, which strands the user in the app instead of on the site they asked for.
-      // Hand it back to the browser so the language switch completes there.
+    const BROWSER_ONLY_QUERY_KEYS = ['set-language-cookie', 'no_applink'];
+    if (BROWSER_ONLY_QUERY_KEYS.some((key) => key in query)) {
+      // Query markers meaning "this navigation must complete on the web".
+      // set-language-cookie: cross-domain interface-language switch.
+      // no_applink: post-login landing (and any other hop WebSessionRedirectMiddleware marks).
+      // Android App Links claim these hosts wholesale, so the OS has already opened the
+      // app; catchAll → openUri (InAppBrowser / Custom Tabs) holds the browser session.
       this.catchAll({ url });
       return;
     }
