@@ -3,7 +3,7 @@ jest.mock('react-native-version-number', () => ({ appVersion: '6.8.4', buildVers
 import Sefaria from '../sefaria';
 import { USER_AGENT } from '../userAgent';
 
-const EXPECTED_UA = 'Sefaria/mobile-ios/6.8.4 (+https://github.com/Sefaria/Sefaria-Mobile)';
+const EXPECTED_UA = 'Sefaria/mobile-ios (6.8.4)';
 
 const okResponse = (body = {}) => Promise.resolve({
   ok: true, status: 200, statusText: 'OK',
@@ -16,8 +16,14 @@ describe('User-Agent on Sefaria API requests', () => {
     global.fetch = jest.fn(() => okResponse({ hits: { hits: [] } }));
   });
 
-  test('builds the Phase 0 convention string from platform and app version', () => {
+  test('builds the Phase 0 convention string: Sefaria/<service> (<appVersion>)', () => {
     expect(USER_AGENT).toBe(EXPECTED_UA);
+  });
+
+  test('omits the version comment when the app version is unavailable', () => {
+    jest.resetModules();
+    jest.doMock('react-native-version-number', () => ({ appVersion: undefined, buildVersion: undefined }));
+    expect(require('../userAgent').USER_AGENT).toBe('Sefaria/mobile-ios');
   });
 
   test('api.js request funnel sends it, alongside auth when private', async () => {
