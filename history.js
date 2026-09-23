@@ -3,6 +3,7 @@ import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics'
 import * as FileSystem from 'expo-file-system/legacy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STATE_ACTIONS } from './StateManager';
+import { withUserAgent } from './userAgent';
 
 const MAX_SYNC_HISTORY_LEN = 1000;
 
@@ -145,10 +146,10 @@ const History = {
         const response = await fetch(url, {
           method: "POST",
           body,
-          headers: {
+          headers: withUserAgent({
             'Authorization': `Bearer ${Sefaria._auth.token}`,
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-          },
+          }),
         }).then(res => {
           if (res.status < 200 || res.status >= 300) {
             console.log('Error text', res.text());

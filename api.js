@@ -8,6 +8,7 @@ import 'abortcontroller-polyfill';
 import strings from './LocalizedStrings';
 import LinkContent from './LinkContent';
 import Auth from './auth';
+import { withUserAgent } from './userAgent';
 
 var Api = {
   /*
@@ -642,7 +643,7 @@ failSilently - if true, dont display a message if api call fails
       await Sefaria.api.getAuthToken();
       if (!Sefaria._auth.uid && failSilently) { return Promise.resolve(); }
     }
-    const headers = isPrivate ? {'Authorization': `Bearer ${Sefaria._auth.token}`} : {};
+    const headers = withUserAgent(isPrivate ? {'Authorization': `Bearer ${Sefaria._auth.token}`} : {});
     Sefaria.api._currentRequests[apiType] = controller;
     const url = Sefaria.api._toURL(ref, true, apiType, urlify, extra_args);
     return new Promise(function(resolve, reject) {
