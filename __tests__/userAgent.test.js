@@ -1,7 +1,15 @@
 jest.mock('react-native-version-number', () => ({ appVersion: '6.8.4', buildVersion: '1' }));
+// @sefaria/search 0.9.9 builds its own fetch headers and ignores the 4th
+// constructor arg; 0.10.0 spreads it into the search-wrapper request. Until the
+// dependency is bumped we can only assert that sefaria.js wires the header in.
+jest.mock('@sefaria/search', () => {
+  function Search(...args) { Search.constructedWith = args; }
+  return { Search };
+});
 
 import Sefaria from '../sefaria';
 import { USER_AGENT } from '../userAgent';
+import { Search } from '@sefaria/search';
 
 const EXPECTED_UA = 'Sefaria/mobile-ios (6.8.4)';
 
@@ -53,12 +61,7 @@ describe('User-Agent on Sefaria API requests', () => {
     }
   });
 
-  test('search-wrapper calls send it', async () => {
-    await Sefaria.search.execute_query({ query: 'שלום', type: 'text', size: 10, start: 0, field: 'naive_lemmatizer', sort_type: 'relevance', applied_filters: [], appliedFilterAggTypes: [], aggregationsToUpdate: [] });
-    expect(fetch).toHaveBeenCalledTimes(1);
-    const [url, opts] = fetch.mock.calls[0];
-    expect(url).toBe('https://www.sefaria.org/api/search-wrapper');
-    expect(opts.headers['User-Agent']).toBe(EXPECTED_UA);
-    expect(opts.headers['Content-Type']).toBe('application/json; charset=utf-8');
+  test('search client is constructed with it (sent by @sefaria/search >= 0.10.0)', () => {
+    expect(Search.constructedWith).toEqual(['https://www.sefaria.org', 'text', 'sheet', { 'User-Agent': EXPECTED_UA }]);
   });
 });
