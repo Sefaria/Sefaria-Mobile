@@ -1880,6 +1880,7 @@ Sefaria.palette.categoryColor = function(cat) {
   return Sefaria.palette.categoryColors["Other"];
 };
 Sefaria.palette.refColor = ref => Sefaria.palette.categoryColor(Sefaria.categoryForRef(ref));
+// @sefaria/search sends these headers from 0.10.0; 0.9.9 ignores the argument.
 Sefaria.search = new Search('https://www.sefaria.org', 'text', 'sheet', { 'User-Agent': USER_AGENT });
 
 Array.prototype.stableSort = function(cmp) {

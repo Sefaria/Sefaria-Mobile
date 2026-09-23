@@ -24,7 +24,7 @@ describe('User-Agent on Sefaria API requests', () => {
     global.fetch = jest.fn(() => okResponse({ hits: { hits: [] } }));
   });
 
-  test('builds the Phase 0 convention string: Sefaria/<service> (<appVersion>)', () => {
+  test('builds Sefaria/<service> (<appVersion>)', () => {
     expect(USER_AGENT).toBe(EXPECTED_UA);
   });
 
