@@ -33,7 +33,7 @@ import ReaderControls from './ReaderControls';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 import Sefaria from './sefaria';
-import { LinkFilter } from './Filter';
+import { LinkFilter, VersionFilter } from './Filter';
 import { AUTH_MODE } from './AuthConstants';
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
 import {TextsPage} from "./TextsPage";
@@ -1271,6 +1271,11 @@ class ReaderApp extends React.PureComponent {
           recentFilters = this.state.versionRecentFilters;
           staleRecentFilters = this.state.versionStaleRecentFilters;
       }
+      // copy before editing: the assignments above point at the arrays held in
+      // state, so mutating them directly would be mutating state in place
+      recentFilters = [...recentFilters];
+      staleRecentFilters = [...staleRecentFilters];
+
       let filterIndex = null;
       //check if filter is already in recentFilters
       for (let i = 0; i < recentFilters.length; i++) {
@@ -1301,7 +1306,7 @@ class ReaderApp extends React.PureComponent {
           newState = {
             connectionsMode: "filter",
             filterIndex: filterIndex,
-            recentFilters: recentFilters,
+            linkRecentFilters: recentFilters,
             linkStaleRecentFilters: staleRecentFilters,
             linkContents: linkContents,
           };
@@ -1447,10 +1452,15 @@ class ReaderApp extends React.PureComponent {
     
     this.setState(prevState => {
       const newVersionRecentFilters = [...prevState.versionRecentFilters];
-      newVersionRecentFilters[filterIndex] = {
-        ...newVersionRecentFilters[filterIndex],
-        refList: [segmentRef]
-      };
+      const prevFilter = newVersionRecentFilters[filterIndex];
+      // build a new VersionFilter rather than spreading `prevFilter` into an object
+      // literal, which would drop the class methods (listKey(), toString(), equals())
+      newVersionRecentFilters[filterIndex] = new VersionFilter(
+        prevFilter.versionTitle,
+        prevFilter.versionTitleInHebrew,
+        prevFilter.versionLanguage,
+        segmentRef
+      );
       const versionContents = [null];
 
       return {
