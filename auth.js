@@ -25,6 +25,7 @@ import { getCrashlytics, recordError } from '@react-native-firebase/crashlytics'
 import jwt_decode from 'jwt-decode';
 import { devLog } from './devUtils';
 import { SSO_PROVIDER, AUTH_MODE, ANALYTICS_REASON, SSO_ERROR_CODE, AUTH_ERROR_CODE } from './AuthConstants';
+import { USER_AGENT } from './userAgent';
 
 // Tokens live in OS-backed secure storage (Keychain/Keystore), not plaintext
 // AsyncStorage. Changing AUTH_KEYCHAIN_SERVICE orphans every stored credential
@@ -73,6 +74,7 @@ const Auth = {
     fetch(url, {
       method: "DELETE",
       headers: {
+        'User-Agent': USER_AGENT,
         'Authorization': `Bearer ${Sefaria._auth.token}`,
         "Content-Type": "application/json;charset=UTF-8",
       },
@@ -109,6 +111,7 @@ const Auth = {
       method: "POST",
       body: JSON.stringify(authBody),
       headers: {
+        'User-Agent': USER_AGENT,
         "Content-Type": "application/json;charset=UTF-8"
       }
     });
@@ -126,6 +129,7 @@ const Auth = {
     return fetch(url, {
       method: "POST",
       headers: {
+        'User-Agent': USER_AGENT,
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
       },
       body: Sefaria.api.urlFormEncode(authBody)
@@ -136,7 +140,7 @@ const Auth = {
     const url = `${Sefaria.api._baseHost}${config.endpoint}`;
     return fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+      headers: { 'User-Agent': USER_AGENT, 'Content-Type': 'application/json;charset=UTF-8' },
       body: JSON.stringify(config.buildBody(idToken, userData)),
     });
   },
@@ -290,7 +294,7 @@ const Auth = {
     const url = `${Sefaria.api._baseHost}api/auth/password/reset`;
     return fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+      headers: { 'User-Agent': USER_AGENT, 'Content-Type': 'application/json;charset=UTF-8' },
       body: JSON.stringify({ email }),
     });
   },
@@ -360,6 +364,7 @@ const Auth = {
       method: "POST",
       body: JSON.stringify(authBody),
       headers: {
+        'User-Agent': USER_AGENT,
         "Content-Type": "application/json;charset=UTF-8"
       }
     });

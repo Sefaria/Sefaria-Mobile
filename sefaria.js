@@ -7,6 +7,7 @@ import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html';
 import { decodeHTML } from 'entities';
 import Api from './api';
+import { USER_AGENT } from './userAgent';
 import * as OfflineOnline from './offlineOnline';
 import History from './history';
 import { initAsyncStorage } from './StateManager';
@@ -1879,7 +1880,8 @@ Sefaria.palette.categoryColor = function(cat) {
   return Sefaria.palette.categoryColors["Other"];
 };
 Sefaria.palette.refColor = ref => Sefaria.palette.categoryColor(Sefaria.categoryForRef(ref));
-Sefaria.search = new Search('https://www.sefaria.org', 'text', 'sheet');
+// @sefaria/search sends these headers from 0.10.0; 0.9.9 ignores the argument.
+Sefaria.search = new Search('https://www.sefaria.org', 'text', 'sheet', { 'User-Agent': USER_AGENT });
 
 Array.prototype.stableSort = function(cmp) {
   cmp = !!cmp ? cmp : (a, b) => {
