@@ -119,3 +119,26 @@ describe('DeepLinkRouter interface language switching', () => {
     expect(props.openUri).not.toHaveBeenCalled();
   });
 });
+
+describe('DeepLinkRouter browser-only query keys', () => {
+  test.each([
+    'https://www.sefaria.org/Genesis.1?no_applink=1',
+    'https://www.sefaria.org/Genesis.1?no_applink=',
+    'https://www.sefaria.org/Genesis.1?no_applink',
+    'https://www.sefaria.org.il/Genesis.1?no_applink=1',
+  ])('hands %s to openUri and does not openRef', (url) => {
+    const props = makeProps();
+    const router = new DeepLinkRouter(props);
+    router.route(url, true);
+    expect(props.openUri).toHaveBeenCalledWith(url);
+    expect(props.openRef).not.toHaveBeenCalled();
+  });
+
+  test('still opens ordinary deep links in the app when no_applink is absent', () => {
+    const props = makeProps();
+    const router = new DeepLinkRouter(props);
+    router.route('https://www.sefaria.org/texts', true);
+    expect(props.openNav).toHaveBeenCalled();
+    expect(props.openUri).not.toHaveBeenCalled();
+  });
+});
