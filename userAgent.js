@@ -9,6 +9,3 @@ const service = `Sefaria/mobile-${Platform.OS}`;
 export const USER_AGENT = VersionNumber.appVersion
   ? `${service} (${VersionNumber.appVersion})`
   : service;
-
-// Caller headers win.
-export const withUserAgent = (headers = {}) => ({ 'User-Agent': USER_AGENT, ...headers });

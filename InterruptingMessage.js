@@ -19,7 +19,7 @@ import bstyles from './Styles';
 import { getTheme, GlobalStateContext } from './StateManager.js';
 import {iconData} from "./IconData";
 import strings from './LocalizedStrings';
-import { withUserAgent } from './userAgent';
+import { USER_AGENT } from './userAgent';
 
 var styles = StyleSheet.create({
   interruptingMessageBox: {
@@ -102,7 +102,7 @@ class InterruptingMessage extends React.Component {
       }, 20 * 1000);
     };
 
-    fetch(URL, { headers: withUserAgent() })
+    fetch(URL, { headers: { 'User-Agent': USER_AGENT } })
       .then(result=>result.json())
       //.then(this.clearFlag) // Debug
       .then(this.hasMessageShown)
