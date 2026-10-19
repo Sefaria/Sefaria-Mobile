@@ -909,35 +909,6 @@ export default StyleSheet.create({
   // hebrewVerseNumber: {
   //   fontSize: 11,
   // },
-  continuousHebrewVerseNumber: {
-    fontSize: 11,
-    paddingTop: 0
-  },
-  continuousVerseNumber: {
-    textAlign: 'center',
-    fontFamily: "Open Sans",
-    fontWeight: '400',
-    fontSize: 9,
-    paddingTop: 5
-  },
-  continuousVerseNumberHolder: {
-    height: 19,
-    width: 19,
-    left: -25,
-  },
- continuousVerseNumberHolderTalmud: {
-    height: 1,
-    width: 1,
-   opacity: 0
-  },
-  continuousSectionRow: {
-    paddingTop: 10,
-    textAlign: "justify"
-  },
-   continuousRowHolder: {
-    marginLeft: 30,
-    marginRight: 30,
-  },
   verseBullet: {
     paddingTop: 7,
     textAlign: 'center',

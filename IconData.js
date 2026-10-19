@@ -81,10 +81,6 @@ class IconData {
                 black_selected: require('./img/bookmark2-white.png'),
                 white_selected: require('./img/bookmark2-dark.png'), //#666666
             },
-            'breaks': {
-                black: require('./img/breaks-light.png'),
-                white: require('./img/breaks.png'),
-            },
             'bubble': {
                 black: require('./img/bubble-light.png'),
                 white: require('./img/bubble.png'),
@@ -122,10 +118,6 @@ class IconData {
             'close': {
                 black: require('./img/close-light.png'),
                 white: require('./img/close.png'),
-            },
-            'continuous': {
-                black: require('./img/continuous-light.png'),
-                white: require('./img/continuous.png'),
             },
             'dots': {
                 black: require('./img/dots-light.png'),

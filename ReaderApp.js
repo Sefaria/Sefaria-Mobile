@@ -103,7 +103,6 @@ class ReaderApp extends React.PureComponent {
         textTitle: "",
         loaded: false,
         menuOpen: "navigation",
-        textFlow: "segmented",
         subMenuOpen: null, // currently only used to define subpages in search
         navigationCategories: [],
         navigationTopic: null,
@@ -415,7 +414,6 @@ class ReaderApp extends React.PureComponent {
     // Should track pageview? TODO account for infinite
     if (this.state.menuOpen          !== prevState.menuOpen          ||
         this.state.textTitle         !== prevState.textTitle         ||
-        this.state.textFlow          !== prevState.textFlow          ||
         this.props.textLanguage      !== prevProps.textLanguage      || // note this var is coming from props
         this.state.textListVisible   !== prevState.textListVisible   ||
         this.state.segmentIndexRef   !== prevState.segmentIndexRef   ||
@@ -452,14 +450,6 @@ class ReaderApp extends React.PureComponent {
     }
   };
 
-  setTextFlow = textFlow => {
-    this.setState({ textFlow });
-    if (textFlow == "continuous" && this.props.textLanguage == "bilingual") {
-      this.setTextLanguage("hebrew");
-    }
-    this.closeReaderDisplayOptionsMenu();
-  };
-
   setBiLayout = layout => {
     this.props.dispatch({
       type: STATE_ACTIONS.setBiLayout,
@@ -468,19 +458,11 @@ class ReaderApp extends React.PureComponent {
     this.closeReaderDisplayOptionsMenu();
   };
 
-  setTextLanguage = (textLanguage, textFlow) => {
-    // try to be less dependent on state in this func because it is called in componentWillUpdate
-    textFlow = textFlow || this.state.textFlow;
-    
+  setTextLanguage = textLanguage => {
     this.props.dispatch({
       type: STATE_ACTIONS.setTextLanguage,
       value: textLanguage,
     });
-    
-    if (textLanguage === "bilingual" && textFlow === "continuous") {
-      this.setTextFlow("segmented");
-    }
-    
     this.closeReaderDisplayOptionsMenu();
   };
 
@@ -1053,7 +1035,7 @@ class ReaderApp extends React.PureComponent {
         if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
         else if (!!newVersions['en']) { newTextLang = "english"; }
         else if (!!newVersions['he']){ newTextLang = "hebrew"; }
-        this.setTextLanguage(newTextLang, null);
+        this.setTextLanguage(newTextLang);
       }
 
       if (addToBackStack) {
@@ -2103,7 +2085,6 @@ class ReaderApp extends React.PureComponent {
                   offsetRef={this.state.offsetRef}
                   segmentRef={this.state.segmentRef}
                   segmentIndexRef={this.state.segmentIndexRef}
-                  textFlow={this.state.textFlow}
                   updateData={this.updateData}
                   updateTitle={this.updateTitle}
                   textTitle={this.state.textTitle}
@@ -2146,7 +2127,6 @@ class ReaderApp extends React.PureComponent {
                 sectionRef={this.state.sectionArray[this.state.sectionIndexRef]}
                 heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
                 categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
-                textFlow={this.state.textFlow}
                 openRef={this.openRefConnectionsPanel}
                 setConnectionsMode={this.setConnectionsMode}
                 openFilter={this.openFilter}
@@ -2189,21 +2169,18 @@ class ReaderApp extends React.PureComponent {
               (<ReaderDisplayOptionsMenu
                 ref={this._getReaderDisplayOptionsMenuRef}
                 theme={this.props.theme}
-                textFlow={this.state.textFlow}
                 biLayout={this.props.biLayout}
                 textReference={this.state.textReference}
                 interfaceLanguage={this.props.interfaceLanguage}
                 textLanguage={this.props.textLanguage}
                 showAliyot={this.props.showAliyot}
                 vocalization={this.props.vocalization}
-                setTextFlow={this.setTextFlow}
                 setBiLayout={this.setBiLayout}
                 setAliyot={this.setAliyot}
                 setTextLanguage={this.setTextLanguage}
                 setVocalization={this.setVocalization}
                 incrementFont={this.incrementFont}
                 setTheme={this.setTheme}
-                canBeContinuous={Sefaria.canBeContinuous(this.state.textTitle)}
                 canHaveAliyot={Sefaria.canHaveAliyot(this.state.textTitle)}
                 vowelToggleAvailable={vowelToggleAvailable}
                 themeStr={this.props.themeStr}

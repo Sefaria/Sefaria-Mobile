@@ -275,12 +275,6 @@ global.Sefaria = {
     if (!index) return true; //default to true
     return ['Liturgy'].indexOf(index.categories[0]) == -1;
   },
-  canBeContinuous: function(text) {
-    const index = Sefaria.index(text);
-    if (!index) { return false; } // default to false
-    // removing Talmud for now because cts mode is broken
-    return [].indexOf(index.categories[0]) != -1
-  },
   canHaveAliyot: function(text) {
     const index = Sefaria.index(text);
     if (!index) { return false; }

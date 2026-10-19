@@ -21,7 +21,6 @@ const TextRange = React.memo(({
   showSegmentNumbers,
   textSegmentPressed,
   setRowRef,
-  setRowRefInitY,
   handleOpenURL,
   setDictionaryLookup,
   shareCurrentSegment,
@@ -158,7 +157,6 @@ TextRange.propTypes = {
   showSegmentNumbers: PropTypes.bool.isRequired,
   textSegmentPressed: PropTypes.func.isRequired,
   setRowRef:          PropTypes.func.isRequired,
-  setRowRefInitY:     PropTypes.func.isRequired,
   shareCurrentSegment:PropTypes.func.isRequired,
   getDisplayedText:   PropTypes.func.isRequired,
 };

@@ -82,7 +82,7 @@ class DeepLinkRouter extends React.PureComponent {
     const versions = { en: ven, he: vhe };
     const longLang = Sefaria.util.shortLangToLong(lang);
     if (longLang) {
-      this.props.setTextLanguage(longLang, null, true);
+      this.props.setTextLanguage(longLang);
     }
     this.props.openRef(ref, 'deep link', versions, true, enableAliyot);
   }

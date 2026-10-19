@@ -15,21 +15,18 @@ import strings from './LocalizedStrings';
 import { VOCALIZATION } from './VocalizationEnum';
 import {iconData} from "./IconData";
 
-const menuIconNames = ['a_aleph', 'a_icon', 'a_icon_small', 'aleph', 'breaks', 'continuous', 'stacked', 'sidebyside', 'sidebysiderev']
+const menuIconNames = ['a_aleph', 'a_icon', 'a_icon_small', 'aleph', 'stacked', 'sidebyside', 'sidebysiderev']
 
 class ReaderDisplayOptionsMenu extends React.Component {
   static whyDidYouRender = true;
   static propTypes = {
     theme:                           PropTypes.object,
-    textFlow:                        PropTypes.oneOf(['segmented', 'continuous']),
     canHaveAliyot:                   PropTypes.bool.isRequired,
-    canBeContinuous:                 PropTypes.bool.isRequired,
     vowelToggleAvailable:            PropTypes.oneOf([VOCALIZATION.TAAMIM_AND_NIKKUD, VOCALIZATION.NIKKUD, VOCALIZATION.NONE]),
     interfaceLanguage:               PropTypes.oneOf(['hebrew', 'english']).isRequired,
     textLanguage:                    PropTypes.oneOf(['hebrew', 'english', 'bilingual']),
     themeStr:                        PropTypes.oneOf(['white', 'black']),
     showAliyot:                      PropTypes.bool.isRequired,
-    setTextFlow:                     PropTypes.func,
     setTextLanguage:                 PropTypes.func,
     setAliyot:                       PropTypes.func,
     incrementFont:                   PropTypes.func,
@@ -68,15 +65,6 @@ class ReaderDisplayOptionsMenu extends React.Component {
         buttons: ["english","bilingual","hebrew"],
         icons: [icons.a_icon, icons.a_aleph, icons.aleph],
         currVal: this.props.textLanguage,
-        parametrized: true
-      },
-      {
-        condition: this.props.canBeContinuous,
-        label: strings.layout,
-        onPress: this.props.setTextFlow,
-        buttons: ["segmented","continuous"],
-        icons: [icons.breaks, icons.continuous],
-        currVal: this.props.textFlow,
         parametrized: true
       },
       {
