@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,17 +9,26 @@ import {
   Dimensions,
   AppState,
   Image,
+  InteractionManager,
 } from 'react-native';
 import {ViewPropTypes} from 'deprecated-react-native-prop-types';
 import {ErrorBoundaryFallbackComponent} from "./ErrorBoundaryFallbackComponent";
 import { WebView } from 'react-native-webview';
 import styles, { SCROLL_PADDING_BOTTOM_FRACTION, makeScrollViewLayoutHandler } from './Styles.js';
 import TextRange from './TextRange';
-import TextRangeContinuous from './TextRangeContinuous';
-import TextHeightMeasurer from './TextHeightMeasurer';
 import { VOCALIZATION } from './VocalizationEnum';
+import TextHeightMeasurer from './TextHeightMeasurer';
+import { GlobalStateContext } from './StateManager';
 const ViewPort  = Dimensions.get('window');
 const COMMENTARY_LINE_THRESHOLD = 100;
+// Keeps the row at the top of the screen in place when rows above it change height
+// (e.g. adding a translation, changing font size, or loading the previous section).
+const MAINTAIN_VISIBLE_CONTENT_POSITION = { minIndexForVisible: 0 };
+const ESTIMATED_SECTION_HEADER_HEIGHT = 60;
+const ESTIMATED_ROW_HEIGHT = 120;
+const MEASURE_BATCH_SIZE = 10;
+const noop = () => {};
+const LAYOUT_SETTINGS = ['textLanguage', 'fontSize', 'biLayout', 'interfaceLanguage', 'vocalization'];
 
 import {
   LoadingView,
@@ -37,8 +46,29 @@ const ROW_TYPES = {
   SHEET_MEDIA: 7
 };
 
+// SectionList cell wrapper that reports each cell's layout and mount state back to the TextColumn.
+const makeCellRenderer = (textColumn) => function TextColumnCell({ cellKey, item, onLayout, style, children }) {
+  const onCellLayout = useCallback(event => {
+    const { height, y } = event.nativeEvent.layout;
+    textColumn._onSegmentLayout(item.ref, {y, height});
+    textColumn._onCellHeight(cellKey, height);
+    onLayout?.(event);  // undefined: the list doesn't measure cells when it has getItemLayout
+  }, [onLayout, item.ref, cellKey]);
+  useEffect(() => {
+    textColumn._onCellMount(cellKey);
+    return () => textColumn._onCellUnmount(cellKey);
+  }, [cellKey]);
+  return (
+    // Not flattened, so maintainVisibleContentPosition anchors on whole cells rather than views inside them.
+    <View style={style} onLayout={onCellLayout} collapsable={false}>
+      { children }
+    </View>
+  );
+};
+
 class TextColumn extends React.PureComponent {
   static whyDidYouRender = true;
+  static contextType = GlobalStateContext;
   static propTypes = {
     showToast:          PropTypes.func,
     textToc:            PropTypes.object,
@@ -55,7 +85,6 @@ class TextColumn extends React.PureComponent {
     textTitle:          PropTypes.string,
     heTitle:            PropTypes.string,
     heRef:              PropTypes.string,
-    textFlow:           PropTypes.oneOf(["segmented","continuous"]),
     textLanguage:       PropTypes.oneOf(["hebrew","english","bilingual"]),
     interfaceLanguage:  PropTypes.oneOf(["hebrew","english"]),
     updateData:         PropTypes.func,
@@ -76,32 +105,46 @@ class TextColumn extends React.PureComponent {
     vowelToggleAvailable: PropTypes.oneOf([VOCALIZATION.TAAMIM_AND_NIKKUD, VOCALIZATION.NIKKUD, VOCALIZATION.NONE]),
   };
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.currentY = 0; // for measuring scroll speed
     this.rowRefs = {}; //hash table of currently loaded row refs.
     this.rowYHash = {};
     this.dataSourceHash = {};
-    this.backupItemLayoutList = []; // backup for race condition when itemLayoutList is set to null but SectionList still thinks it exists so it tries to call getItemLayout()
-    this.onTopReaching = false; // true when measuring heights for infinite scroll up
-    let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(props, !!props.offsetRef);
-    this.measuringHeights = !!props.offsetRef;
+    this.onTopReaching = false; // true while loading the previous section via pull-to-refresh
+    // The list gets its layout from getItemLayout, built from the last measured height of each cell and
+    // estimates for cells it hasn't rendered under the current settings.
+    // When a setting changes row heights, cells on or above the screen keep rendering with the old settings
+    // ("pinned") until their new height has been measured offscreen, so the layout never changes underneath
+    // the reader without the list knowing.
+    // A cell's height only changes when the cell has been measured: never while it's unmounted, since a jump in
+    // the size of the list above the visible rows is what throws the reader's position off.
+    this.cellHeights = new Map();  // cellKey -> last measured height
+    this.cellEstimates = new Map();  // cellKey -> height assumed until it's measured, fixed when first seen
+    this.pinnedCells = new Map();  // cellKey -> settingsKey it renders with
+    this.mountedCells = new Set();
+    this.measureQueue = [];
+    this.settingsByKey = new Map();
+    this.contextByKey = new Map();
+    this.settingsKey = null;
+    this.updateSettingsKey(context);
+    this.listHeaderHeight = 0;
+    this.itemLayoutList = [];
+    this.jumpInfoMap = new Map();
+    const dataSource = this.generateDataSource(props);
+    this.rebuildLayout(dataSource);
+    const jumpTargetIndex = this.getJumpTargetIndex(this._standardizeOffsetRef(props.offsetRef));
+    this.jumpTargetKey = jumpTargetIndex === null ? null : this.itemKeys[jumpTargetIndex];
     this.state = {
-      nextDataSource: dataSource,
-      dataSource: !!props.offsetRef ? [] : dataSource,
-      jumpInfoMap,
-      componentsToMeasure,
-      jumpState: { // if jumping is true, then look at jumpState when allHeightsMeasuredCallback is called
-        jumping: !!props.offsetRef,
-        targetRef: this._standardizeOffsetRef(props.offsetRef) || null,
-        viewPosition: 0.1,
-        animated: false,
-      },
+      dataSource,
+      componentsToMeasure: [],
+      initialScrollIndex: jumpTargetIndex ?? undefined,
       // Height of the list's own viewport, measured via onLayout. Used to size the
       // bottom padding relative to this panel rather than the full window.
       scrollViewHeight: ViewPort.height,
     };
     this._onScrollViewLayout = makeScrollViewLayoutHandler(this);
+    this._renderCell = makeCellRenderer(this);
   }
   componentDidMount() {
     this._isMounted = true;
@@ -113,8 +156,9 @@ class TextColumn extends React.PureComponent {
   }
   componentWillUnmount() {
     this._isMounted = false;
+    this.measureTask?.cancel();
   }
-  generateDataSource = (props, gonnaJump) => {
+  generateDataSource = (props) => {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
     // Takes `props` as an argument so it can generate data with `nextProps`.
     const canHaveAliyot = Sefaria.canHaveAliyot(props.textTitle);
@@ -125,9 +169,7 @@ class TextColumn extends React.PureComponent {
     let dataSource = [];
 
     let offsetRef = this._standardizeOffsetRef(props.offsetRef);
-    let segmentGenerator;
     if (props.isSheet) {
-      segmentGenerator = () => null;
       const sheetRef = `Sheet ${props.sheetMeta.sheetID}`;
       dataSource.push({
         ref: sheetRef,
@@ -159,37 +201,7 @@ class TextColumn extends React.PureComponent {
         changeString: sheetRef,
       });
     }
-    else if (props.textFlow == 'continuous' && Sefaria.canBeContinuous(props.textTitle)) {
-      let highlight = null;
-      for (let sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
-        let rows = [];
-        let rowID = props.sectionArray[sectionIndex];
-        let rowData = {
-          sectionIndex: sectionIndex,
-          segmentData: [],
-        };
-
-        for (let i = 0; i < data[sectionIndex].length; i++) {
-          if (!data[sectionIndex][i].text && !data[sectionIndex][i].he) { continue; } // Skip empty segments
-          const segmentRef = props.sectionArray[sectionIndex] + ":" + data[sectionIndex][i].segmentNumber;
-
-          let segmentData = {
-            segmentNumber: i,
-            ref: segmentRef,
-            content: data[sectionIndex][i],
-            highlight: offsetRef == segmentRef || (props.textListVisible && props.segmentRef == segmentRef)
-          }
-          highlight = segmentData.highlight ? i : highlight;
-          rowData.segmentData.push(segmentData);
-        }
-        const changeString = rowID;
-        rows.push({ref: rowID + "|content", data: rowData, changeString: changeString + "|content" });
-        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex, changeString});
-      }
-      segmentGenerator = this.renderContinuousRow;
-    }
-
-    else { // segmented
+    else {
       for (let sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
         let rows = [];
         const sectionRef = props.sectionArray[sectionIndex];
@@ -228,22 +240,11 @@ class TextColumn extends React.PureComponent {
         }
         dataSource.push({ref: sectionRef, heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: `${props.sectionArray[sectionIndex]}|${this.props.fontSize}|${this.props.textLanguage}`});
       }
-      segmentGenerator = this.renderSegmentedRow;
     }
-    const jumpInfoMap = this.updateJumpInfoMap(dataSource);
-    //console.log(sections);
-    const componentsToMeasure = [];
-    if (gonnaJump) {
-      for (let section of dataSource) {
-        componentsToMeasure.push({ref: section.ref, id: section.ref, generator: this.renderSectionHeader, param: {section: section}})
-        for (let segment of section.data) {
-          const generator = segment.type === ROW_TYPES.SEGMENT ? segmentGenerator : this.renderAliyaMarker;
-          componentsToMeasure.push({ref: segment.ref, id: segment.ref, generator, param: {item: segment}});
-        }
-      }
-
+    for (let section of dataSource) {
+      section.key = section.ref;  // stable cell keys across loading previous sections, for cellHeights
     }
-    return {dataSource, componentsToMeasure, jumpInfoMap};
+    return dataSource;
 
   };
 
@@ -283,30 +284,18 @@ class TextColumn extends React.PureComponent {
   };
 
   textSegmentPressed = (section, segment, segmentRef, onlyOpen) => {
+    this.jumpTargetKey = null;
     if (!this.props.textListVisible) {
-      if (this.props.textFlow === 'continuous') {
-        const targetY = this.rowYHash[segmentRef] + this.state.itemLayoutList[this.state.jumpInfoMap.get(this.props.sectionArray[section])].offset;
-        if (targetY) {
-          this.sectionListRef.scrollToOffset({
+      const itemIndex = this.jumpInfoMap.get(segmentRef);
+      const { startY, endY } = this.getSegScrollPos(segmentRef);
+      if (startY > 0) {  // only scroll when segment top is visible on screen
+        if (!itemIndex) { debugger; }
+        this.sectionListRef.scrollToLocation({
             animated: false,
-            offset: targetY,
-          });
-        } else {
-          console.log("target Y is no good :(", segmentRef);
-        }
-      } else {
-        const itemIndex = this.state.jumpInfoMap.get(segmentRef);
-        const { startY, endY } = this.getSegScrollPos(segmentRef);
-        if (startY > 0) {  // only scroll when segment top is visible on screen
-          if (!itemIndex) { debugger; }
-          this.sectionListRef.scrollToLocation({
-              animated: false,
-              sectionIndex: 0,
-              itemIndex,
-              viewPosition: 0,
-          });
-        }
-
+            sectionIndex: 0,
+            itemIndex,
+            viewPosition: 0,
+        });
       }
 
     } else {
@@ -323,8 +312,8 @@ class TextColumn extends React.PureComponent {
   };
 
   componentDidUpdate(prevProps, prevState) {
+    this.updateSettingsKey();
     if (this.props.data.length !== prevProps.data.length ||
-        this.props.textFlow !== prevProps.textFlow ||
         this.props.textLanguage !== prevProps.textLanguage ||
         this.props.textListVisible !== prevProps.textListVisible ||
         this.props.segmentIndexRef !== prevProps.segmentIndexRef ||
@@ -341,31 +330,120 @@ class TextColumn extends React.PureComponent {
       this.performUpdate(prevProps);
     }
   }
-  performUpdate(prevProps) {
-    let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(this.props, this.state.jumpState.jumping);
-    if (this.props.data.length !== prevProps.data.length && this.state.jumpState.jumping) {
-      this.measuringHeights = true;
-      this.setState({nextDataSource: dataSource, componentsToMeasure, jumpInfoMap});
-    } else {
-      this.setState({dataSource, jumpInfoMap}, ()=> { if (this.measuringHeights) { this.raceCondition = true; }});
-    }
+  updateSettingsKey(context = this.context) {
+    const settings = {
+      textLanguage: this.props.textLanguage,
+      fontSize: this.props.fontSize,
+      biLayout: this.props.biLayout,
+      interfaceLanguage: this.props.interfaceLanguage,
+      vocalization: context?.vocalization,
+    };
+    const settingsKey = LAYOUT_SETTINGS.map(name => settings[name]).join('|');
+    if (settingsKey === this.settingsKey) { return; }
+    const previousKey = this.settingsKey;
+    this.settingsKey = settingsKey;
+    this.settingsByKey.set(settingsKey, settings);
+    if (previousKey !== null) { this.onSettingsChange(previousKey); }
   }
-  updateHighlightedSegmentContinuous = (secData) => {
-    for (let i = 0; i < secData.sections.length; i++) {
-      let sectionIndex = secData.indexes[i];
-      //let firstSegRefOffset = this.state.dataSource[sectionIndex].data[0].data.segmentData.length > 0 ? this.rowYHash[this.state.dataSource[sectionIndex].data[0].data.segmentData[0].ref] : null;
-      for (let j = 0; j < this.state.dataSource[sectionIndex].data[0].data.segmentData.length; j++) {
-        let segment = this.state.dataSource[sectionIndex].data[0].data.segmentData[j];
-        const sectionOffset = this.state.itemLayoutList[this.state.jumpInfoMap.get(this.props.sectionArray[sectionIndex])].offset;
-        //console.log(segment.ref, this.rowYHash[segment.ref], this.currentY, sectionOffset, firstSegRefOffset);
-        if (this.rowYHash[segment.ref] + sectionOffset - this.currentY > -20) {
-          this.props.textSegmentPressed(sectionIndex, segment.segmentNumber, segment.ref);
-          //console.log("I choose you,", segment.ref, "!!!!")
-          return;
-        }
+
+  onSettingsChange(previousKey) {
+    // Pin mounted cells on or above the screen to the settings they were laid out with, then measure them under
+    // the new settings: visible cells first, then upwards. Cells further down can change height freely.
+    const viewportTop = this.currentY;
+    const viewportBottom = this.currentY + this.state.scrollViewHeight;
+    const cellIndexes = new Map(this.itemKeys.map((cellKey, index) => [cellKey, index]));
+    const visible = [];
+    const above = [];
+    for (let cellKey of this.mountedCells) {
+      const index = cellIndexes.get(cellKey);
+      if (index === undefined) { continue; }
+      const { offset, length } = this.itemLayoutList[index];
+      if (offset >= viewportBottom) { continue; }
+      if (!this.pinnedCells.has(cellKey)) { this.pinnedCells.set(cellKey, previousKey); }
+      (offset + length > viewportTop ? visible : above).push(index);
+    }
+    visible.sort((a, b) => a - b);
+    above.sort((a, b) => b - a);
+    this.measureQueue = [...visible, ...above].map(index => this.itemKeys[index]);
+    this.measureBatchSize = Math.max(visible.length, MEASURE_BATCH_SIZE);
+    this.rebuildLayout(this.state.dataSource);
+    this.scheduleMeasureBatch();
+  }
+
+  scheduleMeasureBatch() {
+    // Let running animations (e.g. the display options menu closing) finish first.
+    this.measureTask?.cancel();
+    this.measureTask = InteractionManager.runAfterInteractions(() => this.measureNextBatch());
+  }
+
+  measureNextBatch() {
+    const batch = this.measureQueue.splice(0, this.measureBatchSize).filter(cellKey => this.pinnedCells.has(cellKey));
+    this.measureBatchSize = MEASURE_BATCH_SIZE;
+    const cells = this.getCellsByKey();
+    const componentsToMeasure = [];
+    for (let cellKey of batch) {
+      const cell = cells.get(cellKey);
+      if (!cell) { this.pinnedCells.delete(cellKey); continue; }
+      componentsToMeasure.push({id: `${this.settingsKey}|${cellKey}`, cellKey, generator: this.renderCellContent, param: {...cell, measuring: true}});
+    }
+    if (componentsToMeasure.length === 0) {
+      if (this.measureQueue.length > 0) { this.measureNextBatch(); }
+      return;
+    }
+    this.measuringSettingsKey = this.settingsKey;
+    this.setState(({layoutVersion = 0}) => ({componentsToMeasure, layoutVersion: layoutVersion + 1}));
+  }
+
+  getCellsByKey() {
+    const cells = new Map();
+    for (let section of this.state.dataSource) {
+      cells.set(`${section.key}:header`, {section});
+      for (let item of section.data) {
+        cells.set(`${section.key}:${item.ref}`, {item});
       }
     }
+    return cells;
+  }
+
+  allHeightsMeasured = (componentsToMeasure, textToHeightMap) => {
+    if (!this._isMounted || componentsToMeasure !== this.state.componentsToMeasure || componentsToMeasure.length === 0) { return; }
+    if (this.measuringSettingsKey !== this.settingsKey) { return; }  // superseded by another settings change
+    for (let { id, cellKey } of componentsToMeasure) {
+      if (!this.pinnedCells.has(cellKey)) { continue; }  // unmounted while being measured
+      this.cellHeights.set(cellKey, textToHeightMap.get(id));
+      this.pinnedCells.delete(cellKey);
+    }
+    this.rebuildLayout(this.state.dataSource);
+    this.setState(({layoutVersion = 0}) => ({componentsToMeasure: [], layoutVersion: layoutVersion + 1}), () => {
+      if (this.measureQueue.length > 0) { this.scheduleMeasureBatch(); }
+    });
   };
+
+  getCellSettingsKey(cellKey) {
+    return this.pinnedCells.get(cellKey) ?? this.settingsKey;
+  }
+
+  getContextForSettings(settingsKey) {
+    // Cells read layout settings from context; give each cell the settings it's laid out with. Reuse the previous
+    // value when nothing in it changed, so pinned cells don't re-render when only the overridden settings did.
+    const value = {...this.context, ...this.settingsByKey.get(settingsKey)};
+    const previous = this.contextByKey.get(settingsKey);
+    if (previous && Object.keys(value).every(key => previous[key] === value[key]) &&
+        Object.keys(previous).length === Object.keys(value).length) {
+      return previous;
+    }
+    this.contextByKey.set(settingsKey, value);
+    return value;
+  }
+
+  performUpdate(prevProps) {
+    const dataSource = this.generateDataSource(this.props);
+    if (this.props.data.length > prevProps.data.length) {
+      this.onTopReaching = false;
+    }
+    this.rebuildLayout(dataSource);
+    this.setState({dataSource});
+  }
 
   getViewableSectionData = (viewableItems) => {
     let secData = {
@@ -428,7 +506,10 @@ class TextColumn extends React.PureComponent {
     let enTitle = this.props.sectionArray[biggerSection];
     let heTitle = this.props.sectionHeArray[biggerSection];
 
-    if (enTitle !== this.props.textReference) {
+    // Compare against the last requested title too: several updates can fire before the parent
+    // re-renders, so props.textReference may still hold a value we've already asked to change.
+    if (enTitle !== this.props.textReference || enTitle !== this.requestedTitle) {
+      this.requestedTitle = enTitle;
       this.props.updateTitle(enTitle, heTitle, biggerSection);
     }
   };
@@ -440,28 +521,16 @@ class TextColumn extends React.PureComponent {
       if (Math.abs(previousY - this.currentY) > 80) {
         return;
       }
-      if (this.props.textFlow === 'continuous') {
-        this.updateHighlightedSegmentContinuous(this.viewableSectionData);
-      } else {
-        this.updateHighlightedSegment(this.viewableSectionData);
-      }
+      this.updateHighlightedSegment(this.viewableSectionData);
     }
   };
 
   onTopReached = () => {
-    if (this.props.loadingTextHead === true || !this.props.prev || this.state.jumpState.jumping || !!this.props.sheet) {
+    if (this.props.loadingTextHead === true || !this.props.prev || !!this.props.sheet) {
       //already loading tail, or nothing above
       return;
     }
     this.onTopReaching = true;
-    this.setState({
-      jumpState: {
-        jumping: true,
-        targetRef: this.props.textReference,
-        viewPosition: 0.1,
-        animated: false,
-      }
-    });
     this.props.updateData("prev");
   };
 
@@ -473,24 +542,8 @@ class TextColumn extends React.PureComponent {
     this.props.updateData("next");
   };
 
-  sectionsCoverScreen = (startSectionInd, endSectionInd) => {
-    // return true if there is enough space between the `startSectionInd` and `endSectionInd` to at least fill the screen.
-    if (this.state.dataSource.length <= 1) {
-      return false;
-    }
-    let extra
-    const startSegRef = this.state.dataSource[startSectionInd].data[0].ref;
-    const endSegRef = this.state.dataSource[endSectionInd].data.slice(-1)[0].ref;
-    const firstSeg = this.state.itemLayoutList[this.state.jumpInfoMap.get(startSegRef)];
-    const lastSeg = this.state.itemLayoutList[this.state.jumpInfoMap.get(endSegRef)];
-    return (lastSeg.offset + lastSeg.length - firstSeg.offset) > ViewPort.height;
-  };
-
   onViewableItemsChanged = ({viewableItems, changed}) => {
     let secData = this.getViewableSectionData(viewableItems);
-    if (this.props.textFlow == 'continuous') {
-
-    }
     this.updateTitle(secData);
     this.viewableSectionData = secData;
   };
@@ -499,47 +552,38 @@ class TextColumn extends React.PureComponent {
   RENDER
   *******************/
 
-  renderRow = ({ item }) => {
+  renderRow = ({ item, section }) => this.renderPinnedCell(`${section.key}:${item.ref}`, {item});
+
+  renderSectionHeader = ({ section }) => this.renderPinnedCell(`${section.key}:header`, {section});
+
+  renderPinnedCell(cellKey, cell) {
+    const settingsKey = this.getCellSettingsKey(cellKey);
+    return (
+      <GlobalStateContext.Provider value={this.getContextForSettings(settingsKey)}>
+        {this.renderCellContent({...cell, settings: this.settingsByKey.get(settingsKey)})}
+      </GlobalStateContext.Provider>
+    );
+  }
+
+  renderCellContent = ({ item, section, settings = this.settingsByKey.get(this.settingsKey), measuring }) => {
+    if (section) { return this.renderSectionHeaderContent(section, settings); }
     if (
       item.type === ROW_TYPES.SEGMENT ||
       item.type === ROW_TYPES.SHEET_COMMENT ||
       item.type === ROW_TYPES.SHEET_OUTSIDE_TEXT ||
       item.type === ROW_TYPES.SHEET_OUTSIDE_BI_TEXT
     ) {
-      return (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ?
-        this.renderContinuousRow({ item }) :
-        this.renderSegmentedRow({ item });
+      return this.renderSegmentedRow({ item, measuring });
     } else if (item.type === ROW_TYPES.SHEET_MEDIA) {
       return this.renderSheetMedia({ item });
     } else {
-      return this.renderAliyaMarker({ item });
+      return this.renderAliyaMarker({ item, settings });
     }
-  };
-
-  renderContinuousRow = ({ item }) => {
-    // In continuous case, rowData represent an entire section of text
-    const sectionRef = item.ref.replace("|content","");
-    return (
-      <TextRangeContinuous
-        theme={this.props.theme}
-        themeStr={this.props.themeStr}
-        fontSize={this.props.fontSize}
-        rowData={item.data}
-        sectionRef={sectionRef}
-        textLanguage={this.props.textLanguage}
-        showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
-        textSegmentPressed={this.textSegmentPressed}
-        setRowRef={this.setSegmentRowRef}
-        setRowRefInitY={this.setRowRefInitY}
-      />
-    );
   };
 
   setSegmentRowRef = (key, ref) => { this.rowRefs[key] = ref; };
 
-  setRowRefInitY = (key, y) => { this.rowYHash[key] = y; };
-
-  renderSegmentedRow = ({ item }) => {
+  renderSegmentedRow = ({ item, measuring }) => {
     // In segmented case, rowData represents a segments of text
     return (
       <View style={{ width: '100%' }}>
@@ -550,8 +594,7 @@ class TextColumn extends React.PureComponent {
           segmentRef={item.ref}
           showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
           textSegmentPressed={this.textSegmentPressed}
-          setRowRef={this.setSegmentRowRef}
-          setRowRefInitY={this.setRowRefInitY}
+          setRowRef={measuring ? noop : this.setSegmentRowRef}
           handleOpenURL={this.props.handleOpenURL}
           setDictionaryLookup={this.props.setDictionaryLookup}
           shareCurrentSegment={this.props.shareCurrentSegment}
@@ -573,13 +616,11 @@ class TextColumn extends React.PureComponent {
     );
   };
 
-  renderSectionHeader = ({ section, props }) => {
-    if (!props) {
-      props = this.props;
-    }
+  renderSectionHeaderContent(section, settings) {
+    const props = this.props;
     if (props.isSheet) { return null; }
 
-    const isHeb = Sefaria.util.get_menu_language(props.interfaceLanguage, props.textLanguage) == "hebrew";
+    const isHeb = Sefaria.util.get_menu_language(settings.interfaceLanguage, settings.textLanguage) == "hebrew";
     return (
       <TextHeader
         title={isHeb ?
@@ -590,11 +631,11 @@ class TextColumn extends React.PureComponent {
         outerStyle={styles.sectionHeaderBorder}
       />
     );
-  };
+  }
 
-  renderAliyaMarker = ({ item }) => {
+  renderAliyaMarker = ({ item, settings }) => {
     if (this.props.isSheet) { return null; }
-    const isHeb = Sefaria.util.get_menu_language(this.props.interfaceLanguage, this.props.textLanguage) == "hebrew";
+    const isHeb = Sefaria.util.get_menu_language(settings.interfaceLanguage, settings.textLanguage) == "hebrew";
     return (
       <TextHeader
         title={isHeb ? item.data.he : item.data.en}
@@ -610,7 +651,7 @@ class TextColumn extends React.PureComponent {
   renderListHeader = () => {
     if (this.props.isSheet) {
       return (
-        <View>
+        <View onLayout={this._onListHeaderLayout}>
           <Text style={[styles.sheetTitle, this.props.theme.text]}><HebrewInEnglishText text={this.props.sheetMeta.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
           <Text style={[styles.sheetAuthor, this.props.theme.tertiaryText]}>{this.props.sheetMeta.ownerName}</Text>
         </View>
@@ -625,138 +666,114 @@ class TextColumn extends React.PureComponent {
   };
 
   getItemLayout = (data, index) => {
-    if (this.state.itemLayoutList) {
-      if (index >= this.state.itemLayoutList.length) {
-        let itemHeight = 100;
-        //console.log("too big", index);
-        return {length: itemHeight, offset: itemHeight * index, index};
-      } else {
-        const yo = this.state.itemLayoutList[index];
-        if (!yo) {
-          console.log("yo non existant", index, this.state.itemLayoutList);
-        }
-        return yo;
-      }
-    } else {
-      const yo = this.backupItemLayoutList[index];
-      if (!yo) {
-        let itemHeight = 100;
-        console.log("race condition");
-        return {length: itemHeight, offset: itemHeight * index, index};
-      }
-      return yo;
+    const layout = this.itemLayoutList[index];
+    if (layout) { return layout; }
+    const last = this.itemLayoutList[this.itemLayoutList.length - 1];
+    return {index, length: 0, offset: last ? last.offset + last.length : this.listHeaderHeight};
+  };
 
-    }
-  }
-
-  updateJumpInfoMap = (dataSource) => {
-    let jumpInfoMap = new Map();
-    let currIndex = 0;
+  rebuildLayout(dataSource) {
+    // Mirrors how SectionList flattens sections into cells: header, items, footer.
+    let measuredRowsHeight = 0;
+    let measuredRows = 0;
     for (let section of dataSource) {
-      jumpInfoMap.set(section.ref, currIndex);
-      currIndex++; //sections are counted in the index count
-      for (let segment of section.data) {
-        jumpInfoMap.set(segment.ref, currIndex);
-        currIndex++;
+      for (let item of section.data) {
+        const height = this.cellHeights.get(`${section.key}:${item.ref}`);
+        if (height !== undefined) { measuredRowsHeight += height; measuredRows++; }
       }
-      currIndex++;
     }
-    return jumpInfoMap;
+    const estimatedRowHeight = measuredRows > 0 ? measuredRowsHeight / measuredRows : ESTIMATED_ROW_HEIGHT;
+    const itemLayoutList = [];
+    const itemKeys = [];
+    const jumpInfoMap = new Map();
+    let offset = this.listHeaderHeight;
+    const addCell = (cellKey, estimatedHeight) => {
+      const index = itemLayoutList.length;
+      let length = this.cellHeights.get(cellKey) ?? this.cellEstimates.get(cellKey);
+      if (length === undefined) {
+        length = estimatedHeight;
+        this.cellEstimates.set(cellKey, length);
+      }
+      itemLayoutList.push({index, length, offset});
+      itemKeys.push(cellKey);
+      offset += length;
+      return index;
+    };
+    for (let section of dataSource) {
+      jumpInfoMap.set(section.ref, addCell(`${section.key}:header`, this.props.isSheet ? 0 : ESTIMATED_SECTION_HEADER_HEIGHT));
+      for (let item of section.data) {
+        jumpInfoMap.set(item.ref, addCell(`${section.key}:${item.ref}`, estimatedRowHeight));
+      }
+      addCell(`${section.key}:footer`, 0);
+    }
+    this.itemLayoutList = itemLayoutList;
+    this.itemKeys = itemKeys;
+    this.jumpInfoMap = jumpInfoMap;
   }
 
-  waitForScrollToLocation = (i, offset, animated, shouldJump=true) => {
-    if (!this._isMounted) { return; }
+  getJumpTargetIndex = (ref) => {
+    const targetIndex = ref ? this.jumpInfoMap.get(ref) : undefined;
+    if (targetIndex === undefined) { return null; }
+    let index = targetIndex;
+    // keep the section title and parasha/aliya markers directly above the target in view
+    while (index > 0 && this.isHeaderCell(index - 1)) { index--; }
+    return index;
+  };
 
-    if (shouldJump) {
-      this.sectionListRef._wrapperListRef._listRef.scrollToOffset({
-        offset,
-        animated,
-      });
-    }
-    let viewableIndices;
-    try {
-      viewableIndices = this.sectionListRef._wrapperListRef._listRef._viewabilityTuples[0].viewabilityHelper._viewableIndices;
-    } catch (e) {
-      this.waitForScrollToLocationFail(i, offset, animated);
-      return;
-    }
+  isHeaderCell = (index) => {
+    const key = this.itemKeys[index];
+    return key.endsWith(':header') || key.endsWith('|parasha') || key.endsWith('|aliya');
+  };
 
-    if (viewableIndices[0] === this.targetScrollIndex) {
-      this.onScrollToLocation();
-    } else {
-      this.waitForScrollToLocationFail(i, offset, animated);
-    }
-  }
+  _onCellHeight = (cellKey, height) => {
+    if (this.cellHeights.get(cellKey) === height) { return; }
+    this.cellHeights.set(cellKey, height);
+    this._scheduleLayoutUpdate();
+  };
 
-  waitForScrollToLocationFail = (i, offset, animated) => {
-    if (i < 50) {
-      const partialTimeout = i >= 10 && i % 10 === 0;
-      setTimeout(()=>{this.waitForScrollToLocation(i+1, offset, animated, partialTimeout)}, 5);
-    } else {
-      // full timeout
-      this.onScrollToLocation();
+  _onCellMount = (cellKey) => {
+    this.mountedCells.add(cellKey);
+  };
+
+  _onCellUnmount = (cellKey) => {
+    this.mountedCells.delete(cellKey);
+    this.pinnedCells.delete(cellKey);  // it'll mount with the current settings
+  };
+
+  _onListHeaderLayout = (event) => {
+    const { height } = event.nativeEvent.layout;
+    if (height !== this.listHeaderHeight) {
+      this.listHeaderHeight = height;
+      this._scheduleLayoutUpdate();
     }
   };
 
-  onScrollToLocation = () => {
-    this.onTopReaching = false;
-    this.setState({itemLayoutList: null});
+  _scheduleLayoutUpdate() {
+    // Cells report their heights one at a time; rebuild once per frame.
+    if (this.layoutUpdateScheduled) { return; }
+    this.layoutUpdateScheduled = true;
+    requestAnimationFrame(() => {
+      this.layoutUpdateScheduled = false;
+      if (!this._isMounted) { return; }
+      this.rebuildLayout(this.state.dataSource);
+      this.setState(({layoutVersion = 0}) => ({layoutVersion: layoutVersion + 1}), this._scrollToJumpTarget);
+    });
   }
 
-  callOnEndReachedWhenContentIsShort = (itemLayoutList) => {
-    const lastLayout = itemLayoutList[itemLayoutList.length-1];
-    if (lastLayout.offset + lastLayout.length < ViewPort.height) {
-      this.onEndReached();
+  _scrollToJumpTarget = () => {
+    // The initial jump lands on an estimated offset; correct it as the cells around the target get measured.
+    if (!this.jumpTargetKey) { return; }
+    const index = this.itemKeys.indexOf(this.jumpTargetKey);
+    if (index === -1) { return; }
+    const { offset } = this.itemLayoutList[index];
+    if (Math.abs(offset - this.currentY) >= 1) {
+      this.sectionListRef?.getScrollResponder()?.scrollTo({x: 0, y: offset, animated: false});
     }
   };
 
-  allHeightsMeasured = (componentsToMeasure, textToHeightMap) => {
-    if (!this.measuringHeights) { return; } //sometimes allHeightsMeasured() gets called but we don't care
-    let currOffset = 0;
-    let itemLayoutList = [];
-    let jumpInfoMap = new Map();
-    let currIndex = 0;
-    for (let section of this.state.nextDataSource) {
-      let currHeight = textToHeightMap.get(section.ref);
-      itemLayoutList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
-      jumpInfoMap.set(section.ref, currIndex);
-      currOffset += currHeight;
-      currIndex++; //sections are counted in the index count
-      for (let segment of section.data) {
-        let currHeight = textToHeightMap.get(segment.ref);
-        itemLayoutList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
-        jumpInfoMap.set(segment.ref, currIndex);
-        currOffset += currHeight;
-        currIndex++;
-      }
-      itemLayoutList[currIndex] = {index: currIndex, length: 0, offset: currOffset};
-      currIndex++;
-    }
-    this.callOnEndReachedWhenContentIsShort(itemLayoutList);
-    this.backupItemLayoutList = itemLayoutList;
-    this.measuringHeights = false;
-
-    // dont update dataSource if its already been updated while measuring heights
-    const nextState = {itemLayoutList, jumpInfoMap};
-    if (!this.raceCondition) { nextState.dataSource = this.state.nextDataSource}
-    this.raceCondition = false;
-    this.setState(nextState,
-      ()=>{
-        const { jumping, animated, viewPosition, targetRef } = this.state.jumpState;
-        if (jumping) {
-          const targetIndex = jumpInfoMap.get(targetRef);
-          if (targetIndex === undefined || targetIndex === null || targetIndex >= itemLayoutList.length) {
-            console.log("FAILED to find targetIndex", targetRef, targetIndex, jumpInfoMap, this.state.itemLayoutList);
-            this.onScrollToLocation();
-          } else {
-            this.targetScrollIndex = targetIndex-1;
-            this.waitForScrollToLocation(0, this.getItemLayout(null, targetIndex).offset - 100, animated);
-          }
-          this.setState({jumpState: { jumping: false }});
-        }
-      }
-    );
-  }
+  _onScrollBeginDrag = () => {
+    this.jumpTargetKey = null;
+  };
 
   onScrollToIndexFailed = ({ index, highestMeasuredFrameIndex, averageItemLength }) => {
     console.log("scroll to", index, "FAILED! highest is", highestMeasuredFrameIndex);
@@ -766,10 +783,6 @@ class TextColumn extends React.PureComponent {
     this.sectionListRef = ref;
   }
 
-  _getTextHeightMeasurerRef = (ref) => {
-    this.textHeightMeasurerRef = ref;
-  }
-
   _keyExtractor = (item, index) => {
     return item.ref;
   }
@@ -777,19 +790,6 @@ class TextColumn extends React.PureComponent {
   _onSegmentLayout = (ref, y) => {
     this.rowYHash[ref] = y;
   }
-  _renderCell = props => {
-    const onLayoutOuter = useCallback(event => {
-      const { height, width, y, x } = event.nativeEvent.layout;
-      this._onSegmentLayout(props.item.ref, {y, height});
-      props.onLayout(event);
-    }, [props.onLayout, props.item.ref]);
-    return (
-      <View style={props.style} onLayout={onLayoutOuter}>
-        { props.children }
-      </View>
-    );
-  };
-
   _textErrorBoundaryAlert = () => {
     this.props.textUnavailableAlert(this.props.textTitle);
   };
@@ -804,6 +804,10 @@ class TextColumn extends React.PureComponent {
               style={styles.scrollViewPaddingInOrderToScroll}
               ref={this._getSectionListRef}
               sections={this.state.dataSource}
+              getItemLayout={this.getItemLayout}
+              initialScrollIndex={this.state.initialScrollIndex}
+              maintainVisibleContentPosition={MAINTAIN_VISIBLE_CONTENT_POSITION}
+              onScrollBeginDrag={this._onScrollBeginDrag}
               renderItem={this.renderRow}
               renderSectionHeader={this.renderSectionHeader}
               ListHeaderComponent={this.renderListHeader}
@@ -811,7 +815,7 @@ class TextColumn extends React.PureComponent {
               onEndReached={this.onEndReached}
               onEndReachedThreshold={2.0}
               onScroll={this.handleScroll}
-              extraData={this.props.fontSize}
+              extraData={this.state.layoutVersion}
               scrollEventThrottle={100}
               onViewableItemsChanged={this.onViewableItemsChanged}
               onScrollToIndexFailed={this.onScrollToIndexFailed}
@@ -825,12 +829,10 @@ class TextColumn extends React.PureComponent {
                   tintColor="#CCCCCC"
                   style={{ backgroundColor: 'transparent' }} />
               }/>
-            { this.state.jumpState.jumping ?
-              <TextHeightMeasurer
-                ref={this._getTextHeightMeasurerRef}
-                componentsToMeasure={this.state.componentsToMeasure}
-                allHeightsMeasuredCallback={this.allHeightsMeasured}/> : null
-            }
+            <TextHeightMeasurer
+              style={styles.scrollViewPaddingInOrderToScroll}
+              componentsToMeasure={this.state.componentsToMeasure}
+              allHeightsMeasuredCallback={this.allHeightsMeasured}/>
           </ErrorBoundary>
         </View>
     );

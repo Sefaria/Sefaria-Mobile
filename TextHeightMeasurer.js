@@ -131,7 +131,7 @@ class TextHeightMeasurer extends React.PureComponent {
         </View>
       );
     });
-    return <View style={{flex:1, position:"absolute", left:0, right:0}}>{dummies}</View>;
+    return <View style={[{flex:1, position:"absolute", left:0, right:0}, this.props.style]}>{dummies}</View>;
   }
 
 }
@@ -139,7 +139,9 @@ class TextHeightMeasurer extends React.PureComponent {
 const styles = StyleSheet.create({
   text: {
     opacity: 0,
-    position: "absolute"
+    position: "absolute",
+    left: 0,
+    right: 0,
   },
 });
 
