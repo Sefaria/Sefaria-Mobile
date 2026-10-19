@@ -46,6 +46,18 @@ const ROW_TYPES = {
   SHEET_MEDIA: 7
 };
 
+// Index of the row that covers `offset` in a sorted item layout list, or -1.
+const findRowIndexAtOffset = (itemLayoutList, offset) => {
+  let lo = 0, hi = itemLayoutList.length - 1, found = -1;
+  while (lo <= hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (itemLayoutList[mid].offset <= offset) { found = mid; lo = mid + 1; }
+    else { hi = mid - 1; }
+  }
+  while (found > 0 && itemLayoutList[found].length === 0) { found--; }
+  return found;
+};
+
 // SectionList cell wrapper that reports each cell's layout and mount state back to the TextColumn.
 const makeCellRenderer = (textColumn) => function TextColumnCell({ cellKey, item, onLayout, style, children }) {
   const onCellLayout = useCallback(event => {
@@ -284,7 +296,7 @@ class TextColumn extends React.PureComponent {
   };
 
   textSegmentPressed = (section, segment, segmentRef, onlyOpen) => {
-    this.jumpTargetKey = null;
+    this.clearJumpTarget();
     if (!this.props.textListVisible) {
       const itemIndex = this.jumpInfoMap.get(segmentRef);
       const { startY, endY } = this.getSegScrollPos(segmentRef);
@@ -416,11 +428,34 @@ class TextColumn extends React.PureComponent {
       this.cellHeights.set(cellKey, textToHeightMap.get(id));
       this.pinnedCells.delete(cellKey);
     }
+    const anchor = this.getScrollAnchor();
     this.rebuildLayout(this.state.dataSource);
     this.setState(({layoutVersion = 0}) => ({componentsToMeasure: [], layoutVersion: layoutVersion + 1}), () => {
+      this.restoreScrollAnchor(anchor);
       if (this.measureQueue.length > 0) { this.scheduleMeasureBatch(); }
     });
   };
+
+  getScrollAnchor() {
+    // The row at the top of the screen and how far into it the reader is, as a fraction (rows like a Talmud
+    // segment can be taller than the screen, so keeping their top edge in place isn't enough).
+    const index = findRowIndexAtOffset(this.itemLayoutList, Math.max(this.currentY, 0));
+    if (index === -1) { return null; }
+    const { offset, length } = this.itemLayoutList[index];
+    return {cellKey: this.itemKeys[index], fraction: length > 0 ? (this.currentY - offset) / length : 0};
+  }
+
+  restoreScrollAnchor(anchor) {
+    // maintainVisibleContentPosition keeps the top row's top edge in place, but isn't reliable when the rows it
+    // anchors on change a lot. While the reader isn't scrolling, put them back exactly where they were.
+    if (!anchor || this.userScrolling) { return; }
+    const index = this.itemKeys.indexOf(anchor.cellKey);
+    if (index === -1) { return; }
+    const { offset, length } = this.itemLayoutList[index];
+    const target = Math.max(0, offset + anchor.fraction * length);
+    this.currentY = target;
+    this.sectionListRef?.getScrollResponder()?.scrollTo({x: 0, y: target, animated: false});
+  }
 
   getCellSettingsKey(cellKey) {
     return this.pinnedCells.get(cellKey) ?? this.settingsKey;
@@ -521,7 +556,7 @@ class TextColumn extends React.PureComponent {
     const previousY = this.currentY;
     this.currentY = e.nativeEvent.contentOffset.y;
     if (this.jumpTargetKey && Math.abs(this.getJumpTargetOffset() - this.currentY) > this.state.scrollViewHeight) {
-      this.jumpTargetKey = null;  // scrolled away without dragging (e.g. tapping the status bar)
+      this.clearJumpTarget();  // scrolled away without dragging (e.g. tapping the status bar)
     }
     if (this.viewableSectionData) {
       if (Math.abs(previousY - this.currentY) > 80) {
@@ -791,8 +826,30 @@ class TextColumn extends React.PureComponent {
     this.contentHeight = height;
   };
 
-  _onScrollBeginDrag = () => {
+  clearJumpTarget() {
     this.jumpTargetKey = null;
+    if (this.state.initialScrollIndex !== undefined) {
+      // The list keeps the initial region rendered while initialScrollIndex is set, and it'd point at the wrong
+      // rows once earlier sections are loaded above.
+      this.setState({initialScrollIndex: undefined});
+    }
+  }
+
+  _onScrollBeginDrag = () => {
+    this.userScrolling = true;
+    this.clearJumpTarget();
+  };
+
+  _onScrollEndDrag = () => {
+    this.userScrolling = false;
+  };
+
+  _onMomentumScrollBegin = () => {
+    this.userScrolling = true;
+  };
+
+  _onMomentumScrollEnd = () => {
+    this.userScrolling = false;
   };
 
   onScrollToIndexFailed = ({ index, highestMeasuredFrameIndex, averageItemLength }) => {
@@ -830,6 +887,9 @@ class TextColumn extends React.PureComponent {
               initialScrollIndex={this.state.initialScrollIndex}
               maintainVisibleContentPosition={MAINTAIN_VISIBLE_CONTENT_POSITION}
               onScrollBeginDrag={this._onScrollBeginDrag}
+              onScrollEndDrag={this._onScrollEndDrag}
+              onMomentumScrollBegin={this._onMomentumScrollBegin}
+              onMomentumScrollEnd={this._onMomentumScrollEnd}
               renderItem={this.renderRow}
               renderSectionHeader={this.renderSectionHeader}
               ListHeaderComponent={this.renderListHeader}
