@@ -358,7 +358,10 @@ class TextColumn extends React.PureComponent {
       const index = cellIndexes.get(cellKey);
       if (index === undefined) { continue; }
       const { offset, length } = this.itemLayoutList[index];
-      if (offset >= viewportBottom) { continue; }
+      if (offset >= viewportBottom) {
+        this.pinnedCells.delete(cellKey);  // left over from an earlier change; cells below the screen can switch freely
+        continue;
+      }
       if (!this.pinnedCells.has(cellKey)) { this.pinnedCells.set(cellKey, previousKey); }
       (offset + length > viewportTop ? visible : above).push(index);
     }
@@ -517,6 +520,9 @@ class TextColumn extends React.PureComponent {
   handleScroll = (e) => {
     const previousY = this.currentY;
     this.currentY = e.nativeEvent.contentOffset.y;
+    if (this.jumpTargetKey && Math.abs(this.getJumpTargetOffset() - this.currentY) > this.state.scrollViewHeight) {
+      this.jumpTargetKey = null;  // scrolled away without dragging (e.g. tapping the status bar)
+    }
     if (this.viewableSectionData) {
       if (Math.abs(previousY - this.currentY) > 80) {
         return;
@@ -760,15 +766,29 @@ class TextColumn extends React.PureComponent {
     });
   }
 
+  getJumpTargetOffset() {
+    const index = this.itemKeys.indexOf(this.jumpTargetKey);
+    return index === -1 ? this.currentY : this.itemLayoutList[index].offset;
+  }
+
   _scrollToJumpTarget = () => {
     // The initial jump lands on an estimated offset; correct it as the cells around the target get measured.
     if (!this.jumpTargetKey) { return; }
-    const index = this.itemKeys.indexOf(this.jumpTargetKey);
-    if (index === -1) { return; }
-    const { offset } = this.itemLayoutList[index];
+    if (this.state.initialScrollIndex && this.contentHeight !== undefined && this.contentHeight <= this.state.scrollViewHeight) {
+      // Too short to scroll, so no scroll event ever arrives, and the list (which waits for one after
+      // initialScrollIndex) wouldn't render around the target. Start over without it.
+      this.jumpTargetKey = null;
+      this.setState(({listKey = 0}) => ({initialScrollIndex: undefined, listKey: listKey + 1}));
+      return;
+    }
+    const offset = this.getJumpTargetOffset();
     if (Math.abs(offset - this.currentY) >= 1) {
       this.sectionListRef?.getScrollResponder()?.scrollTo({x: 0, y: offset, animated: false});
     }
+  };
+
+  _onContentSizeChange = (width, height) => {
+    this.contentHeight = height;
   };
 
   _onScrollBeginDrag = () => {
@@ -799,6 +819,8 @@ class TextColumn extends React.PureComponent {
         <View style={styles.textColumn}>
           <ErrorBoundary FallbackComponent={ErrorBoundaryFallbackComponent} onError={this._textErrorBoundaryAlert}>
             <SectionList
+              key={this.state.listKey}
+              onContentSizeChange={this._onContentSizeChange}
               contentContainerStyle={{ paddingBottom: this.state.scrollViewHeight * SCROLL_PADDING_BOTTOM_FRACTION }}
               onLayout={this._onScrollViewLayout}
               style={styles.scrollViewPaddingInOrderToScroll}
