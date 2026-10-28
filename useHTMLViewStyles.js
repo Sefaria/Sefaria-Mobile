@@ -72,6 +72,7 @@ export function useHTMLViewStyles(bilingual, textType) {
         },
         'info-text': {
           ...CSS_CLASS_STYLES.infoText,
+          ...(isHeb && {fontSize: fontSizeScaled * 0.9}),  // like the web's .info-text. not '90%': RenderHTML resolves % against a fixed root size, not the parent
         }
       }
     
