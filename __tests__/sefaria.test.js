@@ -28,3 +28,18 @@ describe('sefaria url', () => {
         expect(ref).toBe("Guide for the Perplexed, Part 2 1");
     })
 });
+describe('related', () => {
+    test('organizeRelatedBySegment ignores sheets', () => {
+        const related = {
+            topics: [{anchorRef: "Genesis 1:2", slug: "light"}],
+            sheets: {"not": "a list"},
+        };
+        const organized = Sefaria.links.organizeRelatedBySegment(related);
+        expect(organized.sheets).toBeUndefined();
+        expect(organized.topics[1]).toEqual([{anchorRef: "Genesis 1:2", slug: "light"}]);
+    });
+    test('related API asks for slim sheets', () => {
+        const url = Sefaria.api._toURL("Genesis.1", true, "related", false, {});
+        expect(url.endsWith("api/related/Genesis.1?slim_sheets=1")).toBe(true);
+    });
+});
