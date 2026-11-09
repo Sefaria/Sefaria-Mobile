@@ -740,6 +740,8 @@ global.Sefaria = {
       let output = {};
       //filter out books not in toc
       Object.entries(related).map(([key, valueList]) => {
+        // The app has no sheets view, so it doesn't need the sheets the related API returns.
+        if (key == 'sheets') { return; }
         if (key == 'links') { valueList = valueList.filter(l=>!!Sefaria.booksDict[l.index_title]); }
         output[key] = [];
         for (let value of valueList) {
