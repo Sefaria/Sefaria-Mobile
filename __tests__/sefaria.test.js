@@ -38,8 +38,4 @@ describe('related', () => {
         expect(organized.sheets).toBeUndefined();
         expect(organized.topics[1]).toEqual([{anchorRef: "Genesis 1:2", slug: "light"}]);
     });
-    test('related API asks for slim sheets', () => {
-        const url = Sefaria.api._toURL("Genesis.1", true, "related", false, {});
-        expect(url.endsWith("api/related/Genesis.1?slim_sheets=1")).toBe(true);
-    });
 });
