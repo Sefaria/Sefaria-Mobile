@@ -192,6 +192,8 @@ var Api = {
           break;
         case "related":
           url += "api/related/";
+          // The app ignores sheets, so it asks for them slim, saving the server formatting them.
+          urlSuffix = '?slim_sheets=1';
           break;
         case "sheets":
           const { more_data } = extra_args;
