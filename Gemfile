@@ -6,7 +6,7 @@ source "https://rubygems.org"
 ruby "~> 3.2"
 gem 'cocoapods', '~> 1.16'
 gem 'activesupport', '>= 6.1.7.5', '!= 7.1.0'
-gem 'concurrent-ruby', '< 1.3.4'
+gem 'concurrent-ruby', '>= 1.3.7'
 gem "fastlane"
 
 # Ruby 3.4.0 has removed some libraries from the standard library.
