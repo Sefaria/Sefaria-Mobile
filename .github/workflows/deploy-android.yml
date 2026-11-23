@@ -17,6 +17,8 @@ jobs:
       # returns an empty string inside the Fastlane lane.  The Fastfile reads GITHUB_REF_NAME
       # instead (always set by GitHub Actions), so no explicit branch checkout is needed.
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -113,6 +115,15 @@ jobs:
         run: |
           bundle exec fastlane android testrelease
 
+      - name: Generate GitHub App token for protected-branch push
+        # Short-lived token scoped only to the push step below.
+        if: success()
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Commit updated source files
         if: success()
         run: |
@@ -128,6 +139,8 @@ jobs:
             echo "No changes to commit; skipping"
           else
             git commit -m "ci: update source files [skip ci]"
+            git remote set-url origin \
+              "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git"
             git push origin HEAD:${GITHUB_REF#refs/heads/}
           fi
 
