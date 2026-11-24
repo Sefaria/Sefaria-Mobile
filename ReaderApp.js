@@ -571,6 +571,8 @@ class ReaderApp extends React.PureComponent {
         sheet,
         activeSheetNode,
         segmentRef,
+        segmentIndexRef,
+        offsetRef,
         sectionIndexRef,
         sectionArray,
         sectionHeArray,
@@ -587,12 +589,15 @@ class ReaderApp extends React.PureComponent {
       } else {
         // The segment at the reading line, which TextColumn tracks whether or not the text list is open
         // (updateHighlightedSegment, on every scroll), with its own section: updateTitle can point sectionIndexRef at
-        // the section filling most of the screen. The section while no segment of the loaded text is known
-        // (segmentRef isn't reset when a new text opens).
-        const segmentSection = segmentRef ? this._getSectionIndex(segmentRef.slice(0, segmentRef.lastIndexOf(':'))) : -1;
+        // the section filling most of the screen. loadNewText resets segmentIndexRef but not segmentRef, so until the
+        // reader scrolls, it's the segment the text was opened at (offsetRef), if any, and otherwise the section.
+        const readingSegment = segmentIndexRef !== -1 ? segmentRef : offsetRef;
+        const segmentSection = readingSegment
+          ? this._getSectionIndex(readingSegment.slice(0, readingSegment.lastIndexOf(':')))
+          : -1;
         if (segmentSection !== -1) {
-          ref = segmentRef;
-          he_ref = Sefaria.toHeSegmentRef(sectionHeArray[segmentSection], segmentRef);
+          ref = readingSegment;
+          he_ref = Sefaria.toHeSegmentRef(sectionHeArray[segmentSection], readingSegment);
         } else {
           ref = sectionArray[sectionIndexRef];
           he_ref = sectionHeArray[sectionIndexRef];
